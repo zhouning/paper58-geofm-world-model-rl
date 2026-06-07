@@ -2,7 +2,7 @@
 
 Dear Editor,
 
-We are pleased to submit our manuscript, "Geospatial World Modeling via Frozen Foundation Model Embeddings: From Latent Dynamics Prediction to Embedding-Space Planning", for consideration in Remote Sensing of Environment.
+We are pleased to submit our manuscript, "Frozen Remote-Sensing Foundation Model Embeddings as a State Space for Land-Cover Dynamics Prediction and Planning", for consideration in Remote Sensing of Environment.
 
 This manuscript proposes a geospatial world model that predicts land-use and land-cover change entirely in the embedding space of a frozen geospatial foundation model. Specifically, we use AlphaEarth Foundations as a frozen encoder that provides 64-dimensional annual land-surface embeddings, and train a lightweight LatentDynamicsNet to learn residual temporal dynamics in this representation space. The work is motivated by a central question for modern Earth observation: whether globally available foundation-model embeddings can serve not only as static representations, but also as a predictive state space for land-surface change.
 

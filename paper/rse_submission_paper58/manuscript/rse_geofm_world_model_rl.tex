@@ -1,9 +1,9 @@
 % ============================================================================
-% Geospatial World Modeling via Frozen Foundation Model Embeddings
-% and Lightweight Latent Dynamics
+% Frozen Remote-Sensing Foundation Model Embeddings as a State Space
+% for Land-Cover Dynamics Prediction and Planning
 % ============================================================================
-% Target journal: International Journal of Geographical Information Science
-% (Taylor & Francis)
+% Target journal: Remote Sensing of Environment
+% (Elsevier)
 % ============================================================================
 \documentclass{article}
 
@@ -34,11 +34,11 @@
 
 \makeatletter
 \@ifundefined{ANONYMIZE}{
-  \title{Geospatial World Modeling via Frozen Foundation Model Embeddings: From Latent Dynamics Prediction to Embedding-Space Planning}
+  \title{Frozen Remote-Sensing Foundation Model Embeddings as a State Space for Land-Cover Dynamics Prediction and Planning}
   \author{Ning Zhou$^{a}$ and Xiang Jing$^{a}$$^{\ast}$\thanks{$^\ast$Corresponding author. Email: jingxiang@pku.edu.cn}\\
   $^{a}${\em School of Software and Microelectronics, Peking University, Beijing 100871, China}}
 }{
-  \title{Geospatial World Modeling via Frozen Foundation Model Embeddings: From Latent Dynamics Prediction to Embedding-Space Planning}
+  \title{Frozen Remote-Sensing Foundation Model Embeddings as a State Space for Land-Cover Dynamics Prediction and Planning}
   \author{Anonymous authors}
 }
 \makeatother
@@ -47,11 +47,11 @@
 \maketitle
 
 \begin{abstract}
-Predicting land-use and land-cover (LULC) change is fundamental to geographic information science, yet existing methods either operate on discrete categorical maps or require prohibitively large pixel-level generative models. We propose a geospatial world model that predicts LULC change entirely within a learned embedding space, following the Joint Embedding Predictive Architecture (JEPA) paradigm. Our approach combines a frozen geospatial foundation model---AlphaEarth Foundations (480M+ parameters)---producing 64-dimensional per-pixel embeddings, with a lightweight \textit{LatentDynamicsNet} (459K parameters) that learns residual state transitions via autoregressive rollout. Three technical contributions enable this: (1) explicit L2 re-normalization to prevent manifold drift on the unit hypersphere; (2) dilated convolutions expanding the receptive field to 170\,m for macro-scale drivers; and (3) multi-step unrolled training loss to mitigate exposure bias. Ablation confirms all three are critical: removing L2 normalization degrades advantage by 62\%, dilated convolutions by 32\%, and unrolled loss turns validation negative. Experiments span 17 study areas across China with strict train/val/test/OOD splits, evaluated against persistence and linear extrapolation baselines. The model achieves mean cosine similarity of 0.9575, surpassing persistence (0.9460) on all 12 training areas. On pixels undergoing actual change, advantage amplifies to $+0.030$--$+0.108$. Multi-step rollout sustains above-baseline quality for up to 6 steps. These results demonstrate that frozen foundation model embeddings provide a viable state space for geospatial world modeling with three orders of magnitude fewer parameters than comparable models.
+Predicting land-use and land-cover (LULC) change from satellite observations is central to environmental remote sensing, yet current approaches often require either categorical transition rules or large pixel-level generative models. We ask whether frozen remote-sensing foundation-model embeddings can serve as a compact predictive state space for land-surface dynamics and planning. We propose a geospatial world model that predicts annual LULC change entirely in the 64-dimensional embedding space of AlphaEarth Foundations, following the Joint Embedding Predictive Architecture (JEPA) paradigm. A lightweight \textit{LatentDynamicsNet} (459K parameters) learns residual state transitions by autoregressive rollout while the 480M+ parameter encoder remains frozen. Three design choices are critical: L2 re-normalization to preserve the unit-sphere embedding manifold, dilated convolutions with a 170\,m receptive field, and multi-step unrolled loss to reduce exposure bias. Across 17 Chinese study areas with train/validation/test/OOD splits, the model reaches a mean cosine similarity of 0.9575 and surpasses persistence (0.9460) across all 12 training areas. On pixels undergoing actual change, the advantage increases to $+0.030$--$+0.108$, and multi-step rollout remains above baseline for up to six annual steps. The same frozen embeddings also support downstream land-use planning experiments, where dual-representation policies retain 87\% of full-information performance under 30\% feature dropout. These results show that foundation-model embeddings can provide a reusable remote-sensing state space for efficient land-surface dynamics prediction and planning-oriented environmental decision support.
 \end{abstract}
 
 \begin{keywords}
-geospatial world model; JEPA; foundation model embeddings; land-use change prediction; latent dynamics; AlphaEarth
+remote-sensing foundation model; geospatial world model; JEPA; land-cover dynamics; embedding-space planning; AlphaEarth
 \end{keywords}
 
 % ============================================================================
@@ -74,18 +74,18 @@ To our knowledge, this is the first work to combine frozen geospatial foundation
 Our contributions are:
 
 \begin{enumerate}
-\item We formulate geospatial world modeling as residual dynamics learning in a frozen GeoFM embedding space, and demonstrate its feasibility through a three-phase validation pipeline (signal verification, temporal holdout, spatial generalization).
+\item We formulate satellite-based LULC dynamics prediction as residual learning in a frozen remote-sensing foundation-model embedding space, and demonstrate its feasibility through signal verification, temporal holdout, and spatial generalization tests.
 
-\item We design the \textit{LatentDynamicsNet}, a 459K-parameter dilated convolutional network with L2 manifold preservation, scenario conditioning, and terrain context inputs, achieving meaningful prediction with 1{,}500$\times$ fewer parameters than EarthPT.
+\item We design the \textit{LatentDynamicsNet}, a 459K-parameter dilated convolutional network with L2 manifold preservation, scenario conditioning, and terrain context inputs, achieving annual dynamics prediction with 1{,}500$\times$ fewer parameters than EarthPT.
 
 \item We introduce multi-step unrolled training loss to combat exposure bias, extending the effective prediction horizon from 1--3 years to 5+ years on training domains.
 
-\item We provide comprehensive experiments on 17 Chinese study areas with strict train/val/test/OOD splits, two baselines, and a novel change-pixel evaluation protocol that reveals model advantages masked by globally dominant stable pixels.
+\item We provide comprehensive experiments on 17 Chinese study areas with strict train/validation/test/OOD splits, two baselines, and a change-pixel evaluation protocol that exposes model advantages masked by dominant stable pixels.
 
-\item We demonstrate downstream decision-making utility by training reinforcement learning policies on a dual-representation environment combining engineered features with frozen GeoFM embeddings. A feature-dropout ablation across 45 trained models (3 configurations $\times$ 15 seeds) shows that the embedding channel preserves 87\% of planning performance under moderate feature absence, establishing a concrete pathway for cross-region transfer of learned policies.
+\item We demonstrate downstream decision-support utility by training reinforcement learning policies on a dual-representation environment combining engineered land-planning features with frozen GeoFM embeddings. A feature-dropout ablation across 45 trained models (3 configurations $\times$ 15 seeds) shows that the embedding channel helps preserve 87\% of planning performance under moderate feature absence.
 \end{enumerate}
 
-Beyond forecasting, we probe whether the learned world model supports downstream decision making. Section~\ref{sec:planning} shows that reinforcement learning policies trained on a dual representation of task-specific features and GeoFM embeddings retain 87\% of full-information performance under moderate feature dropout ($p=0.3$), while complete feature removal ($p=1.0$) collapses performance to 13\%---demonstrating that the embedding channel provides meaningful but insufficient signal for planning without task-specific features.
+Beyond forecasting, we test whether the learned representation supports downstream environmental decision support. Section~\ref{sec:planning} shows that reinforcement learning policies trained on task-specific features and GeoFM embeddings retain 87\% of full-information performance under moderate feature dropout ($p=0.3$). Complete feature removal ($p=1.0$) reduces performance to 13\%, showing that the embedding channel provides useful but insufficient planning signal without task-specific features.
 
 
 % ============================================================================

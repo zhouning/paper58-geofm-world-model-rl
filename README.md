@@ -1,10 +1,10 @@
-# Paper58: GeoFM World Model and Embedding-Space Planning
+# Paper58: Remote-Sensing Foundation Model Embeddings for Land-Cover Dynamics and Planning
 
 This repository collects the code, data caches, trained models, experiment outputs, figures, and manuscript materials for Paper58:
 
-**Geospatial World Modeling via Frozen Foundation Model Embeddings: From Latent Dynamics Prediction to Embedding-Space Planning**
+**Frozen Remote-Sensing Foundation Model Embeddings as a State Space for Land-Cover Dynamics Prediction and Planning**
 
-The purpose is to give reviewers a single place to inspect and reproduce the Paper58 pipeline.
+The purpose is to give reviewers a single place to inspect and reproduce the Paper58 pipeline for the Remote Sensing of Environment submission.
 
 ## Repository Contents
 

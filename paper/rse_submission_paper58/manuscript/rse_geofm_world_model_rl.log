@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.4.25)  7 JUN 2026 14:15
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.4.25)  8 JUN 2026 06:34
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -934,11 +934,11 @@ d.
 Here is how much of TeX's memory you used:
  23769 strings out of 468830
  443154 string characters out of 5454207
- 844690 words of memory out of 5000000
+ 844689 words of memory out of 5000000
  52110 multiletter control sequences out of 15000+600000
  640935 words of font info for 89 fonts, out of 8000000 for 9000
  319 hyphenation exceptions out of 8191
- 84i,11n,104p,1835b,888s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 84i,11n,104p,1799b,888s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <c:/Users/zn198/.texlive2026/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1000.
 600pk> <c:/Users/zn198/.texlive2026/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm0
 600.600pk> <c:/Users/zn198/.texlive2026/texmf-var/fonts/pk/ljfour/jknappen/ec/t
@@ -966,7 +966,7 @@ e1/public/amsfonts/cm/cmti10.pfb><d:/texlive/2026/texmf-dist/fonts/type1/public
 /cm/cmti7.pfb><d:/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.
 pfb><d:/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb><d:/t
 exlive/2026/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on manuscript/rse_geofm_world_model_rl.pdf (26 pages, 522389 byt
+Output written on manuscript/rse_geofm_world_model_rl.pdf (26 pages, 522672 byt
 es).
 PDF statistics:
  953 PDF objects out of 1000 (max. 8388607)
