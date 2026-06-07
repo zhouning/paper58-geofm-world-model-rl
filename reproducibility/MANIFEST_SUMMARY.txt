@@ -1,0 +1,12 @@
+﻿Paper58 reproducibility manifest summary
+Generated: 
+2026-06-07 23:40:02 +08:00
+Root: 
+D:\test\paper58-geofm-world-model-rl
+Files listed: 
+652
+Total bytes listed: 
+906384686
+Total size MiB: 
+864.40
+Excluded: .git/, reproducibility/MANIFEST.tsv, reproducibility/MANIFEST_SUMMARY.txt

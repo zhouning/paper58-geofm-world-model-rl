@@ -1,0 +1,26 @@
+# Python build/cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local environments
+.venv/
+venv/
+env/
+.env
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+*.tmp
+
+# LaTeX intermediate files
+*.aux
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# Keep manuscript logs intentionally if already included for provenance.
+!paper/rse_submission_paper58/manuscript/*.log

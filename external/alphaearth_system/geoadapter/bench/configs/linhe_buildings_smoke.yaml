@@ -1,0 +1,35 @@
+experiment:
+  name: linhe_buildings_smoke
+  task: segmentation
+  dataset: linhe_buildings
+  dataset_root: .
+  num_classes: 2
+  epochs: 10
+  batch_size: 16
+  seeds: [42]
+  split_mode: patch             # smoke: patch-level random split
+  positive_min_share: 0.05      # synthetic threshold=140 keeps patches with >=5% positive
+  max_samples: 512
+  val_max_samples: 128
+
+modalities:
+  - preset: rgb_3band
+
+methods:
+  - name: linear_probe
+    adapter: zero_pad
+    peft: null
+  - name: houlsby
+    adapter: zero_pad
+    peft: houlsby
+    bottleneck_dim: 64
+
+training:
+  lr: 1.0e-3
+  lr_peft: 1.0e-4
+  scheduler: cosine
+  weight_decay: 0.01
+
+prithvi:
+  pretrained: true
+  checkpoint: data/weights/prithvi/Prithvi_100M.pt

@@ -1,0 +1,10 @@
+{
+  "seed": 6,
+  "label": "full",
+  "feature_dropout": 0.0,
+  "training_time_s": 2863.7996697425842,
+  "timesteps": 100000,
+  "mean_reward": 36.458643038000616,
+  "mean_slope": -0.6271441220213599,
+  "mean_cont": 0.02247819564167086
+}

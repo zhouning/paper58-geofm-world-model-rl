@@ -1,0 +1,25 @@
+{
+  "bbox": [
+    106.02,
+    29.38,
+    106.33,
+    29.68
+  ],
+  "years": [
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024
+  ],
+  "scale_m": 500,
+  "grid_shape": [
+    67,
+    70
+  ],
+  "embedding_dim": 64,
+  "source": "GOOGLE/SATELLITE_EMBEDDING/V1/ANNUAL"
+}

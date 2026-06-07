@@ -1,0 +1,9 @@
+{
+  "seed": 2,
+  "method": "greedy",
+  "n_regions": 50,
+  "max_steps": 5,
+  "mean_reward": -1508.481636548536,
+  "std_reward": 0.0,
+  "mean_cropland_change": -1138.0
+}

@@ -1,0 +1,49 @@
+experiment:
+  name: linhe_lulc_6class
+  task: segmentation
+  dataset: linhe_lulc
+  dataset_root: .
+  num_classes: 6              # matches LINHE_6CLASS_NAMES in linhe_pull_esri_lulc.py
+  epochs: 30
+  batch_size: 16
+  seeds: [42, 123, 456]
+  split_mode: scene           # geographic split prevents spatial leakage
+  positive_min_share: 0.0     # multi-class, keep all patches
+  max_samples: 3000
+  val_max_samples: 600
+  lulc_year: 2022             # primary training year (read as 'year' by run_benchmark)
+  year: 2022
+
+modalities:
+  - preset: rgb_3band
+
+methods:
+  - name: linear_probe
+    adapter: zero_pad
+    peft: null
+  - name: bitfit
+    adapter: zero_pad
+    peft: bitfit
+  - name: lora_r8
+    adapter: zero_pad
+    peft: lora
+    rank: 8
+  - name: houlsby
+    adapter: zero_pad
+    peft: houlsby
+    bottleneck_dim: 64
+  - name: geoadapter
+    adapter: geo_adapter
+    peft: null
+
+training:
+  lr: 1.0e-3
+  lr_peft: 1.0e-4
+  scheduler: cosine
+  weight_decay: 0.01
+  loss: ce
+  # Class distribution: crops 55.6%, rangeland 32.8%, built 9.6%, water 1.9%, trees ~0%
+
+prithvi:
+  pretrained: true
+  checkpoint: data/weights/prithvi/Prithvi_100M.pt

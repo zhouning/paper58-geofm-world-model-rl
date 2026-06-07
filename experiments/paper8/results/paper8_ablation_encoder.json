@@ -1,0 +1,394 @@
+{
+  "eval_year": 2024,
+  "alphaearth": {
+    "encoder": "ae",
+    "z_dim": 64,
+    "eval_year": 2024,
+    "areas": {
+      "bishan": {
+        "persistence_mean": 0.9781239628791809,
+        "ldn_mean": 0.9719007015228271,
+        "advantage": -0.00622326135635376,
+        "change_pixel_persistence": 0.9557336568832397,
+        "change_pixel_ldn": 0.9557100534439087,
+        "change_pixel_advantage": -2.3509011953137815e-05
+      },
+      "chengdu_plain": {
+        "persistence_mean": 0.9708225727081299,
+        "ldn_mean": 0.9715519547462463,
+        "advantage": 0.0007293820381164551,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "daxinganling": {
+        "persistence_mean": 0.9881905913352966,
+        "ldn_mean": 0.9714118838310242,
+        "advantage": -0.01677870750427246,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "guanzhong": {
+        "persistence_mean": 0.0,
+        "ldn_mean": 0.0,
+        "advantage": 0.0,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "hetao": {
+        "persistence_mean": 0.0,
+        "ldn_mean": 0.0,
+        "advantage": 0.0,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "jianghan_plain": {
+        "persistence_mean": 0.9639254212379456,
+        "ldn_mean": 0.9862328767776489,
+        "advantage": 0.02230745553970337,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "jing_jin_ji": {
+        "persistence_mean": 0.971271812915802,
+        "ldn_mean": 0.9751489758491516,
+        "advantage": 0.0038771629333496094,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "minnan_coast": {
+        "persistence_mean": 0.9907529354095459,
+        "ldn_mean": 0.9930893182754517,
+        "advantage": 0.0023363828659057617,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "north_china_plain": {
+        "persistence_mean": 0.0,
+        "ldn_mean": 0.0,
+        "advantage": 0.0,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "northeast_plain": {
+        "persistence_mean": 0.0,
+        "ldn_mean": 0.0,
+        "advantage": 0.0,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "pearl_river": {
+        "persistence_mean": 0.9802922606468201,
+        "ldn_mean": 0.9786049723625183,
+        "advantage": -0.0016872882843017578,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "poyang_lake": {
+        "persistence_mean": 0.973539412021637,
+        "ldn_mean": 0.9855468273162842,
+        "advantage": 0.012007415294647217,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "qinghai_edge": {
+        "persistence_mean": 0.948881983757019,
+        "ldn_mean": 0.9788742065429688,
+        "advantage": 0.029992222785949707,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "wuyi_mountain": {
+        "persistence_mean": 0.0,
+        "ldn_mean": 0.0,
+        "advantage": 0.0,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "yangtze_delta": {
+        "persistence_mean": 0.9909558892250061,
+        "ldn_mean": 0.9916887283325195,
+        "advantage": 0.0007328391075134277,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "yunnan_eco": {
+        "persistence_mean": 0.0,
+        "ldn_mean": 0.0,
+        "advantage": 0.0,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      }
+    },
+    "summary": {
+      "persistence_mean": {
+        "mean": 0.6097973026335239,
+        "std": 0.4879436184836496,
+        "n": 16
+      },
+      "ldn_mean": {
+        "mean": 0.61275315284729,
+        "std": 0.4902442312809367,
+        "n": 16
+      },
+      "advantage": {
+        "mean": 0.002955850213766098,
+        "std": 0.01078950815183311,
+        "n": 16
+      },
+      "change_pixel_advantage": {
+        "mean": -2.3509011953137815e-05,
+        "std": 0.0,
+        "n": 1
+      }
+    }
+  },
+  "alphaearth_rollout": {
+    "encoder": "ae",
+    "z_dim": 64,
+    "start_year": 2018,
+    "per_step": {
+      "1": {
+        "mean": 0.6117426566779613,
+        "std": 0.4894809937101095,
+        "n_areas": 16
+      },
+      "2": {
+        "mean": 0.6082489565014839,
+        "std": 0.48669866260997163,
+        "n_areas": 16
+      },
+      "3": {
+        "mean": 0.6023238711059093,
+        "std": 0.4823095123724068,
+        "n_areas": 16
+      },
+      "4": {
+        "mean": 0.5942811258137226,
+        "std": 0.4763600208271383,
+        "n_areas": 16
+      },
+      "5": {
+        "mean": 0.5871723741292953,
+        "std": 0.4722396068272682,
+        "n_areas": 16
+      },
+      "6": {
+        "mean": 0.5789270289242268,
+        "std": 0.4678010806661339,
+        "n_areas": 16
+      }
+    }
+  },
+  "prithvi": {
+    "encoder": "prithvi",
+    "z_dim": 768,
+    "eval_year": 2024,
+    "areas": {
+      "banzhucun": {
+        "persistence_mean": 1.0000001192092896,
+        "ldn_mean": 0.999997615814209,
+        "advantage": -2.5033950805664062e-06,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "bishan": {
+        "persistence_mean": 1.0,
+        "ldn_mean": 0.999997615814209,
+        "advantage": -2.384185791015625e-06,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "chengdu_plain": {
+        "persistence_mean": 1.0,
+        "ldn_mean": 0.999997615814209,
+        "advantage": -2.384185791015625e-06,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "daxinganling": {
+        "persistence_mean": 1.0,
+        "ldn_mean": 0.9999976754188538,
+        "advantage": -2.3245811462402344e-06,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "guanzhong": {
+        "persistence_mean": 1.0000001192092896,
+        "ldn_mean": 0.9999976754188538,
+        "advantage": -2.4437904357910156e-06,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "hetao": {
+        "persistence_mean": 1.0000001192092896,
+        "ldn_mean": 0.9999976754188538,
+        "advantage": -2.4437904357910156e-06,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "jianghan_plain": {
+        "persistence_mean": 1.0,
+        "ldn_mean": 0.9999975562095642,
+        "advantage": -2.4437904357910156e-06,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "jing_jin_ji": {
+        "persistence_mean": 1.0,
+        "ldn_mean": 0.999997615814209,
+        "advantage": -2.384185791015625e-06,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "minnan_coast": {
+        "persistence_mean": 1.0,
+        "ldn_mean": 0.9999975562095642,
+        "advantage": -2.4437904357910156e-06,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "north_china_plain": {
+        "persistence_mean": 1.0,
+        "ldn_mean": 0.9999977350234985,
+        "advantage": -2.2649765014648438e-06,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "northeast_plain": {
+        "persistence_mean": 1.0,
+        "ldn_mean": 0.999997615814209,
+        "advantage": -2.384185791015625e-06,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "pearl_river": {
+        "persistence_mean": 1.0,
+        "ldn_mean": 0.9999976754188538,
+        "advantage": -2.3245811462402344e-06,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "poyang_lake": {
+        "persistence_mean": 1.0,
+        "ldn_mean": 0.999997615814209,
+        "advantage": -2.384185791015625e-06,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "qinghai_edge": {
+        "persistence_mean": 1.0,
+        "ldn_mean": 0.9999975562095642,
+        "advantage": -2.4437904357910156e-06,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "wuyi_mountain": {
+        "persistence_mean": 1.0,
+        "ldn_mean": 0.9999975562095642,
+        "advantage": -2.4437904357910156e-06,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "yangtze_delta": {
+        "persistence_mean": 1.0,
+        "ldn_mean": 0.9999975562095642,
+        "advantage": -2.4437904357910156e-06,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      },
+      "yunnan_eco": {
+        "persistence_mean": 1.0,
+        "ldn_mean": 0.9999975562095642,
+        "advantage": -2.4437904357910156e-06,
+        "change_pixel_persistence": null,
+        "change_pixel_ldn": null,
+        "change_pixel_advantage": null
+      }
+    },
+    "summary": {
+      "persistence_mean": {
+        "mean": 1.0000000210369335,
+        "std": 4.6843603133760434e-08,
+        "n": 17
+      },
+      "ldn_mean": {
+        "mean": 0.999997615814209,
+        "std": 5.5755039852469285e-08,
+        "n": 17
+      },
+      "advantage": {
+        "mean": -2.405222724465763e-06,
+        "std": 5.938510574296756e-08,
+        "n": 17
+      }
+    }
+  },
+  "prithvi_rollout": {
+    "encoder": "prithvi",
+    "z_dim": 768,
+    "start_year": 2018,
+    "per_step": {
+      "1": {
+        "mean": 0.9999976052957422,
+        "std": 3.7904606690195825e-08,
+        "n_areas": 17
+      },
+      "2": {
+        "mean": 0.9999973212971407,
+        "std": 6.133267348140794e-08,
+        "n_areas": 17
+      },
+      "3": {
+        "mean": 0.9999973142848295,
+        "std": 6.818999381197454e-08,
+        "n_areas": 17
+      },
+      "4": {
+        "mean": 0.9999973107786739,
+        "std": 8.129632438405081e-08,
+        "n_areas": 17
+      },
+      "5": {
+        "mean": 0.9999972792232737,
+        "std": 6.644372960485861e-08,
+        "n_areas": 17
+      },
+      "6": {
+        "mean": 0.9999973037663628,
+        "std": 9.071224740670187e-08,
+        "n_areas": 17
+      }
+    }
+  }
+}

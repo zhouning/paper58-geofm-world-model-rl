@@ -1,0 +1,8 @@
+{
+  "seed": 0,
+  "label": "greedy",
+  "mean_reward": -1185.2718857467555,
+  "std_reward": 0.0,
+  "mean_cropland_change": -603.0,
+  "std_cropland_change": 0.0
+}

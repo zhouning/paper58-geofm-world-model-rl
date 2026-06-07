@@ -1,0 +1,8 @@
+{
+  "seed": 8,
+  "label": "random",
+  "mean_reward": -1655.6499036227265,
+  "std_reward": 4.8535440153274365,
+  "mean_cropland_change": -689.2,
+  "std_cropland_change": 8.35224520712844
+}

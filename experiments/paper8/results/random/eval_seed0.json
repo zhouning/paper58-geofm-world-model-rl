@@ -1,0 +1,9 @@
+{
+  "seed": 0,
+  "method": "random",
+  "n_regions": 50,
+  "max_steps": 5,
+  "mean_reward": -1507.4809087650017,
+  "std_reward": 7.850814902900133,
+  "mean_cropland_change": -1134.0
+}

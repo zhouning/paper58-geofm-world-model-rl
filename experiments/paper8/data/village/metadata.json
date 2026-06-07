@@ -1,0 +1,21 @@
+{
+  "bbox": [
+    106.11,
+    29.5799,
+    106.1647,
+    29.6124
+  ],
+  "years": [
+    2020,
+    2023
+  ],
+  "scale_m": 10,
+  "grid_shape": [
+    363,
+    610
+  ],
+  "embedding_dim": 64,
+  "village": "Banzhucun (\u6591\u7af9\u6751)",
+  "source": "GOOGLE/SATELLITE_EMBEDDING/V1/ANNUAL",
+  "method": "band_by_band_sampleRectangle"
+}

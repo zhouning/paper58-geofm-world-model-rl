@@ -1,0 +1,13 @@
+numpy
+scipy
+pandas
+scikit-learn
+joblib
+matplotlib
+seaborn
+torch
+gymnasium
+stable-baselines3
+sb3-contrib
+earthengine-api
+Pillow

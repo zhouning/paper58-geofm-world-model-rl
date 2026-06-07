@@ -1,0 +1,10 @@
+{
+  "seed": 5,
+  "label": "ppo",
+  "training_time_s": 3098.694258451462,
+  "timesteps": 50000,
+  "mean_reward": -1635.4701645029381,
+  "std_reward": 0.0,
+  "mean_cropland_change": -692.0,
+  "std_cropland_change": 0.0
+}

@@ -1,0 +1,8 @@
+{
+  "seed": 13,
+  "label": "transfer",
+  "mean_reward": -1155.6732839016515,
+  "std_reward": 0.0,
+  "mean_cropland_change": -595.0,
+  "std_cropland_change": 0.0
+}
