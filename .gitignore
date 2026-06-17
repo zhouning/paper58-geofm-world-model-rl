@@ -24,3 +24,7 @@ Thumbs.db
 
 # Keep manuscript logs intentionally if already included for provenance.
 !paper/rse_submission_paper58/manuscript/*.log
+
+# Local pytest scratch directories
+.pytest_run/
+.pytest_tmp/

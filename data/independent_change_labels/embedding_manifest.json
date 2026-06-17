@@ -1,0 +1,115 @@
+{
+  "status": "complete",
+  "source": "AlphaEarth annual satellite embeddings via src.adk_world_model.world_model.extract_embeddings",
+  "scale_m": 500,
+  "output_dir": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\embeddings",
+  "n_records": 4,
+  "n_context_records": 2,
+  "n_failures": 0,
+  "records": [
+    {
+      "area": "poyang_lake",
+      "year": 2020,
+      "bbox": [
+        116.0,
+        29.0,
+        116.1,
+        29.1
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\embeddings\\poyang_lake_emb_2020.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "poyang_lake",
+      "year": 2021,
+      "bbox": [
+        116.0,
+        29.0,
+        116.1,
+        29.1
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\embeddings\\poyang_lake_emb_2021.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "wuyi_mountain",
+      "year": 2020,
+      "bbox": [
+        117.6,
+        27.7,
+        117.7,
+        27.8
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\embeddings\\wuyi_mountain_emb_2020.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "wuyi_mountain",
+      "year": 2021,
+      "bbox": [
+        117.6,
+        27.7,
+        117.7,
+        27.8
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\embeddings\\wuyi_mountain_emb_2021.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    }
+  ],
+  "context_records": [
+    {
+      "area": "poyang_lake",
+      "bbox": [
+        116.0,
+        29.0,
+        116.1,
+        29.1
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\embeddings\\poyang_lake_context.npy",
+      "shape": [
+        2,
+        23,
+        23
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "wuyi_mountain",
+      "bbox": [
+        117.6,
+        27.7,
+        117.7,
+        27.8
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\embeddings\\wuyi_mountain_context.npy",
+      "shape": [
+        2,
+        23,
+        23
+      ],
+      "status": "fetched"
+    }
+  ],
+  "failures": [],
+  "next_step": "Run scripts/rse_revision/generate_change_validation_predictions.py with --embedding-dir data/independent_change_labels/embeddings, then rerun independent validation."
+}

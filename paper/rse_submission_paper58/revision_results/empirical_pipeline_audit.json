@@ -1,0 +1,94 @@
+{
+  "summary": {
+    "n_stages": 6,
+    "n_complete": 3,
+    "n_diagnostic": 3,
+    "n_missing": 0,
+    "independent_change_label_validation_complete": true
+  },
+  "stages": [
+    {
+      "stage_id": "area_level_embedding_dynamics",
+      "question": "Does LatentDynamicsNet improve annual embedding prediction over persistence?",
+      "status": "complete",
+      "claim_supported": true,
+      "metric_summary": "n=10; mean advantage=0.004729360342025757; positive areas=7",
+      "evidence_files": [
+        "paper\\rse_submission_paper58\\revision_results\\revision_summary.json",
+        "paper\\rse_submission_paper58\\revision_results\\alphaearth_area_metrics.csv",
+        "paper\\rse_submission_paper58\\revision_results\\alphaearth_category_summary.csv"
+      ],
+      "manuscript_use": "Primary evidence for bounded baseline-trend embedding dynamics.",
+      "next_empirical_step": "Expand valid cached grids and report area-level uncertainty for additional regions."
+    },
+    {
+      "stage_id": "encoder_replacement_ablation",
+      "question": "Is the result explained merely by using any frozen encoder?",
+      "status": "complete",
+      "claim_supported": true,
+      "metric_summary": "n=17; mean advantage=-2.405222724465763e-06",
+      "evidence_files": [
+        "paper\\rse_submission_paper58\\revision_results\\revision_summary.json",
+        "paper\\rse_submission_paper58\\revision_results\\prithvi_area_metrics.csv"
+      ],
+      "manuscript_use": "Ablation evidence that the tested Prithvi CLS state is nearly stationary in this workflow.",
+      "next_empirical_step": "Test local token or dense Prithvi features if a like-for-like gridded representation is available."
+    },
+    {
+      "stage_id": "semantic_decoder_validation",
+      "question": "Can AlphaEarth embeddings be linked to LULC semantics for visualization?",
+      "status": "diagnostic",
+      "claim_supported": true,
+      "metric_summary": "n=5119; overall accuracy=0.7699",
+      "evidence_files": [
+        "src\\adk_world_model\\experiments\\output\\world_model_lulc_decode.json"
+      ],
+      "manuscript_use": "Diagnostic support for qualitative decoded maps, not proof of predicted categorical transitions.",
+      "next_empirical_step": "Validate predicted transitions against independent annual LULC labels or visual interpretation."
+    },
+    {
+      "stage_id": "planning_feature_dropout",
+      "question": "Do GeoFM embeddings add robustness when planning features are partially unavailable?",
+      "status": "diagnostic",
+      "claim_supported": true,
+      "metric_summary": "full slope=-0.7416080999362222; dropout0.3 retention=0.8678301709228927; embedding-only retention=0.12888849432878038",
+      "evidence_files": [
+        "paper\\rse_submission_paper58\\revision_results\\revision_summary.json",
+        "paper\\rse_submission_paper58\\revision_results\\planning_baseline_summary.csv"
+      ],
+      "manuscript_use": "Application probe showing embeddings are complementary but insufficient alone.",
+      "next_empirical_step": "Run cross-region planning on target regions with locally verified planning constraints."
+    },
+    {
+      "stage_id": "embedding_space_transfer_probe",
+      "question": "Is there measurable zero-shot signal in an embedding-space planning transfer probe?",
+      "status": "diagnostic",
+      "claim_supported": true,
+      "metric_summary": "n=15; delta vs random=5.510508111897025; delta vs greedy=13.10648804096786",
+      "evidence_files": [
+        "paper\\rse_submission_paper58\\revision_results\\revision_summary.json",
+        "paper\\rse_submission_paper58\\revision_results\\transfer_planning_summary.csv"
+      ],
+      "manuscript_use": "Weak transfer diagnostic within the embedding-space reward system.",
+      "next_empirical_step": "Repeat transfer under real county-level slope and contiguity metrics."
+    },
+    {
+      "stage_id": "independent_change_label_validation",
+      "question": "Do predicted embedding changes correspond to independently labelled land-cover transitions?",
+      "status": "complete",
+      "claim_supported": true,
+      "metric_summary": "n_pairs=12; model change F1=0.33499529363908914; shuffled change F1=0.26942054876989774; transition-prior change F1=0.16640327996953444; persistence change F1=0.0; changed-pixel accuracy=0.27877857749587837",
+      "evidence_files": [
+        "paper\\rse_submission_paper58\\revision_results\\independent_change_validation_summary.json",
+        "paper\\rse_submission_paper58\\revision_results\\independent_change_validation_by_area.csv"
+      ],
+      "manuscript_use": "Transition-level validation against independent annual LULC labels.",
+      "next_empirical_step": "Expand independent annual change labels across more regions and report transition-level uncertainty."
+    }
+  ],
+  "notes": [
+    "Complete stages have data files that directly support a manuscript result.",
+    "Diagnostic stages support bounded interpretation or visualization but not standalone operational claims.",
+    "Missing stages are not used as completed evidence in the manuscript."
+  ]
+}

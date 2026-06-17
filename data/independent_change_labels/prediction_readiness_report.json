@@ -1,0 +1,96 @@
+{
+  "status": "complete",
+  "n_predictions": 12,
+  "n_skipped": 0,
+  "weights_path": "D:\\test\\paper58-geofm-world-model-rl\\src\\adk_world_model\\weights\\latent_dynamics_v1.pt",
+  "decoder_path": "D:\\test\\paper58-geofm-world-model-rl\\src\\adk_world_model\\weights\\lulc_decoder_v1.pkl",
+  "output_dir": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted",
+  "records": [
+    {
+      "area": "banzhucun",
+      "start_year": 2017,
+      "end_year": 2020,
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\banzhucun_lulc_pred_2017_2020.npy",
+      "status": "cached"
+    },
+    {
+      "area": "banzhucun",
+      "start_year": 2020,
+      "end_year": 2023,
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\banzhucun_lulc_pred_2020_2023.npy",
+      "status": "cached"
+    },
+    {
+      "area": "bishan",
+      "start_year": 2017,
+      "end_year": 2018,
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\bishan_lulc_pred_2017_2018.npy",
+      "status": "cached"
+    },
+    {
+      "area": "bishan",
+      "start_year": 2018,
+      "end_year": 2019,
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\bishan_lulc_pred_2018_2019.npy",
+      "status": "cached"
+    },
+    {
+      "area": "bishan",
+      "start_year": 2019,
+      "end_year": 2020,
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\bishan_lulc_pred_2019_2020.npy",
+      "status": "cached"
+    },
+    {
+      "area": "bishan",
+      "start_year": 2020,
+      "end_year": 2021,
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\bishan_lulc_pred_2020_2021.npy",
+      "status": "cached"
+    },
+    {
+      "area": "bishan",
+      "start_year": 2021,
+      "end_year": 2022,
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\bishan_lulc_pred_2021_2022.npy",
+      "status": "cached"
+    },
+    {
+      "area": "bishan",
+      "start_year": 2022,
+      "end_year": 2023,
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\bishan_lulc_pred_2022_2023.npy",
+      "status": "cached"
+    },
+    {
+      "area": "bishan",
+      "start_year": 2023,
+      "end_year": 2024,
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\bishan_lulc_pred_2023_2024.npy",
+      "status": "cached"
+    },
+    {
+      "area": "heping",
+      "start_year": 2017,
+      "end_year": 2020,
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\heping_lulc_pred_2017_2020.npy",
+      "status": "cached"
+    },
+    {
+      "area": "poyang_lake",
+      "start_year": 2020,
+      "end_year": 2021,
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\poyang_lake_lulc_pred_2020_2021.npy",
+      "status": "cached"
+    },
+    {
+      "area": "wuyi_mountain",
+      "start_year": 2020,
+      "end_year": 2021,
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\wuyi_mountain_lulc_pred_2020_2021.npy",
+      "status": "cached"
+    }
+  ],
+  "skipped": [],
+  "next_step": "Run scripts/rse_revision/evaluate_independent_change_validation.py."
+}

@@ -1,0 +1,3125 @@
+{
+  "status": "complete",
+  "labels_dir": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels",
+  "predictions_dir": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted",
+  "n_area_year_pairs": 12,
+  "n_skipped_pairs": 0,
+  "mean_metrics": {
+    "n_pixels": 55037.0,
+    "true_change_pixels": 12016.916666666666,
+    "true_change_pct": 0.15394906387843296,
+    "model_change_precision": 0.25637626604412234,
+    "model_change_recall": 0.5124266401612687,
+    "model_change_f1": 0.33499529363908914,
+    "persistence_change_precision": 0.0,
+    "persistence_change_recall": 0.0,
+    "persistence_change_f1": 0.0,
+    "model_end_accuracy": 0.6659129164659313,
+    "persistence_end_accuracy": 0.846050936121567,
+    "model_changed_pixel_accuracy": 0.27877857749587837,
+    "persistence_changed_pixel_accuracy": 0.0,
+    "shuffled_model_change_f1": 0.26942054876989774,
+    "shuffled_model_end_accuracy": 0.3965770118323642,
+    "shuffled_model_changed_pixel_accuracy": 0.2644751075615846,
+    "transition_prior_change_precision": 0.180432396284529,
+    "transition_prior_change_recall": 0.1572062137600864,
+    "transition_prior_change_f1": 0.16640327996953444,
+    "transition_prior_end_accuracy": 0.7635078370648649,
+    "transition_prior_changed_pixel_accuracy": 0.0825933877571597,
+    "transition_prior_transition_exact_match": 0.0825933877571597,
+    "transition_prior_area_bias_mae": 0.024055557544001314,
+    "model_transition_exact_match": 0.27877857749587837,
+    "persistence_transition_exact_match": 0.0,
+    "model_area_bias_mae": 0.07551257496622155,
+    "persistence_area_bias_mae": 0.026545594998241273
+  },
+  "pairs": [
+    {
+      "area": "banzhucun",
+      "start_year": 2017,
+      "end_year": 2020,
+      "n_pixels": 221430,
+      "true_change_pixels": 48929,
+      "true_change_pct": 0.22096825181773022,
+      "model_change_precision": 0.27995532405716017,
+      "model_change_recall": 0.5481411841648103,
+      "model_change_f1": 0.3706211566364956,
+      "persistence_change_precision": 0.0,
+      "persistence_change_recall": 0.0,
+      "persistence_change_f1": 0.0,
+      "model_end_accuracy": 0.5345481642053922,
+      "persistence_end_accuracy": 0.7790317481822698,
+      "model_changed_pixel_accuracy": 0.3033988023462568,
+      "persistence_changed_pixel_accuracy": 0.0,
+      "shuffled_model_change_f1": 0.33537671720319806,
+      "shuffled_model_end_accuracy": 0.2907826401119993,
+      "shuffled_model_changed_pixel_accuracy": 0.25626928815222055,
+      "transition_prior_change_precision": 0.25123041946685987,
+      "transition_prior_change_recall": 0.2055222873960228,
+      "transition_prior_change_f1": 0.2260893025765547,
+      "transition_prior_end_accuracy": 0.6674840807478661,
+      "transition_prior_changed_pixel_accuracy": 0.10772752355453821,
+      "transition_prior_transition_exact_match": 0.10772752355453821,
+      "transition_prior_area_bias_mae": 0.012854110618641168,
+      "model_transition_exact_match": 0.3033988023462568,
+      "persistence_transition_exact_match": 0.0,
+      "model_area_bias_mae": 0.08804717388920072,
+      "persistence_area_bias_mae": 0.011543151334507512,
+      "transition_counts": [
+        {
+          "true_transition": "1->2",
+          "predicted_transition": "1->1",
+          "n": 22
+        },
+        {
+          "true_transition": "1->2",
+          "predicted_transition": "1->2",
+          "n": 19
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->1",
+          "n": 845
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->2",
+          "n": 51
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->5",
+          "n": 23
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->7",
+          "n": 1
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->1",
+          "n": 293
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->2",
+          "n": 17
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->5",
+          "n": 1
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->7",
+          "n": 8
+        },
+        {
+          "true_transition": "11->1",
+          "predicted_transition": "11->1",
+          "n": 4
+        },
+        {
+          "true_transition": "11->2",
+          "predicted_transition": "11->2",
+          "n": 153
+        },
+        {
+          "true_transition": "11->2",
+          "predicted_transition": "11->5",
+          "n": 4
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->1",
+          "n": 102
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->2",
+          "n": 514
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->5",
+          "n": 396
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->7",
+          "n": 5
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->1",
+          "n": 73
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->2",
+          "n": 118
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->5",
+          "n": 67
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->7",
+          "n": 11
+        },
+        {
+          "true_transition": "2->1",
+          "predicted_transition": "2->1",
+          "n": 23
+        },
+        {
+          "true_transition": "2->1",
+          "predicted_transition": "2->2",
+          "n": 20
+        },
+        {
+          "true_transition": "2->1",
+          "predicted_transition": "2->7",
+          "n": 1
+        },
+        {
+          "true_transition": "2->11",
+          "predicted_transition": "2->2",
+          "n": 37
+        },
+        {
+          "true_transition": "2->11",
+          "predicted_transition": "2->5",
+          "n": 20
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->1",
+          "n": 160
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->2",
+          "n": 7299
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->5",
+          "n": 806
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->7",
+          "n": 21
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->1",
+          "n": 81
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->2",
+          "n": 4603
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->5",
+          "n": 636
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->7",
+          "n": 60
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->1",
+          "n": 54
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->2",
+          "n": 6
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->5",
+          "n": 156
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->2",
+          "n": 7
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->5",
+          "n": 108
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->7",
+          "n": 57
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->1",
+          "n": 45
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->2",
+          "n": 4285
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->5",
+          "n": 323
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->7",
+          "n": 35
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->1",
+          "n": 567
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->2",
+          "n": 5609
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->5",
+          "n": 7323
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->7",
+          "n": 583
+        },
+        {
+          "true_transition": "5->8",
+          "predicted_transition": "5->5",
+          "n": 1
+        },
+        {
+          "true_transition": "5->8",
+          "predicted_transition": "5->7",
+          "n": 1
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->1",
+          "n": 116
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->2",
+          "n": 3
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->5",
+          "n": 37
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->7",
+          "n": 1
+        },
+        {
+          "true_transition": "7->11",
+          "predicted_transition": "7->2",
+          "n": 20
+        },
+        {
+          "true_transition": "7->11",
+          "predicted_transition": "7->5",
+          "n": 7
+        },
+        {
+          "true_transition": "7->11",
+          "predicted_transition": "7->7",
+          "n": 4
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->1",
+          "n": 7
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->2",
+          "n": 1663
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->5",
+          "n": 236
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->7",
+          "n": 208
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->1",
+          "n": 278
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->2",
+          "n": 3045
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->5",
+          "n": 6548
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->7",
+          "n": 860
+        },
+        {
+          "true_transition": "7->8",
+          "predicted_transition": "7->7",
+          "n": 6
+        },
+        {
+          "true_transition": "8->11",
+          "predicted_transition": "8->5",
+          "n": 68
+        },
+        {
+          "true_transition": "8->11",
+          "predicted_transition": "8->7",
+          "n": 27
+        },
+        {
+          "true_transition": "8->5",
+          "predicted_transition": "8->5",
+          "n": 84
+        },
+        {
+          "true_transition": "8->5",
+          "predicted_transition": "8->7",
+          "n": 38
+        },
+        {
+          "true_transition": "8->7",
+          "predicted_transition": "8->5",
+          "n": 10
+        },
+        {
+          "true_transition": "8->7",
+          "predicted_transition": "8->7",
+          "n": 9
+        }
+      ],
+      "label_start_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\banzhucun_lulc_2017.npy",
+      "label_end_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\banzhucun_lulc_2020.npy",
+      "prediction_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\banzhucun_lulc_pred_2017_2020.npy"
+    },
+    {
+      "area": "banzhucun",
+      "start_year": 2020,
+      "end_year": 2023,
+      "n_pixels": 221430,
+      "true_change_pixels": 59588,
+      "true_change_pct": 0.2691053606105767,
+      "model_change_precision": 0.39629525376753855,
+      "model_change_recall": 0.6143015372222596,
+      "model_change_f1": 0.4817842006896733,
+      "persistence_change_precision": 0.0,
+      "persistence_change_recall": 0.0,
+      "persistence_change_f1": 0.0,
+      "model_end_accuracy": 0.5576480151740957,
+      "persistence_end_accuracy": 0.7308946393894233,
+      "model_changed_pixel_accuracy": 0.29202188360072495,
+      "persistence_changed_pixel_accuracy": 0.0,
+      "shuffled_model_change_f1": 0.41665170039833294,
+      "shuffled_model_end_accuracy": 0.3006322539854582,
+      "shuffled_model_changed_pixel_accuracy": 0.2862153453715513,
+      "transition_prior_change_precision": 0.3771512739676469,
+      "transition_prior_change_recall": 0.24493186547627038,
+      "transition_prior_change_f1": 0.2969904157255357,
+      "transition_prior_end_accuracy": 0.6564602809014135,
+      "transition_prior_changed_pixel_accuracy": 0.1278948781633886,
+      "transition_prior_transition_exact_match": 0.1278948781633886,
+      "transition_prior_area_bias_mae": 0.045486158153818367,
+      "model_transition_exact_match": 0.29202188360072495,
+      "persistence_transition_exact_match": 0.0,
+      "model_area_bias_mae": 0.11017176233271612,
+      "persistence_area_bias_mae": 0.056928664976354994,
+      "transition_counts": [
+        {
+          "true_transition": "1->11",
+          "predicted_transition": "1->1",
+          "n": 7
+        },
+        {
+          "true_transition": "1->2",
+          "predicted_transition": "1->1",
+          "n": 106
+        },
+        {
+          "true_transition": "1->2",
+          "predicted_transition": "1->2",
+          "n": 55
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->1",
+          "n": 215
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->2",
+          "n": 5
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->5",
+          "n": 9
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->1",
+          "n": 820
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->2",
+          "n": 14
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->5",
+          "n": 7
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->7",
+          "n": 22
+        },
+        {
+          "true_transition": "11->2",
+          "predicted_transition": "11->2",
+          "n": 54
+        },
+        {
+          "true_transition": "11->2",
+          "predicted_transition": "11->5",
+          "n": 36
+        },
+        {
+          "true_transition": "11->2",
+          "predicted_transition": "11->7",
+          "n": 15
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->5",
+          "n": 1
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->2",
+          "n": 8
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->5",
+          "n": 136
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->7",
+          "n": 78
+        },
+        {
+          "true_transition": "2->1",
+          "predicted_transition": "2->1",
+          "n": 43
+        },
+        {
+          "true_transition": "2->1",
+          "predicted_transition": "2->2",
+          "n": 19
+        },
+        {
+          "true_transition": "2->1",
+          "predicted_transition": "2->5",
+          "n": 1
+        },
+        {
+          "true_transition": "2->1",
+          "predicted_transition": "2->7",
+          "n": 1
+        },
+        {
+          "true_transition": "2->11",
+          "predicted_transition": "2->2",
+          "n": 5
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->1",
+          "n": 7
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->2",
+          "n": 972
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->5",
+          "n": 82
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->7",
+          "n": 29
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->1",
+          "n": 82
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->2",
+          "n": 6459
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->5",
+          "n": 183
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->7",
+          "n": 488
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->1",
+          "n": 433
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->2",
+          "n": 13
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->5",
+          "n": 37
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->1",
+          "n": 13
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->2",
+          "n": 318
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->5",
+          "n": 47
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->7",
+          "n": 2
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->1",
+          "n": 496
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->2",
+          "n": 10975
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->5",
+          "n": 274
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->7",
+          "n": 117
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->1",
+          "n": 2417
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->2",
+          "n": 14590
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->5",
+          "n": 13564
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->7",
+          "n": 3147
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->1",
+          "n": 100
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->2",
+          "n": 4
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->7",
+          "n": 2
+        },
+        {
+          "true_transition": "7->11",
+          "predicted_transition": "7->2",
+          "n": 7
+        },
+        {
+          "true_transition": "7->11",
+          "predicted_transition": "7->5",
+          "n": 14
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->1",
+          "n": 32
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->2",
+          "n": 1184
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->5",
+          "n": 34
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->7",
+          "n": 149
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->1",
+          "n": 49
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->2",
+          "n": 551
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->5",
+          "n": 728
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->7",
+          "n": 307
+        },
+        {
+          "true_transition": "8->7",
+          "predicted_transition": "8->5",
+          "n": 23
+        },
+        {
+          "true_transition": "8->7",
+          "predicted_transition": "8->7",
+          "n": 2
+        }
+      ],
+      "label_start_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\banzhucun_lulc_2020.npy",
+      "label_end_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\banzhucun_lulc_2023.npy",
+      "prediction_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\banzhucun_lulc_pred_2020_2023.npy"
+    },
+    {
+      "area": "bishan",
+      "start_year": 2017,
+      "end_year": 2018,
+      "n_pixels": 4690,
+      "true_change_pixels": 682,
+      "true_change_pct": 0.14541577825159915,
+      "model_change_precision": 0.2545572916666667,
+      "model_change_recall": 0.5733137829912024,
+      "model_change_f1": 0.35256988277727686,
+      "persistence_change_precision": 0.0,
+      "persistence_change_recall": 0.0,
+      "persistence_change_f1": 0.0,
+      "model_end_accuracy": 0.6605543710021322,
+      "persistence_end_accuracy": 0.8545842217484009,
+      "model_changed_pixel_accuracy": 0.34457478005865105,
+      "persistence_changed_pixel_accuracy": 0.0,
+      "shuffled_model_change_f1": 0.24827586206896554,
+      "shuffled_model_end_accuracy": 0.31236673773987206,
+      "shuffled_model_changed_pixel_accuracy": 0.2991202346041056,
+      "transition_prior_change_precision": 0.13756613756613756,
+      "transition_prior_change_recall": 0.15249266862170088,
+      "transition_prior_change_f1": 0.14464534075104313,
+      "transition_prior_end_accuracy": 0.7257995735607676,
+      "transition_prior_changed_pixel_accuracy": 0.07038123167155426,
+      "transition_prior_transition_exact_match": 0.07038123167155426,
+      "transition_prior_area_bias_mae": 0.04207533759772565,
+      "model_transition_exact_match": 0.34457478005865105,
+      "persistence_transition_exact_match": 0.0,
+      "model_area_bias_mae": 0.06560056858564321,
+      "persistence_area_bias_mae": 0.02174840085287846,
+      "transition_counts": [
+        {
+          "true_transition": "1->2",
+          "predicted_transition": "1->2",
+          "n": 1
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->1",
+          "n": 2
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->2",
+          "n": 5
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->5",
+          "n": 2
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->7",
+          "n": 3
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->1",
+          "n": 1
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->5",
+          "n": 2
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->7",
+          "n": 3
+        },
+        {
+          "true_transition": "11->2",
+          "predicted_transition": "11->5",
+          "n": 1
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->1",
+          "n": 1
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->2",
+          "n": 2
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->5",
+          "n": 5
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->7",
+          "n": 2
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->1",
+          "n": 1
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->2",
+          "n": 1
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->5",
+          "n": 1
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->7",
+          "n": 3
+        },
+        {
+          "true_transition": "2->1",
+          "predicted_transition": "2->1",
+          "n": 2
+        },
+        {
+          "true_transition": "2->1",
+          "predicted_transition": "2->2",
+          "n": 1
+        },
+        {
+          "true_transition": "2->11",
+          "predicted_transition": "2->2",
+          "n": 2
+        },
+        {
+          "true_transition": "2->11",
+          "predicted_transition": "2->7",
+          "n": 2
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->1",
+          "n": 2
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->2",
+          "n": 150
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->5",
+          "n": 27
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->7",
+          "n": 9
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->2",
+          "n": 52
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->5",
+          "n": 6
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->7",
+          "n": 7
+        },
+        {
+          "true_transition": "2->8",
+          "predicted_transition": "2->5",
+          "n": 1
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->2",
+          "n": 2
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->5",
+          "n": 1
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->2",
+          "n": 2
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->5",
+          "n": 1
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->7",
+          "n": 3
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->2",
+          "n": 22
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->5",
+          "n": 9
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->7",
+          "n": 2
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->2",
+          "n": 28
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->5",
+          "n": 39
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->7",
+          "n": 18
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->1",
+          "n": 2
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->2",
+          "n": 1
+        },
+        {
+          "true_transition": "7->11",
+          "predicted_transition": "7->5",
+          "n": 1
+        },
+        {
+          "true_transition": "7->11",
+          "predicted_transition": "7->7",
+          "n": 3
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->2",
+          "n": 17
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->5",
+          "n": 4
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->7",
+          "n": 5
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->1",
+          "n": 1
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->2",
+          "n": 71
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->5",
+          "n": 126
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->7",
+          "n": 25
+        },
+        {
+          "true_transition": "8->2",
+          "predicted_transition": "8->5",
+          "n": 1
+        },
+        {
+          "true_transition": "8->7",
+          "predicted_transition": "8->5",
+          "n": 1
+        }
+      ],
+      "label_start_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\bishan_lulc_2017.npy",
+      "label_end_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\bishan_lulc_2018.npy",
+      "prediction_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\bishan_lulc_pred_2017_2018.npy"
+    },
+    {
+      "area": "bishan",
+      "start_year": 2018,
+      "end_year": 2019,
+      "n_pixels": 4690,
+      "true_change_pixels": 656,
+      "true_change_pct": 0.13987206823027717,
+      "model_change_precision": 0.275235531628533,
+      "model_change_recall": 0.6234756097560976,
+      "model_change_f1": 0.38188608776844074,
+      "persistence_change_precision": 0.0,
+      "persistence_change_recall": 0.0,
+      "persistence_change_f1": 0.0,
+      "model_end_accuracy": 0.6906183368869936,
+      "persistence_end_accuracy": 0.8601279317697228,
+      "model_changed_pixel_accuracy": 0.4298780487804878,
+      "persistence_changed_pixel_accuracy": 0.0,
+      "shuffled_model_change_f1": 0.2501286670097787,
+      "shuffled_model_end_accuracy": 0.31727078891258,
+      "shuffled_model_changed_pixel_accuracy": 0.3018292682926829,
+      "transition_prior_change_precision": 0.16540404040404041,
+      "transition_prior_change_recall": 0.19969512195121952,
+      "transition_prior_change_f1": 0.18093922651933703,
+      "transition_prior_end_accuracy": 0.7353944562899787,
+      "transition_prior_changed_pixel_accuracy": 0.11585365853658537,
+      "transition_prior_transition_exact_match": 0.11585365853658537,
+      "transition_prior_area_bias_mae": 0.016560056858564317,
+      "model_transition_exact_match": 0.4298780487804878,
+      "persistence_transition_exact_match": 0.0,
+      "model_area_bias_mae": 0.04264392324093816,
+      "persistence_area_bias_mae": 0.020469083155650318,
+      "transition_counts": [
+        {
+          "true_transition": "1->2",
+          "predicted_transition": "1->1",
+          "n": 1
+        },
+        {
+          "true_transition": "1->2",
+          "predicted_transition": "1->2",
+          "n": 1
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->1",
+          "n": 1
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->1",
+          "n": 2
+        },
+        {
+          "true_transition": "11->2",
+          "predicted_transition": "11->2",
+          "n": 3
+        },
+        {
+          "true_transition": "11->2",
+          "predicted_transition": "11->7",
+          "n": 1
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->5",
+          "n": 2
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->7",
+          "n": 3
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->5",
+          "n": 1
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->7",
+          "n": 6
+        },
+        {
+          "true_transition": "2->1",
+          "predicted_transition": "2->2",
+          "n": 1
+        },
+        {
+          "true_transition": "2->11",
+          "predicted_transition": "2->2",
+          "n": 1
+        },
+        {
+          "true_transition": "2->11",
+          "predicted_transition": "2->5",
+          "n": 1
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->2",
+          "n": 19
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->5",
+          "n": 2
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->7",
+          "n": 1
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->2",
+          "n": 16
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->5",
+          "n": 2
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->7",
+          "n": 3
+        },
+        {
+          "true_transition": "2->8",
+          "predicted_transition": "2->2",
+          "n": 1
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->1",
+          "n": 4
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->2",
+          "n": 4
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->5",
+          "n": 3
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->7",
+          "n": 2
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->1",
+          "n": 1
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->2",
+          "n": 108
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->5",
+          "n": 33
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->7",
+          "n": 14
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->1",
+          "n": 4
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->2",
+          "n": 54
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->5",
+          "n": 125
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->7",
+          "n": 56
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->1",
+          "n": 1
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->2",
+          "n": 2
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->7",
+          "n": 3
+        },
+        {
+          "true_transition": "7->11",
+          "predicted_transition": "7->7",
+          "n": 4
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->1",
+          "n": 1
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->2",
+          "n": 44
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->5",
+          "n": 6
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->7",
+          "n": 19
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->1",
+          "n": 3
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->2",
+          "n": 26
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->5",
+          "n": 52
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->7",
+          "n": 18
+        },
+        {
+          "true_transition": "8->11",
+          "predicted_transition": "8->5",
+          "n": 1
+        }
+      ],
+      "label_start_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\bishan_lulc_2018.npy",
+      "label_end_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\bishan_lulc_2019.npy",
+      "prediction_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\bishan_lulc_pred_2018_2019.npy"
+    },
+    {
+      "area": "bishan",
+      "start_year": 2019,
+      "end_year": 2020,
+      "n_pixels": 4690,
+      "true_change_pixels": 738,
+      "true_change_pct": 0.15735607675906182,
+      "model_change_precision": 0.29234012649332397,
+      "model_change_recall": 0.5636856368563685,
+      "model_change_f1": 0.3850069412309116,
+      "persistence_change_precision": 0.0,
+      "persistence_change_recall": 0.0,
+      "persistence_change_f1": 0.0,
+      "model_end_accuracy": 0.6844349680170576,
+      "persistence_end_accuracy": 0.8426439232409382,
+      "model_changed_pixel_accuracy": 0.35907859078590787,
+      "persistence_changed_pixel_accuracy": 0.0,
+      "shuffled_model_change_f1": 0.2650725006359705,
+      "shuffled_model_end_accuracy": 0.3213219616204691,
+      "shuffled_model_changed_pixel_accuracy": 0.3075880758807588,
+      "transition_prior_change_precision": 0.20221606648199447,
+      "transition_prior_change_recall": 0.1978319783197832,
+      "transition_prior_change_f1": 0.19999999999999998,
+      "transition_prior_end_accuracy": 0.7364605543710021,
+      "transition_prior_changed_pixel_accuracy": 0.10569105691056911,
+      "transition_prior_transition_exact_match": 0.10569105691056911,
+      "transition_prior_area_bias_mae": 0.015849324804548676,
+      "model_transition_exact_match": 0.35907859078590787,
+      "persistence_transition_exact_match": 0.0,
+      "model_area_bias_mae": 0.04383795309168443,
+      "persistence_area_bias_mae": 0.027718550106609802,
+      "transition_counts": [
+        {
+          "true_transition": "1->2",
+          "predicted_transition": "1->1",
+          "n": 1
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->1",
+          "n": 3
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->2",
+          "n": 3
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->5",
+          "n": 2
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->1",
+          "n": 3
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->2",
+          "n": 3
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->5",
+          "n": 1
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->7",
+          "n": 2
+        },
+        {
+          "true_transition": "11->2",
+          "predicted_transition": "11->2",
+          "n": 2
+        },
+        {
+          "true_transition": "11->2",
+          "predicted_transition": "11->7",
+          "n": 1
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->5",
+          "n": 2
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->7",
+          "n": 2
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->5",
+          "n": 1
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->7",
+          "n": 2
+        },
+        {
+          "true_transition": "2->1",
+          "predicted_transition": "2->2",
+          "n": 1
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->1",
+          "n": 2
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->2",
+          "n": 26
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->5",
+          "n": 5
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->7",
+          "n": 6
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->1",
+          "n": 1
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->2",
+          "n": 41
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->5",
+          "n": 16
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->7",
+          "n": 17
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->1",
+          "n": 1
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->2",
+          "n": 2
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->5",
+          "n": 2
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->5",
+          "n": 8
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->2",
+          "n": 97
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->5",
+          "n": 26
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->7",
+          "n": 16
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->1",
+          "n": 2
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->2",
+          "n": 75
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->5",
+          "n": 165
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->7",
+          "n": 85
+        },
+        {
+          "true_transition": "7->11",
+          "predicted_transition": "7->7",
+          "n": 2
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->2",
+          "n": 32
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->5",
+          "n": 10
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->7",
+          "n": 18
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->2",
+          "n": 9
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->5",
+          "n": 17
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->7",
+          "n": 26
+        },
+        {
+          "true_transition": "8->2",
+          "predicted_transition": "8->2",
+          "n": 1
+        },
+        {
+          "true_transition": "8->2",
+          "predicted_transition": "8->5",
+          "n": 1
+        }
+      ],
+      "label_start_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\bishan_lulc_2019.npy",
+      "label_end_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\bishan_lulc_2020.npy",
+      "prediction_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\bishan_lulc_pred_2019_2020.npy"
+    },
+    {
+      "area": "bishan",
+      "start_year": 2020,
+      "end_year": 2021,
+      "n_pixels": 4690,
+      "true_change_pixels": 681,
+      "true_change_pct": 0.14520255863539447,
+      "model_change_precision": 0.264026402640264,
+      "model_change_recall": 0.5873715124816447,
+      "model_change_f1": 0.3642987249544627,
+      "persistence_change_precision": 0.0,
+      "persistence_change_recall": 0.0,
+      "persistence_change_f1": 0.0,
+      "model_end_accuracy": 0.6680170575692964,
+      "persistence_end_accuracy": 0.8547974413646056,
+      "model_changed_pixel_accuracy": 0.3509544787077827,
+      "persistence_changed_pixel_accuracy": 0.0,
+      "shuffled_model_change_f1": 0.2620904836193448,
+      "shuffled_model_end_accuracy": 0.3315565031982942,
+      "shuffled_model_changed_pixel_accuracy": 0.3039647577092511,
+      "transition_prior_change_precision": 0.20417287630402384,
+      "transition_prior_change_recall": 0.2011747430249633,
+      "transition_prior_change_f1": 0.20266272189349113,
+      "transition_prior_end_accuracy": 0.755223880597015,
+      "transition_prior_changed_pixel_accuracy": 0.09838472834067548,
+      "transition_prior_transition_exact_match": 0.09838472834067548,
+      "transition_prior_area_bias_mae": 0.0179957356076759,
+      "model_transition_exact_match": 0.3509544787077827,
+      "persistence_transition_exact_match": 0.0,
+      "model_area_bias_mae": 0.06524520255863538,
+      "persistence_area_bias_mae": 0.024733475479744128,
+      "transition_counts": [
+        {
+          "true_transition": "1->11",
+          "predicted_transition": "1->7",
+          "n": 1
+        },
+        {
+          "true_transition": "1->2",
+          "predicted_transition": "1->1",
+          "n": 1
+        },
+        {
+          "true_transition": "1->2",
+          "predicted_transition": "1->2",
+          "n": 1
+        },
+        {
+          "true_transition": "1->2",
+          "predicted_transition": "1->7",
+          "n": 1
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->1",
+          "n": 4
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->2",
+          "n": 2
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->1",
+          "n": 5
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->2",
+          "n": 3
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->7",
+          "n": 2
+        },
+        {
+          "true_transition": "11->2",
+          "predicted_transition": "11->2",
+          "n": 1
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->5",
+          "n": 6
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->7",
+          "n": 4
+        },
+        {
+          "true_transition": "2->1",
+          "predicted_transition": "2->1",
+          "n": 1
+        },
+        {
+          "true_transition": "2->1",
+          "predicted_transition": "2->2",
+          "n": 2
+        },
+        {
+          "true_transition": "2->11",
+          "predicted_transition": "2->2",
+          "n": 1
+        },
+        {
+          "true_transition": "2->11",
+          "predicted_transition": "2->5",
+          "n": 2
+        },
+        {
+          "true_transition": "2->11",
+          "predicted_transition": "2->7",
+          "n": 1
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->2",
+          "n": 32
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->5",
+          "n": 4
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->7",
+          "n": 5
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->2",
+          "n": 77
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->5",
+          "n": 9
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->7",
+          "n": 23
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->1",
+          "n": 2
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->2",
+          "n": 4
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->7",
+          "n": 1
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->2",
+          "n": 2
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->5",
+          "n": 3
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->7",
+          "n": 3
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->1",
+          "n": 2
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->2",
+          "n": 71
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->5",
+          "n": 9
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->7",
+          "n": 8
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->1",
+          "n": 4
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->2",
+          "n": 84
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->5",
+          "n": 113
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->7",
+          "n": 72
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->2",
+          "n": 1
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->7",
+          "n": 3
+        },
+        {
+          "true_transition": "7->11",
+          "predicted_transition": "7->2",
+          "n": 1
+        },
+        {
+          "true_transition": "7->11",
+          "predicted_transition": "7->5",
+          "n": 1
+        },
+        {
+          "true_transition": "7->11",
+          "predicted_transition": "7->7",
+          "n": 5
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->1",
+          "n": 2
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->2",
+          "n": 32
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->5",
+          "n": 1
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->7",
+          "n": 11
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->1",
+          "n": 1
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->2",
+          "n": 22
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->5",
+          "n": 20
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->7",
+          "n": 15
+        }
+      ],
+      "label_start_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\bishan_lulc_2020.npy",
+      "label_end_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\bishan_lulc_2021.npy",
+      "prediction_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\bishan_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "bishan",
+      "start_year": 2021,
+      "end_year": 2022,
+      "n_pixels": 4690,
+      "true_change_pixels": 714,
+      "true_change_pct": 0.15223880597014924,
+      "model_change_precision": 0.20595854922279794,
+      "model_change_recall": 0.44537815126050423,
+      "model_change_f1": 0.28166519043401245,
+      "persistence_change_precision": 0.0,
+      "persistence_change_recall": 0.0,
+      "persistence_change_f1": 0.0,
+      "model_end_accuracy": 0.6179104477611941,
+      "persistence_end_accuracy": 0.8477611940298507,
+      "model_changed_pixel_accuracy": 0.20728291316526612,
+      "persistence_changed_pixel_accuracy": 0.0,
+      "shuffled_model_change_f1": 0.2573626956752454,
+      "shuffled_model_end_accuracy": 0.3400852878464819,
+      "shuffled_model_changed_pixel_accuracy": 0.2647058823529412,
+      "transition_prior_change_precision": 0.19224555735056542,
+      "transition_prior_change_recall": 0.16666666666666666,
+      "transition_prior_change_f1": 0.17854463615903973,
+      "transition_prior_end_accuracy": 0.7543710021321962,
+      "transition_prior_changed_pixel_accuracy": 0.08683473389355742,
+      "transition_prior_transition_exact_match": 0.08683473389355742,
+      "transition_prior_area_bias_mae": 0.0281449893390192,
+      "model_transition_exact_match": 0.20728291316526612,
+      "persistence_transition_exact_match": 0.0,
+      "model_area_bias_mae": 0.10686567164179105,
+      "persistence_area_bias_mae": 0.029765458422174856,
+      "transition_counts": [
+        {
+          "true_transition": "1->11",
+          "predicted_transition": "1->2",
+          "n": 1
+        },
+        {
+          "true_transition": "1->2",
+          "predicted_transition": "1->2",
+          "n": 1
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->2",
+          "n": 2
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->1",
+          "n": 3
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->2",
+          "n": 3
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->7",
+          "n": 4
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->2",
+          "n": 1
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->5",
+          "n": 1
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->7",
+          "n": 2
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->5",
+          "n": 1
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->7",
+          "n": 4
+        },
+        {
+          "true_transition": "2->1",
+          "predicted_transition": "2->1",
+          "n": 1
+        },
+        {
+          "true_transition": "2->1",
+          "predicted_transition": "2->2",
+          "n": 6
+        },
+        {
+          "true_transition": "2->1",
+          "predicted_transition": "2->7",
+          "n": 4
+        },
+        {
+          "true_transition": "2->11",
+          "predicted_transition": "2->2",
+          "n": 8
+        },
+        {
+          "true_transition": "2->11",
+          "predicted_transition": "2->7",
+          "n": 1
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->1",
+          "n": 1
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->2",
+          "n": 109
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->5",
+          "n": 4
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->7",
+          "n": 12
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->1",
+          "n": 1
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->2",
+          "n": 167
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->5",
+          "n": 1
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->7",
+          "n": 40
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->1",
+          "n": 3
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->2",
+          "n": 2
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->5",
+          "n": 1
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->5",
+          "n": 4
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->7",
+          "n": 3
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->2",
+          "n": 8
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->2",
+          "n": 89
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->5",
+          "n": 53
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->7",
+          "n": 69
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->1",
+          "n": 1
+        },
+        {
+          "true_transition": "7->11",
+          "predicted_transition": "7->2",
+          "n": 1
+        },
+        {
+          "true_transition": "7->11",
+          "predicted_transition": "7->7",
+          "n": 5
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->2",
+          "n": 2
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->2",
+          "n": 45
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->5",
+          "n": 10
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->7",
+          "n": 40
+        }
+      ],
+      "label_start_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\bishan_lulc_2021.npy",
+      "label_end_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\bishan_lulc_2022.npy",
+      "prediction_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\bishan_lulc_pred_2021_2022.npy"
+    },
+    {
+      "area": "bishan",
+      "start_year": 2022,
+      "end_year": 2023,
+      "n_pixels": 4690,
+      "true_change_pixels": 681,
+      "true_change_pct": 0.14520255863539447,
+      "model_change_precision": 0.2541058394160584,
+      "model_change_recall": 0.8179148311306902,
+      "model_change_f1": 0.3877479986077272,
+      "persistence_change_precision": 0.0,
+      "persistence_change_recall": 0.0,
+      "persistence_change_f1": 0.0,
+      "model_end_accuracy": 0.5716417910447761,
+      "persistence_end_accuracy": 0.8547974413646056,
+      "model_changed_pixel_accuracy": 0.45080763582966227,
+      "persistence_changed_pixel_accuracy": 0.0,
+      "shuffled_model_change_f1": 0.2812339331619538,
+      "shuffled_model_end_accuracy": 0.33859275053304905,
+      "shuffled_model_changed_pixel_accuracy": 0.35389133627019087,
+      "transition_prior_change_precision": 0.18298555377207062,
+      "transition_prior_change_recall": 0.16740088105726872,
+      "transition_prior_change_f1": 0.17484662576687118,
+      "transition_prior_end_accuracy": 0.7592750533049041,
+      "transition_prior_changed_pixel_accuracy": 0.08957415565345081,
+      "transition_prior_transition_exact_match": 0.08957415565345081,
+      "transition_prior_area_bias_mae": 0.023027718550106623,
+      "model_transition_exact_match": 0.45080763582966227,
+      "persistence_transition_exact_match": 0.0,
+      "model_area_bias_mae": 0.1354371002132196,
+      "persistence_area_bias_mae": 0.0201279317697228,
+      "transition_counts": [
+        {
+          "true_transition": "1->2",
+          "predicted_transition": "1->2",
+          "n": 7
+        },
+        {
+          "true_transition": "1->2",
+          "predicted_transition": "1->5",
+          "n": 1
+        },
+        {
+          "true_transition": "1->2",
+          "predicted_transition": "1->7",
+          "n": 1
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->1",
+          "n": 1
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->2",
+          "n": 4
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->5",
+          "n": 1
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->1",
+          "n": 2
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->2",
+          "n": 2
+        },
+        {
+          "true_transition": "11->1",
+          "predicted_transition": "11->7",
+          "n": 1
+        },
+        {
+          "true_transition": "11->2",
+          "predicted_transition": "11->2",
+          "n": 13
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->2",
+          "n": 1
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->7",
+          "n": 2
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->2",
+          "n": 2
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->7",
+          "n": 6
+        },
+        {
+          "true_transition": "2->1",
+          "predicted_transition": "2->2",
+          "n": 1
+        },
+        {
+          "true_transition": "2->11",
+          "predicted_transition": "2->5",
+          "n": 1
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->2",
+          "n": 8
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->5",
+          "n": 1
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->2",
+          "n": 36
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->7",
+          "n": 2
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->2",
+          "n": 1
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->5",
+          "n": 1
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->1",
+          "n": 1
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->2",
+          "n": 99
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->5",
+          "n": 1
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->7",
+          "n": 2
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->1",
+          "n": 1
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->2",
+          "n": 157
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->5",
+          "n": 43
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->7",
+          "n": 23
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->1",
+          "n": 1
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->2",
+          "n": 3
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->7",
+          "n": 2
+        },
+        {
+          "true_transition": "7->11",
+          "predicted_transition": "7->7",
+          "n": 4
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->1",
+          "n": 2
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->2",
+          "n": 133
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->7",
+          "n": 10
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->1",
+          "n": 1
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->2",
+          "n": 67
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->5",
+          "n": 21
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->7",
+          "n": 15
+        }
+      ],
+      "label_start_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\bishan_lulc_2022.npy",
+      "label_end_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\bishan_lulc_2023.npy",
+      "prediction_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\bishan_lulc_pred_2022_2023.npy"
+    },
+    {
+      "area": "bishan",
+      "start_year": 2023,
+      "end_year": 2024,
+      "n_pixels": 4690,
+      "true_change_pixels": 611,
+      "true_change_pct": 0.1302771855010661,
+      "model_change_precision": 0.17091114883984154,
+      "model_change_recall": 0.49427168576104746,
+      "model_change_f1": 0.25399495374264086,
+      "persistence_change_precision": 0.0,
+      "persistence_change_recall": 0.0,
+      "persistence_change_f1": 0.0,
+      "model_end_accuracy": 0.5904051172707889,
+      "persistence_end_accuracy": 0.8697228144989338,
+      "model_changed_pixel_accuracy": 0.25368248772504093,
+      "persistence_changed_pixel_accuracy": 0.0,
+      "shuffled_model_change_f1": 0.2112970711297071,
+      "shuffled_model_end_accuracy": 0.3049040511727079,
+      "shuffled_model_changed_pixel_accuracy": 0.2618657937806874,
+      "transition_prior_change_precision": 0.1598639455782313,
+      "transition_prior_change_recall": 0.15384615384615385,
+      "transition_prior_change_f1": 0.15679733110925773,
+      "transition_prior_end_accuracy": 0.773773987206823,
+      "transition_prior_changed_pixel_accuracy": 0.07201309328968904,
+      "transition_prior_transition_exact_match": 0.07201309328968904,
+      "transition_prior_area_bias_mae": 0.01219616204690831,
+      "model_transition_exact_match": 0.25368248772504093,
+      "persistence_transition_exact_match": 0.0,
+      "model_area_bias_mae": 0.11462686567164179,
+      "persistence_area_bias_mae": 0.015095948827292127,
+      "transition_counts": [
+        {
+          "true_transition": "1->2",
+          "predicted_transition": "1->1",
+          "n": 1
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->2",
+          "n": 1
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->5",
+          "n": 1
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->1",
+          "n": 1
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->2",
+          "n": 2
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->5",
+          "n": 2
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->7",
+          "n": 1
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->5",
+          "n": 1
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->7",
+          "n": 4
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->5",
+          "n": 1
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->7",
+          "n": 1
+        },
+        {
+          "true_transition": "2->1",
+          "predicted_transition": "2->2",
+          "n": 6
+        },
+        {
+          "true_transition": "2->11",
+          "predicted_transition": "2->2",
+          "n": 9
+        },
+        {
+          "true_transition": "2->11",
+          "predicted_transition": "2->5",
+          "n": 1
+        },
+        {
+          "true_transition": "2->11",
+          "predicted_transition": "2->7",
+          "n": 2
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->1",
+          "n": 2
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->2",
+          "n": 61
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->5",
+          "n": 7
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->7",
+          "n": 4
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->1",
+          "n": 2
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->2",
+          "n": 121
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->5",
+          "n": 5
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->7",
+          "n": 11
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->1",
+          "n": 1
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->2",
+          "n": 1
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->2",
+          "n": 1
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->5",
+          "n": 3
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->7",
+          "n": 1
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->2",
+          "n": 7
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->5",
+          "n": 2
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->7",
+          "n": 1
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->2",
+          "n": 43
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->5",
+          "n": 71
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->7",
+          "n": 7
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->1",
+          "n": 2
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->2",
+          "n": 3
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->7",
+          "n": 1
+        },
+        {
+          "true_transition": "7->11",
+          "predicted_transition": "7->5",
+          "n": 1
+        },
+        {
+          "true_transition": "7->11",
+          "predicted_transition": "7->7",
+          "n": 3
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->2",
+          "n": 35
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->5",
+          "n": 1
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->7",
+          "n": 7
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->1",
+          "n": 2
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->2",
+          "n": 67
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->5",
+          "n": 81
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->7",
+          "n": 23
+        }
+      ],
+      "label_start_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\bishan_lulc_2023.npy",
+      "label_end_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\bishan_lulc_2024.npy",
+      "prediction_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\bishan_lulc_pred_2023_2024.npy"
+    },
+    {
+      "area": "heping",
+      "start_year": 2017,
+      "end_year": 2020,
+      "n_pixels": 183696,
+      "true_change_pixels": 30831,
+      "true_change_pct": 0.1678370786516854,
+      "model_change_precision": 0.30418235637623087,
+      "model_change_recall": 0.48996140248451236,
+      "model_change_f1": 0.375341648859514,
+      "persistence_change_precision": 0.0,
+      "persistence_change_recall": 0.0,
+      "persistence_change_f1": 0.0,
+      "model_end_accuracy": 0.67604629387684,
+      "persistence_end_accuracy": 0.8321629213483146,
+      "model_changed_pixel_accuracy": 0.19061983068989005,
+      "persistence_changed_pixel_accuracy": 0.0,
+      "shuffled_model_change_f1": 0.3165158584458651,
+      "shuffled_model_end_accuracy": 0.4004659872833377,
+      "shuffled_model_changed_pixel_accuracy": 0.19042522136810353,
+      "transition_prior_change_precision": 0.29235288452277763,
+      "transition_prior_change_recall": 0.1969121987609873,
+      "transition_prior_change_f1": 0.23532375913328293,
+      "transition_prior_end_accuracy": 0.7717642191446739,
+      "transition_prior_changed_pixel_accuracy": 0.11676559307190815,
+      "transition_prior_transition_exact_match": 0.11676559307190815,
+      "transition_prior_area_bias_mae": 0.014741747234561434,
+      "model_transition_exact_match": 0.19061983068989005,
+      "persistence_transition_exact_match": 0.0,
+      "model_area_bias_mae": 0.08427329210579798,
+      "persistence_area_bias_mae": 0.030681125337514152,
+      "transition_counts": [
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->1",
+          "n": 59
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->2",
+          "n": 13
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->1",
+          "n": 284
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->2",
+          "n": 17
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->7",
+          "n": 5
+        },
+        {
+          "true_transition": "11->1",
+          "predicted_transition": "11->1",
+          "n": 2
+        },
+        {
+          "true_transition": "11->2",
+          "predicted_transition": "11->2",
+          "n": 34
+        },
+        {
+          "true_transition": "11->2",
+          "predicted_transition": "11->5",
+          "n": 8
+        },
+        {
+          "true_transition": "11->2",
+          "predicted_transition": "11->7",
+          "n": 10
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->1",
+          "n": 8
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->2",
+          "n": 210
+        },
+        {
+          "true_transition": "11->5",
+          "predicted_transition": "11->5",
+          "n": 232
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->1",
+          "n": 31
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->2",
+          "n": 64
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->5",
+          "n": 70
+        },
+        {
+          "true_transition": "11->7",
+          "predicted_transition": "11->7",
+          "n": 50
+        },
+        {
+          "true_transition": "2->11",
+          "predicted_transition": "2->2",
+          "n": 240
+        },
+        {
+          "true_transition": "2->11",
+          "predicted_transition": "2->5",
+          "n": 32
+        },
+        {
+          "true_transition": "2->11",
+          "predicted_transition": "2->7",
+          "n": 3
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->1",
+          "n": 26
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->2",
+          "n": 1742
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->5",
+          "n": 143
+        },
+        {
+          "true_transition": "2->5",
+          "predicted_transition": "2->7",
+          "n": 13
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->1",
+          "n": 48
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->2",
+          "n": 5089
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->5",
+          "n": 335
+        },
+        {
+          "true_transition": "2->7",
+          "predicted_transition": "2->7",
+          "n": 113
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->1",
+          "n": 12
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->2",
+          "n": 1
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->5",
+          "n": 12
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->7",
+          "n": 3
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->2",
+          "n": 264
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->5",
+          "n": 93
+        },
+        {
+          "true_transition": "5->11",
+          "predicted_transition": "5->7",
+          "n": 22
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->1",
+          "n": 7
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->2",
+          "n": 1367
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->5",
+          "n": 125
+        },
+        {
+          "true_transition": "5->2",
+          "predicted_transition": "5->7",
+          "n": 29
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->1",
+          "n": 571
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->2",
+          "n": 5147
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->5",
+          "n": 7643
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->7",
+          "n": 614
+        },
+        {
+          "true_transition": "5->8",
+          "predicted_transition": "5->5",
+          "n": 1
+        },
+        {
+          "true_transition": "5->8",
+          "predicted_transition": "5->7",
+          "n": 1
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->1",
+          "n": 162
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->5",
+          "n": 37
+        },
+        {
+          "true_transition": "7->1",
+          "predicted_transition": "7->7",
+          "n": 5
+        },
+        {
+          "true_transition": "7->11",
+          "predicted_transition": "7->2",
+          "n": 3
+        },
+        {
+          "true_transition": "7->11",
+          "predicted_transition": "7->5",
+          "n": 140
+        },
+        {
+          "true_transition": "7->11",
+          "predicted_transition": "7->7",
+          "n": 18
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->1",
+          "n": 3
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->2",
+          "n": 1770
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->5",
+          "n": 569
+        },
+        {
+          "true_transition": "7->2",
+          "predicted_transition": "7->7",
+          "n": 257
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->1",
+          "n": 32
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->2",
+          "n": 457
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->5",
+          "n": 957
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->7",
+          "n": 151
+        },
+        {
+          "true_transition": "7->8",
+          "predicted_transition": "7->7",
+          "n": 6
+        },
+        {
+          "true_transition": "8->11",
+          "predicted_transition": "8->5",
+          "n": 678
+        },
+        {
+          "true_transition": "8->11",
+          "predicted_transition": "8->7",
+          "n": 111
+        },
+        {
+          "true_transition": "8->5",
+          "predicted_transition": "8->5",
+          "n": 77
+        },
+        {
+          "true_transition": "8->5",
+          "predicted_transition": "8->7",
+          "n": 96
+        },
+        {
+          "true_transition": "8->7",
+          "predicted_transition": "8->5",
+          "n": 170
+        },
+        {
+          "true_transition": "8->7",
+          "predicted_transition": "8->7",
+          "n": 339
+        }
+      ],
+      "label_start_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\heping_lulc_2017.npy",
+      "label_end_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\heping_lulc_2020.npy",
+      "prediction_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\heping_lulc_pred_2017_2020.npy"
+    },
+    {
+      "area": "poyang_lake",
+      "start_year": 2020,
+      "end_year": 2021,
+      "n_pixels": 529,
+      "true_change_pixels": 92,
+      "true_change_pct": 0.17391304347826086,
+      "model_change_precision": 0.37894736842105264,
+      "model_change_recall": 0.391304347826087,
+      "model_change_f1": 0.3850267379679144,
+      "persistence_change_precision": 0.0,
+      "persistence_change_recall": 0.0,
+      "persistence_change_f1": 0.0,
+      "model_end_accuracy": 0.7429111531190926,
+      "persistence_end_accuracy": 0.8260869565217391,
+      "model_changed_pixel_accuracy": 0.16304347826086957,
+      "persistence_changed_pixel_accuracy": 0.0,
+      "shuffled_model_change_f1": 0.38904109589041097,
+      "shuffled_model_end_accuracy": 0.504725897920605,
+      "shuffled_model_changed_pixel_accuracy": 0.34782608695652173,
+      "transition_prior_change_precision": 0.0,
+      "transition_prior_change_recall": 0.0,
+      "transition_prior_change_f1": 0.0,
+      "transition_prior_end_accuracy": 0.8260869565217391,
+      "transition_prior_changed_pixel_accuracy": 0.0,
+      "transition_prior_transition_exact_match": 0.0,
+      "transition_prior_area_bias_mae": 0.05973534971644612,
+      "model_transition_exact_match": 0.16304347826086957,
+      "persistence_transition_exact_match": 0.0,
+      "model_area_bias_mae": 0.04688090737240077,
+      "persistence_area_bias_mae": 0.05973534971644612,
+      "transition_counts": [
+        {
+          "true_transition": "1->11",
+          "predicted_transition": "1->1",
+          "n": 2
+        },
+        {
+          "true_transition": "1->11",
+          "predicted_transition": "1->5",
+          "n": 3
+        },
+        {
+          "true_transition": "1->4",
+          "predicted_transition": "1->1",
+          "n": 21
+        },
+        {
+          "true_transition": "1->4",
+          "predicted_transition": "1->5",
+          "n": 17
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->1",
+          "n": 27
+        },
+        {
+          "true_transition": "1->5",
+          "predicted_transition": "1->5",
+          "n": 12
+        },
+        {
+          "true_transition": "1->7",
+          "predicted_transition": "1->5",
+          "n": 1
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->1",
+          "n": 1
+        },
+        {
+          "true_transition": "5->1",
+          "predicted_transition": "5->5",
+          "n": 3
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->5",
+          "n": 3
+        },
+        {
+          "true_transition": "5->7",
+          "predicted_transition": "5->7",
+          "n": 1
+        },
+        {
+          "true_transition": "7->5",
+          "predicted_transition": "7->5",
+          "n": 1
+        }
+      ],
+      "label_start_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\poyang_lake_lulc_2020.npy",
+      "label_end_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\poyang_lake_lulc_2021.npy",
+      "prediction_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\poyang_lake_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "wuyi_mountain",
+      "start_year": 2020,
+      "end_year": 2021,
+      "n_pixels": 529,
+      "true_change_pixels": 0,
+      "true_change_pct": 0.0,
+      "model_change_precision": 0.0,
+      "model_change_recall": 0.0,
+      "model_change_f1": 0.0,
+      "persistence_change_precision": 0.0,
+      "persistence_change_recall": 0.0,
+      "persistence_change_f1": 0.0,
+      "model_end_accuracy": 0.996219281663516,
+      "persistence_end_accuracy": 1.0,
+      "model_changed_pixel_accuracy": 0.0,
+      "persistence_changed_pixel_accuracy": 0.0,
+      "shuffled_model_change_f1": 0.0,
+      "shuffled_model_end_accuracy": 0.996219281663516,
+      "shuffled_model_changed_pixel_accuracy": 0.0,
+      "transition_prior_change_precision": 0.0,
+      "transition_prior_change_recall": 0.0,
+      "transition_prior_change_f1": 0.0,
+      "transition_prior_end_accuracy": 1.0,
+      "transition_prior_changed_pixel_accuracy": 0.0,
+      "transition_prior_transition_exact_match": 0.0,
+      "transition_prior_area_bias_mae": 0.0,
+      "model_transition_exact_match": 0.0,
+      "persistence_transition_exact_match": 0.0,
+      "model_area_bias_mae": 0.0025204788909893,
+      "persistence_area_bias_mae": 0.0,
+      "transition_counts": [],
+      "label_start_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\wuyi_mountain_lulc_2020.npy",
+      "label_end_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\wuyi_mountain_lulc_2021.npy",
+      "prediction_file": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\predicted\\wuyi_mountain_lulc_pred_2020_2021.npy"
+    }
+  ],
+  "skipped_pairs": [],
+  "notes": [
+    "The persistence baseline predicts the end-year LULC map as identical to the start-year map.",
+    "Change metrics treat a pixel as changed when the end-year class differs from the start-year class.",
+    "Transition exact-match accuracy is computed only on true changed pixels.",
+    "The shuffled-model negative control uses fixed seed 20260617 to preserve the predicted class histogram while disrupting spatial correspondence.",
+    "The label-only transition prior baseline estimates start-class to end-class frequencies from other label pairs with the same grid shape and contains no embedding or model-prediction information.",
+    "No categorical transition claim should be made unless n_area_year_pairs is greater than zero."
+  ]
+}

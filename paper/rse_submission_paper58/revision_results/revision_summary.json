@@ -1,0 +1,332 @@
+{
+  "source_files": {
+    "encoder_ablation": "D:\\test\\paper58-geofm-world-model-rl\\experiments\\paper8\\results\\paper8_ablation_encoder.json",
+    "dropout_statistics": "D:\\test\\paper58-geofm-world-model-rl\\experiments\\paper8\\results\\dual_rep\\dropout_statistical_tests.json",
+    "intervention_results_dir": "D:\\test\\paper58-geofm-world-model-rl\\experiments\\paper8\\results\\intervention",
+    "dual_rep_results_dir": "D:\\test\\paper58-geofm-world-model-rl\\experiments\\paper8\\results\\dual_rep",
+    "transfer_heping_results_dir": "D:\\test\\paper58-geofm-world-model-rl\\experiments\\paper8\\results\\transfer_heping"
+  },
+  "alphaearth": {
+    "n_areas": 10,
+    "persistence": {
+      "n": 10,
+      "mean": 0.9756756842136383,
+      "median": 0.9758316874504089,
+      "ci_low": 0.9675475390255451,
+      "ci_high": 0.9831601740419864
+    },
+    "model": {
+      "n": 10,
+      "mean": 0.980405044555664,
+      "median": 0.9787395894527435,
+      "ci_low": 0.9757007157802582,
+      "ci_high": 0.985204556286335
+    },
+    "advantage": {
+      "n": 10,
+      "mean": 0.004729360342025757,
+      "median": 0.0015346109867095947,
+      "ci_low": -0.0028012773394584653,
+      "ci_high": 0.012985577136278145
+    },
+    "advantage_sign_test": {
+      "n_positive": 7,
+      "n_negative": 3,
+      "n_tie": 0,
+      "n_effective": 10,
+      "two_sided_p": 0.34375
+    },
+    "change_pixel_advantage": {
+      "n": 1,
+      "mean": -2.3509011953137815e-05,
+      "median": -2.3509011953137815e-05,
+      "ci_low": -2.3509011953137815e-05,
+      "ci_high": -2.3509011953137815e-05
+    },
+    "areas_positive": [
+      "chengdu_plain",
+      "jianghan_plain",
+      "jing_jin_ji",
+      "minnan_coast",
+      "poyang_lake",
+      "qinghai_edge",
+      "yangtze_delta"
+    ],
+    "areas_negative": [
+      "bishan",
+      "daxinganling",
+      "pearl_river"
+    ]
+  },
+  "prithvi": {
+    "n_areas": 17,
+    "persistence": {
+      "n": 17,
+      "mean": 1.0000000210369335,
+      "median": 1.0,
+      "ci_low": 1.0,
+      "ci_high": 1.0000000420738668
+    },
+    "model": {
+      "n": 17,
+      "mean": 0.999997615814209,
+      "median": 0.999997615814209,
+      "ci_low": 0.99999759127112,
+      "ci_high": 0.9999976438634536
+    },
+    "advantage": {
+      "n": 17,
+      "mean": -2.405222724465763e-06,
+      "median": -2.4437904357910156e-06,
+      "ci_low": -2.4297658134909238e-06,
+      "ci_high": -2.377173479865579e-06
+    },
+    "advantage_sign_test": {
+      "n_positive": 0,
+      "n_negative": 17,
+      "n_tie": 0,
+      "n_effective": 17,
+      "two_sided_p": 1.52587890625e-05
+    },
+    "change_pixel_advantage": {
+      "n": 0,
+      "mean": null,
+      "median": null,
+      "ci_low": null,
+      "ci_high": null
+    },
+    "areas_positive": [],
+    "areas_negative": [
+      "banzhucun",
+      "bishan",
+      "chengdu_plain",
+      "daxinganling",
+      "guanzhong",
+      "hetao",
+      "jianghan_plain",
+      "jing_jin_ji",
+      "minnan_coast",
+      "north_china_plain",
+      "northeast_plain",
+      "pearl_river",
+      "poyang_lake",
+      "qinghai_edge",
+      "wuyi_mountain",
+      "yangtze_delta",
+      "yunnan_eco"
+    ]
+  },
+  "alphaearth_category_summary": {
+    "Agriculture": {
+      "n": 1,
+      "mean_advantage": 0.02230745553970337,
+      "median_advantage": 0.02230745553970337,
+      "n_positive": 1,
+      "n_negative": 0,
+      "areas": [
+        "jianghan_plain"
+      ]
+    },
+    "Forest": {
+      "n": 1,
+      "mean_advantage": -0.01677870750427246,
+      "median_advantage": -0.01677870750427246,
+      "n_positive": 0,
+      "n_negative": 1,
+      "areas": [
+        "daxinganling"
+      ]
+    },
+    "Mixed": {
+      "n": 2,
+      "mean_advantage": -0.001943439245223999,
+      "median_advantage": -0.001943439245223999,
+      "n_positive": 1,
+      "n_negative": 1,
+      "areas": [
+        "bishan",
+        "minnan_coast"
+      ]
+    },
+    "Plateau": {
+      "n": 1,
+      "mean_advantage": 0.029992222785949707,
+      "median_advantage": 0.029992222785949707,
+      "n_positive": 1,
+      "n_negative": 0,
+      "areas": [
+        "qinghai_edge"
+      ]
+    },
+    "Urban": {
+      "n": 4,
+      "mean_advantage": 0.0009130239486694336,
+      "median_advantage": 0.0007311105728149414,
+      "n_positive": 3,
+      "n_negative": 1,
+      "areas": [
+        "chengdu_plain",
+        "jing_jin_ji",
+        "pearl_river",
+        "yangtze_delta"
+      ]
+    },
+    "Wetland": {
+      "n": 1,
+      "mean_advantage": 0.012007415294647217,
+      "median_advantage": 0.012007415294647217,
+      "n_positive": 1,
+      "n_negative": 0,
+      "areas": [
+        "poyang_lake"
+      ]
+    }
+  },
+  "planning_baselines": {
+    "embedding_intervention": {
+      "n": 15,
+      "slope_mean": -0.02769965404201178,
+      "slope_std": 0.005282844036586932,
+      "cont_mean": 0.003902323255439259,
+      "cont_std": 0.0008243964607524724,
+      "reward_mean": -61.071479196636325,
+      "reward_std": 10.573123862098882,
+      "slope_retention_vs_full": 0.037350797603739674
+    },
+    "full": {
+      "n": 15,
+      "slope_mean": -0.7416080999362222,
+      "slope_std": 0.1564114531134126,
+      "cont_mean": 0.015178715216856839,
+      "cont_std": 0.004330537839686238,
+      "reward_mean": 30.80684234246031,
+      "reward_std": 6.494836897005116,
+      "slope_retention_vs_full": 1.0
+    },
+    "dropout0.3": {
+      "n": 15,
+      "slope_mean": -0.6435898841254535,
+      "slope_std": 0.1567114866263549,
+      "cont_mean": 0.014615912731710878,
+      "cont_std": 0.00526229749595401,
+      "reward_mean": 27.830923187514205,
+      "reward_std": 6.778232174791242,
+      "slope_retention_vs_full": 0.8678301709228927
+    },
+    "dropout1.0": {
+      "n": 15,
+      "slope_mean": -0.09558475138280738,
+      "slope_std": 0.04979536341830415,
+      "cont_mean": 0.006414592180096612,
+      "cont_std": 0.0037393781408536788,
+      "reward_mean": -49.75654256083671,
+      "reward_std": 17.640773920718146,
+      "slope_retention_vs_full": 0.12888849432878038
+    }
+  },
+  "transfer_planning": {
+    "random": {
+      "n": 15,
+      "reward_mean": -1177.6759058176847,
+      "reward_std": 2.7930609493481144,
+      "crop_change_mean": -604.72,
+      "crop_change_std": 2.4828554989309115,
+      "reward_delta_vs_random": 0.0,
+      "reward_delta_vs_greedy": 7.595979929070836
+    },
+    "greedy": {
+      "n": 15,
+      "reward_mean": -1185.2718857467555,
+      "reward_std": 0.0,
+      "crop_change_mean": -603.0,
+      "crop_change_std": 0.0,
+      "reward_delta_vs_random": -7.595979929070836,
+      "reward_delta_vs_greedy": 0.0
+    },
+    "transfer": {
+      "n": 15,
+      "reward_mean": -1172.1653977057877,
+      "reward_std": 5.128248459250695,
+      "crop_change_mean": -602.7333333333333,
+      "crop_change_std": 3.2175116087406663,
+      "reward_delta_vs_random": 5.510508111897025,
+      "reward_delta_vs_greedy": 13.10648804096786
+    }
+  },
+  "notes": [
+    "Rows with persistence=model=advantage=0 are treated as missing-cache placeholders and excluded.",
+    "Bootstrap confidence intervals are computed over area-level means.",
+    "The sign test uses paired area-level model-minus-persistence advantages.",
+    "The planning baseline summary compares configurations with the same slope/contiguity evaluation metrics.",
+    "The transfer planning summary is an embedding-space diagnostic and is not directly comparable with real county-level slope/contiguity metrics."
+  ],
+  "planning_dropout_statistics": {
+    "configs": {
+      "full": {
+        "slope_mean": -0.7416080999362222,
+        "slope_std": 0.15110781963236045,
+        "cont_mean": 0.015178715216856839,
+        "cont_std": 0.0041836970232348395,
+        "n": 15
+      },
+      "dropout0.3": {
+        "slope_mean": -0.6435898841254535,
+        "slope_std": 0.15139767954386243,
+        "cont_mean": 0.014615912731710878,
+        "cont_std": 0.005083862370959923,
+        "n": 15
+      },
+      "dropout1.0": {
+        "slope_mean": -0.09558475138280739,
+        "slope_std": 0.048106891433871,
+        "cont_mean": 0.006414592180096612,
+        "cont_std": 0.003612582495705073,
+        "n": 15
+      }
+    },
+    "pairwise_tests": {
+      "slope_full_vs_dropout0.3": {
+        "t_stat": -1.7145586089783382,
+        "t_p": 0.09747620472426022,
+        "mann_whitney_U": 66.0,
+        "mw_p": 0.05639236422683157,
+        "cohens_d": -0.6260682842014103
+      },
+      "slope_full_vs_dropout1.0": {
+        "t_stat": -15.242697641776376,
+        "t_p": 4.366242079193057e-15,
+        "mann_whitney_U": 0.0,
+        "mw_p": 3.391821390825095e-06,
+        "cohens_d": -5.56584622375448
+      },
+      "slope_dropout0.3_vs_dropout1.0": {
+        "t_stat": -12.907508677328305,
+        "t_p": 2.617639849820931e-13,
+        "mann_whitney_U": 0.0,
+        "mw_p": 3.391821390825095e-06,
+        "cohens_d": -4.713155775844256
+      },
+      "cont_full_vs_dropout0.3": {
+        "t_stat": 0.3198383938680879,
+        "t_p": 0.7514652393181966,
+        "mann_whitney_U": 129.5,
+        "mw_p": 0.4936339717986785,
+        "cohens_d": 0.11678846871851582
+      },
+      "cont_full_vs_dropout1.0": {
+        "t_stat": 5.932502463566395,
+        "t_p": 2.194824663211529e-06,
+        "mann_whitney_U": 213.5,
+        "mw_p": 3.053041156457228e-05,
+        "cohens_d": 2.16624361450019
+      },
+      "cont_dropout0.3_vs_dropout1.0": {
+        "t_stat": 4.920316629241178,
+        "t_p": 3.448497702600285e-05,
+        "mann_whitney_U": 205.0,
+        "mw_p": 0.0001351764400636944,
+        "cohens_d": 1.796645605268784
+      }
+    }
+  }
+}

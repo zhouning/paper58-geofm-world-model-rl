@@ -1,0 +1,45 @@
+{
+  "status": "complete",
+  "source": "ESRI Global LULC 10m Time Series via src.adk_world_model.world_model.extract_lulc_labels",
+  "scale_m": 10,
+  "scale_mode": "fixed",
+  "output_dir": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels",
+  "n_records": 2,
+  "n_failures": 0,
+  "records": [
+    {
+      "area": "heping",
+      "year": 2017,
+      "bbox": [
+        106.1133,
+        29.5997,
+        106.1452,
+        29.646
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\heping_lulc_2017.npy",
+      "shape": [
+        516,
+        356
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "heping",
+      "year": 2020,
+      "bbox": [
+        106.1133,
+        29.5997,
+        106.1452,
+        29.646
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\labels\\heping_lulc_2020.npy",
+      "shape": [
+        516,
+        356
+      ],
+      "status": "fetched"
+    }
+  ],
+  "failures": [],
+  "next_step": "Generate model-predicted end-year LULC maps in data/independent_change_labels/predicted, then run scripts/rse_revision/evaluate_independent_change_validation.py."
+}

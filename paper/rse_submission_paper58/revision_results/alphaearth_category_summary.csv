@@ -1,0 +1,7 @@
+category,n,mean_advantage,median_advantage,n_positive,n_negative,areas
+Agriculture,1,0.02230745553970337,0.02230745553970337,1,0,jianghan_plain
+Forest,1,-0.01677870750427246,-0.01677870750427246,0,1,daxinganling
+Mixed,2,-0.001943439245223999,-0.001943439245223999,1,1,bishan;minnan_coast
+Plateau,1,0.029992222785949707,0.029992222785949707,1,0,qinghai_edge
+Urban,4,0.0009130239486694336,0.0007311105728149414,3,1,chengdu_plain;jing_jin_ji;pearl_river;yangtze_delta
+Wetland,1,0.012007415294647217,0.012007415294647217,1,0,poyang_lake

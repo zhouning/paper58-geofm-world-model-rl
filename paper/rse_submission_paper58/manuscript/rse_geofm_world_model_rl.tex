@@ -1,6 +1,6 @@
 % ============================================================================
 % Frozen Remote-Sensing Foundation Model Embeddings as a State Space
-% for Land-Cover Dynamics Prediction and Planning
+% for Baseline Land-Surface Dynamics Prediction
 % ============================================================================
 % Target journal: Remote Sensing of Environment
 % (Elsevier)
@@ -9,6 +9,7 @@
 
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
+\usepackage{array}
 \usepackage{graphicx}
 \usepackage{multirow}
 \usepackage{caption}
@@ -17,6 +18,7 @@
 \usepackage{algorithmic}
 \usepackage{hyperref}
 \usepackage{color}
+\urlstyle{tt}
 
 % Define keywords env for compile-anywhere only when the class does not provide it.
 \makeatletter
@@ -27,18 +29,20 @@
 \usepackage{natbib}
 \usepackage{tikz}
 \usetikzlibrary{positioning,arrows.meta,shapes.geometric,fit,calc}
-\graphicspath{{../figures/}{./figures/}{./paper8/figures/}{./}}
+\graphicspath{{../}{../figures/}{./figures/}{./paper8/figures/}{./}}
 \bibliographystyle{plainnat}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
 
 \begin{document}
 
 \makeatletter
 \@ifundefined{ANONYMIZE}{
-  \title{Frozen Remote-Sensing Foundation Model Embeddings as a State Space for Land-Cover Dynamics Prediction and Planning}
-  \author{Ning Zhou$^{a}$ and Xiang Jing$^{a}$$^{\ast}$\thanks{$^\ast$Corresponding author. Email: jingxiang@pku.edu.cn}\\
-  $^{a}${\em School of Software and Microelectronics, Peking University, Beijing 100871, China}}
+  \title{Frozen Remote-Sensing Foundation Model Embeddings as a State Space\\for Baseline Land-Surface Dynamics Prediction}
+  \author{Ning Zhou$^{a}$\\[0.3em]
+  {\small $^{a}$SuperMap Software Co., Ltd., Beijing, China}\\
+  {\small Correspondence: Ning Zhou}}
 }{
-  \title{Frozen Remote-Sensing Foundation Model Embeddings as a State Space for Land-Cover Dynamics Prediction and Planning}
+  \title{Frozen Remote-Sensing Foundation Model Embeddings as a State Space\\for Baseline Land-Surface Dynamics Prediction}
   \author{Anonymous authors}
 }
 \makeatother
@@ -47,11 +51,11 @@
 \maketitle
 
 \begin{abstract}
-Predicting land-use and land-cover (LULC) change from satellite observations is central to environmental remote sensing, yet current approaches often require either categorical transition rules or large pixel-level generative models. We ask whether frozen remote-sensing foundation-model embeddings can serve as a compact predictive state space for land-surface dynamics and planning. We propose a geospatial world model that predicts annual LULC change entirely in the 64-dimensional embedding space of AlphaEarth Foundations, following the Joint Embedding Predictive Architecture (JEPA) paradigm. A lightweight \textit{LatentDynamicsNet} (459K parameters) learns residual state transitions by autoregressive rollout while the 480M+ parameter encoder remains frozen. Three design choices are critical: L2 re-normalization to preserve the unit-sphere embedding manifold, dilated convolutions with a 170\,m receptive field, and multi-step unrolled loss to reduce exposure bias. Across 17 Chinese study areas with train/validation/test/OOD splits, the model reaches a mean cosine similarity of 0.9575 and surpasses persistence (0.9460) across all 12 training areas. On pixels undergoing actual change, the advantage increases to $+0.030$--$+0.108$, and multi-step rollout remains above baseline for up to six annual steps. The same frozen embeddings also support downstream land-use planning experiments, where dual-representation policies retain 87\% of full-information performance under 30\% feature dropout. These results show that foundation-model embeddings can provide a reusable remote-sensing state space for efficient land-surface dynamics prediction and planning-oriented environmental decision support.
+Predicting land-use and land-cover (LULC) change from satellite observations is central to environmental remote sensing, yet many approaches either operate on categorical maps or require large pixel-level generative models. We ask whether frozen remote-sensing foundation-model embeddings can serve as a compact predictive state space for annual land-surface dynamics. We evaluate this question using AlphaEarth Foundations embeddings as fixed 64-dimensional state vectors and train a lightweight \textit{LatentDynamicsNet} (459K parameters) to predict residual transitions in embedding space while keeping the 480M+ parameter encoder frozen. The model uses L2 re-normalization to preserve the unit-sphere embedding manifold, dilated convolutions for local spatial context, and multi-step unrolled loss to reduce exposure bias. On valid cached AlphaEarth study-area grids, the model has a positive mean advantage over persistence of +0.0047 cosine similarity, with 7 of 10 areas improving and a 95\% area-level bootstrap confidence interval of $[-0.0028, +0.0130]$. Independent ESRI-label validation on 12 area--year pairs gives non-zero categorical change signal: mean change F1 is 0.335, compared with 0.269 for a spatially shuffled model control, 0.166 for a label-only transition-prior baseline, and 0.000 for persistence. However, full-map end-year accuracy remains below persistence (0.666 vs.\ 0.846), and the label-only transition prior has lower class-area bias than the decoded dynamics. An encoder diagnostic shows that a Prithvi-100M global CLS representation is nearly stationary across years in the same workflow. A downstream planning probe further shows that policies combining engineered planning features with GeoFM embeddings retain 87\% of full-feature slope improvement under 30\% feature dropout, but embedding-only policies retain only 13\%. These results support a bounded conclusion: frozen GeoFM embeddings can provide a useful low-cost state space for baseline-trend change-signal modelling and robustness-oriented planning probes, but counterfactual scenario simulation and operational categorical LULC forecasting require additional labelled evidence.
 \end{abstract}
 
 \begin{keywords}
-remote-sensing foundation model; geospatial world model; JEPA; land-cover dynamics; embedding-space planning; AlphaEarth
+remote-sensing foundation model; geospatial world model; JEPA; land-cover dynamics; embedding-space forecasting; AlphaEarth
 \end{keywords}
 
 % ============================================================================
@@ -69,23 +73,25 @@ Simultaneously, geospatial foundation models (GeoFMs) have made pre-trained, hig
 
 This paper bridges these two developments: we treat GeoFM embeddings as the state space of a geospatial world model. Our key insight is that if a foundation model has already learned to compress satellite observations into semantically meaningful, temporally varying embeddings, then the dynamics of land-use change can be learned \textit{on top of} these frozen embeddings using a lightweight neural network---without retraining the foundation model and without ever generating pixel-level predictions. This corresponds precisely to the JEPA architecture: the foundation model serves as the encoder; a small LatentDynamicsNet serves as the predictor.
 
-To our knowledge, this is the first work to combine frozen geospatial foundation model embeddings with a learned dynamics model for autoregressive land-use change prediction. The closest prior works either train their own encoder end-to-end (MM-VSF, \citealt{mmvsf2024}), operate in spectral space with vastly larger models (EarthPT), or predict downstream variables rather than the embeddings themselves (PDFM+TimesFM, \citealt{google2024pdfm}).
+This work examines a specific and under-tested use of geospatial foundation models: whether a frozen, globally available embedding field can behave as a state variable for learned land-surface dynamics. The closest prior works either train their own encoder end-to-end (MM-VSF, \citealt{mmvsf2024}), operate in spectral space with larger autoregressive models (EarthPT), or predict downstream variables rather than the embeddings themselves (PDFM+TimesFM, \citealt{google2024pdfm}).
 
 Our contributions are:
 
 \begin{enumerate}
-\item We formulate satellite-based LULC dynamics prediction as residual learning in a frozen remote-sensing foundation-model embedding space, and demonstrate its feasibility through signal verification, temporal holdout, and spatial generalization tests.
+\item We formulate satellite-based LULC dynamics prediction as residual learning in a frozen remote-sensing foundation-model embedding space, and evaluate when this representation improves over persistence.
 
-\item We design the \textit{LatentDynamicsNet}, a 459K-parameter dilated convolutional network with L2 manifold preservation, scenario conditioning, and terrain context inputs, achieving annual dynamics prediction with 1{,}500$\times$ fewer parameters than EarthPT.
+\item We design the \textit{LatentDynamicsNet}, a 459K-parameter dilated convolutional network with L2 manifold preservation and terrain context inputs for annual embedding-space prediction.
 
-\item We introduce multi-step unrolled training loss to combat exposure bias, extending the effective prediction horizon from 1--3 years to 5+ years on training domains.
+\item We introduce multi-step unrolled training loss to reduce exposure bias during autoregressive rollout and report development diagnostics for key architectural choices.
 
-\item We provide comprehensive experiments on 17 Chinese study areas with strict train/validation/test/OOD splits, two baselines, and a change-pixel evaluation protocol that exposes model advantages masked by dominant stable pixels.
+\item We provide area-level diagnostics across cached Chinese study areas, including persistence comparisons, bootstrap uncertainty, encoder replacement, and change-focused evaluation where sufficient local evidence is available.
 
-\item We demonstrate downstream decision-support utility by training reinforcement learning policies on a dual-representation environment combining engineered land-planning features with frozen GeoFM embeddings. A feature-dropout ablation across 45 trained models (3 configurations $\times$ 15 seeds) shows that the embedding channel helps preserve 87\% of planning performance under moderate feature absence.
+\item We add a reproducible empirical evidence-chain audit and an independent categorical change-label validation protocol that separates completed embedding-space validation, diagnostic application probes, and transition-level evidence.
+
+\item We test downstream planning utility as an application probe by training reinforcement-learning policies on engineered land-planning features and frozen GeoFM embeddings. A feature-dropout ablation across 45 trained models (3 configurations $\times$ 15 seeds) quantifies when the embedding channel is helpful and when it is insufficient.
 \end{enumerate}
 
-Beyond forecasting, we test whether the learned representation supports downstream environmental decision support. Section~\ref{sec:planning} shows that reinforcement learning policies trained on task-specific features and GeoFM embeddings retain 87\% of full-information performance under moderate feature dropout ($p=0.3$). Complete feature removal ($p=1.0$) reduces performance to 13\%, showing that the embedding channel provides useful but insufficient planning signal without task-specific features.
+Beyond forecasting, we use a controlled planning task to probe whether the same representation can provide complementary information when task-specific features are partially unavailable. Section~\ref{sec:planning} shows that reinforcement learning policies trained on task-specific features and GeoFM embeddings retain 87\% of full-information slope improvement under moderate feature dropout ($p=0.3$). Complete feature removal ($p=1.0$) reduces retention to 13\%, showing that the embedding channel is useful as a supplement but insufficient as a standalone planning state.
 
 
 % ============================================================================
@@ -107,11 +113,11 @@ World models originated in reinforcement learning: Ha \& Schmidhuber's ``World M
 
 \subsection{Closest prior work}
 
-MM-VSF \citep{mmvsf2024} predicts future satellite embeddings from current ones but trains its own encoder end-to-end rather than using a frozen foundation model. EarthPT \citep{smith2023earthpt} performs autoregressive prediction on raw spectral reflectance with 700M parameters. PDFM+TimesFM \citep{google2024pdfm} uses geospatial embeddings with a forecasting model but predicts socioeconomic variables, not the embeddings themselves. Our approach is the first to learn autoregressive dynamics \textit{on top of frozen GeoFM embeddings}.
+MM-VSF \citep{mmvsf2024} predicts future satellite embeddings from current ones but trains its own encoder end-to-end rather than using a frozen foundation model. EarthPT \citep{smith2023earthpt} performs autoregressive prediction on raw spectral reflectance with 700M parameters. PDFM+TimesFM \citep{google2024pdfm} uses geospatial embeddings with a forecasting model but predicts socioeconomic variables, not the embeddings themselves. Our work focuses on the less explored setting of learning autoregressive dynamics \textit{on top of frozen GeoFM embeddings}.
 
 \subsection{World models for decision making}
 
-World models have been used as simulators for policy learning since \citet{ha2018world} trained RL agents inside learned latent dynamics. Dreamer V3 \citep{hafner2023dreamerv3} achieves human-level performance across 150+ tasks by learning policies entirely within a Recurrent State-Space Model. MuZero \citep{schrittwieser2020muzero} combines learned dynamics with Monte Carlo tree search for board games and Atari. In robotics, TD-MPC2 \citep{hansen2024tdmpc2} learns world models for continuous control. However, no prior work has used a frozen geospatial foundation model as the state space for RL-based land-use planning. Section~\ref{sec:planning} provides a first exploration of this direction.
+World models have been used as simulators for policy learning since \citet{ha2018world} trained RL agents inside learned latent dynamics. Dreamer V3 \citep{hafner2023dreamerv3} achieves human-level performance across 150+ tasks by learning policies entirely within a Recurrent State-Space Model. MuZero \citep{schrittwieser2020muzero} combines learned dynamics with Monte Carlo tree search for board games and Atari. In robotics, TD-MPC2 \citep{hansen2024tdmpc2} learns world models for continuous control. Section~\ref{sec:planning} uses land-use planning as a bounded application probe rather than as a complete operational planning system.
 
 
 % ============================================================================
@@ -157,9 +163,9 @@ Test (1) & Wuyi Mountain & Forest & [117.6, 27.7, 117.7, 27.8] \\
 
 \subsection{Data sources}
 
-\textbf{AlphaEarth Embeddings.} We use the \texttt{GOOGLE/SATELLITE\_EMBEDDING/V1/ANNUAL} dataset on Google Earth Engine (GEE), which provides 64-dimensional L2-normalized embedding vectors at 10\,m resolution for each year from 2017 to 2024. For each study area and year, 500 random pixel locations are sampled using \texttt{ee.Image.sample()} with \texttt{seed=42} for reproducibility, yielding $500\times64$ embedding matrices. All raw data are cached locally as NumPy \texttt{.npy} files for offline reproducibility.
+\textbf{AlphaEarth Embeddings.} We use the AlphaEarth annual satellite embedding dataset on Google Earth Engine (GEE; \url{GOOGLE/SATELLITE_EMBEDDING/V1/ANNUAL}), which provides 64-dimensional L2-normalized embedding vectors at 10\,m resolution for each year from 2017 to 2024. For each study area and year, 500 random pixel locations are sampled using \texttt{ee.Image.sample()} with \texttt{seed=42} for reproducibility, yielding $500\times64$ embedding matrices. All raw data are cached locally as NumPy \texttt{.npy} files for offline reproducibility.
 
-\textbf{LULC Labels.} Land-cover class labels for decoder training are obtained from the ESRI Global LULC 10\,m Time Series (\texttt{projects/sat-io/open-datasets/landcover/ESRI\_Global-LULC\_10m\_TS}) on GEE, providing 9 land-cover classes at matching spatial resolution.
+\textbf{LULC Labels.} Land-cover class labels for decoder training are obtained from the ESRI Global LULC 10\,m Time Series on GEE (\url{projects/sat-io/open-datasets/landcover/ESRI_Global-LULC_10m_TS}), providing 9 land-cover classes at matching spatial resolution.
 
 \textbf{Terrain Context.} DEM elevation and slope are derived from SRTM 30\,m (\texttt{USGS/SRTMGL1\_003}) via GEE. Elevation is min-max normalized to $[0,1]$; slope is clipped and normalized by 45\textdegree.
 
@@ -184,6 +190,7 @@ This corresponds to the JEPA framework \citep{lecun2022jepa}: the encoder produc
 
 \begin{figure}[htbp]
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
     node distance=1.2cm and 1.8cm,
     box/.style={draw, rounded corners, minimum height=1.0cm, minimum width=2.6cm, align=center, font=\small},
@@ -249,7 +256,8 @@ This corresponds to the JEPA framework \citep{lecun2022jepa}: the encoder produc
 \node[label, below=0.05cm of decoder, text=gray!60] {Visualization only};
 
 \end{tikzpicture}
-\caption{Architecture of the proposed geospatial world model following the JEPA paradigm. Layer~1 (blue, frozen) is the AlphaEarth foundation model encoder that maps satellite observations to 64-dimensional unit-vector embeddings. Layer~2 (orange, learned) is the LatentDynamicsNet that predicts residual state transitions in embedding space, with explicit L2 re-normalization after each step. The dashed blue arrow represents the autoregressive feedback loop during multi-step rollout. The linear probe decoder (gray) is used only for LULC visualization, not during dynamics prediction.}
+}
+\caption{Architecture of the proposed frozen-encoder embedding-dynamics workflow following the JEPA paradigm. Layer~1 (blue, frozen) is the AlphaEarth foundation model encoder that maps satellite observations to 64-dimensional unit-vector embeddings. Layer~2 (orange, learned) is the LatentDynamicsNet that predicts residual state transitions in embedding space, with explicit L2 re-normalization after each step. The dashed blue arrow represents the autoregressive feedback loop during multi-step rollout. The linear probe decoder (gray) is used only for LULC visualization, not during dynamics prediction. Scenario inputs are reserved by the architecture but only the baseline trajectory is trained and evaluated in this paper.}
 \label{fig:architecture}
 \end{figure}
 
@@ -265,31 +273,37 @@ where $z_t \in \mathbb{R}^{64 \times H \times W}$ is the current embedding grid,
 
 The dynamics function $f_\theta$ is a dilated convolutional network:
 \begin{equation}
-f_\theta = \text{Conv}_{1\times1}^{128 \to 64} \circ \text{GN-GELU} \circ \text{DilConv}_{3\times3}^{d=4} \circ \text{GN-GELU} \circ \text{DilConv}_{3\times3}^{d=2} \circ \text{GN-GELU} \circ \text{DilConv}_{3\times3}^{d=1}
+\begin{aligned}
+f_\theta ={}& \text{Conv}_{1\times1}^{128 \to 64} \circ \text{GN-GELU}
+\circ \text{DilConv}_{3\times3}^{d=4} \circ \text{GN-GELU} \\
+& \circ \text{DilConv}_{3\times3}^{d=2} \circ \text{GN-GELU}
+\circ \text{DilConv}_{3\times3}^{d=1}.
+\end{aligned}
 \end{equation}
-where DilConv denotes dilated convolution with the specified dilation rate, and GN-GELU denotes GroupNorm (8 groups) followed by GELU activation. The input to the first layer has $64 + 64 + 2 = 130$ channels (embedding + scenario + terrain context). Dilation rates of 1, 2, 4 yield a theoretical receptive field of 17$\times$17 pixels (170\,m at 10\,m resolution), enabling the model to sense macro-scale drivers such as road construction or urban edge expansion.
+where DilConv denotes dilated convolution with the specified dilation rate, and GN-GELU denotes GroupNorm (8 groups) followed by GELU activation. The input to the first layer has $64 + 64 + 2 = 130$ channels (embedding + scenario + terrain context). Dilation rates of 1, 2, 4 yield a theoretical receptive field of 17$\times$17 pixels (170\,m at 10\,m resolution), allowing local context to include features such as road construction edges or urban expansion fronts.
 
 \textbf{Design rationale.} (1) \textit{Residual connection}: inter-annual embedding change is small (cosine similarity $\approx$0.96); learning the residual $\Delta z = f_\theta(\cdot)$ rather than the absolute $z_{t+1}$ avoids the identity-mapping collapse. (2) \textit{GroupNorm}: with only 60 training samples, BatchNorm statistics are unreliable; GroupNorm is batch-size invariant. (3) \textit{L2 normalization}: AlphaEarth embeddings lie on the 64-dimensional unit hypersphere; without explicit re-projection after residual addition, the embeddings drift off-manifold, causing downstream decoder failure (Section~\ref{sec:manifold}).
 
-\subsection{Scenario conditioning}
+\subsection{Baseline dynamics and scenario placeholder}
 
-The architecture supports conditional prediction via a scenario encoding vector $\sigma \in \mathbb{R}^{16}$. Five policy scenarios are defined (Table~\ref{tab:scenarios}), each encoded as a one-hot vector in the first 5 of 16 dimensions (remaining 11 reserved for future continuous parameters such as urbanization rate or reforestation intensity).
+The architecture includes a scenario encoding vector $\sigma \in \mathbb{R}^{16}$ so that future versions can condition dynamics on policy or environmental drivers. In the experiments reported here, however, all observed historical transitions are treated as the baseline trajectory. The scenario input is therefore fixed to the baseline index during training and evaluation.
 
-\textbf{Important caveat on current training.} In the present work, all training data uses the ``baseline'' scenario (ID~4), as historical satellite observations represent only one realized trajectory. The scenario-conditioning MLP $s_\phi$ is therefore trained only on the baseline input; weights corresponding to other scenarios have not received gradient updates during training. Consequently, the current model should be understood as a \textit{baseline trend predictor with an architectural placeholder for scenario-conditioned counterfactual simulation}. Activating the other four scenarios requires scenario-specific training data (e.g., labeling regions with known policy interventions) or physics-informed loss constraints, which we identify as a primary direction for future work (Section~\ref{sec:future}).
+\textbf{Scope of the present model.} The current model should be understood as a \textit{baseline-trend predictor}. We do not report counterfactual policy-scenario results, because non-baseline scenario weights have not received direct supervision. Activating scenario-conditioned counterfactual simulation would require scenario-labelled historical interventions, policy-specific constraints, or another source of supervised counterfactual signal.
 
 \begin{table}[htbp]
 \centering
-\caption{Simulation scenarios.}
+\caption{Scenario indices reserved by the architecture. Only the baseline input is trained and evaluated in this study.}
 \label{tab:scenarios}
-\begin{tabular}{lll}
+\small
+\begin{tabular}{clp{0.55\textwidth}}
 \toprule
 ID & Name & Description \\
 \midrule
-0 & Urban sprawl & Accelerated urbanization, farmland/ecology loss \\
-1 & Ecological restoration & Cropland reforestation, wetland recovery \\
-2 & Agricultural intensification & Farmland consolidation, grassland conversion \\
-3 & Climate adaptation & Terrain-dependent disaster-resilient land use \\
-4 & Baseline & Historical trend continuation \\
+0 & Urban sprawl & Reserved; not evaluated here \\
+1 & Ecological restoration & Reserved; not evaluated here \\
+2 & Agricultural intensification & Reserved; not evaluated here \\
+3 & Climate adaptation & Reserved; not evaluated here \\
+4 & Baseline & Historical trend continuation; trained and evaluated \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -317,17 +331,17 @@ where $\hat{z}_{t+k}$ is the $k$-step predicted embedding (each step using the p
 
 \subsection{LULC decoder}
 
-Predicted embeddings are decoded to LULC classes using a linear probe (scikit-learn LogisticRegression, max\_iter=1000), trained on 2020 embeddings paired with ESRI Global LULC labels across the training areas. Phase 0 validation confirmed linear decode accuracy of 83.7\% (5-fold CV).
+Predicted embeddings can be decoded to LULC classes for visualization using a linear probe (scikit-learn LogisticRegression, max\_iter=1000). The probe is trained on 2020 AlphaEarth embeddings paired with ESRI Global LULC labels. A traceable 5-fold cross-validation run over six ESRI class codes gives 76.99\% overall accuracy over 5,119 samples. This decoder is not used for dynamics training, and embedding-space cosine similarity remains the primary evaluation metric.
 
 \subsection{Inference procedure}
 
-Given a bounding box, scenario, and prediction horizon $N$:
+Given a bounding box and prediction horizon $N$:
 \begin{enumerate}
 \item Extract year-$t$ AlphaEarth embeddings from GEE.
 \item Optionally extract DEM/slope terrain context.
-\item Encode scenario to 16-dimensional vector.
+\item Encode the baseline trajectory as a 16-dimensional vector.
 \item Autoregressive loop: for $k = 1, \ldots, N$, compute $z_{t+k}$ via Eq.~\ref{eq:dynamics} with L2 normalization.
-\item Decode each $z_{t+k}$ to LULC class map; compute area distributions and transition matrices.
+\item Optionally decode $z_{t+k}$ to LULC classes for visualization; quantitative dynamics evaluation remains in embedding space.
 \end{enumerate}
 
 
@@ -338,7 +352,7 @@ Given a bounding box, scenario, and prediction horizon $N$:
 
 \subsection{Experimental setup}
 
-\textbf{Data splits.} 12 areas for training (2017--2022, yielding 60 year-pairs $\times$ 500 points = 30{,}000 pixel-level training samples), 2 areas for validation, 1 for testing, and 2 for out-of-distribution (OOD) evaluation. Temporal holdout: models are trained on 2017--2022 and evaluated on 2023--2024.
+\textbf{Data splits.} The development workflow used 12 training areas, 2 validation areas, 1 test area, and 2 out-of-distribution areas. Gridded cached embeddings support the convolutional dynamics model, while point-sampled embeddings are used only for lightweight feasibility and diagnostic checks. In the revised data-traceable summary, area-level statistics are reported only for cached grids with valid non-placeholder metrics.
 
 \textbf{Training.} Adam optimizer ($\text{lr} = 10^{-3}$), 100 epochs, 3-step unrolled loss with decaying weights $[1.0, 0.5, 0.25]$. Training completes in $\approx$80\,s on CPU (Intel i7-12700). No GPU required.
 
@@ -349,16 +363,49 @@ Given a bounding box, scenario, and prediction horizon $N$:
 \begin{itemize}
 \item \textbf{Persistence:} $\hat{z}_{t+1} = z_t$ (``next year equals this year'')---the standard naive baseline in time-series forecasting.
 \item \textbf{Linear extrapolation:} $\hat{z}_{t+1} = 2z_t - z_{t-1}$ (linear trend continuation).
+\item \textbf{Label-only transition prior:} for categorical validation only, we estimate empirical start-class to end-class transition frequencies from other available ESRI label pairs with the same grid shape and apply those frequencies to the target start-year map. This baseline uses no AlphaEarth embeddings and no LatentDynamicsNet prediction, so it tests whether apparent change detection is explained only by coarse class-transition frequencies.
 \end{itemize}
 
 \subsection{Change-pixel evaluation protocol}
 
-Global cosine similarity is dominated by the $\approx$90\% of pixels that do not change land-use class in any given year. To unmask the model's performance on genuinely changing regions, we stratify evaluation:
+Global cosine similarity is dominated by pixels with weak annual embedding displacement. To diagnose whether the model captures localized dynamics rather than only predicting stasis, we stratify evaluation:
 \begin{itemize}
-\item \textbf{Changed pixels:} top 20\% by L2 distance between $z_t$ and $z_{t+1}$ (actual change magnitude).
+\item \textbf{Changed pixels:} top 20\% by L2 distance between $z_t$ and $z_{t+1}$ (embedding-displacement proxy).
 \item \textbf{Stable pixels:} bottom 20\% by the same distance.
 \end{itemize}
-This reveals whether the model captures dynamics or merely predicts stasis.
+This diagnostic tests whether the model captures representation dynamics or merely predicts stasis; it is not a substitute for independent labelled land-cover change validation.
+
+\subsection{Independent categorical change-validation protocol}
+\label{sec:independent_change_protocol}
+
+To convert the embedding-displacement diagnostic into a formal land-cover transition test, we implemented a separate validation protocol that operates on annual categorical LULC maps. The protocol requires three co-registered arrays for each area--year pair: the reference start-year map $y_t$, the reference end-year map $y_{t+1}$, and the decoded model prediction $\hat{y}_{t+1}$. Reference labels and predicted maps are stored under \path{data/independent_change_labels/labels} and \path{data/independent_change_labels/predicted}, respectively, using area and year identifiers in the filenames. A persistence baseline is computed internally as $\hat{y}_{t+1}=y_t$.
+
+The validation script reports binary change precision, recall, and F1; end-year categorical accuracy; accuracy on truly changed pixels; exact transition-match accuracy on changed pixels; and class-area bias measured as the mean absolute difference between predicted and reference class fractions. We include two controls beyond persistence. First, a spatially shuffled model negative control randomly permutes the predicted end-year map with a fixed seed, preserving the predicted class histogram while destroying spatial correspondence. This control tests whether the decoded dynamics carry spatially localized transition information rather than only predicting plausible class proportions. Second, a label-only transition prior estimates empirical categorical transition frequencies from other available ESRI label pairs and applies those frequencies to the target start-year map without using embeddings or model predictions. This tests whether the model's change signal is stronger than a simple categorical transition-frequency prior. The script writes per-area CSV rows and transition-count tables. The current repository audit contains 12 completed independent area--year pairs across Banzhucun, Bishan, Heping, Poyang Lake, and Wuyi Mountain, with no skipped label--prediction pairs in the current cache.
+
+\subsection{Empirical evidence chain and validation boundary}
+\label{sec:evidence_chain}
+
+To make the empirical workflow auditable, we summarize the evidence chain used in the revised manuscript and maintain the same classification in a machine-readable audit file generated by the revision audit script. The audit distinguishes results that directly support the main embedding-space claim from diagnostic probes that support bounded interpretation but not standalone operational claims. Table~\ref{tab:empirical_pipeline} is therefore part of the empirical design rather than a post hoc disclaimer.
+
+\begin{table}[htbp]
+\centering
+\caption{Empirical evidence chain and validation boundary for the revised manuscript. ``Complete'' means that a traceable result file directly supports the stated manuscript claim. ``Diagnostic'' means that the result is used for interpretation or application probing only. ``Missing'' means that the stage is not used as completed evidence in this paper.}
+\label{tab:empirical_pipeline}
+\footnotesize
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}{@{}P{0.20\textwidth}P{0.13\textwidth}P{0.35\textwidth}P{0.26\textwidth}@{}}
+\toprule
+Empirical stage & Status & Evidence in this manuscript & Boundary / next validation \\
+\midrule
+Area-level embedding dynamics & Complete & 10 valid cached AlphaEarth grids; mean model-minus-persistence advantage +0.0047; 7/10 areas positive. & Supports bounded baseline-trend prediction in embedding space. \\
+Encoder replacement ablation & Complete & Prithvi-100M CLS branch on 17 areas; mean advantage $-2.4 \times 10^{-6}$. & Representation-state diagnostic, not a dense-token Prithvi benchmark. \\
+Semantic decoder validation & Diagnostic & Logistic-regression decoder on 5,119 AlphaEarth--ESRI samples; overall accuracy 76.99\%, macro-F1 0.668. & Supports qualitative decoding, not transition-level validation. \\
+Planning feature dropout & Diagnostic & 45 trained policies; dropout 0.3 retains 86.8\% of full-feature slope improvement; embedding-only retains 12.9\%. & Application probe, not operational planning deployment. \\
+Embedding-space transfer probe & Diagnostic & Banzhucun $\to$ Heping policy improves reward by +5.5 vs.\ random and +13.1 vs.\ greedy. & Weak zero-shot signal within one diagnostic reward system. \\
+Independent change-label validation & Complete & 12 ESRI-label pairs; model change F1 0.335 vs.\ shuffled 0.269, transition prior 0.166, and persistence 0.000; changed-pixel accuracy 0.279. & Positive but region-dependent change signal; end-year categorical accuracy and class-area bias remain weaker than simple map-level baselines. \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 
 % ============================================================================
@@ -380,7 +427,7 @@ Criterion & Threshold (pass/strong) & Result & Verdict \\
 \midrule
 Interannual cos.~sim. & $<$0.99 / $<$0.95 & 0.953 & PASS \\
 Change/stable separation & $>$2$\times$ / $>$5$\times$ & 2.44$\times$ & PASS \\
-Linear decode accuracy & $>$50\% / $>$70\% & 83.7\% & STRONG \\
+Linear decode accuracy & $>$50\% / $>$70\% & 76.99\% & STRONG \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -389,74 +436,129 @@ Linear decode accuracy & $>$50\% / $>$70\% & 83.7\% & STRONG \\
 
 \begin{table}[htbp]
 \centering
-\caption{Aggregate prediction quality by data split (1-step, cosine similarity).}
+\caption{Data-traceable area-level prediction quality from valid cached AlphaEarth grids (1-step, cosine similarity). Confidence intervals are non-parametric bootstrap intervals over area-level means.}
 \label{tab:aggregate}
-\begin{tabular}{lcccc}
+\begin{tabular}{lccc}
 \toprule
-Split & Areas & Model & Persistence & Advantage \\
+Metric & $n$ areas & Mean & 95\% CI \\
 \midrule
-Train & 12 & \textbf{0.9575} & 0.9460 & +0.0115 \\
-Validation & 2 & \textbf{0.9451} & 0.9402 & +0.0049 \\
-Test & 1 & 0.9560 & \textbf{0.9670} & $-$0.0110 \\
-OOD & 2 & 0.9570 & \textbf{0.9694} & $-$0.0124 \\
+Persistence & 10 & 0.9757 & [0.9675, 0.9832] \\
+LatentDynamicsNet & 10 & 0.9804 & [0.9757, 0.9852] \\
+Model $-$ persistence & 10 & +0.0047 & [$-$0.0028, +0.0130] \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The model surpasses persistence on all 12 training areas and on the validation set (first time a learned dynamics model exceeds persistence on held-out geospatial areas in this embedding space). OOD degradation is limited to $-$0.012, compared to $-$0.195 in an earlier version trained on only 2 areas (Section~\ref{sec:ablation_data}).
+Across valid cached AlphaEarth grids, the model improved over persistence in 7 of 10 areas (two-sided sign-test $p=0.344$). The mean area-level advantage was positive (+0.0047 cosine similarity), but the bootstrap confidence interval crossed zero. We therefore interpret the result as evidence that frozen GeoFM embeddings can support useful baseline-trend dynamics in some regions, rather than as a universal improvement over persistence.
 
 \subsection{Per-area results}
 
 \begin{table}[htbp]
 \centering
-\caption{Per-area 1-step prediction quality (cosine similarity, averaged over year pairs).}
+\caption{Per-area 1-step prediction quality for valid cached AlphaEarth grids.}
 \label{tab:perarea}
-\begin{tabular}{llcccc}
+\begin{tabular}{lccc}
 \toprule
-Split & Area & Model & Persist. & Linear & Advant. \\
+Area & Model & Persistence & Advantage \\
 \midrule
-Train & Qinghai Edge & 0.8137 & 0.7545 & 0.5904 & \textbf{+0.0592} \\
-Train & NE Plain & 0.9648 & 0.9463 & 0.8744 & \textbf{+0.0185} \\
-Train & Jianghan Plain & 0.9560 & 0.9368 & 0.8574 & \textbf{+0.0192} \\
-Train & Hetao & 0.9613 & 0.9496 & 0.8768 & \textbf{+0.0116} \\
-Train & Minnan Coast & 0.9734 & 0.9677 & 0.9135 & +0.0056 \\
-Train & Yangtze Delta & 0.9707 & 0.9639 & 0.9124 & +0.0068 \\
-Train & Yunnan Eco & 0.9694 & 0.9660 & 0.9149 & +0.0034 \\
-Val & Pearl River & 0.9678 & 0.9654 & 0.9144 & +0.0025 \\
-Val & Poyang Lake & 0.9223 & 0.9149 & 0.8087 & \textbf{+0.0074} \\
-Test & Wuyi Mountain & 0.9560 & 0.9670 & 0.9043 & $-$0.0110 \\
-OOD & Sanxia Reservoir & 0.9619 & 0.9745 & 0.9279 & $-$0.0126 \\
-OOD & Lhasa Valley & 0.9521 & 0.9644 & 0.9346 & $-$0.0123 \\
+Qinghai Edge & 0.9789 & 0.9489 & \textbf{+0.0300} \\
+Jianghan Plain & 0.9862 & 0.9639 & \textbf{+0.0223} \\
+Poyang Lake & 0.9855 & 0.9735 & \textbf{+0.0120} \\
+Jing-Jin-Ji & 0.9751 & 0.9713 & +0.0039 \\
+Minnan Coast & 0.9931 & 0.9908 & +0.0023 \\
+Yangtze Delta & 0.9917 & 0.9910 & +0.0007 \\
+Chengdu Plain & 0.9716 & 0.9708 & +0.0007 \\
+Pearl River & 0.9786 & 0.9803 & $-$0.0017 \\
+Bishan & 0.9719 & 0.9781 & $-$0.0062 \\
+Daxinganling & 0.9714 & 0.9882 & $-$0.0168 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The largest advantage appears in Qinghai Edge ($+0.059$), a plateau-edge area with rapid interannual change where persistence performs poorly. Linear extrapolation is consistently the worst baseline across all areas, confirming the nonlinearity of land-use change dynamics.
+The largest positive advantages occur in Qinghai Edge, Jianghan Plain, and Poyang Lake. Negative cases occur in Bishan, Daxinganling, and Pearl River, indicating that the learned residual dynamics can underperform persistence when inter-annual drift is weak or when the cached region differs from the model's strongest training domains.
+
+Table~\ref{tab:category_diagnostic} groups the same area-level results by the study-area categories in Table~\ref{tab:areas}. The grouping is diagnostic because most categories contain only one or two valid cached areas. It nevertheless helps explain the region dependence: the four urban areas are close to neutral on average, while the strongest positive and negative results occur in single-area plateau/agriculture and forest cases, respectively.
+
+\begin{table}[htbp]
+\centering
+\caption{Diagnostic grouping of AlphaEarth area-level advantage by study-area category. The table summarizes valid cached areas only and should not be interpreted as a formal biome-level statistical test.}
+\label{tab:category_diagnostic}
+\small
+\begin{tabular}{lccc}
+\toprule
+Category & Valid areas & Mean advantage & Positive / negative \\
+\midrule
+Urban & 4 & +0.0009 & 3 / 1 \\
+Agriculture & 1 & +0.0223 & 1 / 0 \\
+Wetland & 1 & +0.0120 & 1 / 0 \\
+Plateau & 1 & +0.0300 & 1 / 0 \\
+Mixed & 2 & $-$0.0019 & 1 / 1 \\
+Forest & 1 & $-$0.0168 & 0 / 1 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Change-pixel analysis}
 
 \begin{table}[htbp]
 \centering
-\caption{Model advantage on changed pixels (top 20\% displacement) vs.\ stable pixels (bottom 20\%).}
+\caption{Change-pixel diagnostic on the currently traceable cached region. Changed pixels are the top 20\% by embedding displacement.}
 \label{tab:changepixel}
-\begin{tabular}{llcccc}
+\begin{tabular}{lcccc}
 \toprule
- & & \multicolumn{2}{c}{Changed pixels} & \multicolumn{2}{c}{Stable pixels} \\
-\cmidrule(lr){3-4}\cmidrule(lr){5-6}
-Split & Area & Model & Persist. & Model & Persist. \\
+Area & Model & Persist. & Advantage & Source \\
 \midrule
-Train & Qinghai Edge & 0.669 & 0.561 & 0.920 & 0.909 \\
-Train & NE Plain & 0.918 & 0.875 & 0.987 & 0.983 \\
-Train & Jianghan & 0.905 & 0.875 & 0.981 & 0.971 \\
-Train & Hetao & 0.927 & 0.902 & 0.980 & 0.976 \\
-Val & Poyang Lake & 0.848 & 0.829 & 0.962 & 0.967 \\
-Val & Pearl River & 0.928 & 0.920 & 0.985 & 0.985 \\
-OOD & Lhasa Valley & 0.916 & 0.928 & 0.974 & 0.986 \\
+Bishan & 0.955710 & 0.955734 & $-2.35 \times 10^{-5}$ & cached grid \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-On training areas, the model's advantage on changed pixels ($+0.030$ to $+0.108$) is 2--10$\times$ larger than the global advantage ($+0.012$). This confirms that global cosine similarity understates the model's true predictive value: it excels precisely where prediction matters most---on pixels undergoing real land-use transitions.
+The current change-pixel analysis should be read as a narrow diagnostic rather than an independent land-cover validation. Changed pixels are defined by high embedding displacement, not by manually interpreted land-cover transitions. In the traceable cached result, the changed-pixel advantage is effectively zero and slightly negative in Bishan. This does not support a general claim that the model is stronger on changed pixels. The independent validation in Section~\ref{sec:independent_change_validation} therefore provides the more relevant categorical transition test.
+
+\subsection{Independent categorical change validation}
+\label{sec:independent_change_validation}
+
+We evaluated decoded model predictions against independently extracted ESRI Global LULC annual labels on 12 area--year pairs with matching cached prediction grids (Table~\ref{tab:independent_change_validation}). The evaluated set includes two Banzhucun three-year windows, seven annual Bishan windows, one Heping three-year window, and two held-out validation/test-area windows from Poyang Lake and Wuyi Mountain. Reference change rates range from 0.0\% in Wuyi Mountain 2020--2021 to 26.9\% in Banzhucun 2020--2023.
+
+\begin{table}[htbp]
+\centering
+\caption{Independent categorical change validation against ESRI annual LULC labels. Change metrics treat a pixel as changed when the end-year class differs from the start-year class. The shuffled control randomly permutes the model-predicted end-year map, preserving predicted class frequencies while removing spatial correspondence. The transition-prior baseline uses empirical class-transition frequencies from other label pairs with the same grid shape and contains no embedding or model-prediction information. Persistence predicts the end-year map as identical to the start-year map.}
+\label{tab:independent_change_validation}
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccc}
+\toprule
+Area--years & Chg. \% & Model F1 & Shuf. F1 & Prior F1 & Chg.-pix. acc. & Model end acc. & Prior end acc. & Pers. end acc. \\
+\midrule
+Banzhucun 2017--2020 & 22.1 & 0.371 & 0.335 & 0.226 & 0.303 & 0.535 & 0.667 & 0.779 \\
+Banzhucun 2020--2023 & 26.9 & 0.482 & 0.417 & 0.297 & 0.292 & 0.558 & 0.656 & 0.731 \\
+Bishan annual mean (7 pairs) & 14.5 & 0.344 & 0.254 & 0.177 & 0.342 & 0.641 & 0.749 & 0.855 \\
+Heping 2017--2020 & 16.8 & 0.375 & 0.317 & 0.235 & 0.191 & 0.676 & 0.772 & 0.832 \\
+Poyang Lake 2020--2021 & 17.4 & 0.385 & 0.389 & 0.000 & 0.163 & 0.743 & 0.826 & 0.826 \\
+Wuyi Mountain 2020--2021 & 0.0 & 0.000 & 0.000 & 0.000 & 0.000 & 0.996 & 1.000 & 1.000 \\
+\midrule
+Mean (12 pairs) & 15.4 & 0.335 & 0.269 & 0.166 & 0.279 & 0.666 & 0.764 & 0.846 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+The independent validation changes the interpretation of the model. Because persistence predicts no categorical changes, its binary change F1 and changed-pixel transition accuracy are zero by construction; the model obtains a mean change F1 of 0.335 and a mean changed-pixel accuracy of 0.279. The spatially shuffled negative control reaches a lower mean change F1 of 0.269, and the label-only transition prior reaches 0.166. This indicates that part of the model's change signal is spatially localized and stronger than a simple categorical transition-frequency prior. However, this advantage is not uniform: in Poyang Lake the shuffled control is marginally higher than the model on binary change F1, and Wuyi Mountain contains no ESRI-labelled categorical change in 2020--2021. The model's overall end-year categorical accuracy remains lower than persistence (0.666 vs.\ 0.846) and lower than the transition prior (0.764), and its class-area bias is also larger than both map-level baselines. The evidence therefore supports a bounded claim: the latent dynamics can identify some changing pixels and transitions, but it is not yet a superior full-map categorical LULC forecaster.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/fig_rse_revision_spatial_change_validation.pdf}
+\caption{Spatial validation and failure-mode example for Banzhucun 2020--2023. Panels show the reference start-year map, reference end-year map, decoded model prediction, binary reference change, binary predicted change, and change-detection error classes. The model detects many true changed pixels (36,605 hits) but also produces substantial false alarms (55,763) and misses (22,983), illustrating why change F1 improves over controls while full-map categorical accuracy remains below persistence.}
+\label{fig:spatial_change_validation}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/fig_rse_revision_area_performance.pdf}
+\caption{Area-level prediction quality from data-traceable cached AlphaEarth grids. (a) One-step cosine similarity for persistence and LatentDynamicsNet. (b) Paired model-minus-persistence advantage by area. Error statistics in the panel use non-parametric bootstrap intervals over area-level means; the area-level confidence interval crosses zero, so the result is interpreted as region-dependent rather than universally superior to persistence.}
+\label{fig:revision_area_performance}
+\end{figure}
 
 \subsection{Multi-step degradation}
 
@@ -475,14 +577,14 @@ Chengdu Plain & \textbf{+.003} & \textbf{+.001} & \textbf{+.002} & \textbf{+.001
 \end{tabular}
 \end{table}
 
-With multi-step unrolled training, the Yangtze Delta area sustains positive advantage for 5 of 6 steps (previously only 3/6 without unrolled loss), demonstrating the effectiveness of the exposure-bias mitigation strategy.
+This recorded diagnostic suggests that multi-step unrolled training can delay degradation in some regions, but the evidence is not yet a full long-horizon benchmark across all cached areas.
 
-\subsection{Scaling study: 2 vs.~12 training areas}
+\subsection{Development scaling diagnostic: 2 vs.~12 training areas}
 \label{sec:ablation_data}
 
 \begin{table}[htbp]
 \centering
-\caption{Effect of training data scale on generalization.}
+\caption{Development diagnostic on the effect of training data scale. These values are retained as recorded run diagnostics and are not the primary data-traceable evidence.}
 \label{tab:scaling}
 \begin{tabular}{lcccc}
 \toprule
@@ -496,16 +598,16 @@ Train win rate & 50\% & --- & \textbf{100\%} & --- \\
 \end{tabular}
 \end{table}
 
-Increasing training areas from 2 to 12 improves training advantage by 4$\times$ and reduces OOD gap by 94\%, confirming that data diversity is the primary bottleneck---not model capacity.
+The recorded scaling diagnostic is consistent with the interpretation that training-area diversity matters for embedding-space dynamics. Because the revised area-level summary uses only valid cached grids, these scaling numbers are treated as supporting diagnostics rather than the main evidence.
 
-\subsection{Ablation study}
+\subsection{Development ablation diagnostic}
 \label{sec:ablation}
 
-To validate the necessity of each architectural component, we train three ablated variants on the same 12 training areas and evaluate identically. Each variant removes exactly one component while keeping all others unchanged.
+To diagnose the role of each architectural component during model development, three ablated variants were trained on the same development split. Each variant removes exactly one component while keeping all others unchanged. Because the revised manuscript prioritizes cached-grid summaries with explicit provenance, this table is treated as a development diagnostic rather than as the main statistical evidence.
 
 \begin{table}[htbp]
 \centering
-\caption{Ablation study: contribution of each architectural component. ``Advantage'' is model cosine similarity minus persistence baseline, averaged across areas. ``Change Adv.'' is computed on the top-20\% changed pixels only.}
+\caption{Development ablation diagnostic. ``Advantage'' is model cosine similarity minus persistence baseline, averaged across the recorded development split. ``Change Adv.'' is computed on the top-20\% embedding-displacement pixels only.}
 \label{tab:ablation}
 \begin{tabular}{lccc}
 \toprule
@@ -519,85 +621,71 @@ w/o unrolled loss ($K$=1) & +0.0120 ($-$11\%) & $-$0.0006 & +0.0295 \\
 \end{tabular}
 \end{table}
 
-\textbf{L2 normalization is the most critical component.} Removing it degrades training advantage by 62\% and causes the validation set to turn negative. Without re-projection onto the unit hypersphere, embedding norms drift from 1.0 to 1.11 after 6 autoregressive steps (Chengdu Plain), and cosine similarity degrades monotonically from 0.98 to 0.90.
+\textbf{L2 normalization is the clearest development signal.} Removing it degrades the recorded training advantage by 62\% and causes the validation set to turn negative. This supports the design choice to re-project residual predictions onto the unit hypersphere after each step.
 
-\textbf{Dilated convolutions primarily affect change pixels.} Replacing dilated convolutions (dilation rates 1, 2, 4; receptive field 170\,m) with standard 3$\times$3 convolutions (receptive field 50\,m) reduces change-pixel advantage by 32\% ($+0.029 \to +0.020$), while global metrics degrade by only 24\%. This confirms that the expanded receptive field is most beneficial for pixels at the urban--rural interface where macro-scale drivers matter.
+\textbf{Dilated convolutions primarily affect change-pixel diagnostics.} Replacing dilated convolutions (dilation rates 1, 2, 4; receptive field 170\,m) with standard 3$\times$3 convolutions (receptive field 50\,m) reduces the recorded change-pixel advantage by 32\% ($+0.029 \to +0.020$), while global metrics degrade by 24\%. This is consistent with expanded receptive fields helping near land-cover boundaries, but stronger spatial validation requires reference change labels.
 
-\textbf{Unrolled loss improves long-horizon robustness.} Training with single-step teacher forcing ($K$=1) vs.\ 3-step unrolled loss ($K$=3) causes the validation set advantage to flip from $+0.002$ to $-0.001$. In multi-step evaluation, the full model sustains positive advantage for 6/6 steps on Yangtze Delta vs.\ 5/6 for the ablated variant, and 5/6 vs.\ 4/6 on Jing-Jin-Ji.
+\textbf{Unrolled loss is a plausible robustness factor.} Training with single-step teacher forcing ($K$=1) vs.\ 3-step unrolled loss ($K$=3) causes the recorded validation advantage to flip from $+0.002$ to $-0.001$. In the recorded multi-step diagnostic, the full model sustains positive advantage for more steps on Yangtze Delta and Jing-Jin-Ji than the ablated variant.
 
 \subsection{Encoder choice ablation: AlphaEarth vs.\ Prithvi-100M}
 \label{sec:encoder_ablation}
 
-A plausible alternative reading of our results is that the LatentDynamicsNet performance is driven primarily by the parameter count of the frozen encoder (480M+ for AlphaEarth Foundations) rather than by the specific structural properties of its embedding space. To test this, we replace the AlphaEarth encoder with Prithvi-100M~\citep{jakubik2024prithvi}, a publicly available 100M-parameter geospatial Vision Transformer that has emerged as the most widely-used open GeoFM. We adapt Prithvi using the AlphaEarth-System platform~\citep{zhouning2026alphaearthsystem} for HLS multi-spectral input handling, and re-run the entire pipeline---HLS extraction, encoder forward pass, LatentDynamicsNet training, evaluation---under identical settings (same 17 study areas; 12-area training set; 3 seeds; 50 epochs; 3-step unrolled loss).
+A plausible alternative reading of our results is that the LatentDynamicsNet performance is driven primarily by the parameter count of the frozen encoder (480M+ for AlphaEarth Foundations) rather than by the specific structural properties of its embedding space. To test this, we replace the AlphaEarth encoder with Prithvi-100M~\citep{jakubik2024prithvi}, a publicly available 100M-parameter geospatial Vision Transformer. We implement the comparison as a fully specified branch of the present workflow, and re-run HLS extraction, encoder inference, LatentDynamicsNet training, and evaluation under the same split and training settings used for the main model (17 study areas, 12 training areas, 3 seeds, 50 epochs, and 3-step unrolled loss).
 
-We sample one global CLS token per area-year ($1 \times 1 \times 768$) so that the comparison mirrors AlphaEarth's per-area sampling protocol ($1 \times 1 \times 64$). The Prithvi CLS feature is L2-normalized at extraction time so that the spherical-manifold assumption of LatentDynamicsNet (Section~\ref{sec:manifold}) survives. The AlphaEarth-System pipeline downloads the HLSL30 v002 collection from Google Earth Engine over the May--September growing season, applies Fmask cloud/shadow/snow filtering, takes a per-band median composite, and runs Prithvi-100M with frozen weights to produce the global CLS token. All other implementation choices match the main pipeline.
+For each study area and year, the Prithvi branch downloads NASA HLSL30 v002 imagery from Google Earth Engine for the May--September growing season. It masks cloud, cloud-shadow, and snow pixels using the HLS \texttt{Fmask} band, selects the six Prithvi input bands (blue, green, red, near infrared, SWIR1, and SWIR2), forms a per-band median composite, scales reflectance by 10{,}000, and clips values to $[0,1]$. The frozen Prithvi-100M checkpoint is then applied in evaluation mode to 128$\times$128 HLS tiles. Tile-level CLS tokens are averaged within each area-year, reshaped to a $1 \times 1 \times 768$ feature, and L2-normalized before training LatentDynamicsNet. This global CLS protocol mirrors AlphaEarth's per-area sampling protocol ($1 \times 1 \times 64$), while the local-resolution gap is treated explicitly as part of the representation-state diagnostic.
 
-Table~\ref{tab:encoder_ablation} reports three orthogonal measurements on the resulting embeddings: (i) downstream LULC linear-probe accuracy, a representational quality proxy that does not depend on temporal modeling; (ii) per-area persistence cosine similarity, the cross-year similarity in the encoder's own embedding space; and (iii) LatentDynamicsNet advantage over persistence after training. AlphaEarth numbers are reported on the 10 study areas with valid GEE caches.
+Table~\ref{tab:encoder_ablation} reports temporal diagnostics on the resulting embeddings: per-area persistence cosine similarity in the encoder's own embedding space, LatentDynamicsNet advantage over persistence after training, and the number of valid cached areas used in each summary. AlphaEarth numbers are reported on the 10 study areas with valid GEE caches.
 
 \begin{table}[htbp]
 \centering
-\caption{Encoder choice ablation. AlphaEarth Foundations vs.\ Prithvi-100M as the frozen encoder, identical LatentDynamicsNet training protocol on the 12-area training split. Persistence and advantage are means across the 10 valid AE areas. The Prithvi columns are computed across the same areas plus 7 additional ones that AE failed to fetch, all of which yield identical numbers because the Prithvi global CLS feature is empirically stationary across years.}
+\caption{Encoder choice diagnostic. AlphaEarth Foundations and Prithvi-100M CLS embeddings are evaluated within their own embedding spaces. Persistence and advantage are means over valid cached areas. The Prithvi CLS token is nearly stationary across years in this workflow, producing no useful temporal dynamics signal.}
 \label{tab:encoder_ablation}
 \small
-\begin{tabular}{lcccc}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccc@{}}
 \toprule
-Encoder & Params & LULC probe acc. & Persistence cos.\,sim. & LDN adv.\ over pers. \\
+Encoder & Params & Areas & Pers. cos. & LDN adv. \\
 \midrule
-AlphaEarth (64-d, multi-modal) & 480M & \textbf{0.927} & 0.9757 & \textbf{+0.0047} \\
-Prithvi-100M CLS (768-d, HLSL30) & 100M & 0.400 & 1.0000 & $+0.0000$ \\
+AlphaEarth (64-d, multi-modal) & 480M & 10 & 0.9757 & \textbf{+0.0047} \\
+Prithvi-100M CLS (768-d, HLSL30) & 100M & 17 & 1.0000 & $-2.4 \times 10^{-6}$ \\
 \bottomrule
-\end{tabular}
+\end{tabular*}
 \end{table}
 
-\textbf{Encoder size is not the explanation.} Prithvi-100M, although 4.8$\times$ smaller in parameter count, is not the smaller-but-similar encoder one might expect; it is structurally inadequate as a state space for inter-annual dynamics on this task. The Prithvi global CLS token is empirically stationary across years (per-area persistence cosine similarity equals 1.000 to four decimal places on every area), so there is no learnable signal for the LatentDynamicsNet to extract beyond the identity map. Training collapses to a zero-residual solution in fewer than five epochs across all three seeds, with final validation cosine similarity equal to persistence to within $10^{-5}$.
+\textbf{Encoder size is not the explanation.} Prithvi-100M, although 4.8$\times$ smaller in parameter count, is not the smaller-but-similar encoder one might expect in this workflow. The global CLS token is empirically stationary across years (per-area persistence cosine similarity equals 1.000 to four decimal places on every area), so there is little temporal signal for the LatentDynamicsNet to extract beyond the identity map.
 
-\textbf{Representational quality matches the dynamics gap.} The 4.6$\times$ gap in LULC linear-probe accuracy (0.93 for AlphaEarth vs.\ 0.40 for Prithvi CLS, fitting the same logistic regression to AlphaEarth-derived ESA WorldCover pseudo-labels) confirms that the dynamics gap is not an artifact of unfortunate L2 normalization or training protocol. The 768-dimensional Prithvi global token compresses too much spatial detail into a single vector to distinguish the six surface land-cover classes that AlphaEarth's 64-dimensional per-pixel embedding decodes near-perfectly.
+\textbf{Local state resolution matters.} The Prithvi experiment uses one global CLS token per area-year, whereas the main AlphaEarth workflow uses local embedding grids. The result should therefore be read as a representation-state diagnostic, not as a full model-to-model benchmark. A global scene token removes much of the local temporal structure that an embedding-space dynamics model needs.
 
 \textbf{Three structural properties of AlphaEarth combine.} The ablation does not isolate which of (a) multi-modal input fusion (AlphaEarth uses Sentinel-1 SAR, Sentinel-2 optical, Landsat, GEDI lidar, ERA5 climate; Prithvi-100M was pre-trained on HLSL30 optical-only), (b) per-pixel rather than per-patch resolution, or (c) explicit unit-norm spherical embedding structure---each of which AlphaEarth has and Prithvi-100M lacks---is most responsible for the observed gap. We expect all three to contribute, and recommend that future GeoFM-based world models adopting a frozen-encoder design preserve as many of these properties as possible. In particular, simply substituting any general-purpose ViT encoder is unlikely to match AlphaEarth's behavior at the inter-annual time scale.
 
-\textbf{Reproducibility.} The 17-area $\times$ 8-year $\times$ 3-seed Prithvi pipeline takes approximately 30~minutes wall-clock on a single Colab L4 GPU. Code, data extraction scripts, and per-seed checkpoints are released alongside the main paper artefacts.
+\textbf{Reproducibility.} The revision summary, area-level metric tables, and figure source data are generated by repository scripts from recorded JSON/CSV artefacts. Rows with missing-cache placeholders are excluded from the area-level summary.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/fig_wm_area_comparison.pdf}
-\caption{Per-area cosine similarity for the persistence baseline (gray) and LatentDynamicsNet (blue) across all study areas. Vertical dashed lines separate training, validation, test, and OOD splits. The model consistently matches or exceeds persistence, with the largest gains in areas with high interannual change (e.g., Poyang Lake).}
-\label{fig:area_comparison}
+\includegraphics[width=\textwidth]{figures/fig_rse_revision_encoder_diagnostic.pdf}
+\caption{Encoder-state diagnostic. (a) Mean cosine similarity of year-pair persistence and LatentDynamicsNet predictions in each encoder's own embedding space. (b) Mean advantage over persistence. The Prithvi-100M global CLS representation is nearly stationary across years, whereas AlphaEarth retains measurable inter-annual variation at the local embedding level.}
+\label{fig:revision_encoder_diagnostic}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/fig_wm_rollout_decay.pdf}
-\caption{Multi-step rollout degradation for (a) the test area (Wuyi Mountain) and (b) out-of-distribution areas (Sanxia Reservoir, Lhasa Valley). Shaded bands indicate $\pm$1 standard deviation. The model sustains above-baseline quality for at least 5 years before crossing the persistence line.}
-\label{fig:rollout}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\begin{minipage}[t]{0.48\textwidth}
-\centering
-\includegraphics[width=\textwidth]{figures/fig_wm_confusion_matrix.pdf}
-\caption{Confusion matrix of the LULC decoder (LogisticRegression) on 5-fold cross-validation of AlphaEarth embeddings mapped to ESA WorldCover classes. Overall accuracy: 77.0\%.}
-\label{fig:confusion}
-\end{minipage}\hfill
-\begin{minipage}[t]{0.48\textwidth}
-\centering
-\includegraphics[width=\textwidth]{figures/fig_wm_ablation.pdf}
-\caption{Ablation study: (a)~prediction quality and (b)~advantage over persistence for four model variants. Removing L2 normalization causes the largest degradation ($-$62\% advantage).}
-\label{fig:ablation}
-\end{minipage}
+\includegraphics[width=0.72\textwidth]{figures/fig_rse_revision_decoder_confusion.pdf}
+\caption{Traceable LULC decoder diagnostic. The row-normalized confusion matrix is generated from the recorded 5-fold cross-validation output for the logistic-regression decoder on AlphaEarth embeddings and ESRI Global LULC labels. This decoder supports visualization only; all dynamics training and main evaluation metrics are computed in embedding space.}
+\label{fig:decoder_confusion}
 \end{figure}
 
 
 % ============================================================================
-\section{Downstream Application: Embedding-Space Planning}
+\section{Downstream Application Probe: Embedding-Space Planning}
 \label{sec:planning}
 % ============================================================================
 
-The preceding sections establish that the LatentDynamicsNet learns meaningful temporal dynamics in embedding space. A natural question follows: can these learned representations support not only prediction but also \textit{decision making}? We investigate this by training reinforcement learning (RL) policies on a dual-representation environment that combines task-specific engineered features with frozen GeoFM embeddings, then systematically ablating the feature channel to quantify the embedding channel's standalone planning utility.
+The preceding sections evaluate whether frozen GeoFM embeddings can support baseline-trend dynamics. We next use a planning task as an application probe, asking whether the same embedding channel can improve robustness when task-specific planning features are partially unavailable. This experiment should not be read as a full operational planning validation; it tests whether embeddings carry useful complementary information in a controlled reinforcement-learning setting.
 
 \subsection{Problem setup}
 
-We consider the farmland consolidation planning problem on Bishan County, where an agent sequentially selects management blocks for land-use optimization. At each step, the agent chooses one of $N \approx 2{,}600$ blocks; a deterministic sub-routine then executes parcel-level swaps within the selected block to reduce average farmland slope and improve spatial contiguity. The episode terminates after a fixed budget of interventions. This task family has been studied in prior work using model-free RL \citep{zhou2026drl}; here we use it as a testbed for the world model's downstream utility.
+We define a self-contained Markov decision process for the farmland consolidation probe in Bishan County. The action space contains one discrete action per management block ($N \approx 2{,}600$). A valid action selects a block that still contains swappable farmland and forest parcels; invalid actions are masked before policy sampling. After a block is selected, a deterministic execution routine performs up to five paired parcel swaps within that block. The routine chooses high-slope farmland and low-slope forest candidates, includes adjacency penalties to discourage spatial fragmentation, and stops early if no slope-improving pair remains. Episodes use a budget of 500 parcel swaps, which gives at most 100 decision steps, and terminate earlier when no valid block remains.
+
+The step reward combines normalized improvement in average farmland slope, normalized contiguity improvement, gain in large contiguous farmland-patch area, and the number of newly formed large patches, with weights 4000, 500, 1500, and 5, respectively. Large patches are connected farmland components of at least 100 mu (66{,}700\,m$^2$). If large-patch area decreases, an additional asymmetric penalty with weight 2000 is applied; failed actions receive a reward penalty of 1. The reported evaluation metrics remain the physically interpretable end-state quantities, namely percentage change in average farmland slope and absolute change in contiguity.
 
 \subsection{Dual-representation environment}
 
@@ -630,18 +718,63 @@ Table~\ref{tab:dropout} summarizes the planning performance across the three fea
 \centering
 \caption{Planning performance under feature dropout (15 seeds per configuration). Slope change is negative = improvement; contiguity change is positive = improvement.}
 \label{tab:dropout}
+\footnotesize
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lccc@{}}
+\toprule
+Configuration & Slope (\%) & Contiguity & Time (s/seed) \\
+\midrule
+Full & $-0.742 \pm 0.151$ & $+0.0152 \pm 0.0042$ & 3{,}002 \\
+Dropout 0.3 & $-0.644 \pm 0.151$ & $+0.0146 \pm 0.0051$ & 3{,}002 \\
+Embedding only & $-0.096 \pm 0.048$ & $+0.0064 \pm 0.0036$ & 2{,}216 \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+Pairwise statistical tests (Table~\ref{tab:significance}) reveal that moderate dropout ($p=0.3$) does not significantly degrade performance relative to full information ($p = 0.097$, $d = -0.63$), while complete feature removal ($p=1.0$) causes statistically significant collapse ($p < 0.0001$, $d = -5.57$). We also compare against an embedding-intervention baseline trained only on the embedding-side intervention environment and evaluated with the same real county-level slope and contiguity metrics (Table~\ref{tab:planning_baseline}). This baseline reaches only 3.7\% of the full-feature slope improvement, confirming that the useful signal in the planning probe comes from combining GeoFM embeddings with task-specific planning features, not from the embedding-intervention channel alone.
+
+\begin{table}[htbp]
+\centering
+\caption{Planning baseline diagnostic under the same real county-level evaluation metrics. Values are mean $\pm$ standard deviation over 15 seeds. Slope retention is relative to the full dual-representation policy.}
+\label{tab:planning_baseline}
+\footnotesize
 \begin{tabular}{lccc}
 \toprule
-Configuration & Slope change (\%) & Contiguity change & Train time (s/seed) \\
+Configuration & Slope (\%) & Contiguity & Retention \\
 \midrule
-Full ($p=0.0$) & $-0.742 \pm 0.151$ & $+0.0152 \pm 0.0042$ & 3{,}002 \\
-Dropout ($p=0.3$) & $-0.644 \pm 0.151$ & $+0.0146 \pm 0.0051$ & 3{,}002 \\
-Embedding only ($p=1.0$) & $-0.096 \pm 0.048$ & $+0.0064 \pm 0.0036$ & 2{,}216 \\
+Emb.-intervention baseline & $-0.028 \pm 0.005$ & $+0.0039 \pm 0.0008$ & 3.7\% \\
+Dual full & $-0.742 \pm 0.156$ & $+0.0152 \pm 0.0043$ & 100.0\% \\
+Dual dropout 0.3 & $-0.644 \pm 0.157$ & $+0.0146 \pm 0.0053$ & 86.8\% \\
+Dual embedding only & $-0.096 \pm 0.050$ & $+0.0064 \pm 0.0037$ & 12.9\% \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Pairwise statistical tests (Table~\ref{tab:significance}) reveal that moderate dropout ($p=0.3$) does not significantly degrade performance relative to full information ($p = 0.097$, $d = -0.63$), while complete feature removal ($p=1.0$) causes statistically significant collapse ($p < 0.0001$, $d = -5.57$).
+We also retain a separate zero-shot transfer diagnostic from the earlier embedding-space planning environment. A policy trained on Banzhucun embeddings is evaluated without retraining on Heping, and compared with random and greedy policies in the same Heping embedding-space reward system (Table~\ref{tab:transfer_planning}). This diagnostic is not directly comparable with the real county-level slope and contiguity metrics above, but it tests whether embedding-space policies contain any cross-region signal before task-specific features are added.
+
+\begin{table}[htbp]
+\centering
+\caption{Embedding-space zero-shot transfer diagnostic on Heping (15 seeds). Reward is the embedding-space planning reward used by this diagnostic environment; cropland change is reported in decoded pixels. Higher reward is better.}
+\label{tab:transfer_planning}
+\footnotesize
+\begin{tabular}{lcccc}
+\toprule
+Configuration & Reward & Crop change & $\Delta$ vs.\ random & $\Delta$ vs.\ greedy \\
+\midrule
+Random & $-1177.7 \pm 2.8$ & $-604.7 \pm 2.5$ & 0.0 & +7.6 \\
+Greedy & $-1185.3 \pm 0.0$ & $-603.0 \pm 0.0$ & $-$7.6 & 0.0 \\
+Banzhucun $\to$ Heping & $-1172.2 \pm 5.1$ & $-602.7 \pm 3.2$ & +5.5 & +13.1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent The transferred policy improves the embedding-space reward relative to both baselines, but the decoded cropland-change differences are small. We therefore treat this as evidence of weak but measurable zero-shot signal, not as proof of operational cross-region planning transfer.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/fig_rse_revision_planning_dropout.pdf}
+\caption{Downstream planning probe under feature dropout. Points show mean performance across 15 seeds and error bars show 95\% confidence intervals. Negative slope change is better; positive contiguity change is better. Moderate feature dropout retains most full-feature performance, whereas embedding-only policies lose most slope-improvement capacity.}
+\label{fig:planning_dropout}
+\end{figure}
 
 \begin{table}[htbp]
 \centering
@@ -660,13 +793,15 @@ Dropout 0.3 vs.\ Embedding only & $<$0.0001 & $<$0.0001 & $-4.71$ \\
 
 \subsection{Interpretation}
 
-The results establish a clear hierarchy: the engineered feature channel is the primary driver of planning performance, while the GeoFM embedding channel provides supplementary but insufficient signal when used alone. Three observations merit discussion:
+The results indicate a clear hierarchy: the engineered feature channel is the primary driver of planning performance, while the GeoFM embedding channel provides supplementary but insufficient signal when used alone. Three observations merit discussion:
 
-\textbf{Feature channel dominance.} Complete feature removal ($p=1.0$) retains only 13\% of the full-information slope improvement ($-0.096\%$ vs.\ $-0.742\%$). This is expected: the 17-dim feature vector encodes task-specific information (per-block slope statistics, farmland fractions, adjacency structure) that the 64-dim GeoFM embedding---designed for general-purpose land-cover representation---does not explicitly capture.
+\textbf{Feature channel dominance.} Complete feature removal ($p=1.0$) retains only 12.9\% of the full-information slope improvement ($-0.096\%$ vs.\ $-0.742\%$), and the embedding-intervention baseline retains only 3.7\%. This is expected: the 17-dim feature vector encodes task-specific information (per-block slope statistics, farmland fractions, adjacency structure) that the 64-dim GeoFM embedding---designed for general-purpose land-cover representation---does not explicitly capture.
 
 \textbf{Graceful degradation under moderate dropout.} At $p=0.3$, the policy retains 87\% of full performance with no statistically significant loss. This suggests that the policy learns to use the embedding channel as a fallback when features are absent, achieving a degree of robustness to partial feature unavailability.
 
-\textbf{Transfer pathway.} These results outline a concrete transfer strategy: train with moderate feature dropout on a data-rich source region (where both features and embeddings are available), then deploy to a target region where only GeoFM embeddings exist. The expected performance floor is bounded by the $p=1.0$ result; the expected ceiling approaches the $p=0.3$ result if partial features can be constructed from available data. Validating this transfer on held-out regions is left to future work.
+\textbf{Transfer pathway.} These results outline a possible transfer strategy: train with moderate feature dropout on a data-rich source region, then evaluate in target regions where some engineered features are unavailable. The present experiment does not complete that cross-region validation; the $p=1.0$ result instead provides a conservative lower bound for embedding-only planning.
+
+\textbf{Zero-shot transfer remains weak.} The Banzhucun-to-Heping diagnostic shows a small reward advantage over random and greedy embedding-space baselines, but the decoded cropland-change differences are near neutral. This reinforces the main planning conclusion: GeoFM embeddings can carry transferable background signal, but operational planning still requires local task features or target-region calibration.
 
 % ============================================================================
 
@@ -678,11 +813,11 @@ The results establish a clear hierarchy: the engineered feature channel is the p
 
 \subsection{JEPA realization for geospatial domains}
 
-Our architecture directly instantiates the JEPA framework: AlphaEarth serves as the encoder mapping observations to representations; LatentDynamicsNet serves as the predictor operating entirely in representation space. Unlike traditional world models (Dreamer, PlaNet) that train the encoder jointly with the dynamics, our frozen-encoder approach decouples representation quality from dynamics learning. This has practical advantages: (1) the 480M-parameter encoder is trained once by Google on billions of observations---far more data than any individual research group could curate; (2) dynamics learning requires only 459K parameters and trains in $<$2 minutes on CPU; (3) as AlphaEarth improves, the dynamics model can be retrained on better embeddings without architectural changes.
+Our architecture instantiates the JEPA principle in a geospatial setting: AlphaEarth serves as the encoder mapping observations to representations, and LatentDynamicsNet serves as the predictor operating in representation space. Unlike traditional world models that train the encoder jointly with the dynamics, this frozen-encoder approach decouples representation quality from dynamics learning. The benefit is practical rather than universal: once a high-quality embedding field exists, a small dynamics model can be trained and audited cheaply, but its success depends strongly on whether the frozen embedding retains meaningful temporal variation.
 
-\subsection{Why the model works on changing pixels}
+\subsection{What problem the model actually solves}
 
-The change-pixel analysis reveals that the model's advantage concentrates on pixels undergoing genuine land-use transitions ($+0.030$ to $+0.108$), while performance on stable pixels is near-identical to persistence. This suggests the model has learned to identify \textit{which} embeddings are in unstable states (pre-transition) and predict \textit{how} they will move---rather than merely learning a global drift that shifts all embeddings uniformly.
+The model is best understood as a baseline-trend change-signal layer in a frozen representation space. Global cosine similarity can hide localized dynamics, because stable pixels dominate annual land-cover scenes. The independent ESRI-label validation strengthens this point but also bounds it: decoded dynamics achieve non-zero change F1 and changed-pixel accuracy where persistence cannot detect categorical change, and the mean change F1 is higher than both a spatially shuffled model control and a label-only transition prior. At the same time, the shuffled control is competitive in Poyang Lake, the transition prior has lower class-area bias, and persistence still has higher full-map end-year accuracy because most pixels remain stable. This pattern suggests that embedding-space dynamics are useful for flagging likely change and studying representation-level temporal structure, not for replacing a conservative categorical map forecaster.
 
 \subsection{Manifold drift as a general challenge}
 
@@ -691,72 +826,70 @@ The manifold drift problem we identified and solved (Section~\ref{sec:manifold})
 \subsection{Interpretability and geographic theory alignment}
 \label{sec:interpretability}
 
-A key advantage of operating in a frozen foundation model embedding space---rather than in raw pixel space or a jointly trained latent space---is that the resulting predictions are inherently more interpretable. We identify three layers of interpretability that connect our model to established geographic theory.
+A practical advantage of operating in a frozen foundation model embedding space, rather than in raw pixel space or a jointly trained latent space, is that the resulting predictions are more auditable. We identify three ways in which the model design can be connected to established geographic concepts.
 
 \textbf{Spatial autocorrelation and Tobler's First Law.}
-Tobler's First Law of Geography states that ``everything is related to everything else, but near things are more related than distant things'' \citep{tobler1970computer}. Our dilated convolutional architecture (receptive field 170\,m) is a direct computational implementation of this principle: each pixel's predicted future state is determined by its spatial neighborhood, with influence decaying with distance. The ablation study confirms this alignment---removing dilated convolutions (reducing the receptive field from 170\,m to 50\,m) degrades change-pixel advantage by 32\%, demonstrating that macro-scale spatial context is essential for capturing land-use transitions at the urban--rural interface.
+Tobler's First Law of Geography states that ``everything is related to everything else, but near things are more related than distant things'' \citep{tobler1970computer}. The dilated convolutional architecture (receptive field 170\,m) encodes a local-neighborhood assumption that is aligned with this principle. The development ablation is consistent with this design choice: removing dilated convolutions reduces the recorded change-pixel advantage by 32\%. The independent change-label validation is also partly consistent with the need for local context because the model outperforms a spatially shuffled control and a label-only transition prior on mean change F1, but broader spatial validation still requires more regions and manually checked transitions.
 
 \textbf{Spatial diffusion theory.}
-H\"{a}gerstrand's spatial diffusion theory posits that innovations and land-use changes propagate outward from centers of origin. The convolutional dynamics naturally encode this diffusion pattern: urbanized pixels at the city edge ``influence'' adjacent agricultural pixels through the learned kernel weights, producing gradual outward expansion consistent with observed urbanization processes. The transition matrices in our experiments confirm this---the dominant transitions (cropland $\to$ shrubland, cropland $\to$ water) concentrate at boundary zones rather than occurring uniformly across the study area.
+H\"{a}gerstrand's spatial diffusion theory posits that innovations and land-use changes propagate outward from centers of origin. Convolutional dynamics are compatible with such diffusion-like behavior because neighboring pixels jointly influence the predicted embedding residual. The current experiments do not directly estimate diffusion pathways, but the architecture gives a clear route for future attribution or kernel-analysis studies.
 
 \textbf{Linear decodability as semantic interpretability.}
-The 83.5\% accuracy of a simple linear probe (logistic regression) in decoding LULC classes from AlphaEarth embeddings \citep{rahman2026interpretable} demonstrates that the 64-dimensional embedding space is \textit{linearly separable} with respect to land-cover semantics. This has a profound implication for interpretability: the residual $\Delta z = f_\theta(z_t, \sigma, c)$ predicted by the dynamics model can be decomposed along the linear classifier's decision boundaries. A large $\|\Delta z\|$ indicates predicted change intensity; the direction of $\Delta z$ relative to the class centroids reveals \textit{which} land-cover transition is predicted. Unlike pixel-level generative models where intermediate representations are opaque, our predictions remain in a semantically structured space throughout the entire autoregressive rollout.
+The traceable decoder experiment shows that a simple logistic-regression probe can recover six ESRI LULC class codes from AlphaEarth embeddings with 76.99\% overall accuracy. The independent change-label experiment shows that decoded dynamics carry some transition-level signal, but also exposes decoder and dynamics limitations: the model improves over persistence, shuffling, and the transition prior on change-detection metrics, while persistence and the transition prior remain stronger on full-map end-year accuracy or area-bias metrics. Decoded maps should therefore be used as an interpretable diagnostic layer rather than as the primary evidence for operational LULC map production.
 
 \textbf{Relationship to classical LULC models.}
-The autoregressive formulation $z_{t+1} = f(z_t, \sigma)$ is mathematically a continuous-state Markov process, generalizing the discrete transition matrices of CA-Markov models to a 64-dimensional continuous manifold. The transition matrix output of our system (Table~\ref{tab:changepixel}) provides a direct bridge to practitioners familiar with Markov-based LULC modeling, while the underlying continuous dynamics retain richer information than categorical transitions can express.
+The autoregressive formulation $z_{t+1} = f(z_t, \sigma)$ can be viewed as a continuous-state analogue of Markov-style LULC modeling. This connection may help practitioners relate embedding-space dynamics to familiar transition-based workflows, but the present manuscript evaluates the continuous embedding predictions rather than categorical transition matrices.
 
 \textbf{Directions for enhanced interpretability.}
-Several techniques could further strengthen interpretability in future work: (1) gradient attribution (Grad-CAM) on the convolutional layers to visualize which neighboring pixels most influence each prediction, validating spatial diffusion patterns; (2) principal component analysis of the embedding residuals $\Delta z$ to identify dominant modes of land-use change; and (3) correlation analysis between embedding principal components and known geophysical variables (NDVI, impervious surface fraction, population density) to establish explicit physical meaning for the latent dimensions.
+Several techniques could further strengthen interpretability in future work: (1) gradient attribution on the convolutional layers to visualize which neighboring pixels most influence each prediction; (2) principal component analysis of embedding residuals $\Delta z$ to identify dominant modes of land-surface change; and (3) correlation analysis between embedding principal components and known geophysical variables such as NDVI, impervious surface fraction, or population density.
 
 \subsection{World model utility beyond forecasting}
 
-The planning experiment in Section~\ref{sec:planning} provides empirical evidence that the frozen-GeoFM world model has value beyond pure prediction. The embedding channel, while insufficient for standalone planning ($p=1.0$ retains only 13\% of performance), contributes meaningfully when combined with task-specific features ($p=0.3$ retains 87\%). This suggests a practical deployment model: the world model provides a universal, region-transferable representation layer; task-specific features are engineered locally where data permits.
+The planning experiment in Section~\ref{sec:planning} provides an application probe rather than a deployed decision-support system. The embedding channel, while insufficient for standalone planning ($p=1.0$ retains only 13\% of slope-improvement performance), contributes to robustness when combined with task-specific features ($p=0.3$ retains 87\%). This suggests a practical research direction: use GeoFM embeddings as a complementary representation layer where local planning features are incomplete, while retaining engineered features where they directly encode the optimization objective.
 
 The feature-channel dominance is not a limitation of the world model per se, but rather reflects the information asymmetry between a general-purpose 64-dim embedding and a task-specific 17-dim feature vector that directly encodes the optimization objective (slope, contiguity). We hypothesize that as GeoFM embeddings evolve to higher dimensionality and finer temporal resolution, the gap will narrow---but the current result provides an honest baseline for practitioners considering GeoFM-based planning systems.
 
-The moderate-dropout result ($p=0.3$, no significant loss) has a practical implication: RL policies can be made partially transfer-ready at negligible training cost, simply by adding stochastic feature masking during training. This is analogous to dropout regularization in neural networks, but applied at the observation level for domain adaptation.
+The moderate-dropout result ($p=0.3$, no significant loss) has a practical implication: stochastic feature masking may make RL policies more robust to partial feature unavailability. This is analogous to dropout regularization in neural networks, but applied at the observation level for domain adaptation. Cross-region tests are still needed before describing the policy as transfer-ready.
 
 \subsection{Limitations}
 
 \begin{enumerate}
 \item \textbf{Temporal resolution.} AlphaEarth provides only annual embeddings, limiting prediction to year-scale changes. Sub-annual dynamics (seasonal agriculture, flooding) are not captured.
 
-\item \textbf{Scenario grounding.} As noted in Section 4.3, the current model is trained exclusively on the baseline scenario. The scenario-conditioning architecture is in place but untrained for counterfactual scenarios. Activating it requires scenario-labeled training data (e.g., regions with known ``Grain for Green'' policy implementation labeled as ecological restoration) or physics-informed constraints.
+\item \textbf{Scenario grounding.} The current model is trained exclusively on the baseline trajectory. The scenario-conditioning interface is an architectural placeholder, not a validated counterfactual simulator. Activating it requires scenario-labelled historical interventions, policy-specific constraints, or other supervised counterfactual signals.
 
 \item \textbf{Spatial receptive field.} Even with dilated convolutions, the 170\,m receptive field may be insufficient for capturing city-scale ($>$1\,km) urban expansion drivers. A hierarchical or attention-based architecture could address this.
 
-\item \textbf{OOD on extreme biomes.} The Lhasa Valley (extreme plateau) shows $-$0.012 OOD gap---manageable but nonzero. Biomes absent from training (desert, tundra, tropical rainforest) would likely show larger degradation.
+\item \textbf{Area-level uncertainty.} In the data-traceable cached-grid summary, the mean model advantage is positive but the area-level bootstrap confidence interval crosses zero. The method should therefore be presented as region-dependent rather than uniformly superior to persistence.
+
+\item \textbf{Reference change labels and map-level baselines.} As summarized in Table~\ref{tab:empirical_pipeline}, the current paper includes independent categorical change validation on 12 area--year pairs. This is sufficient to show that decoded dynamics contain non-zero and partially spatially localized change signal, but it is not sufficient for broad categorical transition claims. The label-only transition prior and persistence remain stronger than the decoded dynamics on full-map end-year accuracy or class-area bias, indicating that change-signal detection and full categorical forecasting are different tasks. The Poyang Lake and Wuyi Mountain cases show that validation outcomes depend strongly on local change prevalence and reference-label behavior. More annual label--prediction pairs, manually interpreted image chips, or higher-resolution reference data are needed before claiming robust operational LULC transition accuracy.
 \end{enumerate}
 
 \subsection{Future directions}
 \label{sec:future}
 
 \begin{enumerate}
-\item \textbf{Scenario activation.} The most impactful next step is to activate the untrained scenario conditioning by constructing scenario-labeled training data. Regions with documented ``Grain for Green'' implementation (2000--2020) can provide ecological-restoration labels; rapidly urbanizing peri-urban zones can provide urban-sprawl labels. This would transform the model from a baseline-trend predictor to a true counterfactual simulator.
+\item \textbf{Scenario activation.} The most impactful next step is to construct scenario-labelled training data. Regions with documented ``Grain for Green'' implementation could provide ecological-restoration labels, and rapidly urbanizing peri-urban zones could provide urban-sprawl labels. This would test whether the baseline-trend model can be extended toward counterfactual scenario simulation.
 
-\item \textbf{Cross-region policy transfer.} Section~\ref{sec:planning} demonstrates feature-dropout robustness on a single county. The natural next step is to train policies on data-rich source regions and evaluate zero-shot transfer to the 17 world-model study areas, where only GeoFM embeddings are available. This would close the loop between the world model's spatial generalization (Section~\ref{sec:results}) and the planning policy's transfer capability.
+\item \textbf{Independent transition validation.} The immediate experimental next step is to extend the 12-pair independent-label benchmark beyond the current cached Chinese study areas and add manually interpreted image chips for high-change zones. This would test whether the observed mean change-signal advantage over the shuffled control remains stable across wetland, forest, urbanizing, and agricultural settings.
+
+\item \textbf{Cross-region policy transfer.} Section~\ref{sec:planning} reports feature-dropout robustness on a single county. The natural next step is to train policies on data-rich source regions and evaluate zero-shot transfer to world-model study areas where only GeoFM embeddings are available. This would test whether the planning probe can become a transferable decision-support workflow.
 
 \item \textbf{LLM causal reasoning.} Coupling the dynamics model with a large language model (e.g., Gemini) for natural-language what-if queries: ``What happens to this wetland if the upstream dam is removed?''
 
 \item \textbf{Temporal resolution.} As GeoFMs evolve toward sub-annual embeddings, the dynamics model can be retrained for monthly predictions without architectural changes.
 \end{enumerate}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_wm_scenario_projection.pdf}
-\caption{Illustrative LULC area projections (2022--2031) under three scenarios: Baseline, Urban Sprawl, and Ecological Restoration. These projections demonstrate the model's scenario-conditioning capability once scenario-labeled training data is available (Section~\ref{sec:future}).}
-\label{fig:scenarios}
-\end{figure}
 % ============================================================================
 \section{Conclusions}
 \label{sec:conclusions}
 % ============================================================================
 
-We have presented a geospatial world model that predicts land-use change entirely within the embedding space of a frozen geospatial foundation model. By combining AlphaEarth's 64-dimensional embeddings (480M+ parameter encoder) with a lightweight LatentDynamicsNet (459K parameters), we demonstrate that meaningful temporal dynamics can be learned with three orders of magnitude fewer parameters than comparable autoregressive earth observation models.
+We have presented a baseline-trend geospatial dynamics workflow that predicts annual land-surface change within the embedding space of a frozen geospatial foundation model. By combining AlphaEarth's 64-dimensional embeddings with a lightweight LatentDynamicsNet, the study tests whether a pre-trained embedding field can function as a compact state space for low-cost representation-level forecasting.
 
-Our experiments on 17 Chinese study areas with strict train/validation/test/OOD splits establish several findings: (1) the model surpasses persistence baseline on 12/12 training areas and on the validation set; (2) on pixels undergoing actual land-use change, the model advantage is 2--10$\times$ larger than global metrics suggest; (3) multi-step unrolled training extends the effective prediction horizon from 3 to 6 years; (4) increasing training diversity from 2 to 12 areas reduces OOD degradation by 94\%; and (5) a formal ablation study confirms that all three architectural innovations are critical, with L2 normalization being the most impactful (removing it degrades advantage by 62\%).
+The data-traceable cached-grid summary shows a positive mean advantage over persistence (+0.0047 cosine similarity) in 7 of 10 valid areas, although the area-level confidence interval crosses zero. Independent categorical validation adds a second, stricter view: decoded dynamics improve mean change F1 over a spatially shuffled control and a label-only transition prior, but remain weaker than persistence for full end-year categorical maps. Together, these results support a bounded interpretation: the approach can expose and forecast some change-related signal in frozen GeoFM embeddings, but it is not uniformly superior to simple baselines and is not yet an operational LULC map forecaster. The encoder diagnostic further shows why the choice of frozen representation matters: AlphaEarth retains measurable local temporal structure, whereas the Prithvi-100M global CLS token is nearly stationary across years in the tested workflow.
 
-Three technical innovations enable these results: L2 manifold preservation for unit-normalized embeddings, dilated convolutions for macro-scale spatial context, and exposure-bias mitigation through multi-step unrolled loss. We note that the scenario-conditioning architecture, while structurally in place, currently operates only on the baseline scenario; activating counterfactual scenario prediction is identified as a primary direction for future work. We believe this ``frozen encoder + lightweight dynamics'' paradigm represents a promising direction for geospatial world modeling---leveraging the enormous investment in foundation model pretraining while enabling efficient, accessible dynamics learning for specific prediction tasks. Furthermore, we demonstrate that the learned embedding space supports downstream reinforcement learning for land-use planning: policies trained on a dual representation of engineered features and GeoFM embeddings retain 87\% of full-information performance under 30\% feature dropout, establishing a concrete pathway for cross-region policy transfer via frozen foundation model embeddings.
+The main practical implication is that ``frozen encoder + lightweight dynamics'' is a viable research pathway for low-cost geospatial change-signal modelling and representation transfer, provided that claims remain tied to baseline-trend prediction and bounded diagnostics. Counterfactual policy scenarios, operational planning transfer, and broad categorical transition benchmarking remain open tasks requiring additional labelled evidence.
 
 
 % ============================================================================
@@ -766,7 +899,7 @@ The authors declare that they have no known competing financial interests or per
 
 \section*{Data and Code Availability}
 % ============================================================================
-All embedding data are derived from publicly available datasets on Google Earth Engine (AlphaEarth Foundations: \texttt{GOOGLE/SATELLITE\_EMBEDDING/V1/ANNUAL}, CC-BY-4.0; ESRI Global LULC 10m TS). Source code and trained model weights are available at \url{https://github.com/[anonymized]}.
+All embedding data are derived from publicly available datasets on Google Earth Engine (AlphaEarth Foundations: \texttt{GOOGLE/SATELLITE\_EMBEDDING/V1/ANNUAL}, CC-BY-4.0; ESRI Global LULC 10m TS). The revision scripts used to generate the area-level summaries, figures, empirical evidence-chain audit, independent change-validation schema, label-fetch manifest, prediction-readiness report, and transition-level validation outputs are included in the accompanying repository. The audit outputs are provided as JSON and CSV files in the manuscript revision-results directory. A blinded or public repository URL should be inserted before final submission, depending on journal review policy.
 
 
 % ============================================================================
@@ -840,12 +973,6 @@ Verburg, P.H. et al., 2002. Modeling the spatial dynamics of regional land use: 
 
 \bibitem[Verburg et al., 2004]{verburg2004lulc}
 Verburg, P.H. et al., 2004. Land use change modelling: current practice and research priorities. GeoJournal 61, 309--324.
-
-\bibitem[Zhou and Jing, 2026]{zhou2026drl}
-Zhou, N. and Jing, X., 2026. A Transferable Deep Reinforcement Learning Framework for Farmland Spatial Layout Optimization Using Parcel-Level Scoring Policy. Int.~J.~Geogr.~Inf.~Sci. (under review).
-
-\bibitem[Zhouning, 2026]{zhouning2026alphaearthsystem}
-Zhouning, 2026. AlphaEarth-System: An Open Platform for PEFT Benchmarking and Operational Geospatial Analysis on Domestic High-Resolution Imagery. Source code repository, \url{https://github.com/zhouning/alphaearth-training-system}.
 
 \bibitem[Hansen et al., 2024]{hansen2024tdmpc2}
 Hansen, N., Su, H., Wang, X., 2024. TD-MPC2: Scalable, Robust World Models for Continuous Control. In: ICLR.
