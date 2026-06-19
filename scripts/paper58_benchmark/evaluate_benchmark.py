@@ -13,6 +13,7 @@ from scripts.paper58_benchmark.baselines import (
     persistence_prediction,
     spatial_shuffle_prediction,
 )
+from scripts.paper58_benchmark.holdouts import VALID_CONTACT_STATUS
 from scripts.paper58_benchmark.schema import DEFAULT_BENCHMARK_DIR, write_csv, write_json
 from scripts.paper58_benchmark.statistics import gate_report, summarize_by_tier_and_stratum
 
@@ -47,11 +48,20 @@ REQUIRED_REGISTRY_FIELDS = [
     "end_year",
     "tier",
     "stratum",
+    "bbox",
+    "data_source",
+    "development_contact_status",
+    "contact_evidence",
+    "expected_role",
     "label_start_path",
     "label_end_path",
     "prediction_path",
     "qc_status",
 ]
+
+
+def _normalized_string(value: object) -> str:
+    return str(value).strip().lower() if isinstance(value, str) else str(value)
 
 
 def _path(value: object) -> Path | None:
@@ -234,6 +244,18 @@ def _read_registry(path: Path) -> list[dict]:
         for field in REQUIRED_REGISTRY_FIELDS:
             if field not in row:
                 raise ValueError(f"registry row {index} missing required field: {field}")
+        row["tier"] = _normalized_string(row.get("tier"))
+        row["development_contact_status"] = _normalized_string(row.get("development_contact_status"))
+        if isinstance(row.get("contact_evidence"), str):
+            row["contact_evidence"] = row["contact_evidence"].strip()
+        if row["development_contact_status"] not in VALID_CONTACT_STATUS:
+            raise ValueError(
+                f"registry row {index} invalid development_contact_status: {row['development_contact_status']}"
+            )
+        if row.get("tier") == "tier1" and row.get("development_contact_status") != "none":
+            raise ValueError(f"tier1 row {index} requires development_contact_status='none'")
+        if row.get("tier") == "tier1" and not str(row.get("contact_evidence", "")).strip():
+            raise ValueError(f"tier1 row {index} requires non-empty contact_evidence")
         validated_rows.append(row)
     return validated_rows
 

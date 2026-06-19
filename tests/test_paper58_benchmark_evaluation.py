@@ -13,6 +13,19 @@ from scripts.paper58_benchmark.evaluate_benchmark import (
 )
 
 
+def _provenance_fields(
+    development_contact_status: str = "none",
+    contact_evidence: str = "test no-contact evidence",
+) -> dict:
+    return {
+        "bbox": [120.0, 30.0, 120.1, 30.1],
+        "data_source": "test_source",
+        "development_contact_status": development_contact_status,
+        "contact_evidence": contact_evidence,
+        "expected_role": "positive_change_candidate",
+    }
+
+
 def test_binary_change_metrics_reports_f1():
     true_change = np.array([[False, True], [True, False]])
     pred_change = np.array([[False, True], [False, True]])
@@ -134,6 +147,7 @@ def test_read_registry_rejects_non_dict_and_missing_required_fields(tmp_path: Pa
                         "end_year": 2021,
                         "tier": "tier1",
                         "stratum": "Wetland",
+                        **_provenance_fields(),
                         "label_start_path": "a.npy",
                         "label_end_path": "b.npy",
                         "prediction_path": "c.npy",
@@ -145,6 +159,97 @@ def test_read_registry_rejects_non_dict_and_missing_required_fields(tmp_path: Pa
     )
 
     with pytest.raises(ValueError, match="registry row 0 missing required field: qc_status"):
+        _read_registry(registry_path)
+
+
+def test_read_registry_rejects_invalid_tier1_provenance(tmp_path: Path):
+    registry_path = tmp_path / "benchmark_registry.json"
+    base_row = {
+        "area": "external",
+        "start_year": 2020,
+        "end_year": 2021,
+        "tier": "tier1",
+        "stratum": "Wetland",
+        "label_start_path": "a.npy",
+        "label_end_path": "b.npy",
+        "prediction_path": "c.npy",
+        "qc_status": "include",
+    }
+
+    registry_path.write_text(
+        json.dumps({"rows": [{**base_row, **_provenance_fields(development_contact_status="known_contact")}]}),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="tier1 row 0 requires development_contact_status='none'"):
+        _read_registry(registry_path)
+
+    registry_path.write_text(
+        json.dumps({"rows": [{**base_row, **_provenance_fields(contact_evidence="   ")}]}),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="tier1 row 0 requires non-empty contact_evidence"):
+        _read_registry(registry_path)
+
+
+def test_read_registry_normalizes_provenance_strings(tmp_path: Path):
+    registry_path = tmp_path / "benchmark_registry.json"
+    registry_path.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "area": "external",
+                        "start_year": 2020,
+                        "end_year": 2021,
+                        "tier": " Tier1 ",
+                        "stratum": "Wetland",
+                        **_provenance_fields(
+                            development_contact_status=" None ",
+                            contact_evidence="  normalized evidence  ",
+                        ),
+                        "label_start_path": "a.npy",
+                        "label_end_path": "b.npy",
+                        "prediction_path": "c.npy",
+                        "qc_status": "include",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    rows = _read_registry(registry_path)
+
+    assert rows[0]["tier"] == "tier1"
+    assert rows[0]["development_contact_status"] == "none"
+    assert rows[0]["contact_evidence"] == "normalized evidence"
+
+
+def test_read_registry_rejects_invalid_contact_status(tmp_path: Path):
+    registry_path = tmp_path / "benchmark_registry.json"
+    registry_path.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "area": "external",
+                        "start_year": 2020,
+                        "end_year": 2021,
+                        "tier": "review_required",
+                        "stratum": "Wetland",
+                        **_provenance_fields(development_contact_status="maybe"),
+                        "label_start_path": "a.npy",
+                        "label_end_path": "b.npy",
+                        "prediction_path": "c.npy",
+                        "qc_status": "include",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="registry row 0 invalid development_contact_status: maybe"):
         _read_registry(registry_path)
 
 
@@ -174,6 +279,10 @@ def test_evaluate_benchmark_writes_outputs_and_does_not_pool_tiers(tmp_path: Pat
                 "end_year": 2021,
                 "tier": tier,
                 "stratum": "Wetland" if tier == "tier1" else "Mixed",
+                **_provenance_fields(
+                    development_contact_status="none" if tier == "tier1" else "known_contact",
+                    contact_evidence="test no-contact evidence" if tier == "tier1" else "test development contact",
+                ),
                 "label_start_path": str(labels / f"{area}_lulc_2020.npy"),
                 "label_end_path": str(labels / f"{area}_lulc_2021.npy"),
                 "prediction_path": str(predicted / f"{area}_lulc_pred_2020_2021.npy"),
@@ -223,6 +332,10 @@ def test_evaluate_benchmark_keeps_same_stratum_separate_by_tier(tmp_path: Path):
                 "end_year": 2021,
                 "tier": tier,
                 "stratum": "Mixed",
+                **_provenance_fields(
+                    development_contact_status="none" if tier == "tier1" else "known_contact",
+                    contact_evidence="test no-contact evidence" if tier == "tier1" else "test development contact",
+                ),
                 "label_start_path": str(labels / f"{area}_lulc_2020.npy"),
                 "label_end_path": str(labels / f"{area}_lulc_2021.npy"),
                 "prediction_path": str(predicted / f"{area}_lulc_pred_2020_2021.npy"),
