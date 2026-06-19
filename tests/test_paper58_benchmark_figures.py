@@ -74,6 +74,35 @@ def test_load_benchmark_outputs_reports_missing_numeric_value_with_row_and_field
     assert "None" in message
 
 
+@pytest.mark.parametrize(
+    ("row", "field", "value"),
+    [
+        ("external,2020,2021,tier1,Wetland,NaN,0.10,0.50,0.30\n", "primary_change_advantage", "NaN"),
+        ("external,2020,2021,tier1,Wetland,0.20,inf,0.50,0.30\n", "spatial_change_advantage", "inf"),
+    ],
+)
+def test_load_benchmark_outputs_reports_non_finite_numeric_value(
+    tmp_path: Path,
+    row: str,
+    field: str,
+    value: str,
+):
+    results_dir = tmp_path / "results"
+    results_dir.mkdir()
+    (results_dir / "benchmark_metrics_by_pair.csv").write_text(
+        "area,start_year,end_year,tier,stratum,primary_change_advantage,spatial_change_advantage,model_change_f1,best_non_neural_change_f1\n"
+        + row,
+        encoding="utf-8",
+    )
+    _write_gate_report(results_dir)
+
+    with pytest.raises(
+        ValueError,
+        match=rf"benchmark_metrics_by_pair\.csv row 2 has invalid {field}: '{value}'",
+    ):
+        load_benchmark_outputs(results_dir)
+
+
 def test_load_benchmark_outputs_reports_invalid_gate_json(tmp_path: Path):
     results_dir = tmp_path / "results"
     results_dir.mkdir()

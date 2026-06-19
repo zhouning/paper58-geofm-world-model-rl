@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import math
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -41,7 +42,10 @@ def _read_metrics(path: Path) -> list[dict]:
             parsed = dict(row)
             for key in NUMERIC_METRIC_COLUMNS:
                 try:
-                    parsed[key] = float(parsed[key])
+                    parsed_value = float(parsed[key])
+                    if not math.isfinite(parsed_value):
+                        raise ValueError
+                    parsed[key] = parsed_value
                 except (TypeError, ValueError) as exc:
                     raise ValueError(
                         f"{path.name} row {row_number} has invalid {key}: {parsed[key]!r}"
