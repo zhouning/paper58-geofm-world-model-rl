@@ -88,7 +88,11 @@ def leave_one_region_temporal_prior(
     if n_change == 0:
         return pred.reshape(target.shape)
     indices = rng.choice(np.arange(target.size), size=n_change, replace=False)
-    pred[indices] = rng.choice(np.array(changed_end_classes, dtype=pred.dtype), size=n_change, replace=True)
+    candidates = np.array(changed_end_classes, dtype=pred.dtype)
+    for index in indices:
+        alternatives = candidates[candidates != pred[index]]
+        choices = alternatives if alternatives.size else candidates
+        pred[index] = rng.choice(choices)
     return pred.reshape(target.shape)
 
 

@@ -56,6 +56,23 @@ def test_leave_one_region_temporal_prior_uses_other_regions_change_rate():
     assert np.count_nonzero(pred != target_start) == 4
 
 
+def test_leave_one_region_temporal_prior_excludes_current_class_when_alternative_exists():
+    target_start = np.full((2, 3), 2, dtype=np.int32)
+    training_rows = [
+        {
+            "area": "source_a",
+            "start": np.full((2, 3), 1, dtype=np.int32),
+            "end": np.array([[2, 3, 2], [3, 2, 3]], dtype=np.int32),
+        }
+    ]
+
+    pred = leave_one_region_temporal_prior("target", target_start, training_rows, seed=11)
+
+    assert pred.shape == target_start.shape
+    assert np.count_nonzero(pred != target_start) == target_start.size
+    assert np.all(pred == 3)
+
+
 def test_linear_embedding_delta_predicts_residual_shape():
     train_start = np.array([[[1.0, 0.0], [0.0, 1.0]]], dtype=np.float32)
     train_end = train_start + np.array([[[0.1, 0.0], [0.0, -0.1]]], dtype=np.float32)
