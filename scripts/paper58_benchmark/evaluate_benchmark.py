@@ -244,6 +244,16 @@ def _write_summary_csv(path: Path, summary: dict) -> None:
     write_csv(path, rows, fields)
 
 
+def _write_nested_summary_csv(path: Path, summary: dict[str, dict[str, dict]]) -> None:
+    fields = ["tier", "stratum", "n", "mean", "median", "n_positive", "n_negative"]
+    rows = [
+        {"tier": tier, "stratum": stratum, **values}
+        for tier, strata in summary.items()
+        for stratum, values in strata.items()
+    ]
+    write_csv(path, rows, fields)
+
+
 def _write_failures_csv(path: Path, registry_rows: list[dict]) -> None:
     fields = ["area", "start_year", "end_year", "tier", "qc_status", "excluded_reason"]
     failures = [
@@ -273,6 +283,10 @@ def evaluate_benchmark(
 
     primary_summary = summarize_by_tier_and_stratum(metric_rows, "primary_change_advantage")
     spatial_summary = summarize_by_tier_and_stratum(metric_rows, "spatial_change_advantage")
+    stratum_summary_by_tier: dict[str, dict[str, dict]] = {}
+    for tier in primary_summary["by_tier"]:
+        tier_rows = [row for row in metric_rows if row.get("tier") == tier]
+        stratum_summary_by_tier[tier] = summarize_by_tier_and_stratum(tier_rows, "primary_change_advantage")["by_stratum"]
     gates = gate_report(metric_rows, n_boot=n_boot)
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -289,7 +303,7 @@ def evaluate_benchmark(
     result = {
         "summary": summary,
         "summary_by_tier": primary_summary["by_tier"],
-        "summary_by_stratum": primary_summary["by_stratum"],
+        "summary_by_stratum": stratum_summary_by_tier,
         "spatial_summary_by_tier": spatial_summary["by_tier"],
         "gate_report": gates,
     }
@@ -297,7 +311,7 @@ def evaluate_benchmark(
     write_csv(output_dir / "benchmark_metrics_by_pair.csv", metric_rows, METRIC_FIELDS)
     write_json(output_dir / "benchmark_summary.json", result)
     _write_summary_csv(output_dir / "benchmark_summary_by_tier.csv", result["summary_by_tier"])
-    _write_summary_csv(output_dir / "benchmark_summary_by_stratum.csv", result["summary_by_stratum"])
+    _write_nested_summary_csv(output_dir / "benchmark_summary_by_stratum.csv", result["summary_by_stratum"])
     write_json(output_dir / "benchmark_gate_report.json", gates)
     _write_failures_csv(output_dir / "benchmark_failures.csv", registry_rows)
     return result

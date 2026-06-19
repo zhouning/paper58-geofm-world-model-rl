@@ -195,3 +195,55 @@ def test_evaluate_benchmark_writes_outputs_and_does_not_pool_tiers(tmp_path: Pat
     assert result["summary_by_tier"]["tier2"]["n"] == 1
     assert (output / "benchmark_metrics_by_pair.csv").exists()
     assert (output / "benchmark_gate_report.json").exists()
+
+
+def test_evaluate_benchmark_keeps_same_stratum_separate_by_tier(tmp_path: Path):
+    labels = tmp_path / "labels"
+    predicted = tmp_path / "predicted"
+    embeddings = tmp_path / "embeddings"
+    output = tmp_path / "out"
+    for path in (labels, predicted, embeddings, output):
+        path.mkdir()
+
+    for area, tier in [("external", "tier1"), ("bishan", "tier2")]:
+        start = np.array([[1, 1], [2, 2]], dtype=np.int32)
+        end = np.array([[1, 2], [2, 3]], dtype=np.int32)
+        pred = np.array([[1, 2], [2, 2]], dtype=np.int32)
+        np.save(labels / f"{area}_lulc_2020.npy", start)
+        np.save(labels / f"{area}_lulc_2021.npy", end)
+        np.save(predicted / f"{area}_lulc_pred_2020_2021.npy", pred)
+        np.save(embeddings / f"{area}_emb_2020.npy", np.zeros((2, 2, 64), dtype=np.float32))
+        np.save(embeddings / f"{area}_emb_2021.npy", np.ones((2, 2, 64), dtype=np.float32))
+
+    registry = {
+        "rows": [
+            {
+                "area": area,
+                "start_year": 2020,
+                "end_year": 2021,
+                "tier": tier,
+                "stratum": "Mixed",
+                "label_start_path": str(labels / f"{area}_lulc_2020.npy"),
+                "label_end_path": str(labels / f"{area}_lulc_2021.npy"),
+                "prediction_path": str(predicted / f"{area}_lulc_pred_2020_2021.npy"),
+                "embedding_start_path": str(embeddings / f"{area}_emb_2020.npy"),
+                "embedding_end_path": str(embeddings / f"{area}_emb_2021.npy"),
+                "qc_status": "include",
+                "excluded_reason": "",
+            }
+            for area, tier in [("external", "tier1"), ("bishan", "tier2")]
+        ]
+    }
+    registry_path = output / "benchmark_registry.json"
+    registry_path.write_text(json.dumps(registry), encoding="utf-8")
+
+    result = evaluate_benchmark(registry_path=registry_path, output_dir=output, n_boot=100)
+
+    assert set(result["summary_by_stratum"]) == {"tier1", "tier2"}
+    assert set(result["summary_by_stratum"]["tier1"]) == {"Mixed"}
+    assert set(result["summary_by_stratum"]["tier2"]) == {"Mixed"}
+
+    csv_lines = (output / "benchmark_summary_by_stratum.csv").read_text(encoding="utf-8").splitlines()
+    header = csv_lines[0].split(",")
+    assert header[:2] == ["tier", "stratum"]
+    assert len(csv_lines) == 3
