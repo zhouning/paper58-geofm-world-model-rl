@@ -435,6 +435,112 @@ def test_generate_change_validation_predictions_filters_manifest_area(tmp_path: 
     assert not (output_dir / "wuyi_mountain_lulc_pred_2020_2021.npy").exists()
 
 
+def test_generate_change_validation_predictions_rejects_empty_explicit_areas_against_manifest(tmp_path: Path, monkeypatch):
+    import scripts.rse_revision.generate_change_validation_predictions as predictor
+
+    embedding_dir = tmp_path / "embeddings"
+    embedding_dir.mkdir()
+    output_dir = tmp_path / "predicted"
+    report_path = tmp_path / "prediction_readiness_report.json"
+    manifest_path = tmp_path / "holdout_manifest.json"
+    _write_holdout_manifest(manifest_path)
+    weights_path = tmp_path / "weights.pt"
+    decoder_path = tmp_path / "decoder.pkl"
+    weights_path.write_text("stub", encoding="utf-8")
+    decoder_path.write_text("stub", encoding="utf-8")
+
+    np.save(embedding_dir / "poyang_lake_emb_2020.npy", np.zeros((2, 2, 64), dtype=np.float32))
+    np.save(embedding_dir / "poyang_lake_emb_2021.npy", np.zeros((2, 2, 64), dtype=np.float32))
+    np.save(embedding_dir / "wuyi_mountain_emb_2020.npy", np.zeros((2, 2, 64), dtype=np.float32))
+    np.save(embedding_dir / "wuyi_mountain_emb_2021.npy", np.zeros((2, 2, 64), dtype=np.float32))
+
+    class FakeModel:
+        def __call__(self, z, scenario_t, context_t):
+            return z
+
+    class FakeDecoder:
+        def predict(self, arr):
+            return np.ones(arr.shape[0], dtype=np.int32)
+
+    monkeypatch.setattr(predictor, "_load_model", lambda weights_path: FakeModel())
+    monkeypatch.setattr(predictor, "_load_decoder", lambda path: FakeDecoder())
+    monkeypatch.setattr(predictor, "_predict_next_embedding", lambda model, emb, context: emb)
+
+    report = generate_change_validation_predictions(
+        embedding_dirs=[embedding_dir],
+        output_dir=output_dir,
+        report_path=report_path,
+        weights_path=weights_path,
+        decoder_path=decoder_path,
+        areas=[],
+        area_manifest_path=manifest_path,
+    )
+
+    assert report["status"] == "not_ready"
+    assert report["readiness_failures"] == [
+        {
+            "component": "cached_embeddings",
+            "paths": [str(embedding_dir)],
+            "reason": "no_embedding_sequences_found",
+            "candidate_areas": [],
+        }
+    ]
+    assert not any(output_dir.glob("*.npy"))
+
+
+def test_generate_change_validation_predictions_rejects_explicit_known_contact_area(tmp_path: Path, monkeypatch):
+    import scripts.rse_revision.generate_change_validation_predictions as predictor
+
+    embedding_dir = tmp_path / "embeddings"
+    embedding_dir.mkdir()
+    output_dir = tmp_path / "predicted"
+    report_path = tmp_path / "prediction_readiness_report.json"
+    manifest_path = tmp_path / "holdout_manifest.json"
+    _write_holdout_manifest(manifest_path)
+    weights_path = tmp_path / "weights.pt"
+    decoder_path = tmp_path / "decoder.pkl"
+    weights_path.write_text("stub", encoding="utf-8")
+    decoder_path.write_text("stub", encoding="utf-8")
+
+    np.save(embedding_dir / "poyang_lake_emb_2020.npy", np.zeros((2, 2, 64), dtype=np.float32))
+    np.save(embedding_dir / "poyang_lake_emb_2021.npy", np.zeros((2, 2, 64), dtype=np.float32))
+    np.save(embedding_dir / "wuyi_mountain_emb_2020.npy", np.zeros((2, 2, 64), dtype=np.float32))
+    np.save(embedding_dir / "wuyi_mountain_emb_2021.npy", np.zeros((2, 2, 64), dtype=np.float32))
+
+    class FakeModel:
+        def __call__(self, z, scenario_t, context_t):
+            return z
+
+    class FakeDecoder:
+        def predict(self, arr):
+            return np.ones(arr.shape[0], dtype=np.int32)
+
+    monkeypatch.setattr(predictor, "_load_model", lambda weights_path: FakeModel())
+    monkeypatch.setattr(predictor, "_load_decoder", lambda path: FakeDecoder())
+    monkeypatch.setattr(predictor, "_predict_next_embedding", lambda model, emb, context: emb)
+
+    report = generate_change_validation_predictions(
+        embedding_dirs=[embedding_dir],
+        output_dir=output_dir,
+        report_path=report_path,
+        weights_path=weights_path,
+        decoder_path=decoder_path,
+        areas=["wuyi_mountain"],
+        area_manifest_path=manifest_path,
+    )
+
+    assert report["status"] == "not_ready"
+    assert report["readiness_failures"] == [
+        {
+            "component": "cached_embeddings",
+            "paths": [str(embedding_dir)],
+            "reason": "no_embedding_sequences_found",
+            "candidate_areas": [],
+        }
+    ]
+    assert not any(output_dir.glob("*.npy"))
+
+
 def test_generate_change_validation_predictions_reports_no_eligible_manifest_areas(tmp_path: Path):
     import scripts.rse_revision.generate_change_validation_predictions as predictor
 

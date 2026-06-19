@@ -21,7 +21,7 @@ from adk_world_model.world_model import (
     DECODER_PATH,
     _build_model,
 )
-from scripts.paper58_benchmark.holdouts import area_records_for_status, load_holdout_manifest
+from scripts.paper58_benchmark.holdouts import load_holdout_manifest
 
 
 DEFAULT_EMBEDDING_DIRS = [
@@ -110,6 +110,14 @@ def _decode_lulc(embedding_grid: np.ndarray, decoder) -> np.ndarray:
     return decoder.predict(embedding_grid.reshape(-1, 64)).reshape(h, w).astype(np.int32)
 
 
+def _eligible_manifest_areas(area_manifest_path: Path) -> list[str]:
+    return [
+        record.area
+        for record in load_holdout_manifest(Path(area_manifest_path))
+        if record.development_contact_status == "none"
+    ]
+
+
 def generate_change_validation_predictions(
     embedding_dirs: list[Path] | None = None,
     output_dir: Path = DEFAULT_OUTPUT_DIR,
@@ -133,10 +141,15 @@ def generate_change_validation_predictions(
     if not decoder_path.exists():
         readiness_failures.append({"component": "lulc_decoder", "path": str(decoder_path), "reason": "missing"})
 
-    manifest_areas: list[str] | None = None
-    if areas is None and area_manifest_path is not None:
-        manifest_areas = [record.area for record in load_holdout_manifest(Path(area_manifest_path)) if record.development_contact_status == "none"]
-        if not manifest_areas:
+    candidate_areas = areas
+    if area_manifest_path is not None:
+        eligible_manifest_areas = _eligible_manifest_areas(area_manifest_path)
+        if candidate_areas is None:
+            candidate_areas = eligible_manifest_areas
+        else:
+            eligible_lookup = {area.lower() for area in eligible_manifest_areas}
+            candidate_areas = [area for area in candidate_areas if area.lower() in eligible_lookup]
+        if not candidate_areas:
             readiness_failures.append(
                 {
                     "component": "cached_embeddings",
@@ -157,11 +170,10 @@ def generate_change_validation_predictions(
             report_path.parent.mkdir(parents=True, exist_ok=True)
             report_path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
             return report
-        areas = manifest_areas
 
     embeddings = _find_embeddings([Path(p) for p in embedding_dirs])
-    if areas:
-        wanted = {area.lower() for area in areas}
+    if candidate_areas is not None:
+        wanted = {area.lower() for area in candidate_areas}
         embeddings = {area: years for area, years in embeddings.items() if area.lower() in wanted}
     if not embeddings:
         readiness_failures.append(
@@ -169,7 +181,7 @@ def generate_change_validation_predictions(
                 "component": "cached_embeddings",
                 "paths": [str(path) for path in embedding_dirs],
                 "reason": "no_embedding_sequences_found",
-                "candidate_areas": sorted(areas or []),
+                "candidate_areas": sorted(candidate_areas or []),
             }
         )
 
