@@ -41,6 +41,18 @@ METRIC_FIELDS = [
     "embedding_advantage",
 ]
 
+REQUIRED_REGISTRY_FIELDS = [
+    "area",
+    "start_year",
+    "end_year",
+    "tier",
+    "stratum",
+    "label_start_path",
+    "label_end_path",
+    "prediction_path",
+    "qc_status",
+]
+
 
 def _path(value: object) -> Path | None:
     if value in (None, ""):
@@ -97,11 +109,7 @@ def _transition_training_pairs(
 ) -> list[tuple[np.ndarray, np.ndarray]]:
     pairs: list[tuple[np.ndarray, np.ndarray]] = []
     for row in rows:
-        if (
-            row.get("area") == target.get("area")
-            and int(row.get("start_year")) == int(target.get("start_year"))
-            and int(row.get("end_year")) == int(target.get("end_year"))
-        ):
+        if row.get("area") == target.get("area"):
             continue
         if row.get("qc_status") != "include":
             continue
@@ -213,7 +221,21 @@ def evaluate_registry_row(
 
 def _read_registry(path: Path) -> list[dict]:
     payload = json.loads(path.read_text(encoding="utf-8"))
-    return list(payload.get("rows", []))
+    if not isinstance(payload, dict):
+        raise ValueError("benchmark_registry.json must contain an object")
+    rows = payload.get("rows")
+    if not isinstance(rows, list):
+        raise ValueError("benchmark_registry.json must contain a 'rows' list")
+
+    validated_rows: list[dict] = []
+    for index, row in enumerate(rows):
+        if not isinstance(row, dict):
+            raise ValueError(f"registry row {index} must be an object")
+        for field in REQUIRED_REGISTRY_FIELDS:
+            if field not in row:
+                raise ValueError(f"registry row {index} missing required field: {field}")
+        validated_rows.append(row)
+    return validated_rows
 
 
 def _write_summary_csv(path: Path, summary: dict) -> None:
