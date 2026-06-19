@@ -2,10 +2,17 @@ from __future__ import annotations
 
 import argparse
 import re
+from dataclasses import fields
 from pathlib import Path
 
 import numpy as np
 
+from scripts.paper58_benchmark.holdouts import (
+    DEFAULT_HOLDOUT_MANIFEST,
+    HoldoutArea,
+    load_holdout_manifest,
+    manifest_lookup,
+)
 from scripts.paper58_benchmark.schema import (
     DEFAULT_BENCHMARK_DIR,
     DEFAULT_EXPERIMENT_DATA_DIR,
@@ -23,7 +30,7 @@ from scripts.paper58_benchmark.schema import (
 
 LABEL_RE = re.compile(r"^(?P<area>.+)_lulc_(?P<year>\d{4})\.npy$")
 PRED_RE = re.compile(r"^(?P<area>.+)_lulc_pred_(?P<start_year>\d{4})_(?P<end_year>\d{4})\.npy$")
-REGISTRY_FIELDS = list(row_to_dict(BenchmarkRow("", 0, 0, "", "", None, None, None, None, None, None, None, None, None, 0, 0, 0.0, "", "")).keys())
+REGISTRY_FIELDS = [field.name for field in fields(BenchmarkRow)]
 
 
 def parse_label_filename(name: str) -> tuple[str, int] | None:
@@ -94,6 +101,12 @@ def _find_context_path(area: str, independent_embeddings_dir: Path, experiment_d
     return None
 
 
+def _load_holdout_lookup(path: Path | None) -> dict[str, HoldoutArea]:
+    if path is None or not Path(path).exists():
+        return {}
+    return manifest_lookup(load_holdout_manifest(Path(path)))
+
+
 def _shape(path: Path | None) -> tuple[int, ...] | None:
     if path is None:
         return None
@@ -112,12 +125,21 @@ def _build_row(
     labels: dict[str, dict[int, Path]],
     independent_embeddings_dir: Path,
     experiment_data_dir: Path,
+    holdouts: dict[str, HoldoutArea],
 ) -> BenchmarkRow:
     label_start_path = labels.get(area, {}).get(start_year)
     label_end_path = labels.get(area, {}).get(end_year)
     embedding_start_path = _find_embedding_path(area, start_year, independent_embeddings_dir, experiment_data_dir)
     embedding_end_path = _find_embedding_path(area, end_year, independent_embeddings_dir, experiment_data_dir)
     context_path = _find_context_path(area, independent_embeddings_dir, experiment_data_dir)
+    holdout = holdouts.get(area)
+    bbox = holdout.bbox if holdout else None
+    data_source = holdout.data_source if holdout else ""
+    development_contact_status = holdout.development_contact_status if holdout else "uncertain"
+    contact_evidence = holdout.contact_evidence if holdout else "area missing from Paper58 holdout manifest"
+    expected_role = holdout.expected_role if holdout else "review_required"
+    stratum = holdout.stratum if holdout else area_stratum(area)
+    tier = assign_tier(area, development_contact_status=development_contact_status)
     qc_status = "include"
     excluded_reason = ""
     n_pixels = 0
@@ -165,8 +187,13 @@ def _build_row(
         area=area,
         start_year=start_year,
         end_year=end_year,
-        tier=assign_tier(area),
-        stratum=area_stratum(area),
+        tier=tier,
+        stratum=stratum,
+        bbox=bbox,
+        data_source=data_source,
+        development_contact_status=development_contact_status,
+        contact_evidence=contact_evidence,
+        expected_role=expected_role,
         label_start_path=label_start_path,
         label_end_path=label_end_path,
         prediction_path=prediction_path,
@@ -190,9 +217,11 @@ def build_registry(
     independent_embeddings_dir: Path = DEFAULT_INDEPENDENT_EMBEDDINGS_DIR,
     experiment_data_dir: Path = DEFAULT_EXPERIMENT_DATA_DIR,
     output_dir: Path = DEFAULT_BENCHMARK_DIR,
+    holdout_manifest_path: Path | None = DEFAULT_HOLDOUT_MANIFEST,
 ) -> list[BenchmarkRow]:
     labels = _discover_labels(Path(labels_dir))
     predictions = _discover_predictions(Path(predictions_dir))
+    holdouts = _load_holdout_lookup(holdout_manifest_path)
     rows = [
         _build_row(
             area=area,
@@ -202,6 +231,7 @@ def build_registry(
             labels=labels,
             independent_embeddings_dir=Path(independent_embeddings_dir),
             experiment_data_dir=Path(experiment_data_dir),
+            holdouts=holdouts,
         )
         for area, start_year, end_year, prediction_path in predictions
     ]
@@ -219,6 +249,7 @@ def main() -> None:
     parser.add_argument("--independent-embeddings-dir", type=Path, default=DEFAULT_INDEPENDENT_EMBEDDINGS_DIR)
     parser.add_argument("--experiment-data-dir", type=Path, default=DEFAULT_EXPERIMENT_DATA_DIR)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_BENCHMARK_DIR)
+    parser.add_argument("--holdout-manifest", type=Path, default=DEFAULT_HOLDOUT_MANIFEST)
     args = parser.parse_args()
     rows = build_registry(
         labels_dir=args.labels_dir,
@@ -226,6 +257,7 @@ def main() -> None:
         independent_embeddings_dir=args.independent_embeddings_dir,
         experiment_data_dir=args.experiment_data_dir,
         output_dir=args.output_dir,
+        holdout_manifest_path=args.holdout_manifest,
     )
     included = sum(row.qc_status == "include" for row in rows)
     print(f"Benchmark registry: {len(rows)} candidate pair(s), {included} included pair(s)")

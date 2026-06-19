@@ -6,6 +6,8 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
+from scripts.paper58_benchmark.holdouts import KNOWN_DEVELOPMENT_AREAS, KNOWN_TRAINING_AREAS
+
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_BENCHMARK_DIR = ROOT / "paper" / "rse_submission_paper58" / "benchmark_results"
@@ -14,7 +16,8 @@ DEFAULT_PREDICTIONS_DIR = ROOT / "data" / "independent_change_labels" / "predict
 DEFAULT_INDEPENDENT_EMBEDDINGS_DIR = ROOT / "data" / "independent_change_labels" / "embeddings"
 DEFAULT_EXPERIMENT_DATA_DIR = ROOT / "experiments" / "paper8" / "data"
 
-DEVELOPMENT_AREAS = {"banzhucun", "bishan", "heping"}
+DEVELOPMENT_AREAS = KNOWN_DEVELOPMENT_AREAS
+TRAINING_AREAS = KNOWN_TRAINING_AREAS
 
 AREA_STRATA = {
     "yangtze_delta": "Urban",
@@ -45,6 +48,11 @@ class BenchmarkRow:
     end_year: int
     tier: str
     stratum: str
+    bbox: tuple[float, float, float, float] | None
+    data_source: str
+    development_contact_status: str
+    contact_evidence: str
+    expected_role: str
     label_start_path: Path | None
     label_end_path: Path | None
     prediction_path: Path | None
@@ -61,8 +69,15 @@ class BenchmarkRow:
     excluded_reason: str
 
 
-def assign_tier(area: str) -> str:
-    return "tier2" if area.lower() in DEVELOPMENT_AREAS else "tier1"
+def assign_tier(area: str, development_contact_status: str | None = None) -> str:
+    normalized = area.lower()
+    if normalized in TRAINING_AREAS or normalized in DEVELOPMENT_AREAS:
+        return "tier2"
+    if development_contact_status == "none":
+        return "tier1"
+    if development_contact_status == "known_contact":
+        return "tier2"
+    return "review_required"
 
 
 def area_stratum(area: str) -> str:
