@@ -90,6 +90,9 @@ def test_build_registry_includes_valid_pair_and_missing_embedding(tmp_path: Path
     np.save(embeddings / "external_emb_2020.npy", np.zeros((2, 2, 64), dtype=np.float32))
     np.save(embeddings / "external_emb_2021.npy", np.ones((2, 2, 64), dtype=np.float32))
     np.save(embeddings / "external_context.npy", np.zeros((2, 2, 2), dtype=np.float32))
+    np.save(labels / "missing_emb_lulc_2020.npy", start)
+    np.save(labels / "missing_emb_lulc_2021.npy", end)
+    np.save(predicted / "missing_emb_lulc_pred_2020_2021.npy", pred)
 
     rows = build_registry(
         labels_dir=labels,
@@ -99,13 +102,17 @@ def test_build_registry_includes_valid_pair_and_missing_embedding(tmp_path: Path
         output_dir=output,
     )
 
-    assert len(rows) == 1
-    row = rows[0]
+    assert len(rows) == 2
+    by_area = {row.area: row for row in rows}
+    row = by_area["external"]
     assert row.area == "external"
     assert row.tier == "tier1"
     assert row.qc_status == "include"
     assert row.true_change_pixels == 2
     assert row.embedding_shape == (2, 2, 64)
+    missing_embedding_row = by_area["missing_emb"]
+    assert missing_embedding_row.qc_status == "exclude"
+    assert missing_embedding_row.excluded_reason == "missing_embedding"
     assert (output / "benchmark_registry.json").exists()
     assert (output / "benchmark_registry.csv").exists()
 
@@ -139,3 +146,37 @@ def test_build_registry_excludes_shape_mismatch_and_marks_zero_change_control(tm
     assert by_area["mismatch"].excluded_reason == "label_prediction_shape_mismatch"
     assert by_area["steady"].qc_status == "negative_control"
     assert by_area["steady"].excluded_reason == "zero_reference_change"
+
+
+def test_build_registry_includes_embeddings_found_under_experiment_data_prithvi(tmp_path: Path):
+    labels = tmp_path / "labels"
+    predicted = tmp_path / "predicted"
+    embeddings = tmp_path / "embeddings"
+    experiment_data = tmp_path / "experiment_data"
+    prithvi = experiment_data / "prithvi"
+    output = tmp_path / "out"
+    for path in (labels, predicted, embeddings, experiment_data, prithvi):
+        path.mkdir()
+
+    start = np.array([[1, 1], [2, 2]], dtype=np.int32)
+    end = np.array([[1, 2], [2, 3]], dtype=np.int32)
+    pred = np.array([[1, 2], [2, 2]], dtype=np.int32)
+    np.save(labels / "prithvi_only_lulc_2020.npy", start)
+    np.save(labels / "prithvi_only_lulc_2021.npy", end)
+    np.save(predicted / "prithvi_only_lulc_pred_2020_2021.npy", pred)
+    np.save(prithvi / "prithvi_only_emb_2020.npy", np.zeros((2, 2, 64), dtype=np.float32))
+    np.save(prithvi / "prithvi_only_emb_2021.npy", np.ones((2, 2, 64), dtype=np.float32))
+
+    rows = build_registry(
+        labels_dir=labels,
+        predictions_dir=predicted,
+        independent_embeddings_dir=embeddings,
+        experiment_data_dir=experiment_data,
+        output_dir=output,
+    )
+
+    assert len(rows) == 1
+    row = rows[0]
+    assert row.qc_status == "include"
+    assert row.embedding_start_path == prithvi / "prithvi_only_emb_2020.npy"
+    assert row.embedding_end_path == prithvi / "prithvi_only_emb_2021.npy"

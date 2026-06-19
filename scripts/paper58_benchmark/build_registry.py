@@ -74,6 +74,7 @@ def _find_embedding_path(area: str, year: int, independent_embeddings_dir: Path,
     for alias in _embedding_area_aliases(area):
         candidates.append(independent_embeddings_dir / f"{alias}_emb_{year}.npy")
         candidates.append(experiment_data_dir / f"{alias}_emb_{year}.npy")
+        candidates.append(experiment_data_dir / "prithvi" / f"{alias}_emb_{year}.npy")
         candidates.append(experiment_data_dir / alias / f"{alias}_emb_{year}.npy")
     for path in candidates:
         if path.exists() and path.stat().st_size > 0:
