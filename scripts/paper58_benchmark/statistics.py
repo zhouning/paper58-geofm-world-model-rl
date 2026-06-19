@@ -16,6 +16,14 @@ def _finite_values(rows: list[dict], key: str) -> list[float]:
     return values
 
 
+def _group_value(row: dict, key: str) -> str | None:
+    value = row.get(key)
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
+
+
 def _summary_from_values(values: list[float]) -> dict:
     if not values:
         return {
@@ -41,7 +49,14 @@ def clustered_bootstrap_ci(
     n_boot: int = 5000,
     seed: int = 42,
 ) -> dict:
-    clean_rows = [row for row in rows if isinstance(row.get(value_key), (int, float)) and math.isfinite(float(row[value_key]))]
+    clean_rows = []
+    for row in rows:
+        value = row.get(value_key)
+        cluster = _group_value(row, cluster_key)
+        if cluster is None:
+            continue
+        if isinstance(value, (int, float)) and math.isfinite(float(value)):
+            clean_rows.append(row)
     if not clean_rows:
         return {
             "n_rows": 0,
@@ -54,10 +69,19 @@ def clustered_bootstrap_ci(
 
     clusters: dict[str, list[float]] = defaultdict(list)
     for row in clean_rows:
-        clusters[str(row.get(cluster_key, ""))].append(float(row[value_key]))
+        clusters[_group_value(row, cluster_key) or ""].append(float(row[value_key]))
 
     cluster_names = sorted(clusters)
     values = [float(row[value_key]) for row in clean_rows]
+    if len(cluster_names) < 2:
+        return {
+            "n_rows": int(len(clean_rows)),
+            "n_clusters": int(len(cluster_names)),
+            "mean": float(mean(values)),
+            "median": float(median(values)),
+            "ci_low": None,
+            "ci_high": None,
+        }
     rng = np.random.default_rng(seed)
     boot_means: list[float] = []
     for _ in range(n_boot):
@@ -104,8 +128,12 @@ def summarize_by_tier_and_stratum(rows: list[dict], value_key: str) -> dict:
     by_tier: dict[str, list[dict]] = defaultdict(list)
     by_stratum: dict[str, list[dict]] = defaultdict(list)
     for row in rows:
-        by_tier[str(row.get("tier", "unknown"))].append(row)
-        by_stratum[str(row.get("stratum", "Unknown"))].append(row)
+        tier = _group_value(row, "tier")
+        stratum = _group_value(row, "stratum")
+        if tier is not None:
+            by_tier[tier].append(row)
+        if stratum is not None:
+            by_stratum[stratum].append(row)
 
     return {
         "by_tier": {key: _summary_from_values(_finite_values(group, value_key)) for key, group in sorted(by_tier.items())},
