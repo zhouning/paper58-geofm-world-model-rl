@@ -36,6 +36,29 @@ def _area_lookup() -> dict[str, dict]:
     return areas
 
 
+def _load_area_manifest(area_manifest_path: Path | None) -> dict[str, dict]:
+    if area_manifest_path is None:
+        return {}
+    path = Path(area_manifest_path)
+    if not path.exists() or path.stat().st_size <= 0:
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    areas = payload.get("areas", []) if isinstance(payload, dict) else []
+    loaded: dict[str, dict] = {}
+    for area in areas:
+        if not isinstance(area, dict):
+            continue
+        name = area.get("name") or area.get("area")
+        bbox = area.get("bbox")
+        if not isinstance(name, str) or not isinstance(bbox, list) or len(bbox) != 4:
+            continue
+        loaded[name.lower()] = {"name": name.lower(), "bbox": bbox}
+    return loaded
+
+
 def _parse_csv_values(raw: str) -> list[str]:
     return [item.strip().lower() for item in raw.split(",") if item.strip()]
 
@@ -80,6 +103,7 @@ def fetch_independent_lulc_labels(
     years: list[int] | None = None,
     output_dir: Path = DEFAULT_OUTPUT_DIR,
     manifest_path: Path = DEFAULT_MANIFEST,
+    area_manifest_path: Path | None = None,
     scale: int = 10,
     overwrite: bool = False,
     fixed_scale: bool = False,
@@ -88,6 +112,7 @@ def fetch_independent_lulc_labels(
     manifest_path = Path(manifest_path)
     output_dir.mkdir(parents=True, exist_ok=True)
     area_map = _area_lookup()
+    area_map.update(_load_area_manifest(area_manifest_path))
     selected_names = areas or ["wuyi_mountain", "poyang_lake", "bishan", "banzhucun", "heping"]
     selected_years = years or DEFAULT_YEARS
 
@@ -160,6 +185,7 @@ def main() -> None:
     parser.add_argument("--years", default="2017-2024", help="Comma-separated years or ranges, e.g. 2020,2021 or 2017-2024.")
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
+    parser.add_argument("--area-manifest", type=Path)
     parser.add_argument("--scale", type=int, default=10)
     parser.add_argument("--overwrite", action="store_true")
     parser.add_argument(
@@ -173,6 +199,7 @@ def main() -> None:
         years=_parse_years(args.years),
         output_dir=args.output_dir,
         manifest_path=args.manifest,
+        area_manifest_path=args.area_manifest,
         scale=args.scale,
         overwrite=args.overwrite,
         fixed_scale=args.fixed_scale,

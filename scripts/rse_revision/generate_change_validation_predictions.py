@@ -78,6 +78,33 @@ def _find_context(area: str, embedding_path: Path) -> Path | None:
     return None
 
 
+def _areas_from_manifest(path: Path) -> list[str]:
+    if not path.exists() or path.stat().st_size <= 0:
+        return []
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+    areas = payload.get("areas", []) if isinstance(payload, dict) else []
+    selected: list[str] = []
+    seen: set[str] = set()
+    for area in areas:
+        if not isinstance(area, dict):
+            continue
+        status = area.get("development_contact_status")
+        if status != "none":
+            continue
+        name = area.get("name") or area.get("area")
+        if not isinstance(name, str):
+            continue
+        normalized = name.lower()
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        selected.append(normalized)
+    return selected
+
+
 def _load_model(weights_path: Path):
     torch = _load_torch()
     checkpoint = torch.load(weights_path, map_location="cpu", weights_only=False)
@@ -116,6 +143,7 @@ def generate_change_validation_predictions(
     weights_path: Path = Path(WEIGHTS_PATH),
     decoder_path: Path = Path(DECODER_PATH),
     areas: list[str] | None = None,
+    area_manifest_path: Path | None = None,
     overwrite: bool = False,
 ) -> dict:
     embedding_dirs = embedding_dirs or DEFAULT_EMBEDDING_DIRS
@@ -131,6 +159,9 @@ def generate_change_validation_predictions(
     if not decoder_path.exists():
         readiness_failures.append({"component": "lulc_decoder", "path": str(decoder_path), "reason": "missing"})
 
+    if areas is None and area_manifest_path is not None:
+        areas = _areas_from_manifest(Path(area_manifest_path))
+
     embeddings = _find_embeddings([Path(p) for p in embedding_dirs])
     if areas:
         wanted = {area.lower() for area in areas}
@@ -141,6 +172,7 @@ def generate_change_validation_predictions(
                 "component": "cached_embeddings",
                 "paths": [str(path) for path in embedding_dirs],
                 "reason": "no_embedding_sequences_found",
+                "candidate_areas": sorted(areas or []),
             }
         )
 
@@ -224,6 +256,7 @@ def main() -> None:
     parser.add_argument("--weights", type=Path, default=Path(WEIGHTS_PATH))
     parser.add_argument("--decoder", type=Path, default=Path(DECODER_PATH))
     parser.add_argument("--areas", default="", help="Optional comma-separated area filter.")
+    parser.add_argument("--area-manifest", type=Path)
     parser.add_argument("--overwrite", action="store_true")
     args = parser.parse_args()
     areas = [item.strip().lower() for item in args.areas.split(",") if item.strip()] or None
@@ -234,6 +267,7 @@ def main() -> None:
         weights_path=args.weights,
         decoder_path=args.decoder,
         areas=areas,
+        area_manifest_path=args.area_manifest,
         overwrite=args.overwrite,
     )
     print(

@@ -15,6 +15,34 @@ from scripts.rse_revision.generate_change_validation_predictions import (
 )
 
 
+def _write_holdout_manifest(path: Path) -> None:
+    path.write_text(
+        json.dumps(
+            {
+                "areas": [
+                    {
+                        "name": "poyang_lake",
+                        "bbox": [116.0, 29.0, 116.1, 29.1],
+                        "development_contact_status": "none",
+                    },
+                    {
+                        "area": "ignored_area_key",
+                        "bbox": [100.0, 20.0, 100.1, 20.1],
+                        "development_contact_status": "none",
+                    },
+                    {
+                        "name": "wuyi_mountain",
+                        "bbox": [117.0, 27.0, 117.1, 27.1],
+                        "development_contact_status": "active",
+                    },
+                ]
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+
 def test_fetch_change_validation_embeddings_writes_area_grids_and_context(tmp_path: Path, monkeypatch):
     import scripts.rse_revision.fetch_change_validation_embeddings as fetcher
 
@@ -259,6 +287,114 @@ def test_fetch_independent_lulc_labels_uses_cache_aligned_heping_bbox(tmp_path: 
 
     assert manifest["records"][0]["shape"] == [516, 356]
     assert calls == [{"bbox": [106.1133, 29.5997, 106.1452, 29.646], "year": 2020, "scale": 10}]
+
+
+def test_fetch_independent_lulc_labels_reads_manifest_area(tmp_path: Path, monkeypatch):
+    import scripts.rse_revision.fetch_independent_lulc_labels as fetcher
+
+    calls = []
+
+    def fake_extract_lulc_labels(bbox, year, scale=10):
+        calls.append({"bbox": bbox, "year": year, "scale": scale})
+        return np.full((2, 3), year - 2019, dtype=np.int32)
+
+    monkeypatch.setattr(fetcher, "extract_lulc_labels", fake_extract_lulc_labels)
+
+    manifest_path = tmp_path / "holdout_manifest.json"
+    _write_holdout_manifest(manifest_path)
+
+    manifest = fetch_independent_lulc_labels(
+        areas=["poyang_lake"],
+        years=[2020],
+        output_dir=tmp_path / "labels",
+        manifest_path=tmp_path / "label_manifest.json",
+        area_manifest_path=manifest_path,
+    )
+
+    assert manifest["n_records"] == 1
+    assert calls == [{"bbox": [116.0, 29.0, 116.1, 29.1], "year": 2020, "scale": 10}]
+    assert np.load(tmp_path / "labels" / "poyang_lake_lulc_2020.npy").shape == (2, 3)
+
+
+def test_fetch_change_validation_embeddings_reads_manifest_area(tmp_path: Path, monkeypatch):
+    import scripts.rse_revision.fetch_change_validation_embeddings as fetcher
+
+    calls = {"embeddings": [], "context": []}
+
+    def fake_extract_embeddings(bbox, year, scale=500):
+        calls["embeddings"].append({"bbox": bbox, "year": year, "scale": scale})
+        return np.full((2, 3, 64), year - 2019, dtype=np.float32)
+
+    def fake_extract_terrain_context(bbox, target_shape=None):
+        calls["context"].append({"bbox": bbox, "target_shape": target_shape})
+        return np.ones((2, 2, 3), dtype=np.float32)
+
+    monkeypatch.setattr(fetcher, "extract_embeddings", fake_extract_embeddings)
+    monkeypatch.setattr(fetcher, "extract_terrain_context", fake_extract_terrain_context)
+
+    manifest_path = tmp_path / "holdout_manifest.json"
+    _write_holdout_manifest(manifest_path)
+
+    manifest = fetcher.fetch_change_validation_embeddings(
+        areas=["poyang_lake"],
+        years=[2020, 2021],
+        output_dir=tmp_path / "embeddings",
+        manifest_path=tmp_path / "embedding_manifest.json",
+        area_manifest_path=manifest_path,
+        scale=500,
+    )
+
+    assert manifest["n_records"] == 2
+    assert manifest["n_context_records"] == 1
+    assert calls["embeddings"][0]["bbox"] == [116.0, 29.0, 116.1, 29.1]
+    assert calls["context"] == [{"bbox": [116.0, 29.0, 116.1, 29.1], "target_shape": (2, 3)}]
+
+
+def test_generate_change_validation_predictions_filters_manifest_area(tmp_path: Path, monkeypatch):
+    import scripts.rse_revision.generate_change_validation_predictions as predictor
+
+    embedding_dir = tmp_path / "embeddings"
+    embedding_dir.mkdir()
+    output_dir = tmp_path / "predicted"
+    report_path = tmp_path / "prediction_readiness_report.json"
+    manifest_path = tmp_path / "holdout_manifest.json"
+    _write_holdout_manifest(manifest_path)
+    weights_path = tmp_path / "weights.pt"
+    decoder_path = tmp_path / "decoder.pkl"
+    weights_path.write_text("stub", encoding="utf-8")
+    decoder_path.write_text("stub", encoding="utf-8")
+
+    np.save(embedding_dir / "poyang_lake_emb_2020.npy", np.zeros((2, 2, 64), dtype=np.float32))
+    np.save(embedding_dir / "poyang_lake_emb_2021.npy", np.zeros((2, 2, 64), dtype=np.float32))
+    np.save(embedding_dir / "wuyi_mountain_emb_2020.npy", np.zeros((2, 2, 64), dtype=np.float32))
+    np.save(embedding_dir / "wuyi_mountain_emb_2021.npy", np.zeros((2, 2, 64), dtype=np.float32))
+
+    class FakeModel:
+        def __call__(self, z, scenario_t, context_t):
+            return z
+
+    class FakeDecoder:
+        def predict(self, arr):
+            return np.ones(arr.shape[0], dtype=np.int32)
+
+    monkeypatch.setattr(predictor, "_load_model", lambda weights_path: FakeModel())
+    monkeypatch.setattr(predictor, "_load_decoder", lambda path: FakeDecoder())
+    monkeypatch.setattr(predictor, "_predict_next_embedding", lambda model, emb, context: emb)
+
+    report = generate_change_validation_predictions(
+        embedding_dirs=[embedding_dir],
+        output_dir=output_dir,
+        report_path=report_path,
+        weights_path=weights_path,
+        decoder_path=decoder_path,
+        area_manifest_path=manifest_path,
+    )
+
+    assert report["status"] == "complete"
+    assert report["n_predictions"] == 1
+    assert report["records"][0]["area"] == "poyang_lake"
+    assert (output_dir / "poyang_lake_lulc_pred_2020_2021.npy").exists()
+    assert not (output_dir / "wuyi_mountain_lulc_pred_2020_2021.npy").exists()
 
 
 def test_generate_change_validation_predictions_reports_missing_model_artifacts(tmp_path: Path):
