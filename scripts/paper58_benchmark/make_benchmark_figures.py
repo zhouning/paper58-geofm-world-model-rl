@@ -42,7 +42,7 @@ def _read_metrics(path: Path) -> list[dict]:
             for key in NUMERIC_METRIC_COLUMNS:
                 try:
                     parsed[key] = float(parsed[key])
-                except ValueError as exc:
+                except (TypeError, ValueError) as exc:
                     raise ValueError(
                         f"{path.name} row {row_number} has invalid {key}: {parsed[key]!r}"
                     ) from exc

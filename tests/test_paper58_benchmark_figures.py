@@ -54,6 +54,26 @@ def test_load_benchmark_outputs_reports_invalid_numeric_value_with_row_and_field
         load_benchmark_outputs(results_dir)
 
 
+def test_load_benchmark_outputs_reports_missing_numeric_value_with_row_and_field(tmp_path: Path):
+    results_dir = tmp_path / "results"
+    results_dir.mkdir()
+    (results_dir / "benchmark_metrics_by_pair.csv").write_text(
+        "area,start_year,end_year,tier,stratum,primary_change_advantage,spatial_change_advantage,model_change_f1,best_non_neural_change_f1\n"
+        "external,2020,2021,tier1,Wetland,0.20,0.10,0.50\n",
+        encoding="utf-8",
+    )
+    _write_gate_report(results_dir)
+
+    with pytest.raises(ValueError) as excinfo:
+        load_benchmark_outputs(results_dir)
+
+    message = str(excinfo.value)
+    assert "benchmark_metrics_by_pair.csv" in message
+    assert "row 2" in message
+    assert "best_non_neural_change_f1" in message
+    assert "None" in message
+
+
 def test_make_benchmark_figures_writes_pdf_and_png(tmp_path: Path):
     results_dir = tmp_path / "results"
     figure_dir = tmp_path / "figures"
