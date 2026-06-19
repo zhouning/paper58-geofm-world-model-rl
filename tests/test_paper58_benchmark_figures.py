@@ -8,9 +8,50 @@ matplotlib.use("Agg")
 from scripts.paper58_benchmark.make_benchmark_figures import load_benchmark_outputs, make_benchmark_figures
 
 
+def _write_gate_report(results_dir: Path) -> None:
+    (results_dir / "benchmark_gate_report.json").write_text(
+        '{"status": "pass", "positive_tier1_strata": 1}',
+        encoding="utf-8",
+    )
+
+
 def test_load_benchmark_outputs_fails_when_required_files_missing(tmp_path: Path):
     with pytest.raises(FileNotFoundError, match="Missing benchmark result files"):
         load_benchmark_outputs(tmp_path)
+
+
+def test_load_benchmark_outputs_reports_missing_required_columns(tmp_path: Path):
+    results_dir = tmp_path / "results"
+    results_dir.mkdir()
+    (results_dir / "benchmark_metrics_by_pair.csv").write_text(
+        "start_year,end_year,primary_change_advantage,spatial_change_advantage,model_change_f1,best_non_neural_change_f1\n"
+        "2020,2021,0.20,0.10,0.50,0.30\n",
+        encoding="utf-8",
+    )
+    _write_gate_report(results_dir)
+
+    with pytest.raises(
+        ValueError,
+        match=r"benchmark_metrics_by_pair\.csv missing required columns: area, tier",
+    ):
+        load_benchmark_outputs(results_dir)
+
+
+def test_load_benchmark_outputs_reports_invalid_numeric_value_with_row_and_field(tmp_path: Path):
+    results_dir = tmp_path / "results"
+    results_dir.mkdir()
+    (results_dir / "benchmark_metrics_by_pair.csv").write_text(
+        "area,start_year,end_year,tier,stratum,primary_change_advantage,spatial_change_advantage,model_change_f1,best_non_neural_change_f1\n"
+        "external,2020,2021,tier1,Wetland,NA,0.10,0.50,0.30\n",
+        encoding="utf-8",
+    )
+    _write_gate_report(results_dir)
+
+    with pytest.raises(
+        ValueError,
+        match=r"benchmark_metrics_by_pair\.csv row 2 has invalid primary_change_advantage: 'NA'",
+    ):
+        load_benchmark_outputs(results_dir)
 
 
 def test_make_benchmark_figures_writes_pdf_and_png(tmp_path: Path):
@@ -22,12 +63,26 @@ def test_make_benchmark_figures_writes_pdf_and_png(tmp_path: Path):
         "external,2020,2021,tier1,Wetland,0.20,0.10,0.50,0.30\n",
         encoding="utf-8",
     )
-    (results_dir / "benchmark_gate_report.json").write_text(
-        '{"status": "pass", "positive_tier1_strata": 1}',
-        encoding="utf-8",
-    )
+    _write_gate_report(results_dir)
 
     make_benchmark_figures(results_dir=results_dir, figure_dir=figure_dir)
 
-    assert (figure_dir / "fig_paper58_benchmark_gate.pdf").exists()
-    assert (figure_dir / "fig_paper58_benchmark_gate.png").exists()
+    assert (figure_dir / "fig_paper58_benchmark_gate.pdf").stat().st_size > 0
+    assert (figure_dir / "fig_paper58_benchmark_gate.png").stat().st_size > 0
+
+
+def test_make_benchmark_figures_uses_all_rows_when_no_tier1_rows(tmp_path: Path):
+    results_dir = tmp_path / "results"
+    figure_dir = tmp_path / "figures"
+    results_dir.mkdir()
+    (results_dir / "benchmark_metrics_by_pair.csv").write_text(
+        "area,start_year,end_year,tier,stratum,primary_change_advantage,spatial_change_advantage,model_change_f1,best_non_neural_change_f1\n"
+        "external,2020,2021,tier2,Wetland,0.20,0.10,0.50,0.30\n",
+        encoding="utf-8",
+    )
+    _write_gate_report(results_dir)
+
+    make_benchmark_figures(results_dir=results_dir, figure_dir=figure_dir)
+
+    assert (figure_dir / "fig_paper58_benchmark_gate.pdf").stat().st_size > 0
+    assert (figure_dir / "fig_paper58_benchmark_gate.png").stat().st_size > 0

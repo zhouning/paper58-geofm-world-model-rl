@@ -10,18 +10,42 @@ import matplotlib.pyplot as plt
 from scripts.paper58_benchmark.schema import DEFAULT_BENCHMARK_DIR
 
 
+REQUIRED_METRIC_COLUMNS = (
+    "area",
+    "start_year",
+    "end_year",
+    "tier",
+    "primary_change_advantage",
+    "spatial_change_advantage",
+    "model_change_f1",
+    "best_non_neural_change_f1",
+)
+
+NUMERIC_METRIC_COLUMNS = (
+    "primary_change_advantage",
+    "spatial_change_advantage",
+    "model_change_f1",
+    "best_non_neural_change_f1",
+)
+
+
 def _read_metrics(path: Path) -> list[dict]:
     rows = []
     with path.open(newline="", encoding="utf-8") as f:
-        for row in csv.DictReader(f):
+        reader = csv.DictReader(f)
+        fieldnames = set(reader.fieldnames or ())
+        missing = [column for column in REQUIRED_METRIC_COLUMNS if column not in fieldnames]
+        if missing:
+            raise ValueError(f"{path.name} missing required columns: {', '.join(missing)}")
+        for row_number, row in enumerate(reader, start=2):
             parsed = dict(row)
-            for key in (
-                "primary_change_advantage",
-                "spatial_change_advantage",
-                "model_change_f1",
-                "best_non_neural_change_f1",
-            ):
-                parsed[key] = float(parsed[key])
+            for key in NUMERIC_METRIC_COLUMNS:
+                try:
+                    parsed[key] = float(parsed[key])
+                except ValueError as exc:
+                    raise ValueError(
+                        f"{path.name} row {row_number} has invalid {key}: {parsed[key]!r}"
+                    ) from exc
             rows.append(parsed)
     return rows
 
