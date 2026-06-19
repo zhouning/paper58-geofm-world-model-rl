@@ -39,6 +39,8 @@ def _read_metrics(path: Path) -> list[dict]:
         if missing:
             raise ValueError(f"{path.name} missing required columns: {', '.join(missing)}")
         for row_number, row in enumerate(reader, start=2):
+            if None in row:
+                raise ValueError(f"{path.name} row {row_number} has extra columns: {row[None]!r}")
             parsed = dict(row)
             for key in NUMERIC_METRIC_COLUMNS:
                 try:
