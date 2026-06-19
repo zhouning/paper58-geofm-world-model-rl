@@ -1,0 +1,93 @@
+{
+  "summary": {
+    "n_registry_rows": 12,
+    "n_evaluated": 11,
+    "n_failures": 1,
+    "model_change_f1_mean": 0.3654494112426427,
+    "primary_change_advantage_mean": 0.1959107914909829
+  },
+  "summary_by_tier": {
+    "tier1": {
+      "n": 1,
+      "mean": 0.26347977664194755,
+      "median": 0.26347977664194755,
+      "n_positive": 1,
+      "n_negative": 0
+    },
+    "tier2": {
+      "n": 10,
+      "mean": 0.18915389297588645,
+      "median": 0.19590960803940538,
+      "n_positive": 10,
+      "n_negative": 0
+    }
+  },
+  "summary_by_stratum": {
+    "tier1": {
+      "Wetland": {
+        "n": 1,
+        "mean": 0.26347977664194755,
+        "median": 0.26347977664194755,
+        "n_positive": 1,
+        "n_negative": 0
+      }
+    },
+    "tier2": {
+      "Mixed": {
+        "n": 10,
+        "mean": 0.18915389297588645,
+        "median": 0.19590960803940538,
+        "n_positive": 10,
+        "n_negative": 0
+      }
+    }
+  },
+  "spatial_summary_by_tier": {
+    "tier1": {
+      "n": 1,
+      "mean": -0.0040143579224965475,
+      "median": -0.0040143579224965475,
+      "n_positive": 0,
+      "n_negative": 1
+    },
+    "tier2": {
+      "n": 10,
+      "mean": 0.07909112963527934,
+      "median": 0.08367037081322914,
+      "n_positive": 10,
+      "n_negative": 0
+    }
+  },
+  "gate_report": {
+    "status": "fail",
+    "tier1_primary_change": {
+      "n_rows": 1,
+      "n_clusters": 1,
+      "mean": 0.26347977664194755,
+      "median": 0.26347977664194755,
+      "ci_low": null,
+      "ci_high": null
+    },
+    "tier1_spatial_change": {
+      "n_rows": 1,
+      "n_clusters": 1,
+      "mean": -0.0040143579224965475,
+      "median": -0.0040143579224965475,
+      "ci_low": null,
+      "ci_high": null
+    },
+    "tier1_embedding": {
+      "n_rows": 0,
+      "n_clusters": 0,
+      "mean": null,
+      "median": null,
+      "ci_low": null,
+      "ci_high": null
+    },
+    "positive_tier1_strata": 1,
+    "required_positive_tier1_strata": 3,
+    "primary_gate_pass": false,
+    "spatial_gate_pass": false,
+    "strata_gate_pass": false
+  }
+}

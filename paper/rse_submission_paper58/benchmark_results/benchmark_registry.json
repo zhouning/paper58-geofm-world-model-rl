@@ -1,0 +1,376 @@
+{
+  "rows": [
+    {
+      "area": "banzhucun",
+      "start_year": 2017,
+      "end_year": 2020,
+      "tier": "tier2",
+      "stratum": "Mixed",
+      "label_start_path": "data/independent_change_labels/labels/banzhucun_lulc_2017.npy",
+      "label_end_path": "data/independent_change_labels/labels/banzhucun_lulc_2020.npy",
+      "prediction_path": "data/independent_change_labels/predicted/banzhucun_lulc_pred_2017_2020.npy",
+      "embedding_start_path": "experiments/paper8/data/prithvi/banzhucun_emb_2017.npy",
+      "embedding_end_path": "experiments/paper8/data/prithvi/banzhucun_emb_2020.npy",
+      "context_path": "experiments/paper8/data/village/village_context.npy",
+      "label_shape": [
+        363,
+        610
+      ],
+      "prediction_shape": [
+        363,
+        610
+      ],
+      "embedding_shape": [
+        1,
+        1,
+        768
+      ],
+      "n_pixels": 221430,
+      "true_change_pixels": 48929,
+      "true_change_pct": 0.22096825181773022,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "banzhucun",
+      "start_year": 2020,
+      "end_year": 2023,
+      "tier": "tier2",
+      "stratum": "Mixed",
+      "label_start_path": "data/independent_change_labels/labels/banzhucun_lulc_2020.npy",
+      "label_end_path": "data/independent_change_labels/labels/banzhucun_lulc_2023.npy",
+      "prediction_path": "data/independent_change_labels/predicted/banzhucun_lulc_pred_2020_2023.npy",
+      "embedding_start_path": "experiments/paper8/data/prithvi/banzhucun_emb_2020.npy",
+      "embedding_end_path": "experiments/paper8/data/prithvi/banzhucun_emb_2023.npy",
+      "context_path": "experiments/paper8/data/village/village_context.npy",
+      "label_shape": [
+        363,
+        610
+      ],
+      "prediction_shape": [
+        363,
+        610
+      ],
+      "embedding_shape": [
+        1,
+        1,
+        768
+      ],
+      "n_pixels": 221430,
+      "true_change_pixels": 59588,
+      "true_change_pct": 0.2691053606105767,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "bishan",
+      "start_year": 2017,
+      "end_year": 2018,
+      "tier": "tier2",
+      "stratum": "Mixed",
+      "label_start_path": "data/independent_change_labels/labels/bishan_lulc_2017.npy",
+      "label_end_path": "data/independent_change_labels/labels/bishan_lulc_2018.npy",
+      "prediction_path": "data/independent_change_labels/predicted/bishan_lulc_pred_2017_2018.npy",
+      "embedding_start_path": "experiments/paper8/data/bishan_emb_2017.npy",
+      "embedding_end_path": "experiments/paper8/data/bishan_emb_2018.npy",
+      "context_path": "experiments/paper8/data/bishan_context.npy",
+      "label_shape": [
+        67,
+        70
+      ],
+      "prediction_shape": [
+        67,
+        70
+      ],
+      "embedding_shape": [
+        67,
+        70,
+        64
+      ],
+      "n_pixels": 4690,
+      "true_change_pixels": 682,
+      "true_change_pct": 0.14541577825159915,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "bishan",
+      "start_year": 2018,
+      "end_year": 2019,
+      "tier": "tier2",
+      "stratum": "Mixed",
+      "label_start_path": "data/independent_change_labels/labels/bishan_lulc_2018.npy",
+      "label_end_path": "data/independent_change_labels/labels/bishan_lulc_2019.npy",
+      "prediction_path": "data/independent_change_labels/predicted/bishan_lulc_pred_2018_2019.npy",
+      "embedding_start_path": "experiments/paper8/data/bishan_emb_2018.npy",
+      "embedding_end_path": "experiments/paper8/data/bishan_emb_2019.npy",
+      "context_path": "experiments/paper8/data/bishan_context.npy",
+      "label_shape": [
+        67,
+        70
+      ],
+      "prediction_shape": [
+        67,
+        70
+      ],
+      "embedding_shape": [
+        67,
+        70,
+        64
+      ],
+      "n_pixels": 4690,
+      "true_change_pixels": 656,
+      "true_change_pct": 0.13987206823027717,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "bishan",
+      "start_year": 2019,
+      "end_year": 2020,
+      "tier": "tier2",
+      "stratum": "Mixed",
+      "label_start_path": "data/independent_change_labels/labels/bishan_lulc_2019.npy",
+      "label_end_path": "data/independent_change_labels/labels/bishan_lulc_2020.npy",
+      "prediction_path": "data/independent_change_labels/predicted/bishan_lulc_pred_2019_2020.npy",
+      "embedding_start_path": "experiments/paper8/data/bishan_emb_2019.npy",
+      "embedding_end_path": "experiments/paper8/data/bishan_emb_2020.npy",
+      "context_path": "experiments/paper8/data/bishan_context.npy",
+      "label_shape": [
+        67,
+        70
+      ],
+      "prediction_shape": [
+        67,
+        70
+      ],
+      "embedding_shape": [
+        67,
+        70,
+        64
+      ],
+      "n_pixels": 4690,
+      "true_change_pixels": 738,
+      "true_change_pct": 0.15735607675906182,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "bishan",
+      "start_year": 2020,
+      "end_year": 2021,
+      "tier": "tier2",
+      "stratum": "Mixed",
+      "label_start_path": "data/independent_change_labels/labels/bishan_lulc_2020.npy",
+      "label_end_path": "data/independent_change_labels/labels/bishan_lulc_2021.npy",
+      "prediction_path": "data/independent_change_labels/predicted/bishan_lulc_pred_2020_2021.npy",
+      "embedding_start_path": "experiments/paper8/data/bishan_emb_2020.npy",
+      "embedding_end_path": "experiments/paper8/data/bishan_emb_2021.npy",
+      "context_path": "experiments/paper8/data/bishan_context.npy",
+      "label_shape": [
+        67,
+        70
+      ],
+      "prediction_shape": [
+        67,
+        70
+      ],
+      "embedding_shape": [
+        67,
+        70,
+        64
+      ],
+      "n_pixels": 4690,
+      "true_change_pixels": 681,
+      "true_change_pct": 0.14520255863539447,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "bishan",
+      "start_year": 2021,
+      "end_year": 2022,
+      "tier": "tier2",
+      "stratum": "Mixed",
+      "label_start_path": "data/independent_change_labels/labels/bishan_lulc_2021.npy",
+      "label_end_path": "data/independent_change_labels/labels/bishan_lulc_2022.npy",
+      "prediction_path": "data/independent_change_labels/predicted/bishan_lulc_pred_2021_2022.npy",
+      "embedding_start_path": "experiments/paper8/data/bishan_emb_2021.npy",
+      "embedding_end_path": "experiments/paper8/data/bishan_emb_2022.npy",
+      "context_path": "experiments/paper8/data/bishan_context.npy",
+      "label_shape": [
+        67,
+        70
+      ],
+      "prediction_shape": [
+        67,
+        70
+      ],
+      "embedding_shape": [
+        67,
+        70,
+        64
+      ],
+      "n_pixels": 4690,
+      "true_change_pixels": 714,
+      "true_change_pct": 0.15223880597014924,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "bishan",
+      "start_year": 2022,
+      "end_year": 2023,
+      "tier": "tier2",
+      "stratum": "Mixed",
+      "label_start_path": "data/independent_change_labels/labels/bishan_lulc_2022.npy",
+      "label_end_path": "data/independent_change_labels/labels/bishan_lulc_2023.npy",
+      "prediction_path": "data/independent_change_labels/predicted/bishan_lulc_pred_2022_2023.npy",
+      "embedding_start_path": "experiments/paper8/data/bishan_emb_2022.npy",
+      "embedding_end_path": "experiments/paper8/data/bishan_emb_2023.npy",
+      "context_path": "experiments/paper8/data/bishan_context.npy",
+      "label_shape": [
+        67,
+        70
+      ],
+      "prediction_shape": [
+        67,
+        70
+      ],
+      "embedding_shape": [
+        67,
+        70,
+        64
+      ],
+      "n_pixels": 4690,
+      "true_change_pixels": 681,
+      "true_change_pct": 0.14520255863539447,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "bishan",
+      "start_year": 2023,
+      "end_year": 2024,
+      "tier": "tier2",
+      "stratum": "Mixed",
+      "label_start_path": "data/independent_change_labels/labels/bishan_lulc_2023.npy",
+      "label_end_path": "data/independent_change_labels/labels/bishan_lulc_2024.npy",
+      "prediction_path": "data/independent_change_labels/predicted/bishan_lulc_pred_2023_2024.npy",
+      "embedding_start_path": "experiments/paper8/data/bishan_emb_2023.npy",
+      "embedding_end_path": "experiments/paper8/data/bishan_emb_2024.npy",
+      "context_path": "experiments/paper8/data/bishan_context.npy",
+      "label_shape": [
+        67,
+        70
+      ],
+      "prediction_shape": [
+        67,
+        70
+      ],
+      "embedding_shape": [
+        67,
+        70,
+        64
+      ],
+      "n_pixels": 4690,
+      "true_change_pixels": 611,
+      "true_change_pct": 0.1302771855010661,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "heping",
+      "start_year": 2017,
+      "end_year": 2020,
+      "tier": "tier2",
+      "stratum": "Mixed",
+      "label_start_path": "data/independent_change_labels/labels/heping_lulc_2017.npy",
+      "label_end_path": "data/independent_change_labels/labels/heping_lulc_2020.npy",
+      "prediction_path": "data/independent_change_labels/predicted/heping_lulc_pred_2017_2020.npy",
+      "embedding_start_path": "experiments/paper8/data/heping/heping_emb_2017.npy",
+      "embedding_end_path": "experiments/paper8/data/heping/heping_emb_2020.npy",
+      "context_path": "experiments/paper8/data/heping/heping_context.npy",
+      "label_shape": [
+        516,
+        356
+      ],
+      "prediction_shape": [
+        516,
+        356
+      ],
+      "embedding_shape": [
+        516,
+        356,
+        64
+      ],
+      "n_pixels": 183696,
+      "true_change_pixels": 30831,
+      "true_change_pct": 0.1678370786516854,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "poyang_lake",
+      "start_year": 2020,
+      "end_year": 2021,
+      "tier": "tier1",
+      "stratum": "Wetland",
+      "label_start_path": "data/independent_change_labels/labels/poyang_lake_lulc_2020.npy",
+      "label_end_path": "data/independent_change_labels/labels/poyang_lake_lulc_2021.npy",
+      "prediction_path": "data/independent_change_labels/predicted/poyang_lake_lulc_pred_2020_2021.npy",
+      "embedding_start_path": "data/independent_change_labels/embeddings/poyang_lake_emb_2020.npy",
+      "embedding_end_path": "data/independent_change_labels/embeddings/poyang_lake_emb_2021.npy",
+      "context_path": "data/independent_change_labels/embeddings/poyang_lake_context.npy",
+      "label_shape": [
+        23,
+        23
+      ],
+      "prediction_shape": [
+        23,
+        23
+      ],
+      "embedding_shape": [
+        23,
+        23,
+        64
+      ],
+      "n_pixels": 529,
+      "true_change_pixels": 92,
+      "true_change_pct": 0.17391304347826086,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "wuyi_mountain",
+      "start_year": 2020,
+      "end_year": 2021,
+      "tier": "tier1",
+      "stratum": "Forest",
+      "label_start_path": "data/independent_change_labels/labels/wuyi_mountain_lulc_2020.npy",
+      "label_end_path": "data/independent_change_labels/labels/wuyi_mountain_lulc_2021.npy",
+      "prediction_path": "data/independent_change_labels/predicted/wuyi_mountain_lulc_pred_2020_2021.npy",
+      "embedding_start_path": "data/independent_change_labels/embeddings/wuyi_mountain_emb_2020.npy",
+      "embedding_end_path": "data/independent_change_labels/embeddings/wuyi_mountain_emb_2021.npy",
+      "context_path": "data/independent_change_labels/embeddings/wuyi_mountain_context.npy",
+      "label_shape": [
+        23,
+        23
+      ],
+      "prediction_shape": [
+        23,
+        23
+      ],
+      "embedding_shape": [
+        23,
+        23,
+        64
+      ],
+      "n_pixels": 529,
+      "true_change_pixels": 0,
+      "true_change_pct": 0.0,
+      "qc_status": "negative_control",
+      "excluded_reason": "zero_reference_change"
+    }
+  ]
+}
