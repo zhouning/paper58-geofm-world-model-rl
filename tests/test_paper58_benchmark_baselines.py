@@ -83,3 +83,12 @@ def test_linear_embedding_delta_predicts_residual_shape():
     assert pred.shape == test_start.shape
     assert np.isfinite(pred).all()
     assert pred[0, 0, 0] == pytest.approx(1.1, abs=0.05)
+
+
+def test_linear_embedding_delta_rejects_test_feature_width_mismatch():
+    train_start = np.array([[[1.0, 0.0], [0.0, 1.0]]], dtype=np.float32)
+    train_end = train_start.copy()
+    test_start = np.ones((2, 2, 1), dtype=np.float32)
+
+    with pytest.raises(ValueError, match="train feature width=2.*test feature width=1"):
+        fit_linear_embedding_delta(train_start, train_end, test_start)

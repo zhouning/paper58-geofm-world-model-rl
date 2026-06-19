@@ -108,6 +108,9 @@ def fit_linear_embedding_delta(
     if train_start_arr.shape != train_end_arr.shape:
         raise ValueError(f"Shape mismatch: train_start={train_start_arr.shape}, train_end={train_end_arr.shape}")
     feature_dim = train_start_arr.shape[-1]
+    test_feature_dim = test_start_arr.shape[-1]
+    if test_feature_dim != feature_dim:
+        raise ValueError(f"Feature width mismatch: train feature width={feature_dim}, test feature width={test_feature_dim}")
     x_train = train_start_arr.reshape(-1, feature_dim)
     y_delta = (train_end_arr - train_start_arr).reshape(-1, feature_dim)
     model = Ridge(alpha=alpha)
