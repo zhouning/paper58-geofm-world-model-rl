@@ -1,2 +1,2 @@
 area,start_year,end_year,tier,qc_status,excluded_reason
-wuyi_mountain,2020,2021,tier1,negative_control,zero_reference_change
+wuyi_mountain,2020,2021,tier2,negative_control,zero_reference_change
