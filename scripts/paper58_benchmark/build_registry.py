@@ -104,7 +104,7 @@ def _find_context_path(area: str, independent_embeddings_dir: Path, experiment_d
 def _load_holdout_lookup(path: Path | None) -> dict[str, HoldoutArea]:
     if path is None or not Path(path).exists():
         return {}
-    return manifest_lookup(load_holdout_manifest(Path(path)))
+    return {area.lower(): record for area, record in manifest_lookup(load_holdout_manifest(Path(path))).items()}
 
 
 def _shape(path: Path | None) -> tuple[int, ...] | None:
@@ -132,7 +132,9 @@ def _build_row(
     embedding_start_path = _find_embedding_path(area, start_year, independent_embeddings_dir, experiment_data_dir)
     embedding_end_path = _find_embedding_path(area, end_year, independent_embeddings_dir, experiment_data_dir)
     context_path = _find_context_path(area, independent_embeddings_dir, experiment_data_dir)
-    holdout = holdouts.get(area)
+    holdout = holdouts.get(area.lower())
+    if holdout and (start_year not in holdout.years or end_year not in holdout.years):
+        holdout = None
     bbox = holdout.bbox if holdout else None
     data_source = holdout.data_source if holdout else ""
     development_contact_status = holdout.development_contact_status if holdout else "uncertain"

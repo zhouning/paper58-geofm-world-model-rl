@@ -277,3 +277,119 @@ def test_build_registry_uses_manifest_provenance_for_tiers(tmp_path: Path):
     assert by_area["poyang_lake"].tier == "tier2"
     assert by_area["poyang_lake"].development_contact_status == "none"
     assert DEFAULT_HOLDOUT_MANIFEST.exists()
+
+
+def test_build_registry_requires_manifest_year_coverage_for_tier1(tmp_path: Path):
+    labels = tmp_path / "labels"
+    predicted = tmp_path / "predicted"
+    embeddings = tmp_path / "embeddings"
+    experiment_data = tmp_path / "experiment_data"
+    output = tmp_path / "out"
+    for path in (labels, predicted, embeddings, experiment_data):
+        path.mkdir()
+
+    start = np.array([[1, 1], [2, 2]], dtype=np.int32)
+    end = np.array([[1, 2], [2, 3]], dtype=np.int32)
+    pred = np.array([[1, 2], [2, 2]], dtype=np.int32)
+    np.save(labels / "strict_external_lulc_2021.npy", start)
+    np.save(labels / "strict_external_lulc_2022.npy", end)
+    np.save(predicted / "strict_external_lulc_pred_2021_2022.npy", pred)
+    np.save(embeddings / "strict_external_emb_2021.npy", np.zeros((2, 2, 64), dtype=np.float32))
+    np.save(embeddings / "strict_external_emb_2022.npy", np.ones((2, 2, 64), dtype=np.float32))
+
+    manifest_path = tmp_path / "holdouts.json"
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "version": 1,
+                "areas": [
+                    {
+                        "area": "strict_external",
+                        "bbox": [120.1, 30.1, 120.2, 30.2],
+                        "stratum": "Urban",
+                        "years": [2020, 2021],
+                        "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+                        "selection_reason": "toy strict holdout",
+                        "development_contact_status": "none",
+                        "contact_evidence": "toy no-contact evidence",
+                        "expected_role": "positive_change_candidate",
+                        "notes": "",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    rows = build_registry(
+        labels_dir=labels,
+        predictions_dir=predicted,
+        independent_embeddings_dir=embeddings,
+        experiment_data_dir=experiment_data,
+        output_dir=output,
+        holdout_manifest_path=manifest_path,
+    )
+
+    row = rows[0]
+    assert row.area == "strict_external"
+    assert row.tier == "review_required"
+    assert row.development_contact_status == "uncertain"
+    assert row.bbox is None
+
+
+def test_build_registry_matches_manifest_area_case_insensitively(tmp_path: Path):
+    labels = tmp_path / "labels"
+    predicted = tmp_path / "predicted"
+    embeddings = tmp_path / "embeddings"
+    experiment_data = tmp_path / "experiment_data"
+    output = tmp_path / "out"
+    for path in (labels, predicted, embeddings, experiment_data):
+        path.mkdir()
+
+    start = np.array([[1, 1], [2, 2]], dtype=np.int32)
+    end = np.array([[1, 2], [2, 3]], dtype=np.int32)
+    pred = np.array([[1, 2], [2, 2]], dtype=np.int32)
+    np.save(labels / "Strict_External_lulc_2020.npy", start)
+    np.save(labels / "Strict_External_lulc_2021.npy", end)
+    np.save(predicted / "Strict_External_lulc_pred_2020_2021.npy", pred)
+    np.save(embeddings / "Strict_External_emb_2020.npy", np.zeros((2, 2, 64), dtype=np.float32))
+    np.save(embeddings / "Strict_External_emb_2021.npy", np.ones((2, 2, 64), dtype=np.float32))
+
+    manifest_path = tmp_path / "holdouts.json"
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "version": 1,
+                "areas": [
+                    {
+                        "area": "strict_external",
+                        "bbox": [120.1, 30.1, 120.2, 30.2],
+                        "stratum": "Urban",
+                        "years": [2020, 2021],
+                        "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+                        "selection_reason": "toy strict holdout",
+                        "development_contact_status": "none",
+                        "contact_evidence": "toy no-contact evidence",
+                        "expected_role": "positive_change_candidate",
+                        "notes": "",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    rows = build_registry(
+        labels_dir=labels,
+        predictions_dir=predicted,
+        independent_embeddings_dir=embeddings,
+        experiment_data_dir=experiment_data,
+        output_dir=output,
+        holdout_manifest_path=manifest_path,
+    )
+
+    row = rows[0]
+    assert row.area == "Strict_External"
+    assert row.tier == "tier1"
+    assert row.bbox == (120.1, 30.1, 120.2, 30.2)
+    assert row.development_contact_status == "none"
