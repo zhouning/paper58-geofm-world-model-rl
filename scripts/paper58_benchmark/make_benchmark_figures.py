@@ -50,6 +50,16 @@ def _read_metrics(path: Path) -> list[dict]:
     return rows
 
 
+def _read_gate_report(path: Path) -> dict:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"{path.name} is not valid JSON: {exc.msg}") from exc
+    if not isinstance(payload, dict):
+        raise ValueError(f"{path.name} must contain a JSON object")
+    return payload
+
+
 def load_benchmark_outputs(results_dir: Path = DEFAULT_BENCHMARK_DIR) -> dict:
     results_dir = Path(results_dir)
     metrics_path = results_dir / "benchmark_metrics_by_pair.csv"
@@ -59,7 +69,7 @@ def load_benchmark_outputs(results_dir: Path = DEFAULT_BENCHMARK_DIR) -> dict:
         raise FileNotFoundError("Missing benchmark result files: " + ", ".join(missing))
     return {
         "metrics": _read_metrics(metrics_path),
-        "gate": json.loads(gate_path.read_text(encoding="utf-8")),
+        "gate": _read_gate_report(gate_path),
     }
 
 

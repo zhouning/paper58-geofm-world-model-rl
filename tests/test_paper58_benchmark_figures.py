@@ -74,6 +74,34 @@ def test_load_benchmark_outputs_reports_missing_numeric_value_with_row_and_field
     assert "None" in message
 
 
+def test_load_benchmark_outputs_reports_invalid_gate_json(tmp_path: Path):
+    results_dir = tmp_path / "results"
+    results_dir.mkdir()
+    (results_dir / "benchmark_metrics_by_pair.csv").write_text(
+        "area,start_year,end_year,tier,stratum,primary_change_advantage,spatial_change_advantage,model_change_f1,best_non_neural_change_f1\n"
+        "external,2020,2021,tier1,Wetland,0.20,0.10,0.50,0.30\n",
+        encoding="utf-8",
+    )
+    (results_dir / "benchmark_gate_report.json").write_text("{bad json", encoding="utf-8")
+
+    with pytest.raises(ValueError, match=r"benchmark_gate_report\.json is not valid JSON"):
+        load_benchmark_outputs(results_dir)
+
+
+def test_load_benchmark_outputs_requires_gate_json_object(tmp_path: Path):
+    results_dir = tmp_path / "results"
+    results_dir.mkdir()
+    (results_dir / "benchmark_metrics_by_pair.csv").write_text(
+        "area,start_year,end_year,tier,stratum,primary_change_advantage,spatial_change_advantage,model_change_f1,best_non_neural_change_f1\n"
+        "external,2020,2021,tier1,Wetland,0.20,0.10,0.50,0.30\n",
+        encoding="utf-8",
+    )
+    (results_dir / "benchmark_gate_report.json").write_text("[]", encoding="utf-8")
+
+    with pytest.raises(ValueError, match=r"benchmark_gate_report\.json must contain a JSON object"):
+        load_benchmark_outputs(results_dir)
+
+
 def test_make_benchmark_figures_writes_pdf_and_png(tmp_path: Path):
     results_dir = tmp_path / "results"
     figure_dir = tmp_path / "figures"
