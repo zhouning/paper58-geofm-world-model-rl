@@ -21,19 +21,28 @@ def _write_holdout_manifest(path: Path) -> None:
             {
                 "areas": [
                     {
-                        "name": "poyang_lake",
+                        "area": "poyang_lake",
                         "bbox": [116.0, 29.0, 116.1, 29.1],
+                        "stratum": "tier1",
+                        "years": [2020, 2021],
+                        "data_source": "test",
+                        "selection_reason": "test",
                         "development_contact_status": "none",
+                        "contact_evidence": "test",
+                        "expected_role": "test",
+                        "notes": "test",
                     },
                     {
-                        "area": "ignored_area_key",
-                        "bbox": [100.0, 20.0, 100.1, 20.1],
-                        "development_contact_status": "none",
-                    },
-                    {
-                        "name": "wuyi_mountain",
+                        "area": "wuyi_mountain",
                         "bbox": [117.0, 27.0, 117.1, 27.1],
-                        "development_contact_status": "active",
+                        "stratum": "tier1",
+                        "years": [2020, 2021],
+                        "data_source": "test",
+                        "selection_reason": "test",
+                        "development_contact_status": "known_contact",
+                        "contact_evidence": "test",
+                        "expected_role": "test",
+                        "notes": "test",
                     },
                 ]
             },
@@ -41,6 +50,35 @@ def _write_holdout_manifest(path: Path) -> None:
         ),
         encoding="utf-8",
     )
+
+
+def _write_holdout_manifest_without_none(path: Path) -> None:
+    path.write_text(
+        json.dumps(
+            {
+                "areas": [
+                    {
+                        "area": "poyang_lake",
+                        "bbox": [116.0, 29.0, 116.1, 29.1],
+                        "stratum": "holdout",
+                        "years": [2020, 2021],
+                        "data_source": "test",
+                        "selection_reason": "test",
+                        "development_contact_status": "known_contact",
+                        "contact_evidence": "test",
+                        "expected_role": "test",
+                        "notes": "test",
+                    }
+                ]
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+
+def _write_invalid_holdout_manifest(path: Path) -> None:
+    path.write_text(json.dumps({"areas": [{"area": "broken", "bbox": [1, 2, 3, 4]}]}, indent=2), encoding="utf-8")
 
 
 def test_fetch_change_validation_embeddings_writes_area_grids_and_context(tmp_path: Path, monkeypatch):
@@ -395,6 +433,93 @@ def test_generate_change_validation_predictions_filters_manifest_area(tmp_path: 
     assert report["records"][0]["area"] == "poyang_lake"
     assert (output_dir / "poyang_lake_lulc_pred_2020_2021.npy").exists()
     assert not (output_dir / "wuyi_mountain_lulc_pred_2020_2021.npy").exists()
+
+
+def test_generate_change_validation_predictions_reports_no_eligible_manifest_areas(tmp_path: Path):
+    import scripts.rse_revision.generate_change_validation_predictions as predictor
+
+    embedding_dir = tmp_path / "embeddings"
+    embedding_dir.mkdir()
+    output_dir = tmp_path / "predicted"
+    report_path = tmp_path / "prediction_readiness_report.json"
+    manifest_path = tmp_path / "holdout_manifest.json"
+    _write_holdout_manifest_without_none(manifest_path)
+    weights_path = tmp_path / "weights.pt"
+    decoder_path = tmp_path / "decoder.pkl"
+    weights_path.write_text("stub", encoding="utf-8")
+    decoder_path.write_text("stub", encoding="utf-8")
+
+    np.save(embedding_dir / "poyang_lake_emb_2020.npy", np.zeros((2, 2, 64), dtype=np.float32))
+    np.save(embedding_dir / "poyang_lake_emb_2021.npy", np.zeros((2, 2, 64), dtype=np.float32))
+
+    report = predictor.generate_change_validation_predictions(
+        embedding_dirs=[embedding_dir],
+        output_dir=output_dir,
+        report_path=report_path,
+        weights_path=weights_path,
+        decoder_path=decoder_path,
+        area_manifest_path=manifest_path,
+    )
+
+    assert report["status"] == "not_ready"
+    assert report["readiness_failures"] == [
+        {
+            "component": "cached_embeddings",
+            "paths": [str(embedding_dir)],
+            "reason": "no_embedding_sequences_found",
+            "candidate_areas": [],
+        }
+    ]
+    assert not any(output_dir.glob("*.npy"))
+
+
+def test_fetch_independent_lulc_labels_rejects_invalid_manifest(tmp_path: Path):
+    import scripts.rse_revision.fetch_independent_lulc_labels as fetcher
+
+    manifest_path = tmp_path / "invalid_holdout_manifest.json"
+    _write_invalid_holdout_manifest(manifest_path)
+
+    with pytest.raises(ValueError, match="holdout area 0 missing required field"):
+        fetcher.fetch_independent_lulc_labels(
+            areas=["poyang_lake"],
+            years=[2020],
+            output_dir=tmp_path / "labels",
+            manifest_path=tmp_path / "label_manifest.json",
+            area_manifest_path=manifest_path,
+        )
+
+
+def test_fetch_change_validation_embeddings_rejects_invalid_manifest(tmp_path: Path):
+    import scripts.rse_revision.fetch_change_validation_embeddings as fetcher
+
+    manifest_path = tmp_path / "invalid_holdout_manifest.json"
+    _write_invalid_holdout_manifest(manifest_path)
+
+    with pytest.raises(ValueError, match="holdout area 0 missing required field"):
+        fetcher.fetch_change_validation_embeddings(
+            areas=["poyang_lake"],
+            years=[2020],
+            output_dir=tmp_path / "embeddings",
+            manifest_path=tmp_path / "embedding_manifest.json",
+            area_manifest_path=manifest_path,
+        )
+
+
+def test_generate_change_validation_predictions_rejects_invalid_manifest(tmp_path: Path):
+    import scripts.rse_revision.generate_change_validation_predictions as predictor
+
+    manifest_path = tmp_path / "invalid_holdout_manifest.json"
+    _write_invalid_holdout_manifest(manifest_path)
+
+    with pytest.raises(ValueError, match="holdout area 0 missing required field"):
+        predictor.generate_change_validation_predictions(
+            embedding_dirs=[tmp_path / "embeddings"],
+            output_dir=tmp_path / "predicted",
+            report_path=tmp_path / "prediction_readiness_report.json",
+            weights_path=tmp_path / "weights.pt",
+            decoder_path=tmp_path / "decoder.pkl",
+            area_manifest_path=manifest_path,
+        )
 
 
 def test_generate_change_validation_predictions_reports_missing_model_artifacts(tmp_path: Path):

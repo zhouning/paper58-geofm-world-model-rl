@@ -14,6 +14,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from adk_world_model.world_model import DEFAULT_TRAINING_AREAS, LULC_COLLECTION, extract_lulc_labels
+from scripts.paper58_benchmark.holdouts import load_holdout_manifest
 
 
 DEFAULT_OUTPUT_DIR = ROOT / "data" / "independent_change_labels" / "labels"
@@ -39,23 +40,9 @@ def _area_lookup() -> dict[str, dict]:
 def _load_area_manifest(area_manifest_path: Path | None) -> dict[str, dict]:
     if area_manifest_path is None:
         return {}
-    path = Path(area_manifest_path)
-    if not path.exists() or path.stat().st_size <= 0:
-        return {}
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return {}
-    areas = payload.get("areas", []) if isinstance(payload, dict) else []
     loaded: dict[str, dict] = {}
-    for area in areas:
-        if not isinstance(area, dict):
-            continue
-        name = area.get("name") or area.get("area")
-        bbox = area.get("bbox")
-        if not isinstance(name, str) or not isinstance(bbox, list) or len(bbox) != 4:
-            continue
-        loaded[name.lower()] = {"name": name.lower(), "bbox": bbox}
+    for area in load_holdout_manifest(Path(area_manifest_path)):
+        loaded[area.area] = {"name": area.area, "bbox": list(area.bbox)}
     return loaded
 
 

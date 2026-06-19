@@ -21,6 +21,7 @@ from adk_world_model.world_model import (
     DECODER_PATH,
     _build_model,
 )
+from scripts.paper58_benchmark.holdouts import area_records_for_status, load_holdout_manifest
 
 
 DEFAULT_EMBEDDING_DIRS = [
@@ -78,33 +79,6 @@ def _find_context(area: str, embedding_path: Path) -> Path | None:
     return None
 
 
-def _areas_from_manifest(path: Path) -> list[str]:
-    if not path.exists() or path.stat().st_size <= 0:
-        return []
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return []
-    areas = payload.get("areas", []) if isinstance(payload, dict) else []
-    selected: list[str] = []
-    seen: set[str] = set()
-    for area in areas:
-        if not isinstance(area, dict):
-            continue
-        status = area.get("development_contact_status")
-        if status != "none":
-            continue
-        name = area.get("name") or area.get("area")
-        if not isinstance(name, str):
-            continue
-        normalized = name.lower()
-        if normalized in seen:
-            continue
-        seen.add(normalized)
-        selected.append(normalized)
-    return selected
-
-
 def _load_model(weights_path: Path):
     torch = _load_torch()
     checkpoint = torch.load(weights_path, map_location="cpu", weights_only=False)
@@ -159,8 +133,31 @@ def generate_change_validation_predictions(
     if not decoder_path.exists():
         readiness_failures.append({"component": "lulc_decoder", "path": str(decoder_path), "reason": "missing"})
 
+    manifest_areas: list[str] | None = None
     if areas is None and area_manifest_path is not None:
-        areas = _areas_from_manifest(Path(area_manifest_path))
+        manifest_areas = [record.area for record in load_holdout_manifest(Path(area_manifest_path)) if record.development_contact_status == "none"]
+        if not manifest_areas:
+            readiness_failures.append(
+                {
+                    "component": "cached_embeddings",
+                    "paths": [str(path) for path in embedding_dirs],
+                    "reason": "no_embedding_sequences_found",
+                    "candidate_areas": [],
+                }
+            )
+            report = {
+                "status": "not_ready",
+                "n_predictions": 0,
+                "readiness_failures": readiness_failures,
+                "next_step": (
+                    "Provide LatentDynamicsNet weights, a fitted LULC decoder, and cached annual embeddings; "
+                    "then rerun this script before evaluating independent change labels."
+                ),
+            }
+            report_path.parent.mkdir(parents=True, exist_ok=True)
+            report_path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+            return report
+        areas = manifest_areas
 
     embeddings = _find_embeddings([Path(p) for p in embedding_dirs])
     if areas:
