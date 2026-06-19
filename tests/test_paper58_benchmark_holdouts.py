@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 from scripts.paper58_benchmark.holdouts import (
+    DEFAULT_HOLDOUT_MANIFEST,
     HoldoutArea,
     area_records_for_status,
     load_holdout_manifest,
@@ -227,3 +228,15 @@ def test_area_records_for_status_respects_explicit_empty_status_set(tmp_path: Pa
     )
 
     assert area_records_for_status(manifest_path, statuses=set()) == []
+
+
+def test_repository_holdout_manifest_has_minimum_external_batch():
+    areas = load_holdout_manifest(DEFAULT_HOLDOUT_MANIFEST)
+    lookup = manifest_lookup(areas)
+    tier1 = [area for area in areas if tier_from_provenance(area.area, lookup) == "tier1"]
+
+    assert len(tier1) >= 6
+    assert len({area.stratum for area in tier1}) >= 4
+    assert all(2020 in area.years and 2021 in area.years for area in tier1)
+    assert tier_from_provenance("poyang_lake", lookup) == "tier2"
+    assert tier_from_provenance("wuyi_mountain", lookup) == "tier2"

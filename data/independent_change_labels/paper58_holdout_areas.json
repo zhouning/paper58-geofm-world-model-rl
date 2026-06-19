@@ -1,0 +1,127 @@
+{
+  "version": 1,
+  "created": "2026-06-19",
+  "purpose": "Paper58 provenance-first Tier 1 expansion candidates",
+  "areas": [
+    {
+      "area": "poyang_lake",
+      "bbox": [116.0, 29.0, 116.1, 29.1],
+      "stratum": "Wetland",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "current local benchmark row requiring provenance downgrade",
+      "development_contact_status": "known_contact",
+      "contact_evidence": "area appears in DEFAULT_TRAINING_AREAS in src/adk_world_model/world_model.py",
+      "expected_role": "provenance_audit",
+      "notes": "do not count as strict Tier 1 without a separate training-contact audit"
+    },
+    {
+      "area": "wuyi_mountain",
+      "bbox": [117.6, 27.7, 117.7, 27.8],
+      "stratum": "Forest",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "current local benchmark negative control requiring provenance downgrade",
+      "development_contact_status": "known_contact",
+      "contact_evidence": "area appears in DEFAULT_TRAINING_AREAS in src/adk_world_model/world_model.py",
+      "expected_role": "negative_control",
+      "notes": "current reference labels have zero change for 2020-2021"
+    },
+    {
+      "area": "tianjin_binhai_holdout",
+      "bbox": [117.45, 38.95, 117.55, 39.05],
+      "stratum": "Urban",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent coastal urban expansion holdout not in Paper58 training list",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas",
+      "expected_role": "positive_change_candidate",
+      "notes": "first-batch external urban candidate"
+    },
+    {
+      "area": "shenzhen_outer_holdout",
+      "bbox": [114.25, 22.65, 114.35, 22.75],
+      "stratum": "Urban",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent Pearl River urban-edge holdout outside the original pearl_river bbox",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas",
+      "expected_role": "reserve_positive_change_candidate",
+      "notes": "reserve urban candidate if Tianjin has low reference change"
+    },
+    {
+      "area": "tarim_oasis_holdout",
+      "bbox": [80.20, 41.10, 80.30, 41.20],
+      "stratum": "Agriculture",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent irrigated oasis agriculture holdout outside existing agricultural bboxes",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas",
+      "expected_role": "positive_change_candidate",
+      "notes": "tests agricultural regime different from northeast/north_china/jianghan/hetao training areas"
+    },
+    {
+      "area": "sanjiang_plain_holdout",
+      "bbox": [133.20, 47.20, 133.30, 47.30],
+      "stratum": "Agriculture",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent northeast agricultural-wetland margin holdout",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas",
+      "expected_role": "reserve_positive_change_candidate",
+      "notes": "reserve agriculture candidate if Tarim has low reference change"
+    },
+    {
+      "area": "dongting_lake_holdout",
+      "bbox": [112.80, 29.20, 112.90, 29.30],
+      "stratum": "Wetland",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent wetland holdout outside the poyang_lake training bbox",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas",
+      "expected_role": "positive_change_candidate",
+      "notes": "tests whether wetland signal generalizes beyond current Poyang row"
+    },
+    {
+      "area": "xiaoxinganling_holdout",
+      "bbox": [128.80, 47.70, 128.90, 47.80],
+      "stratum": "Forest",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent forest holdout outside daxinganling and wuyi training bboxes",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas",
+      "expected_role": "positive_change_candidate",
+      "notes": "forest candidate; may become zero-change negative control"
+    },
+    {
+      "area": "qinling_mountain_holdout",
+      "bbox": [108.40, 33.80, 108.50, 33.90],
+      "stratum": "Forest",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent mountain forest holdout outside guanzhong training bbox",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas",
+      "expected_role": "reserve_positive_change_candidate",
+      "notes": "reserve forest candidate if Xiaoxinganling has zero reference change"
+    },
+    {
+      "area": "haibei_plateau_holdout",
+      "bbox": [100.90, 37.20, 101.00, 37.30],
+      "stratum": "Plateau",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent plateau holdout outside qinghai_edge training bbox",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas",
+      "expected_role": "positive_change_candidate",
+      "notes": "plateau candidate; may be low-change and must be treated transparently"
+    }
+  ]
+}
