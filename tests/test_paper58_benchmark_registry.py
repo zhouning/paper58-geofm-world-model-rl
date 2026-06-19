@@ -52,3 +52,90 @@ def test_benchmark_row_serializes_paths_and_metrics():
     assert data["label_shape"] == [23, 23]
     assert data["embedding_shape"] == [23, 23, 64]
     assert data["true_change_pixels"] == 92
+
+
+import numpy as np
+
+from scripts.paper58_benchmark.build_registry import (
+    build_registry,
+    parse_label_filename,
+    parse_prediction_filename,
+)
+
+
+def test_parse_label_and_prediction_filenames():
+    assert parse_label_filename("toy_area_lulc_2020.npy") == ("toy_area", 2020)
+    assert parse_prediction_filename("toy_area_lulc_pred_2020_2021.npy") == ("toy_area", 2020, 2021)
+    assert parse_label_filename("bad.npy") is None
+    assert parse_prediction_filename("bad.npy") is None
+
+
+def test_build_registry_includes_valid_pair_and_missing_embedding(tmp_path: Path):
+    labels = tmp_path / "labels"
+    predicted = tmp_path / "predicted"
+    embeddings = tmp_path / "embeddings"
+    experiment_data = tmp_path / "experiment_data"
+    output = tmp_path / "out"
+    labels.mkdir()
+    predicted.mkdir()
+    embeddings.mkdir()
+    experiment_data.mkdir()
+
+    start = np.array([[1, 1], [2, 2]], dtype=np.int32)
+    end = np.array([[1, 2], [2, 3]], dtype=np.int32)
+    pred = np.array([[1, 2], [2, 2]], dtype=np.int32)
+    np.save(labels / "external_lulc_2020.npy", start)
+    np.save(labels / "external_lulc_2021.npy", end)
+    np.save(predicted / "external_lulc_pred_2020_2021.npy", pred)
+    np.save(embeddings / "external_emb_2020.npy", np.zeros((2, 2, 64), dtype=np.float32))
+    np.save(embeddings / "external_emb_2021.npy", np.ones((2, 2, 64), dtype=np.float32))
+    np.save(embeddings / "external_context.npy", np.zeros((2, 2, 2), dtype=np.float32))
+
+    rows = build_registry(
+        labels_dir=labels,
+        predictions_dir=predicted,
+        independent_embeddings_dir=embeddings,
+        experiment_data_dir=experiment_data,
+        output_dir=output,
+    )
+
+    assert len(rows) == 1
+    row = rows[0]
+    assert row.area == "external"
+    assert row.tier == "tier1"
+    assert row.qc_status == "include"
+    assert row.true_change_pixels == 2
+    assert row.embedding_shape == (2, 2, 64)
+    assert (output / "benchmark_registry.json").exists()
+    assert (output / "benchmark_registry.csv").exists()
+
+
+def test_build_registry_excludes_shape_mismatch_and_marks_zero_change_control(tmp_path: Path):
+    labels = tmp_path / "labels"
+    predicted = tmp_path / "predicted"
+    embeddings = tmp_path / "embeddings"
+    experiment_data = tmp_path / "experiment_data"
+    output = tmp_path / "out"
+    for path in (labels, predicted, embeddings, experiment_data):
+        path.mkdir()
+
+    np.save(labels / "mismatch_lulc_2020.npy", np.ones((2, 2), dtype=np.int32))
+    np.save(labels / "mismatch_lulc_2021.npy", np.ones((2, 2), dtype=np.int32))
+    np.save(predicted / "mismatch_lulc_pred_2020_2021.npy", np.ones((3, 3), dtype=np.int32))
+    np.save(labels / "steady_lulc_2020.npy", np.ones((2, 2), dtype=np.int32))
+    np.save(labels / "steady_lulc_2021.npy", np.ones((2, 2), dtype=np.int32))
+    np.save(predicted / "steady_lulc_pred_2020_2021.npy", np.ones((2, 2), dtype=np.int32))
+
+    rows = build_registry(
+        labels_dir=labels,
+        predictions_dir=predicted,
+        independent_embeddings_dir=embeddings,
+        experiment_data_dir=experiment_data,
+        output_dir=output,
+    )
+
+    by_area = {row.area: row for row in rows}
+    assert by_area["mismatch"].qc_status == "exclude"
+    assert by_area["mismatch"].excluded_reason == "label_prediction_shape_mismatch"
+    assert by_area["steady"].qc_status == "negative_control"
+    assert by_area["steady"].excluded_reason == "zero_reference_change"
