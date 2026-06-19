@@ -28,3 +28,6 @@ Thumbs.db
 # Local pytest scratch directories
 .pytest_run/
 .pytest_tmp/
+
+# Local isolated worktrees
+.worktrees/
