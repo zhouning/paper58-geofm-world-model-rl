@@ -3,88 +3,88 @@
   "source": "AlphaEarth annual satellite embeddings via src.adk_world_model.world_model.extract_embeddings",
   "scale_m": 500,
   "output_dir": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings",
-  "n_records": 16,
-  "n_context_records": 8,
+  "n_records": 20,
+  "n_context_records": 10,
   "n_failures": 0,
   "records": [
     {
-      "area": "xiong_an_fringe_holdout",
+      "area": "suzhou_fringe_holdout",
       "year": 2020,
       "bbox": [
-        115.9,
-        38.95,
-        116.0,
-        39.05
+        120.68,
+        31.2,
+        120.78,
+        31.3
       ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\xiong_an_fringe_holdout_emb_2020.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\suzhou_fringe_holdout_emb_2020.npy",
       "shape": [
-        24,
-        24,
+        23,
+        23,
         64
       ],
       "status": "fetched"
     },
     {
-      "area": "xiong_an_fringe_holdout",
+      "area": "suzhou_fringe_holdout",
       "year": 2021,
       "bbox": [
-        115.9,
-        38.95,
-        116.0,
-        39.05
+        120.68,
+        31.2,
+        120.78,
+        31.3
       ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\xiong_an_fringe_holdout_emb_2021.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\suzhou_fringe_holdout_emb_2021.npy",
       "shape": [
-        24,
-        24,
+        23,
+        23,
         64
       ],
       "status": "fetched"
     },
     {
-      "area": "beibu_gulf_urban_holdout",
+      "area": "wuhan_outer_ring_holdout",
       "year": 2020,
       "bbox": [
-        109.15,
-        21.55,
-        109.25,
-        21.65
+        114.48,
+        30.42,
+        114.58,
+        30.52
       ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\beibu_gulf_urban_holdout_emb_2020.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\wuhan_outer_ring_holdout_emb_2020.npy",
       "shape": [
-        24,
+        23,
         23,
         64
       ],
       "status": "fetched"
     },
     {
-      "area": "beibu_gulf_urban_holdout",
+      "area": "wuhan_outer_ring_holdout",
       "year": 2021,
       "bbox": [
-        109.15,
-        21.55,
-        109.25,
-        21.65
+        114.48,
+        30.42,
+        114.58,
+        30.52
       ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\beibu_gulf_urban_holdout_emb_2021.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\wuhan_outer_ring_holdout_emb_2021.npy",
       "shape": [
-        24,
+        23,
         23,
         64
       ],
       "status": "fetched"
     },
     {
-      "area": "songnen_plain_holdout",
+      "area": "fuzhou_delta_urban_holdout",
       "year": 2020,
       "bbox": [
-        124.8,
-        45.55,
-        124.9,
-        45.65
+        119.36,
+        26.02,
+        119.46,
+        26.12
       ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\songnen_plain_holdout_emb_2020.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\fuzhou_delta_urban_holdout_emb_2020.npy",
       "shape": [
         23,
         23,
@@ -93,15 +93,15 @@
       "status": "fetched"
     },
     {
-      "area": "songnen_plain_holdout",
+      "area": "fuzhou_delta_urban_holdout",
       "year": 2021,
       "bbox": [
-        124.8,
-        45.55,
-        124.9,
-        45.65
+        119.36,
+        26.02,
+        119.46,
+        26.12
       ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\songnen_plain_holdout_emb_2021.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\fuzhou_delta_urban_holdout_emb_2021.npy",
       "shape": [
         23,
         23,
@@ -110,117 +110,168 @@
       "status": "fetched"
     },
     {
-      "area": "hexi_irrigation_holdout",
+      "area": "nanning_fringe_holdout",
       "year": 2020,
       "bbox": [
-        100.1,
-        38.65,
-        100.2,
-        38.75
+        108.38,
+        22.86,
+        108.48,
+        22.96
       ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\hexi_irrigation_holdout_emb_2020.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\nanning_fringe_holdout_emb_2020.npy",
       "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "nanning_fringe_holdout",
+      "year": 2021,
+      "bbox": [
+        108.38,
+        22.86,
+        108.48,
+        22.96
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\nanning_fringe_holdout_emb_2021.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "honghu_lake_margin_holdout",
+      "year": 2020,
+      "bbox": [
+        113.18,
+        29.78,
+        113.28,
+        29.88
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\honghu_lake_margin_holdout_emb_2020.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "honghu_lake_margin_holdout",
+      "year": 2021,
+      "bbox": [
+        113.18,
+        29.78,
+        113.28,
+        29.88
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\honghu_lake_margin_holdout_emb_2021.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "taihu_marsh_edge_holdout",
+      "year": 2020,
+      "bbox": [
+        120.12,
+        31.24,
+        120.22,
+        31.34
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\taihu_marsh_edge_holdout_emb_2020.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "taihu_marsh_edge_holdout",
+      "year": 2021,
+      "bbox": [
+        120.12,
+        31.24,
+        120.22,
+        31.34
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\taihu_marsh_edge_holdout_emb_2021.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "zhalong_wetland_edge_holdout",
+      "year": 2020,
+      "bbox": [
+        123.82,
+        47.18,
+        123.92,
+        47.28
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\zhalong_wetland_edge_holdout_emb_2020.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "zhalong_wetland_edge_holdout",
+      "year": 2021,
+      "bbox": [
+        123.82,
+        47.18,
+        123.92,
+        47.28
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\zhalong_wetland_edge_holdout_emb_2021.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "weihe_irrigation_margin_holdout",
+      "year": 2020,
+      "bbox": [
+        108.88,
+        34.42,
+        108.98,
+        34.52
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\weihe_irrigation_margin_holdout_emb_2020.npy",
+      "shape": [
+        23,
         24,
-        23,
         64
       ],
       "status": "fetched"
     },
     {
-      "area": "hexi_irrigation_holdout",
+      "area": "weihe_irrigation_margin_holdout",
       "year": 2021,
       "bbox": [
-        100.1,
-        38.65,
-        100.2,
-        38.75
+        108.88,
+        34.42,
+        108.98,
+        34.52
       ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\hexi_irrigation_holdout_emb_2021.npy",
-      "shape": [
-        24,
-        23,
-        64
-      ],
-      "status": "fetched"
-    },
-    {
-      "area": "changbai_margin_holdout",
-      "year": 2020,
-      "bbox": [
-        127.6,
-        42.15,
-        127.7,
-        42.25
-      ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\changbai_margin_holdout_emb_2020.npy",
-      "shape": [
-        23,
-        23,
-        64
-      ],
-      "status": "fetched"
-    },
-    {
-      "area": "changbai_margin_holdout",
-      "year": 2021,
-      "bbox": [
-        127.6,
-        42.15,
-        127.7,
-        42.25
-      ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\changbai_margin_holdout_emb_2021.npy",
-      "shape": [
-        23,
-        23,
-        64
-      ],
-      "status": "fetched"
-    },
-    {
-      "area": "erlong_lake_margin_holdout",
-      "year": 2020,
-      "bbox": [
-        123.65,
-        43.25,
-        123.75,
-        43.35
-      ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\erlong_lake_margin_holdout_emb_2020.npy",
-      "shape": [
-        23,
-        23,
-        64
-      ],
-      "status": "fetched"
-    },
-    {
-      "area": "erlong_lake_margin_holdout",
-      "year": 2021,
-      "bbox": [
-        123.65,
-        43.25,
-        123.75,
-        43.35
-      ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\erlong_lake_margin_holdout_emb_2021.npy",
-      "shape": [
-        23,
-        23,
-        64
-      ],
-      "status": "fetched"
-    },
-    {
-      "area": "ordos_grassland_holdout",
-      "year": 2020,
-      "bbox": [
-        109.45,
-        39.25,
-        109.55,
-        39.35
-      ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\ordos_grassland_holdout_emb_2020.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\weihe_irrigation_margin_holdout_emb_2021.npy",
       "shape": [
         23,
         24,
@@ -229,32 +280,15 @@
       "status": "fetched"
     },
     {
-      "area": "ordos_grassland_holdout",
-      "year": 2021,
-      "bbox": [
-        109.45,
-        39.25,
-        109.55,
-        39.35
-      ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\ordos_grassland_holdout_emb_2021.npy",
-      "shape": [
-        23,
-        24,
-        64
-      ],
-      "status": "fetched"
-    },
-    {
-      "area": "west_sichuan_plateau_holdout",
+      "area": "nanling_forest_edge_holdout",
       "year": 2020,
       "bbox": [
-        102.55,
-        31.95,
-        102.65,
-        32.05
+        113.02,
+        24.92,
+        113.12,
+        25.02
       ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\west_sichuan_plateau_holdout_emb_2020.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\nanling_forest_edge_holdout_emb_2020.npy",
       "shape": [
         23,
         23,
@@ -263,15 +297,49 @@
       "status": "fetched"
     },
     {
-      "area": "west_sichuan_plateau_holdout",
+      "area": "nanling_forest_edge_holdout",
       "year": 2021,
       "bbox": [
-        102.55,
-        31.95,
-        102.65,
-        32.05
+        113.02,
+        24.92,
+        113.12,
+        25.02
       ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\west_sichuan_plateau_holdout_emb_2021.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\nanling_forest_edge_holdout_emb_2021.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "hulun_grassland_margin_holdout",
+      "year": 2020,
+      "bbox": [
+        119.72,
+        49.08,
+        119.82,
+        49.18
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\hulun_grassland_margin_holdout_emb_2020.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "hulun_grassland_margin_holdout",
+      "year": 2021,
+      "bbox": [
+        119.72,
+        49.08,
+        119.82,
+        49.18
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\hulun_grassland_margin_holdout_emb_2021.npy",
       "shape": [
         23,
         23,
@@ -282,46 +350,142 @@
   ],
   "context_records": [
     {
-      "area": "xiong_an_fringe_holdout",
+      "area": "suzhou_fringe_holdout",
       "bbox": [
-        115.9,
-        38.95,
-        116.0,
-        39.05
+        120.68,
+        31.2,
+        120.78,
+        31.3
       ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\xiong_an_fringe_holdout_context.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\suzhou_fringe_holdout_context.npy",
       "shape": [
         2,
-        24,
+        23,
+        23
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "wuhan_outer_ring_holdout",
+      "bbox": [
+        114.48,
+        30.42,
+        114.58,
+        30.52
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\wuhan_outer_ring_holdout_context.npy",
+      "shape": [
+        2,
+        23,
+        23
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "fuzhou_delta_urban_holdout",
+      "bbox": [
+        119.36,
+        26.02,
+        119.46,
+        26.12
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\fuzhou_delta_urban_holdout_context.npy",
+      "shape": [
+        2,
+        23,
+        23
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "nanning_fringe_holdout",
+      "bbox": [
+        108.38,
+        22.86,
+        108.48,
+        22.96
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\nanning_fringe_holdout_context.npy",
+      "shape": [
+        2,
+        23,
+        23
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "honghu_lake_margin_holdout",
+      "bbox": [
+        113.18,
+        29.78,
+        113.28,
+        29.88
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\honghu_lake_margin_holdout_context.npy",
+      "shape": [
+        2,
+        23,
+        23
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "taihu_marsh_edge_holdout",
+      "bbox": [
+        120.12,
+        31.24,
+        120.22,
+        31.34
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\taihu_marsh_edge_holdout_context.npy",
+      "shape": [
+        2,
+        23,
+        23
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "zhalong_wetland_edge_holdout",
+      "bbox": [
+        123.82,
+        47.18,
+        123.92,
+        47.28
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\zhalong_wetland_edge_holdout_context.npy",
+      "shape": [
+        2,
+        23,
+        23
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "weihe_irrigation_margin_holdout",
+      "bbox": [
+        108.88,
+        34.42,
+        108.98,
+        34.52
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\weihe_irrigation_margin_holdout_context.npy",
+      "shape": [
+        2,
+        23,
         24
       ],
       "status": "fetched"
     },
     {
-      "area": "beibu_gulf_urban_holdout",
+      "area": "nanling_forest_edge_holdout",
       "bbox": [
-        109.15,
-        21.55,
-        109.25,
-        21.65
+        113.02,
+        24.92,
+        113.12,
+        25.02
       ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\beibu_gulf_urban_holdout_context.npy",
-      "shape": [
-        2,
-        24,
-        23
-      ],
-      "status": "fetched"
-    },
-    {
-      "area": "songnen_plain_holdout",
-      "bbox": [
-        124.8,
-        45.55,
-        124.9,
-        45.65
-      ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\songnen_plain_holdout_context.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\nanling_forest_edge_holdout_context.npy",
       "shape": [
         2,
         23,
@@ -330,78 +494,14 @@
       "status": "fetched"
     },
     {
-      "area": "hexi_irrigation_holdout",
+      "area": "hulun_grassland_margin_holdout",
       "bbox": [
-        100.1,
-        38.65,
-        100.2,
-        38.75
+        119.72,
+        49.08,
+        119.82,
+        49.18
       ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\hexi_irrigation_holdout_context.npy",
-      "shape": [
-        2,
-        24,
-        23
-      ],
-      "status": "fetched"
-    },
-    {
-      "area": "changbai_margin_holdout",
-      "bbox": [
-        127.6,
-        42.15,
-        127.7,
-        42.25
-      ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\changbai_margin_holdout_context.npy",
-      "shape": [
-        2,
-        23,
-        23
-      ],
-      "status": "fetched"
-    },
-    {
-      "area": "erlong_lake_margin_holdout",
-      "bbox": [
-        123.65,
-        43.25,
-        123.75,
-        43.35
-      ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\erlong_lake_margin_holdout_context.npy",
-      "shape": [
-        2,
-        23,
-        23
-      ],
-      "status": "fetched"
-    },
-    {
-      "area": "ordos_grassland_holdout",
-      "bbox": [
-        109.45,
-        39.25,
-        109.55,
-        39.35
-      ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\ordos_grassland_holdout_context.npy",
-      "shape": [
-        2,
-        23,
-        24
-      ],
-      "status": "fetched"
-    },
-    {
-      "area": "west_sichuan_plateau_holdout",
-      "bbox": [
-        102.55,
-        31.95,
-        102.65,
-        32.05
-      ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\west_sichuan_plateau_holdout_context.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\hulun_grassland_margin_holdout_context.npy",
       "shape": [
         2,
         23,

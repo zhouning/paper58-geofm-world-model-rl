@@ -5,18 +5,17 @@
 - Repository: `D:\test\paper58-geofm-world-model-rl`
 - Active worktree: `D:\test\paper58-geofm-world-model-rl\.worktrees\paper58-benchmark`
 - Active branch: `paper58-benchmark`
-- Resume from commit: `36e9db3` (`data: run expanded Paper58 Tier 1 benchmark`)
+- Resume from commit: `094e35d` (`data: add Paper58 Batch 3 holdout manifest`)
 
 ## Governing Rule
 
-Do not strengthen the RSE manuscript unless the expanded strict Tier 1 benchmark passes with genuinely external evidence.
+Do not strengthen the RSE manuscript from pooled evidence alone. Independent external batches remain the primary evidence standard.
 
-If the expanded gate remains `fail` or `insufficient_tier1`, manuscript work must stay limited to:
+Current experiment-first rule:
 
-- claim downgrading,
-- limitations,
-- data/reference cleanup,
-- negative or insufficient-evidence reporting.
+- Batch 2 only failed and must remain visible as contradictory evidence.
+- Batch 3 only passed and can be treated as independent supportive evidence.
+- Because the current user priority is "stronger and more complete experiments first", keep manuscript work secondary unless explicitly resumed later.
 
 ## Design And Plan
 
@@ -490,31 +489,29 @@ Continue experiment-first work on `paper58-benchmark`.
 
 Recommended next steps:
 
-- prioritize a new external Batch 3 that strengthens urban spatial robustness rather than pooling Batch 2 away,
+- keep Batch 2 and Batch 3 separated in all interpretations rather than pooling away the Batch 2 failure,
 - treat `xiong_an_fringe_holdout` as a diagnostic area for spatial-localization failure, not as manuscript-strengthening evidence,
-- use the new forecast-confidence audit as the current forecast-vs-decoder separation: class `11` in xiong'an is primarily representation/decoder-limited, while the spatial failure still needs localization-focused debugging,
-- if model debugging continues before Batch 3, focus on spatial localization robustness and alternate decoder/representation probes rather than immediately changing the dynamics model,
-- consider Batch 3 urban replacement holdouts if the next priority is stronger external evidence rather than model debugging,
-- keep manuscript work limited to transparent negative or mixed-evidence reporting until an independent new batch passes on its own.
+- use the forecast-confidence and shifted-transition audits as the current forecast-vs-decoder separation for class `11` in xiong'an,
+- compare the Batch 2 urban failure cases against the Batch 3 urban pass cases before changing the dynamics model,
+- if model debugging continues, focus on spatial localization robustness and alternate decoder/representation probes before expanding manuscript claims,
+- prioritize another external batch or a targeted robustness experiment before moving serious effort back to the paper.
 
-## Batch 3 Manifest Design
+## Batch 3 External Tier 1 Check
 
-Batch 3 design has started, but no external acquisition has been run yet.
-
-Current Batch 3 candidate manifest:
+Batch 3 manifest:
 
 ```text
 data/independent_change_labels/paper58_holdout_areas_batch3.json
 ```
 
-Current intent:
+Batch 3 design intent:
 
 - keep Batch 3 fully separate from Batch 1 and Batch 2 area names,
 - bias the candidate set toward urban-fringe and wetland-edge robustness,
 - preserve some ecological diversity so Batch 3 does not collapse to a single transition theme,
 - treat Batch 3 only as the next primary readout if acquisition and prediction complete.
 
-Current manifest shape:
+Batch 3 manifest shape:
 
 - `10` candidate areas,
 - `10` strict Tier 1 candidates by current provenance rules,
@@ -522,21 +519,70 @@ Current manifest shape:
 - at least `3` Wetland candidates,
 - all candidate year pairs are `2020-2021`.
 
-Current status:
+Batch 3 acquisition status:
 
-- manifest-only design complete,
-- repository holdout tests pass against the new manifest,
-- no Batch 3 labels, embeddings, predictions, or benchmark outputs have been generated yet.
+- Labels: `Independent LULC label fetch: complete, 20 record(s), 0 failure(s)`
+- Embeddings: `Change-validation embedding fetch: complete, 20 grid(s), 10 context grid(s), 0 failure(s)`
+- Predictions: `Change-validation prediction generation: complete, 10 prediction(s)`
+- Registry: `10` candidate pair(s), `9` included pair(s)
+- Provenance audit: `10` row(s), `0` invalid Tier 1 row(s)
+
+Batch 3 outputs:
+
+```text
+paper/rse_submission_paper58/benchmark_results_batch3
+```
+
+Batch 3 gate summary from:
+
+```text
+paper/rse_submission_paper58/benchmark_results_batch3/benchmark_gate_report.json
+```
+
+```json
+{
+  "status": "pass",
+  "tier1_primary_change": {
+    "n_rows": 9,
+    "n_clusters": 9,
+    "ci_low": 0.10797167654040589
+  },
+  "tier1_spatial_change": {
+    "n_rows": 9,
+    "n_clusters": 9,
+    "ci_low": 0.06050222512559061
+  },
+  "positive_tier1_strata": 5
+}
+```
+
+Batch 3 QC note from:
+
+```text
+paper/rse_submission_paper58/benchmark_results_batch3/benchmark_failures.csv
+```
+
+- `taihu_marsh_edge_holdout` was excluded as `negative_control` with `zero_reference_change`.
+
+Batch 3 interpretation:
+
+- Batch 3 only independently passes the Tier 1 gate.
+- This is the first new external batch after the Batch 2 failure that passes on its own rather than through pooling.
+- Positive Tier 1 evidence spans `5` strata: Agriculture, Forest, Grassland, Urban, and Wetland.
+- Urban coverage is materially better than a single replacement row: `4` urban Tier 1 rows were evaluated and all had positive primary advantage.
+- Spatial behavior is supportive overall, but not uniformly perfect: `suzhou_fringe_holdout` has a slight negative spatial advantage (`-0.0009090909090908872`) even though the batch-level spatial gate passes.
+- Therefore the evidence is stronger than the Batch 2-only readout, but the Batch 2 failure still needs to stay visible in any later narrative.
 
 ## Resume Instruction
 
 In a new window, continue from branch `paper58-benchmark`.
 
-Batch 2 stability check is complete.
+Batch 2 and Batch 3 checks are complete.
 
-Resume from the Batch 2 decision rule above:
+Resume from the current decision rule:
 
 - treat `benchmark_results_batch2` as the primary readout,
+- treat `benchmark_results_batch3` as the primary new independent supportive readout,
 - do not treat the combined pooled pass as permission to strengthen the manuscript,
 - use `xiong_an_fringe_holdout` as the first diagnostic target when planning the next experiment,
 - remember that the decoder/localization audit points away from simple label/embedding registration as the main cause,
@@ -545,5 +591,6 @@ Resume from the Batch 2 decision rule above:
 - remember that the cross-area confidence table shows xiong'an is the lowest-confidence class-`11` case in Batch 2,
 - remember that the forecast-confidence audit shows forecast embeddings do not materially reduce xiong'an class `11` probability beyond the already near-zero observed 2021 embedding,
 - remember that the shifted-transition fate audit shows xiong'an's best spatial shift does not recover `5->11` or `7->11` semantic matches,
-- remember that Batch 3 manifest design is ready but acquisition has not started; Batch 3-only should be the next primary evidence readout,
-- continue with stronger and more diverse experiments first.
+- remember that Batch 3-only now passes with `primary ci_low = 0.10797167654040589`, `spatial ci_low = 0.06050222512559061`, and `positive_tier1_strata = 5`,
+- remember that `taihu_marsh_edge_holdout` was excluded only because it had `zero_reference_change`,
+- continue with stronger and more diverse experiments first rather than shifting attention to the manuscript.

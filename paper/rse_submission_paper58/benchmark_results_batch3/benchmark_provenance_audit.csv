@@ -1,0 +1,11 @@
+area,start_year,end_year,tier,stratum,development_contact_status,contact_evidence,qc_status,audit_status
+fuzhou_delta_urban_holdout,2020,2021,tier1,Urban,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1 and Batch 2 manifests",include,ok
+honghu_lake_margin_holdout,2020,2021,tier1,Wetland,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1 and Batch 2 manifests",include,ok
+hulun_grassland_margin_holdout,2020,2021,tier1,Grassland,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1 and Batch 2 manifests",include,ok
+nanling_forest_edge_holdout,2020,2021,tier1,Forest,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1 and Batch 2 manifests",include,ok
+nanning_fringe_holdout,2020,2021,tier1,Urban,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1 and Batch 2 manifests",include,ok
+suzhou_fringe_holdout,2020,2021,tier1,Urban,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1 and Batch 2 manifests",include,ok
+taihu_marsh_edge_holdout,2020,2021,tier1,Wetland,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1 and Batch 2 manifests",negative_control,ok
+weihe_irrigation_margin_holdout,2020,2021,tier1,Agriculture,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1 and Batch 2 manifests",include,ok
+wuhan_outer_ring_holdout,2020,2021,tier1,Urban,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1 and Batch 2 manifests",include,ok
+zhalong_wetland_edge_holdout,2020,2021,tier1,Wetland,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1 and Batch 2 manifests",include,ok

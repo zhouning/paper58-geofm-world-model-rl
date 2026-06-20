@@ -1,0 +1,32 @@
+{
+  "status": "pass",
+  "tier1_primary_change": {
+    "n_rows": 9,
+    "n_clusters": 9,
+    "mean": 0.18890755163284756,
+    "median": 0.16796536796536798,
+    "ci_low": 0.10797167654040589,
+    "ci_high": 0.2774883966664789
+  },
+  "tier1_spatial_change": {
+    "n_rows": 9,
+    "n_clusters": 9,
+    "mean": 0.12546905908597603,
+    "median": 0.10939738727349346,
+    "ci_low": 0.06050222512559061,
+    "ci_high": 0.19766283566611706
+  },
+  "tier1_embedding": {
+    "n_rows": 0,
+    "n_clusters": 0,
+    "mean": null,
+    "median": null,
+    "ci_low": null,
+    "ci_high": null
+  },
+  "positive_tier1_strata": 5,
+  "required_positive_tier1_strata": 3,
+  "primary_gate_pass": true,
+  "spatial_gate_pass": true,
+  "strata_gate_pass": true
+}

@@ -1,0 +1,98 @@
+{
+  "summary": {
+    "n_registry_rows": 10,
+    "n_evaluated": 9,
+    "n_failures": 1,
+    "model_change_f1_mean": 0.3097261391181017,
+    "primary_change_advantage_mean": 0.18890755163284756
+  },
+  "summary_by_tier": {
+    "tier1": {
+      "n": 9,
+      "mean": 0.18890755163284756,
+      "median": 0.16796536796536798,
+      "n_positive": 9,
+      "n_negative": 0
+    }
+  },
+  "summary_by_stratum": {
+    "tier1": {
+      "Agriculture": {
+        "n": 1,
+        "mean": 0.2097902097902098,
+        "median": 0.2097902097902098,
+        "n_positive": 1,
+        "n_negative": 0
+      },
+      "Forest": {
+        "n": 1,
+        "mean": 0.06272577996715928,
+        "median": 0.06272577996715928,
+        "n_positive": 1,
+        "n_negative": 0
+      },
+      "Grassland": {
+        "n": 1,
+        "mean": 0.1122362869198312,
+        "median": 0.1122362869198312,
+        "n_positive": 1,
+        "n_negative": 0
+      },
+      "Urban": {
+        "n": 4,
+        "mean": 0.24142959142959144,
+        "median": 0.2656874656874657,
+        "n_positive": 4,
+        "n_negative": 0
+      },
+      "Wetland": {
+        "n": 2,
+        "mean": 0.17484866115003103,
+        "median": 0.17484866115003103,
+        "n_positive": 2,
+        "n_negative": 0
+      }
+    }
+  },
+  "spatial_summary_by_tier": {
+    "tier1": {
+      "n": 9,
+      "mean": 0.12546905908597603,
+      "median": 0.10939738727349346,
+      "n_positive": 8,
+      "n_negative": 1
+    }
+  },
+  "gate_report": {
+    "status": "pass",
+    "tier1_primary_change": {
+      "n_rows": 9,
+      "n_clusters": 9,
+      "mean": 0.18890755163284756,
+      "median": 0.16796536796536798,
+      "ci_low": 0.10797167654040589,
+      "ci_high": 0.2774883966664789
+    },
+    "tier1_spatial_change": {
+      "n_rows": 9,
+      "n_clusters": 9,
+      "mean": 0.12546905908597603,
+      "median": 0.10939738727349346,
+      "ci_low": 0.06050222512559061,
+      "ci_high": 0.19766283566611706
+    },
+    "tier1_embedding": {
+      "n_rows": 0,
+      "n_clusters": 0,
+      "mean": null,
+      "median": null,
+      "ci_low": null,
+      "ci_high": null
+    },
+    "positive_tier1_strata": 5,
+    "required_positive_tier1_strata": 3,
+    "primary_gate_pass": true,
+    "spatial_gate_pass": true,
+    "strata_gate_pass": true
+  }
+}
