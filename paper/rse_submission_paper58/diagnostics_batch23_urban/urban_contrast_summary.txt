@@ -1,0 +1,3 @@
+n_urban_areas=6
+batch2_urban_areas=xiong_an_fringe_holdout,beibu_gulf_urban_holdout
+batch3_urban_areas=fuzhou_delta_urban_holdout,nanning_fringe_holdout,suzhou_fringe_holdout,wuhan_outer_ring_holdout

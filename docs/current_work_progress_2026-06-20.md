@@ -635,6 +635,69 @@ Comparison interpretation:
 - Batch 2 urban support is not broad enough because the two-row urban set splits into one positive (`beibu_gulf_urban_holdout`) and one strongly negative (`xiong_an_fringe_holdout`).
 - The next experiment should not simply add more random urban holdouts. It should contrast xiong'an-like urban-fringe cases against Batch 3's better urban cases and test whether the failure is driven by local transition semantics, spatial localization, or both.
 
+## Batch 2/3 Urban Contrast Diagnosis
+
+Diagnostic script:
+
+```text
+scripts/paper58_benchmark/make_batch23_urban_contrast.py
+```
+
+Diagnostic outputs:
+
+```text
+paper/rse_submission_paper58/diagnostics_batch23_urban
+```
+
+Compared urban areas:
+
+- Batch 2: `xiong_an_fringe_holdout`, `beibu_gulf_urban_holdout`
+- Batch 3: `fuzhou_delta_urban_holdout`, `nanning_fringe_holdout`, `suzhou_fringe_holdout`, `wuhan_outer_ring_holdout`
+
+Spatial alignment contrast from:
+
+```text
+paper/rse_submission_paper58/diagnostics_batch23_urban/batch2_spatial_alignment_shift.csv
+```
+
+- `xiong_an_fringe_holdout`: raw change F1 `0.23188405797101452`, best-shift F1 `0.35398230088495575`, best shift `dy=3`, `dx=3`.
+- `suzhou_fringe_holdout`: raw change F1 `0.15909090909090912`, best-shift F1 `0.25301204819277107`, best shift `dy=0`, `dx=1`.
+- `beibu_gulf_urban_holdout`, `fuzhou_delta_urban_holdout`, `nanning_fringe_holdout`, and `wuhan_outer_ring_holdout` all have best shift `dy=0`, `dx=0`.
+
+Decoder/representation contrast from:
+
+```text
+paper/rse_submission_paper58/diagnostics_batch23_urban/batch2_decoder_true_end_confidence_by_area.csv
+paper/rse_submission_paper58/diagnostics_batch23_urban/batch2_forecast_true_end_confidence_by_area.csv
+```
+
+Class `11` true-end confidence among urban holdouts:
+
+- `xiong_an_fringe_holdout`: `52` changed pixels ending as class `11`, observed mean true-end probability `0.001815`, forecast mean `0.001797`, delta `-0.000018`.
+- `nanning_fringe_holdout`: `3` pixels, observed mean `0.005612`, forecast mean `0.001659`, delta `-0.003953`.
+- `suzhou_fringe_holdout`: `7` pixels, observed mean `0.057749`, forecast mean `0.008375`, delta `-0.049374`.
+- `wuhan_outer_ring_holdout`: `4` pixels, observed mean `0.089355`, forecast mean `0.019453`, delta `-0.069902`.
+- `beibu_gulf_urban_holdout`: `3` pixels, observed mean `0.103621`, forecast mean `0.064316`, delta `-0.039305`.
+
+Top-transition contrast from:
+
+```text
+paper/rse_submission_paper58/diagnostics_batch23_urban/urban_transition_fate_all.csv
+paper/rse_submission_paper58/diagnostics_batch23_urban/urban_forecast_transition_fate_all.csv
+```
+
+Key urban class-`11` findings:
+
+- `xiong_an_fringe_holdout` is not merely forecast-erased: the observed 2021 embedding already assigns near-zero probability to class `11` on `5->11` and `7->11`, and the forecast leaves that near-zero signal essentially unchanged.
+- `suzhou_fringe_holdout`, `wuhan_outer_ring_holdout`, and `beibu_gulf_urban_holdout` show a different pattern: class-`11` pixels are much fewer and observed probabilities are higher than xiong'an, but the forecast can reduce the class-`11` probability substantially.
+- Therefore xiong'an remains the primary representation/decoder bottleneck case, while suzhou is the nearest spatial-localization caution case in Batch 3.
+
+Practical next experiment:
+
+- Do not treat "urban" as one homogeneous stratum.
+- Add or mine xiong'an-like urban-fringe cases with substantial `5/7 -> 11` transitions to test whether the class-`11` bottleneck repeats.
+- In parallel, use suzhou-like cases to test small-offset localization sensitivity separately from the class-`11` representation failure.
+
 ## Resume Instruction
 
 In a new window, continue from branch `paper58-benchmark`.
@@ -656,4 +719,5 @@ Resume from the current decision rule:
 - remember that Batch 3-only now passes with `primary ci_low = 0.10797167654040589`, `spatial ci_low = 0.06050222512559061`, and `positive_tier1_strata = 5`,
 - remember that `taihu_marsh_edge_holdout` was excluded only because it had `zero_reference_change`,
 - remember that the Batch 2 vs Batch 3 comparison diagnostic identifies xiong'an as the lowest spatial row across both batches and Batch 3 urban as broader but still not uniformly perfect,
+- remember that the urban contrast diagnostic separates xiong'an's near-zero observed class-`11` representation from suzhou/wuhan/beibu's smaller forecast-suppressed class-`11` cases,
 - continue with stronger and more diverse experiments first rather than shifting attention to the manuscript.
