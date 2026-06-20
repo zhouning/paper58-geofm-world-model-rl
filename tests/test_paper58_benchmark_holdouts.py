@@ -11,6 +11,7 @@ from scripts.paper58_benchmark.holdouts import (
     manifest_lookup,
     tier_from_provenance,
 )
+from scripts.paper58_benchmark.build_combined_holdout_manifest import build_combined_holdout_manifest
 
 
 def _write_manifest(path: Path, areas: list[dict]) -> None:
@@ -240,3 +241,71 @@ def test_repository_holdout_manifest_has_minimum_external_batch():
     assert all(2020 in area.years and 2021 in area.years for area in tier1)
     assert tier_from_provenance("poyang_lake", lookup) == "tier2"
     assert tier_from_provenance("wuyi_mountain", lookup) == "tier2"
+
+
+def test_build_combined_holdout_manifest_merges_two_valid_manifests(tmp_path: Path):
+    batch1 = tmp_path / "batch1.json"
+    batch2 = tmp_path / "batch2.json"
+    output = tmp_path / "combined.json"
+    _write_manifest(
+        batch1,
+        [
+            {
+                "area": "batch1_area",
+                "bbox": [120.1, 30.1, 120.2, 30.2],
+                "stratum": "Urban",
+                "years": [2020, 2021],
+                "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+                "selection_reason": "batch1 candidate",
+                "development_contact_status": "none",
+                "contact_evidence": "not listed in training or development areas",
+                "expected_role": "positive_change_candidate",
+                "notes": "",
+            }
+        ],
+    )
+    _write_manifest(
+        batch2,
+        [
+            {
+                "area": "batch2_area",
+                "bbox": [121.1, 31.1, 121.2, 31.2],
+                "stratum": "Wetland",
+                "years": [2020, 2021],
+                "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+                "selection_reason": "batch2 candidate",
+                "development_contact_status": "none",
+                "contact_evidence": "not listed in training or development areas",
+                "expected_role": "positive_change_candidate",
+                "notes": "",
+            }
+        ],
+    )
+
+    combined = build_combined_holdout_manifest([batch1, batch2], output)
+
+    assert [area.area for area in combined] == ["batch1_area", "batch2_area"]
+    assert load_holdout_manifest(output) == combined
+
+
+def test_build_combined_holdout_manifest_rejects_duplicate_area_names(tmp_path: Path):
+    batch1 = tmp_path / "batch1.json"
+    batch2 = tmp_path / "batch2.json"
+    output = tmp_path / "combined.json"
+    shared_row = {
+        "area": "shared_area",
+        "bbox": [120.1, 30.1, 120.2, 30.2],
+        "stratum": "Urban",
+        "years": [2020, 2021],
+        "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+        "selection_reason": "duplicate candidate",
+        "development_contact_status": "none",
+        "contact_evidence": "not listed in training or development areas",
+        "expected_role": "positive_change_candidate",
+        "notes": "",
+    }
+    _write_manifest(batch1, [shared_row])
+    _write_manifest(batch2, [shared_row])
+
+    with pytest.raises(ValueError, match="duplicate combined holdout area: shared_area"):
+        build_combined_holdout_manifest([batch1, batch2], output)
