@@ -497,6 +497,37 @@ Recommended next steps:
 - consider Batch 3 urban replacement holdouts if the next priority is stronger external evidence rather than model debugging,
 - keep manuscript work limited to transparent negative or mixed-evidence reporting until an independent new batch passes on its own.
 
+## Batch 3 Manifest Design
+
+Batch 3 design has started, but no external acquisition has been run yet.
+
+Current Batch 3 candidate manifest:
+
+```text
+data/independent_change_labels/paper58_holdout_areas_batch3.json
+```
+
+Current intent:
+
+- keep Batch 3 fully separate from Batch 1 and Batch 2 area names,
+- bias the candidate set toward urban-fringe and wetland-edge robustness,
+- preserve some ecological diversity so Batch 3 does not collapse to a single transition theme,
+- treat Batch 3 only as the next primary readout if acquisition and prediction complete.
+
+Current manifest shape:
+
+- `10` candidate areas,
+- `10` strict Tier 1 candidates by current provenance rules,
+- at least `4` Urban candidates,
+- at least `3` Wetland candidates,
+- all candidate year pairs are `2020-2021`.
+
+Current status:
+
+- manifest-only design complete,
+- repository holdout tests pass against the new manifest,
+- no Batch 3 labels, embeddings, predictions, or benchmark outputs have been generated yet.
+
 ## Resume Instruction
 
 In a new window, continue from branch `paper58-benchmark`.
@@ -514,4 +545,5 @@ Resume from the Batch 2 decision rule above:
 - remember that the cross-area confidence table shows xiong'an is the lowest-confidence class-`11` case in Batch 2,
 - remember that the forecast-confidence audit shows forecast embeddings do not materially reduce xiong'an class `11` probability beyond the already near-zero observed 2021 embedding,
 - remember that the shifted-transition fate audit shows xiong'an's best spatial shift does not recover `5->11` or `7->11` semantic matches,
+- remember that Batch 3 manifest design is ready but acquisition has not started; Batch 3-only should be the next primary evidence readout,
 - continue with stronger and more diverse experiments first.

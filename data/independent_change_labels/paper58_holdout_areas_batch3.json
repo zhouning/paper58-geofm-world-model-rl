@@ -1,0 +1,127 @@
+{
+  "version": 1,
+  "created": "2026-06-20",
+  "purpose": "Paper58 Batch 3 external Tier 1 robustness candidates emphasizing urban-fringe and wetland-edge transitions",
+  "areas": [
+    {
+      "area": "suzhou_fringe_holdout",
+      "bbox": [120.68, 31.20, 120.78, 31.30],
+      "stratum": "Urban",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent lower-Yangtze urban-fringe candidate distinct from Batch 1 and Batch 2 urban boxes",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1 and Batch 2 manifests",
+      "expected_role": "positive_change_candidate",
+      "notes": "Batch 3 urban-fringe candidate for high-density peri-urban growth"
+    },
+    {
+      "area": "wuhan_outer_ring_holdout",
+      "bbox": [114.48, 30.42, 114.58, 30.52],
+      "stratum": "Urban",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent central-China urban-edge candidate outside prior urban holdouts",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1 and Batch 2 manifests",
+      "expected_role": "positive_change_candidate",
+      "notes": "Batch 3 urban-fringe candidate for inland metropolitan expansion"
+    },
+    {
+      "area": "fuzhou_delta_urban_holdout",
+      "bbox": [119.36, 26.02, 119.46, 26.12],
+      "stratum": "Urban",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent coastal urban-delta candidate outside prior Pearl River and Beibu urban cases",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1 and Batch 2 manifests",
+      "expected_role": "reserve_positive_change_candidate",
+      "notes": "Batch 3 urban-fringe candidate for southeast coastal growth"
+    },
+    {
+      "area": "nanning_fringe_holdout",
+      "bbox": [108.38, 22.86, 108.48, 22.96],
+      "stratum": "Urban",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent southwest urban-edge candidate with peri-urban land conversion risk",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1 and Batch 2 manifests",
+      "expected_role": "positive_change_candidate",
+      "notes": "Batch 3 urban-fringe candidate for lower-latitude inland growth"
+    },
+    {
+      "area": "honghu_lake_margin_holdout",
+      "bbox": [113.18, 29.78, 113.28, 29.88],
+      "stratum": "Wetland",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent lake-margin wetland-edge candidate outside Poyang, Dongting, and Erlong contexts",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1 and Batch 2 manifests",
+      "expected_role": "positive_change_candidate",
+      "notes": "Batch 3 wetland-edge candidate for freshwater marsh transition robustness"
+    },
+    {
+      "area": "taihu_marsh_edge_holdout",
+      "bbox": [120.12, 31.24, 120.22, 31.34],
+      "stratum": "Wetland",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent lowland lake wetland-edge candidate with urban-pressure adjacency",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1 and Batch 2 manifests",
+      "expected_role": "reserve_positive_change_candidate",
+      "notes": "Batch 3 wetland-edge candidate for urban-wetland interface stress"
+    },
+    {
+      "area": "zhalong_wetland_edge_holdout",
+      "bbox": [123.82, 47.18, 123.92, 47.28],
+      "stratum": "Wetland",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent northeast wetland-edge candidate outside prior Sanjiang and Songnen settings",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1 and Batch 2 manifests",
+      "expected_role": "positive_change_candidate",
+      "notes": "Batch 3 wetland-edge candidate for northern marsh transition robustness"
+    },
+    {
+      "area": "weihe_irrigation_margin_holdout",
+      "bbox": [108.88, 34.42, 108.98, 34.52],
+      "stratum": "Agriculture",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent irrigation-margin agriculture candidate adjacent to urban expansion pressure",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1 and Batch 2 manifests",
+      "expected_role": "reserve_positive_change_candidate",
+      "notes": "Batch 3 agriculture candidate for irrigation-urban edge interactions"
+    },
+    {
+      "area": "nanling_forest_edge_holdout",
+      "bbox": [113.02, 24.92, 113.12, 25.02],
+      "stratum": "Forest",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent southern forest-edge candidate to keep Batch 3 from collapsing to only urban and wetland evidence",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1 and Batch 2 manifests",
+      "expected_role": "reserve_positive_change_candidate",
+      "notes": "Batch 3 forest-edge candidate for mixed transition coverage"
+    },
+    {
+      "area": "hulun_grassland_margin_holdout",
+      "bbox": [119.72, 49.08, 119.82, 49.18],
+      "stratum": "Grassland",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent northern grassland-margin candidate to preserve ecological diversity in Batch 3",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1 and Batch 2 manifests",
+      "expected_role": "reserve_positive_change_candidate",
+      "notes": "Batch 3 grassland-margin candidate for out-of-theme robustness"
+    }
+  ]
+}

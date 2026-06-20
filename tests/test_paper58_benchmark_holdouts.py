@@ -255,6 +255,29 @@ def test_repository_batch2_holdout_manifest_has_target_batch_shape():
     assert all(area.years == (2020, 2021) for area in tier1)
 
 
+def test_repository_batch3_holdout_manifest_targets_urban_wetland_robustness():
+    manifest_dir = DEFAULT_HOLDOUT_MANIFEST.parent
+    batch1_areas = {area.area for area in load_holdout_manifest(DEFAULT_HOLDOUT_MANIFEST)}
+    batch2_areas = {area.area for area in load_holdout_manifest(manifest_dir / "paper58_holdout_areas_batch2.json")}
+    batch3_path = manifest_dir / "paper58_holdout_areas_batch3.json"
+
+    areas = load_holdout_manifest(batch3_path)
+    lookup = manifest_lookup(areas)
+    tier1 = [area for area in areas if tier_from_provenance(area.area, lookup) == "tier1"]
+    area_names = {area.area for area in areas}
+    strata = [area.stratum for area in tier1]
+
+    assert len(areas) == 10
+    assert len(tier1) == 10
+    assert area_names.isdisjoint(batch1_areas)
+    assert area_names.isdisjoint(batch2_areas)
+    assert sum(stratum == "Urban" for stratum in strata) >= 4
+    assert sum(stratum == "Wetland" for stratum in strata) >= 3
+    assert len(set(strata)) >= 4
+    assert all(area.years == (2020, 2021) for area in tier1)
+    assert all("Batch 3" in area.notes for area in tier1)
+
+
 def test_build_combined_holdout_manifest_merges_two_valid_manifests(tmp_path: Path):
     batch1 = tmp_path / "batch1.json"
     batch2 = tmp_path / "batch2.json"
