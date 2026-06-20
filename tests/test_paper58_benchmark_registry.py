@@ -393,3 +393,131 @@ def test_build_registry_matches_manifest_area_case_insensitively(tmp_path: Path)
     assert row.tier == "tier1"
     assert row.bbox == (120.1, 30.1, 120.2, 30.2)
     assert row.development_contact_status == "none"
+
+
+def test_build_registry_can_filter_to_holdout_manifest_areas(tmp_path: Path):
+    labels = tmp_path / "labels"
+    predicted = tmp_path / "predicted"
+    embeddings = tmp_path / "embeddings"
+    experiment_data = tmp_path / "experiment_data"
+    output = tmp_path / "out"
+    for path in (labels, predicted, embeddings, experiment_data):
+        path.mkdir()
+
+    start = np.array([[1, 1], [2, 2]], dtype=np.int32)
+    end = np.array([[1, 2], [2, 3]], dtype=np.int32)
+    pred = np.array([[1, 2], [2, 2]], dtype=np.int32)
+    for area in ("strict_external", "old_cached_area"):
+        np.save(labels / f"{area}_lulc_2020.npy", start)
+        np.save(labels / f"{area}_lulc_2021.npy", end)
+        np.save(predicted / f"{area}_lulc_pred_2020_2021.npy", pred)
+        np.save(embeddings / f"{area}_emb_2020.npy", np.zeros((2, 2, 64), dtype=np.float32))
+        np.save(embeddings / f"{area}_emb_2021.npy", np.ones((2, 2, 64), dtype=np.float32))
+
+    manifest_path = tmp_path / "holdouts.json"
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "version": 1,
+                "areas": [
+                    {
+                        "area": "strict_external",
+                        "bbox": [120.1, 30.1, 120.2, 30.2],
+                        "stratum": "Urban",
+                        "years": [2020, 2021],
+                        "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+                        "selection_reason": "toy strict holdout",
+                        "development_contact_status": "none",
+                        "contact_evidence": "toy no-contact evidence",
+                        "expected_role": "positive_change_candidate",
+                        "notes": "",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    build_registry(
+        labels_dir=labels,
+        predictions_dir=predicted,
+        independent_embeddings_dir=embeddings,
+        experiment_data_dir=experiment_data,
+        output_dir=output,
+        holdout_manifest_path=manifest_path,
+        filter_to_holdout_manifest=True,
+    )
+
+    rows = json.loads((output / "benchmark_registry.json").read_text(encoding="utf-8"))["rows"]
+
+    assert [row["area"] for row in rows] == ["strict_external"]
+    assert rows[0]["tier"] == "tier1"
+
+
+def test_build_registry_writes_to_requested_output_dir_without_touching_default(tmp_path: Path):
+    labels = tmp_path / "labels"
+    predicted = tmp_path / "predicted"
+    embeddings = tmp_path / "embeddings"
+    experiment_data = tmp_path / "experiment_data"
+    batch2_output = tmp_path / "batch2_out"
+    combined_output = tmp_path / "combined_out"
+    for path in (labels, predicted, embeddings, experiment_data):
+        path.mkdir()
+
+    start = np.array([[1, 1], [2, 2]], dtype=np.int32)
+    end = np.array([[1, 2], [2, 3]], dtype=np.int32)
+    pred = np.array([[1, 2], [2, 2]], dtype=np.int32)
+    np.save(labels / "strict_external_lulc_2020.npy", start)
+    np.save(labels / "strict_external_lulc_2021.npy", end)
+    np.save(predicted / "strict_external_lulc_pred_2020_2021.npy", pred)
+    np.save(embeddings / "strict_external_emb_2020.npy", np.zeros((2, 2, 64), dtype=np.float32))
+    np.save(embeddings / "strict_external_emb_2021.npy", np.ones((2, 2, 64), dtype=np.float32))
+
+    manifest_path = tmp_path / "holdouts.json"
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "version": 1,
+                "areas": [
+                    {
+                        "area": "strict_external",
+                        "bbox": [120.1, 30.1, 120.2, 30.2],
+                        "stratum": "Urban",
+                        "years": [2020, 2021],
+                        "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+                        "selection_reason": "toy strict holdout",
+                        "development_contact_status": "none",
+                        "contact_evidence": "toy no-contact evidence",
+                        "expected_role": "positive_change_candidate",
+                        "notes": "",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    build_registry(
+        labels_dir=labels,
+        predictions_dir=predicted,
+        independent_embeddings_dir=embeddings,
+        experiment_data_dir=experiment_data,
+        output_dir=batch2_output,
+        holdout_manifest_path=manifest_path,
+        filter_to_holdout_manifest=True,
+    )
+    build_registry(
+        labels_dir=labels,
+        predictions_dir=predicted,
+        independent_embeddings_dir=embeddings,
+        experiment_data_dir=experiment_data,
+        output_dir=combined_output,
+        holdout_manifest_path=manifest_path,
+        filter_to_holdout_manifest=True,
+    )
+
+    assert (batch2_output / "benchmark_registry.json").exists()
+    assert (combined_output / "benchmark_registry.json").exists()
+    assert (batch2_output / "benchmark_registry.json").read_text(encoding="utf-8") == (
+        combined_output / "benchmark_registry.json"
+    ).read_text(encoding="utf-8")

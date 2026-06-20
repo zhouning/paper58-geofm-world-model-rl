@@ -107,6 +107,17 @@ def _load_holdout_lookup(path: Path | None) -> dict[str, HoldoutArea]:
     return {area.lower(): record for area, record in manifest_lookup(load_holdout_manifest(Path(path))).items()}
 
 
+def _filter_predictions_to_holdouts(
+    predictions: list[tuple[str, int, int, Path]],
+    holdouts: dict[str, HoldoutArea],
+) -> list[tuple[str, int, int, Path]]:
+    return [
+        (area, start_year, end_year, prediction_path)
+        for area, start_year, end_year, prediction_path in predictions
+        if area.lower() in holdouts
+    ]
+
+
 def _shape(path: Path | None) -> tuple[int, ...] | None:
     if path is None:
         return None
@@ -220,10 +231,13 @@ def build_registry(
     experiment_data_dir: Path = DEFAULT_EXPERIMENT_DATA_DIR,
     output_dir: Path = DEFAULT_BENCHMARK_DIR,
     holdout_manifest_path: Path | None = DEFAULT_HOLDOUT_MANIFEST,
+    filter_to_holdout_manifest: bool = False,
 ) -> list[BenchmarkRow]:
     labels = _discover_labels(Path(labels_dir))
     predictions = _discover_predictions(Path(predictions_dir))
     holdouts = _load_holdout_lookup(holdout_manifest_path)
+    if filter_to_holdout_manifest:
+        predictions = _filter_predictions_to_holdouts(predictions, holdouts)
     rows = [
         _build_row(
             area=area,
@@ -252,6 +266,11 @@ def main() -> None:
     parser.add_argument("--experiment-data-dir", type=Path, default=DEFAULT_EXPERIMENT_DATA_DIR)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_BENCHMARK_DIR)
     parser.add_argument("--holdout-manifest", type=Path, default=DEFAULT_HOLDOUT_MANIFEST)
+    parser.add_argument(
+        "--filter-to-holdout-manifest",
+        action="store_true",
+        help="Only include prediction rows whose area appears in the holdout manifest.",
+    )
     args = parser.parse_args()
     rows = build_registry(
         labels_dir=args.labels_dir,
@@ -260,6 +279,7 @@ def main() -> None:
         experiment_data_dir=args.experiment_data_dir,
         output_dir=args.output_dir,
         holdout_manifest_path=args.holdout_manifest,
+        filter_to_holdout_manifest=args.filter_to_holdout_manifest,
     )
     included = sum(row.qc_status == "include" for row in rows)
     print(f"Benchmark registry: {len(rows)} candidate pair(s), {included} included pair(s)")
