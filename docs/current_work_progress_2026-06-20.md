@@ -323,6 +323,64 @@ Stability-check interpretation:
 - Combined pooling passes, but that pooled pass cannot be used as stronger evidence because Batch 2 only failed.
 - The practical stop/go outcome is still "do more experiments before strengthening manuscript claims."
 
+## Batch 2 Failure Diagnosis
+
+Diagnosis inputs:
+
+```text
+paper/rse_submission_paper58/benchmark_results_batch2/benchmark_metrics_by_pair.csv
+paper/rse_submission_paper58/benchmark_results_batch2/benchmark_summary.json
+paper/rse_submission_paper58/benchmark_results_batch2/benchmark_failures.csv
+```
+
+Key findings:
+
+- `benchmark_failures.csv` is empty, so the Batch 2 gate failure is not caused by QC exclusion or provenance invalidation.
+- Batch 2 primary advantage is consistently positive across all 8 evaluated Tier 1 rows.
+- The failure comes from weak spatial advantage, not from the primary model-versus-baseline comparison.
+
+Spatial-advantage ordering within Batch 2:
+
+- `xiong_an_fringe_holdout`: `-0.07471971561389112`
+- `hexi_irrigation_holdout`: `0.0`
+- `songnen_plain_holdout`: `0.019263289464010014`
+- `changbai_margin_holdout`: `0.02834008097165991`
+- `ordos_grassland_holdout`: `0.030841542721009474`
+- `erlong_lake_margin_holdout`: `0.031426775612822117`
+- `west_sichuan_plateau_holdout`: `0.05736981465136798`
+- `beibu_gulf_urban_holdout`: `0.10072847799500165`
+
+Leave-one-out spatial sensitivity:
+
+- All 8 rows: spatial `ci_low = -0.01096989826772667`
+- Drop `xiong_an_fringe_holdout`: spatial `ci_low = 0.01871708986647101`
+- Dropping any other single row leaves spatial `ci_low <= 0`
+
+Interpretation:
+
+- `xiong_an_fringe_holdout` is the decisive failure point for the Batch 2 spatial gate.
+- The rest of Batch 2 still has only a thin positive spatial margin, so the issue is not purely a one-row artifact.
+
+`xiong_an_fringe_holdout` local diagnosis:
+
+- True change pixels: `125`
+- Model change pixels: `151`
+- Model change `F1 = 0.23188405797101452`
+- Spatial-shuffle change `F1 = 0.30660377358490565`
+- Multi-seed shuffle sanity check: shuffle mean `F1 = 0.318678`, `2.5% = 0.283688`, `97.5% = 0.355972`
+
+This means the negative spatial result for `xiong_an_fringe_holdout` is not just a fixed-seed shuffle artifact.
+
+Observed transition mismatch for `xiong_an_fringe_holdout`:
+
+- true dominant transitions include `5->11` and `5->7`
+- predicted changed pixels are dominated by `4->1`, `0->11`, and `7->5`
+
+Practical reading:
+
+- The model is detecting change mass in `xiong_an_fringe_holdout`, but the spatial placement and/or transition typing is misaligned enough that shuffling the same predicted map performs better.
+- `hexi_irrigation_holdout` is not negative, but it has only `5` true change pixels and contributes almost no spatial margin.
+
 ## Next Valid Step
 
 Continue experiment-first work on `paper58-benchmark`.
@@ -330,7 +388,9 @@ Continue experiment-first work on `paper58-benchmark`.
 Recommended next steps:
 
 - inspect Batch 2 failure cases in `paper/rse_submission_paper58/benchmark_results_batch2/benchmark_failures.csv`,
-- decide whether the next experiment should expand spatially diverse strict Tier 1 holdouts or target model/decoder robustness analysis,
+- prioritize a new external Batch 3 that strengthens urban spatial robustness rather than pooling Batch 2 away,
+- treat `xiong_an_fringe_holdout` as a diagnostic area for spatial-localization failure, not as manuscript-strengthening evidence,
+- decide whether the next experiment should add urban replacement holdouts first or run a targeted model/decoder robustness audit around `xiong_an_fringe_holdout`,
 - keep manuscript work limited to transparent negative or mixed-evidence reporting until an independent new batch passes on its own.
 
 ## Resume Instruction
@@ -343,4 +403,5 @@ Resume from the Batch 2 decision rule above:
 
 - treat `benchmark_results_batch2` as the primary readout,
 - do not treat the combined pooled pass as permission to strengthen the manuscript,
+- use `xiong_an_fringe_holdout` as the first diagnostic target when planning the next experiment,
 - continue with stronger and more diverse experiments first.
