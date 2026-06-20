@@ -859,6 +859,31 @@ Design rationale:
 - Batch 4 passed primary and spatial confidence checks but failed the full gate because it was all Urban.
 - Therefore Batch 5 should restore the full gate's cross-stratum logic while retaining a small urban stress probe.
 
+## Batch 5 Mixed-Gate Manifest
+
+Batch 5 manifest:
+
+```text
+data/independent_change_labels/paper58_holdout_areas_batch5.json
+```
+
+Manifest-only status:
+
+- Batch 5 currently exists only as a candidate manifest. No acquisition, prediction generation, registry build, provenance audit, or benchmark evaluation has been run yet for this batch.
+- The manifest contains `7` strict Tier 1 `2020-2021` candidates with no area-name overlap against Batch 1, Batch 2, Batch 3, or Batch 4.
+- The candidate mix is `2` `xiong_an_like` Urban stress rows, `1` `suzhou_like` Urban localization row, `1` Wetland row, `1` Agriculture row, `1` Forest row, and `1` Grassland row.
+- The manifest therefore restores multi-stratum full-gate coverage by design while keeping the targeted urban stress probe limited to three rows.
+
+Interpretation rule:
+
+- Batch 5-only should be treated as the next primary full-gate readout once acquisition, prediction generation, registry build, provenance audit, and benchmark evaluation are completed.
+- Do not pool Batch 5 with earlier batches to hide any Batch 5-only failure.
+- Do not strengthen manuscript claims from Batch 5 until its standalone readout is compared against the contradictory Batch 2 result and the targeted Batch 4 urban diagnostic result.
+
+Next step:
+
+- Run Batch 5 acquisition only after accepting this manifest-only design as the next experiment step.
+
 ## Resume Instruction
 
 In a new window, continue from branch `paper58-benchmark`.

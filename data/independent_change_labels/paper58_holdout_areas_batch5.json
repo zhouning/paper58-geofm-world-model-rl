@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "created": "2026-06-20",
+  "purpose": "Paper58 Batch 5 mixed external Tier 1 full-gate candidates with targeted urban stress rows and non-Urban stratum support",
+  "areas": [
+    {
+      "area": "renqiu_baiyangdian_edge_holdout",
+      "bbox": [116.02, 38.66, 116.12, 38.76],
+      "stratum": "Urban",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent Baiyangdian-adjacent urban-edge candidate to probe class-11 urban-fringe transitions without reusing prior xiong'an rows",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, Batch 3, and Batch 4 manifests",
+      "expected_role": "positive_change_candidate",
+      "notes": "Batch 5 xiong_an_like urban-fringe candidate for lakeplain edge conversion and class-11 stress"
+    },
+    {
+      "area": "wenan_lakeplain_newtown_holdout",
+      "bbox": [116.32, 38.78, 116.42, 38.88],
+      "stratum": "Urban",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent lowland new-town candidate to test whether the xiong'an-like class-11 bottleneck repeats outside the earlier river-corridor rows",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, Batch 3, and Batch 4 manifests",
+      "expected_role": "positive_change_candidate",
+      "notes": "Batch 5 xiong_an_like urban-fringe candidate for lakeplain redevelopment and wetland-edge pressure"
+    },
+    {
+      "area": "wuxi_taihu_dense_edge_holdout",
+      "bbox": [120.30, 31.42, 120.40, 31.52],
+      "stratum": "Urban",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent lower-Yangtze dense urban-edge candidate to test small-offset localization sensitivity without reusing Suzhou, Kunshan, Jiaxing, or Taihu rows",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, Batch 3, and Batch 4 manifests",
+      "expected_role": "positive_change_candidate",
+      "notes": "Batch 5 suzhou_like dense-edge localization candidate for lower-Yangtze spatial robustness"
+    },
+    {
+      "area": "liaohe_delta_wetland_holdout",
+      "bbox": [121.70, 40.82, 121.80, 40.92],
+      "stratum": "Wetland",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent delta wetland-margin candidate to restore non-Urban full-gate support and test coastal marsh transitions outside prior lake-margin rows",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, Batch 3, and Batch 4 manifests",
+      "expected_role": "positive_change_candidate",
+      "notes": "Batch 5 wetland candidate for mixed-gate non-Urban support"
+    },
+    {
+      "area": "huaibei_irrigation_plain_holdout",
+      "bbox": [116.76, 33.68, 116.86, 33.78],
+      "stratum": "Agriculture",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent irrigated plain candidate to add agricultural support outside Tarim, Sanjiang, Songnen, Hexi, and Weihe rows",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, Batch 3, and Batch 4 manifests",
+      "expected_role": "positive_change_candidate",
+      "notes": "Batch 5 agriculture candidate for mixed-gate non-Urban support"
+    },
+    {
+      "area": "dabie_forest_edge_holdout",
+      "bbox": [115.62, 31.08, 115.72, 31.18],
+      "stratum": "Forest",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent forest-edge candidate to provide a third non-Urban landscape type outside Wuyi, Xiaoxinganling, Qinling, Changbai, and Nanling rows",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, Batch 3, and Batch 4 manifests",
+      "expected_role": "positive_change_candidate",
+      "notes": "Batch 5 forest candidate for third-stratum mixed-gate support"
+    },
+    {
+      "area": "xilingol_grassland_margin_holdout",
+      "bbox": [116.12, 43.88, 116.22, 43.98],
+      "stratum": "Grassland",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent northern grassland-margin candidate to reduce dependence on any single non-Urban stratum and avoid reusing Ordos or Hulun rows",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, Batch 3, and Batch 4 manifests",
+      "expected_role": "positive_change_candidate",
+      "notes": "Batch 5 grassland candidate for mixed-gate reserve diversity"
+    }
+  ]
+}
