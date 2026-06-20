@@ -1,0 +1,6 @@
+batch2_status=fail
+batch2_spatial_ci_low=-0.01096989826772667
+batch3_status=pass
+batch3_spatial_ci_low=0.06050222512559061
+lowest_spatial_area=batch2:xiong_an_fringe_holdout
+best_spatial_area=batch3:fuzhou_delta_urban_holdout

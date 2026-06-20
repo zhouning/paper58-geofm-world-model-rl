@@ -1,0 +1,56 @@
+{
+  "gate_comparison": {
+    "batch2_status": "fail",
+    "batch2_primary_ci_low": 0.07977047981666133,
+    "batch2_spatial_ci_low": -0.01096989826772667,
+    "batch2_positive_tier1_strata": 6,
+    "batch3_status": "pass",
+    "batch3_primary_ci_low": 0.10797167654040589,
+    "batch3_spatial_ci_low": 0.06050222512559061,
+    "batch3_positive_tier1_strata": 5
+  },
+  "urban_comparison": {
+    "batch2": {
+      "n": 2,
+      "areas": [
+        "beibu_gulf_urban_holdout",
+        "xiong_an_fringe_holdout"
+      ],
+      "mean_primary_change_advantage": 0.100659,
+      "mean_spatial_change_advantage": 0.013004,
+      "n_negative_spatial": 1,
+      "n_positive_spatial": 1,
+      "primary_ci_low": 0.098551,
+      "spatial_ci_low": -0.07472
+    },
+    "batch3": {
+      "n": 4,
+      "areas": [
+        "fuzhou_delta_urban_holdout",
+        "nanning_fringe_holdout",
+        "suzhou_fringe_holdout",
+        "wuhan_outer_ring_holdout"
+      ],
+      "mean_primary_change_advantage": 0.24143,
+      "mean_spatial_change_advantage": 0.158805,
+      "n_negative_spatial": 1,
+      "n_positive_spatial": 3,
+      "primary_ci_low": 0.092821,
+      "spatial_ci_low": 0.047863
+    }
+  },
+  "headline": {
+    "lowest_spatial_area": {
+      "batch": "batch2",
+      "area": "xiong_an_fringe_holdout",
+      "spatial_change_advantage": -0.07471971561389112,
+      "primary_change_advantage": 0.09855072463768119
+    },
+    "best_spatial_area": {
+      "batch": "batch3",
+      "area": "fuzhou_delta_urban_holdout",
+      "spatial_change_advantage": 0.3325545171339564,
+      "primary_change_advantage": 0.4166666666666667
+    }
+  }
+}

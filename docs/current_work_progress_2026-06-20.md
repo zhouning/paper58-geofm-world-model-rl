@@ -573,6 +573,68 @@ Batch 3 interpretation:
 - Spatial behavior is supportive overall, but not uniformly perfect: `suzhou_fringe_holdout` has a slight negative spatial advantage (`-0.0009090909090908872`) even though the batch-level spatial gate passes.
 - Therefore the evidence is stronger than the Batch 2-only readout, but the Batch 2 failure still needs to stay visible in any later narrative.
 
+## Batch 2 vs Batch 3 Comparison Diagnosis
+
+Diagnostic script:
+
+```text
+scripts/paper58_benchmark/make_batch23_comparison_diagnostics.py
+```
+
+Diagnostic outputs:
+
+```text
+paper/rse_submission_paper58/diagnostics_batch23
+```
+
+Generated files:
+
+```text
+paper/rse_submission_paper58/diagnostics_batch23/batch23_spatial_advantage_ranked.csv
+paper/rse_submission_paper58/diagnostics_batch23/batch23_comparison_summary.json
+paper/rse_submission_paper58/diagnostics_batch23/batch23_comparison_summary.txt
+```
+
+Batch-level contrast:
+
+```json
+{
+  "batch2_status": "fail",
+  "batch2_spatial_ci_low": -0.01096989826772667,
+  "batch3_status": "pass",
+  "batch3_spatial_ci_low": 0.06050222512559061
+}
+```
+
+Urban-only contrast:
+
+```json
+{
+  "batch2": {
+    "n": 2,
+    "mean_primary_change_advantage": 0.100659,
+    "mean_spatial_change_advantage": 0.013004,
+    "n_negative_spatial": 1,
+    "spatial_ci_low": -0.07472
+  },
+  "batch3": {
+    "n": 4,
+    "mean_primary_change_advantage": 0.24143,
+    "mean_spatial_change_advantage": 0.158805,
+    "n_negative_spatial": 1,
+    "spatial_ci_low": 0.047863
+  }
+}
+```
+
+Comparison interpretation:
+
+- `xiong_an_fringe_holdout` remains the lowest spatial row across Batch 2 and Batch 3 combined: `spatial_change_advantage = -0.07471971561389112`.
+- `suzhou_fringe_holdout` is a useful Batch 3 caution case: it is slightly negative spatially (`-0.0009090909090908872`) but not severe enough to dominate the batch.
+- Batch 3 urban support is broad enough to pass the urban-only spatial bootstrap readout: `spatial_ci_low = 0.047863`.
+- Batch 2 urban support is not broad enough because the two-row urban set splits into one positive (`beibu_gulf_urban_holdout`) and one strongly negative (`xiong_an_fringe_holdout`).
+- The next experiment should not simply add more random urban holdouts. It should contrast xiong'an-like urban-fringe cases against Batch 3's better urban cases and test whether the failure is driven by local transition semantics, spatial localization, or both.
+
 ## Resume Instruction
 
 In a new window, continue from branch `paper58-benchmark`.
@@ -593,4 +655,5 @@ Resume from the current decision rule:
 - remember that the shifted-transition fate audit shows xiong'an's best spatial shift does not recover `5->11` or `7->11` semantic matches,
 - remember that Batch 3-only now passes with `primary ci_low = 0.10797167654040589`, `spatial ci_low = 0.06050222512559061`, and `positive_tier1_strata = 5`,
 - remember that `taihu_marsh_edge_holdout` was excluded only because it had `zero_reference_change`,
+- remember that the Batch 2 vs Batch 3 comparison diagnostic identifies xiong'an as the lowest spatial row across both batches and Batch 3 urban as broader but still not uniformly perfect,
 - continue with stronger and more diverse experiments first rather than shifting attention to the manuscript.
