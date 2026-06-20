@@ -1,0 +1,84 @@
+{
+  "xiong_an_like": {
+    "areas": [
+      "baiyangdian_new_area_holdout",
+      "hengshui_lake_urban_edge_holdout",
+      "xiongxian_river_corridor_holdout",
+      "xinxiang_floodplain_newtown_holdout",
+      "ezhou_lakeside_expansion_holdout",
+      "jiangmen_estuary_newtown_holdout",
+      "yancheng_coastal_new_district_holdout"
+    ],
+    "n": 7,
+    "mean_raw_change_f1": 0.18969518718242584,
+    "mean_best_shift_change_f1": 0.20850384060590588,
+    "n_nonzero_best_shift": 2,
+    "mean_decoded_observed_change_f1": 0.1790021748263761,
+    "mean_model_change_f1_label_start": 0.18969518718242584,
+    "class11_rows": 6,
+    "mean_observed_class11_prob": 0.04760283333333333,
+    "mean_forecast_class11_prob": 0.0226665,
+    "mean_forecast_class11_delta": -0.024936333333333335,
+    "worst_spatial_row": {
+      "area": "xinxiang_floodplain_newtown_holdout",
+      "raw_change_f1": 0.044444444444444446,
+      "best_shift_change_f1": 0.08108108108108107,
+      "best_dy": 0,
+      "best_dx": -3,
+      "centroid_true_y": 19.571428571428573,
+      "centroid_true_x": 14.571428571428571,
+      "centroid_model_y": 12.373493975903614,
+      "centroid_model_x": 10.493975903614459
+    },
+    "largest_shift_gain_row": {
+      "area": "xiongxian_river_corridor_holdout",
+      "raw_change_f1": 0.08196721311475409,
+      "best_shift_change_f1": 0.1769911504424779,
+      "best_dy": 2,
+      "best_dx": 0,
+      "centroid_true_y": 9.678571428571429,
+      "centroid_true_x": 13.178571428571429,
+      "centroid_model_y": 10.03191489361702,
+      "centroid_model_x": 12.340425531914894
+    }
+  },
+  "suzhou_like": {
+    "areas": [
+      "kunshan_dense_edge_holdout",
+      "jiaxing_ring_urban_holdout",
+      "ningbo_inner_bay_edge_holdout"
+    ],
+    "n": 3,
+    "mean_raw_change_f1": 0.30944500731734775,
+    "mean_best_shift_change_f1": 0.30944500731734775,
+    "n_nonzero_best_shift": 0,
+    "mean_decoded_observed_change_f1": 0.2246304010454954,
+    "mean_model_change_f1_label_start": 0.30944500731734775,
+    "class11_rows": 2,
+    "mean_observed_class11_prob": 0.010459999999999999,
+    "mean_forecast_class11_prob": 0.009941,
+    "mean_forecast_class11_delta": -0.000519,
+    "worst_spatial_row": {
+      "area": "ningbo_inner_bay_edge_holdout",
+      "raw_change_f1": 0.2553191489361702,
+      "best_shift_change_f1": 0.2553191489361702,
+      "best_dy": 0,
+      "best_dx": 0,
+      "centroid_true_y": 9.952380952380953,
+      "centroid_true_x": 11.428571428571429,
+      "centroid_model_y": 9.465753424657533,
+      "centroid_model_x": 10.794520547945206
+    },
+    "largest_shift_gain_row": {
+      "area": "kunshan_dense_edge_holdout",
+      "raw_change_f1": 0.3619047619047619,
+      "best_shift_change_f1": 0.3619047619047619,
+      "best_dy": 0,
+      "best_dx": 0,
+      "centroid_true_y": 8.962962962962964,
+      "centroid_true_x": 12.11111111111111,
+      "centroid_model_y": 10.423076923076923,
+      "centroid_model_x": 11.435897435897436
+    }
+  }
+}

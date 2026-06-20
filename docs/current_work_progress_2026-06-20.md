@@ -787,6 +787,56 @@ Practical reading:
 - Batch 4 does not erase Batch 2. It narrows the problem: the severe Batch 2 failure is not reproduced as a batch-level urban spatial collapse here, but the harder `xiong_an_like` subset is still weaker than the `suzhou_like` subset.
 - Because Batch 4 is all Urban by design, it should be treated as a targeted diagnostic batch rather than as the next manuscript-strengthening benchmark gate.
 
+## Batch 4 Urban Deep Diagnosis
+
+Diagnostic outputs:
+
+```text
+paper/rse_submission_paper58/diagnostics_batch4_urban
+```
+
+Generated files include:
+
+```text
+paper/rse_submission_paper58/diagnostics_batch4_urban/batch2_spatial_alignment_shift.csv
+paper/rse_submission_paper58/diagnostics_batch4_urban/batch2_embedding_decoder_audit.csv
+paper/rse_submission_paper58/diagnostics_batch4_urban/batch2_decoder_true_end_confidence_by_area.csv
+paper/rse_submission_paper58/diagnostics_batch4_urban/batch2_forecast_true_end_confidence_by_area.csv
+paper/rse_submission_paper58/diagnostics_batch4_urban/batch4_transition_fate_all.csv
+paper/rse_submission_paper58/diagnostics_batch4_urban/batch4_shifted_transition_fate_all.csv
+paper/rse_submission_paper58/diagnostics_batch4_urban/batch4_forecast_transition_fate_all.csv
+paper/rse_submission_paper58/diagnostics_batch4_urban/batch4_urban_summary.json
+paper/rse_submission_paper58/diagnostics_batch4_urban/batch4_urban_summary.txt
+```
+
+Batch 4 alignment summary:
+
+- `xiong_an_like` mean raw change F1 is `0.18969518718242584`; mean best-shift change F1 is `0.20850384060590588`.
+- `xiong_an_like` has `2` non-zero best-shift rows: `xiongxian_river_corridor_holdout` (`dy=2`, `dx=0`) and `xinxiang_floodplain_newtown_holdout` (`dy=0`, `dx=-3`).
+- `suzhou_like` mean raw change F1 is `0.30944500731734775`; mean best-shift change F1 is the same, and `0` rows need a non-zero best shift.
+- Therefore Batch 4 does not reproduce a broad urban spatial-offset failure. The localization concern is concentrated in the weaker `xiong_an_like` rows.
+
+Batch 4 class-`11` diagnosis:
+
+- Among `xiong_an_like` rows with class-`11` true-end pixels, mean observed class-`11` probability is `0.04760283333333333`; mean forecast class-`11` probability is `0.0226665`, with mean delta `-0.024936333333333335`.
+- `xiongxian_river_corridor_holdout` is the strongest new analogue to the Batch 2 `xiong_an` semantic issue: `14` true class-`11` end pixels, observed mean class-`11` probability `0.002548`, and forecast mean class-`11` probability `0.005619`.
+- `hengshui_lake_urban_edge_holdout` also has very low observed class-`11` probability (`0.002017`) on `4` pixels.
+- `xinxiang_floodplain_newtown_holdout` has the lowest class-`11` probability (`0.000407`), but only `2` class-`11` end pixels and only `7` total true-change pixels, so it is a weak primary-error row but not a large class-`11` stress case.
+- `baiyangdian_new_area_holdout` has higher observed class-`11` probability (`0.214879` on `8` pixels) but the forecast reduces it to `0.11491`, so it looks more like forecast suppression than the near-zero observed representation failure seen in `xiong_an`.
+- `suzhou_like` class-`11` rows are few and also low confidence on average, but this slice remains much stronger on raw change F1 and does not show non-zero best-shift localization needs.
+
+Transition-fate interpretation:
+
+- Class-`11` semantic mismatches remain visible in Batch 4: for example, `xiongxian_river_corridor_holdout` true `5->11` has `14` pixels, but observed embeddings and model predictions are dominated by class `5`, with class `11` receiving near-zero probability.
+- Whole-mask shifts do not recover class-`11` transition typing on the class-`11` rows; this matches the Batch 2 lesson that spatial shifting and semantic decoding are separable problems.
+- The evidence now supports a narrower statement: class-`11` representation/decoder weakness recurs in some `xiong_an_like` urban-fringe cases, but Batch 4 does not show a batch-level urban spatial collapse.
+
+Next experimental implication:
+
+- The next external batch should not be another all-Urban batch if the goal is to pass the full benchmark gate; it needs at least three positive Tier 1 strata.
+- For targeted diagnosis, prioritize `xiongxian_river_corridor_holdout` and `baiyangdian_new_area_holdout`: the former is the clearer observed class-`11` bottleneck analogue, while the latter may separate observed representation from forecast suppression.
+- If adding a Batch 5, use a mixed design: keep a small number of class-`11` stress urban-fringe rows, but add non-Urban strata to restore the full gate's cross-stratum logic.
+
 ## Resume Instruction
 
 In a new window, continue from branch `paper58-benchmark`.
@@ -811,4 +861,5 @@ Resume from the current decision rule:
 - remember that the urban contrast diagnostic separates xiong'an's near-zero observed class-`11` representation from suzhou/wuhan/beibu's smaller forecast-suppressed class-`11` cases,
 - remember that Batch 4-only now fails the full benchmark gate because it is all-Urban and therefore misses the `3`-strata requirement, even though its primary and spatial Tier 1 confidence bounds are both positive,
 - remember that the Batch 4 `suzhou_like` subset is stronger than the Batch 4 `xiong_an_like` subset, and that the weakest new primary row is `xinxiang_floodplain_newtown_holdout`,
+- remember that Batch 4 deep diagnostics identify `xiongxian_river_corridor_holdout` as the clearest new class-`11` representation bottleneck analogue and `baiyangdian_new_area_holdout` as a possible forecast-suppression case,
 - continue with stronger and more diverse experiments first rather than shifting attention to the manuscript.

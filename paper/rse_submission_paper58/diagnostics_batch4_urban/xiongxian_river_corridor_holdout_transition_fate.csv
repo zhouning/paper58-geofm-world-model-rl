@@ -1,0 +1,4 @@
+true_transition,n_true_pixels,decoded_start_top,decoded_end_top,model_end_top,mean_true_end_prob,median_true_end_prob,top_mean_prob_class,top_mean_prob,second_mean_prob_class,second_mean_prob
+5->11,14,5:10;7:4,5:12;7:2,5:10;7:4,0.002548,0.002035,5,0.793847,7,0.193744
+5->7,9,5:8;7:1,5:7;7:2,5:9,0.196957,0.097742,5,0.800829,7,0.196957
+7->5,5,7:4;5:1,5:3;7:2,7:4;5:1,0.546781,0.657252,5,0.546781,7,0.45
