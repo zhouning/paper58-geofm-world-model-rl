@@ -5,7 +5,7 @@
 - Repository: `D:\test\paper58-geofm-world-model-rl`
 - Active worktree: `D:\test\paper58-geofm-world-model-rl\.worktrees\paper58-benchmark`
 - Active branch: `paper58-benchmark`
-- Resume from commit: `7bd306c` (`data: record strict Paper58 provenance audit`)
+- Resume from commit: `36e9db3` (`data: run expanded Paper58 Tier 1 benchmark`)
 
 ## Governing Rule
 
@@ -32,7 +32,7 @@ Approved implementation plan:
 docs/superpowers/plans/2026-06-19-paper58-tier1-expansion.md
 ```
 
-## Completed In This Session
+## Completed Before External Acquisition
 
 Completed Task 4-7 from the Tier 1 expansion plan.
 
@@ -56,7 +56,7 @@ Manifest-driven strict provenance support now exists across the Paper58 benchmar
 - evaluator rejects invalid Tier 1 provenance rows,
 - provenance audit outputs are written before interpreting benchmark results.
 
-## Latest Verified Local Results
+## Strict Pre-Acquisition Local Results
 
 Full local verification run:
 
@@ -96,7 +96,7 @@ Verified outputs:
 - Provenance audit: `12 row(s), 0 invalid Tier 1 row(s)`
 - Gate: `status = insufficient_tier1`
 
-Current strict provenance summary from:
+Strict pre-acquisition provenance summary from:
 
 ```text
 paper/rse_submission_paper58/benchmark_results/benchmark_provenance_audit.json
@@ -112,7 +112,7 @@ paper/rse_submission_paper58/benchmark_results/benchmark_provenance_audit.json
 }
 ```
 
-Current gate summary from:
+Strict pre-acquisition gate summary from:
 
 ```text
 paper/rse_submission_paper58/benchmark_results/benchmark_gate_report.json
@@ -139,30 +139,111 @@ The strict provenance correction worked:
 
 This is the intended stop/go outcome before new external holdout acquisition.
 
-## Next Valid Step
+## Completed External Tier 1 Expansion
 
-Resume at Task 8 of:
+Completed Task 8-10 from:
 
 ```text
 docs/superpowers/plans/2026-06-19-paper58-tier1-expansion.md
 ```
 
-Task 8 is the first step that requires real GEE/network access.
+Key commits:
 
-Planned first command:
-
-```powershell
-python -m scripts.rse_revision.fetch_independent_lulc_labels --area-manifest data\independent_change_labels\paper58_holdout_areas.json --areas tianjin_binhai_holdout,shenzhen_outer_holdout,tarim_oasis_holdout,sanjiang_plain_holdout,dongting_lake_holdout,xiaoxinganling_holdout,qinling_mountain_holdout,haibei_plateau_holdout --years 2020,2021 --scale 500 --fixed-scale
+```text
+098ecf2 data: fetch Paper58 Tier 1 holdout labels and embeddings
+d253c5b data: generate Paper58 Tier 1 holdout predictions
+36e9db3 data: run expanded Paper58 Tier 1 benchmark
 ```
 
-Then:
+Task 8 acquisition completed with no failures:
 
-```powershell
-python -m scripts.rse_revision.fetch_change_validation_embeddings --area-manifest data\independent_change_labels\paper58_holdout_areas.json --areas tianjin_binhai_holdout,shenzhen_outer_holdout,tarim_oasis_holdout,sanjiang_plain_holdout,dongting_lake_holdout,xiaoxinganling_holdout,qinling_mountain_holdout,haibei_plateau_holdout --years 2020,2021 --scale 500
+```text
+Independent LULC label fetch: complete, 16 record(s), 0 failure(s)
+Change-validation embedding fetch: complete, 16 grid(s), 8 context grid(s), 0 failure(s)
 ```
 
-Then Task 9 prediction generation and Task 10 expanded registry/gate rerun.
+Task 9 prediction generation completed:
+
+```text
+Change-validation prediction generation: complete, 8 prediction(s)
+```
+
+Task 10 expanded benchmark was rerun sequentially:
+
+```text
+python -m scripts.paper58_benchmark.build_registry --holdout-manifest data\independent_change_labels\paper58_holdout_areas.json
+python -m scripts.paper58_benchmark.audit_provenance
+python -m scripts.paper58_benchmark.evaluate_benchmark --n-boot 5000
+python -m scripts.paper58_benchmark.make_benchmark_figures
+```
+
+Verified outputs:
+
+- Registry: `20 candidate pair(s), 18 included pair(s)`
+- Provenance audit: `20 row(s), 0 invalid Tier 1 row(s)`
+- Evaluation: `18 evaluated pair(s), gate status=pass`
+- Figure size: `182492` bytes, so full benchmark figures were committed.
+
+Current expanded gate summary from:
+
+```text
+paper/rse_submission_paper58/benchmark_results/benchmark_gate_report.json
+```
+
+```json
+{
+  "status": "pass",
+  "tier1_primary_change": {
+    "n_rows": 7,
+    "n_clusters": 7,
+    "mean": 0.25162800142943026,
+    "ci_low": 0.10190708381580636,
+    "ci_high": 0.4099235447784561
+  },
+  "tier1_spatial_change": {
+    "n_rows": 7,
+    "n_clusters": 7,
+    "mean": 0.11020757535580673,
+    "ci_low": 0.04810621853180953,
+    "ci_high": 0.16711471734787858
+  },
+  "positive_tier1_strata": 4,
+  "required_positive_tier1_strata": 3,
+  "primary_gate_pass": true,
+  "spatial_gate_pass": true,
+  "strata_gate_pass": true
+}
+```
+
+Current provenance summary from:
+
+```text
+paper/rse_submission_paper58/benchmark_results/benchmark_provenance_audit.json
+```
+
+```json
+{
+  "n_rows": 20,
+  "tier_counts": {
+    "tier1": 8,
+    "tier2": 12
+  },
+  "invalid_tier1_rows": []
+}
+```
+
+Expanded Tier 1 interpretation:
+
+- Seven strict Tier 1 rows were evaluated after QC.
+- The evaluated Tier 1 rows cover seven region clusters.
+- Positive Tier 1 evidence spans four strata: Agriculture, Forest, Urban, and Wetland.
+- `haibei_plateau_holdout` remains visible in the registry as Tier 1 provenance but was excluded by QC with `class_collapse`.
+- `poyang_lake` and `wuyi_mountain` remain Tier 2 because of known training contact.
+
+## Next Valid Step
 
 ## Resume Instruction
 
-In a new window, continue from branch `paper58-benchmark` and start with Task 8 only. Do not revise the manuscript toward stronger claims unless the expanded post-acquisition gate passes.
+In a new window, continue from branch `paper58-benchmark`.
+
+The expanded strict Tier 1 gate has passed, so the next manuscript-facing step may be a separate revision plan that maps every proposed claim to the benchmark outputs. Do not directly strengthen the manuscript prose without that claim-to-evidence mapping.
