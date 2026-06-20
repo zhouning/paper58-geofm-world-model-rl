@@ -333,6 +333,23 @@ paper/rse_submission_paper58/benchmark_results_batch2/benchmark_summary.json
 paper/rse_submission_paper58/benchmark_results_batch2/benchmark_failures.csv
 ```
 
+Diagnostic script and outputs:
+
+```text
+scripts/paper58_benchmark/make_batch2_diagnostics.py
+paper/rse_submission_paper58/diagnostics_batch2
+```
+
+Generated outputs:
+
+```text
+paper/rse_submission_paper58/diagnostics_batch2/fig_batch2_xiongan_spatial_failure.png
+paper/rse_submission_paper58/diagnostics_batch2/fig_batch2_xiongan_spatial_failure.pdf
+paper/rse_submission_paper58/diagnostics_batch2/batch2_spatial_advantage_ranked.csv
+paper/rse_submission_paper58/diagnostics_batch2/batch2_spatial_leave_one_out.csv
+paper/rse_submission_paper58/diagnostics_batch2/batch2_diagnostic_summary.txt
+```
+
 Key findings:
 
 - `benchmark_failures.csv` is empty, so the Batch 2 gate failure is not caused by QC exclusion or provenance invalidation.
@@ -368,6 +385,7 @@ Interpretation:
 - Model change `F1 = 0.23188405797101452`
 - Spatial-shuffle change `F1 = 0.30660377358490565`
 - Multi-seed shuffle sanity check: shuffle mean `F1 = 0.318678`, `2.5% = 0.283688`, `97.5% = 0.355972`
+- The saved spatial diagnostic figure shows reference start, reference end, model prediction, shuffled prediction, reference change, predicted change, model error, and shuffle error panels.
 
 This means the negative spatial result for `xiong_an_fringe_holdout` is not just a fixed-seed shuffle artifact.
 

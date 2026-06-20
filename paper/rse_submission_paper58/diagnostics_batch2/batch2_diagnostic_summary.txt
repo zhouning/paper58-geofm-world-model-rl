@@ -1,0 +1,5 @@
+xiongan_model_change_f1=0.23188405797101452
+xiongan_shuffle_change_f1=0.30660377358490565
+batch2_spatial_ci_low=-0.01096989826772667
+drop_xiongan_spatial_ci_low=0.01871684745598648
+xiongan_spatial_advantage=-0.07471971561389112
