@@ -347,6 +347,7 @@ paper/rse_submission_paper58/diagnostics_batch2/fig_batch2_xiongan_spatial_failu
 paper/rse_submission_paper58/diagnostics_batch2/fig_batch2_xiongan_spatial_failure.pdf
 paper/rse_submission_paper58/diagnostics_batch2/batch2_spatial_advantage_ranked.csv
 paper/rse_submission_paper58/diagnostics_batch2/batch2_spatial_leave_one_out.csv
+paper/rse_submission_paper58/diagnostics_batch2/batch2_spatial_alignment_shift.csv
 paper/rse_submission_paper58/diagnostics_batch2/batch2_diagnostic_summary.txt
 ```
 
@@ -386,6 +387,7 @@ Interpretation:
 - Spatial-shuffle change `F1 = 0.30660377358490565`
 - Multi-seed shuffle sanity check: shuffle mean `F1 = 0.318678`, `2.5% = 0.283688`, `97.5% = 0.355972`
 - The saved spatial diagnostic figure shows reference start, reference end, model prediction, shuffled prediction, reference change, predicted change, model error, and shuffle error panels.
+- Best whole-mask shift diagnostic: shifting the model change mask by `dy = 3`, `dx = 3` increases change F1 from `0.23188405797101452` to `0.35398230088495575`.
 
 This means the negative spatial result for `xiong_an_fringe_holdout` is not just a fixed-seed shuffle artifact.
 
@@ -397,6 +399,7 @@ Observed transition mismatch for `xiong_an_fringe_holdout`:
 Practical reading:
 
 - The model is detecting change mass in `xiong_an_fringe_holdout`, but the spatial placement and/or transition typing is misaligned enough that shuffling the same predicted map performs better.
+- The best-shift result indicates a local spatial alignment problem: a small translation of the predicted change mask recovers more signal than the raw prediction.
 - `hexi_irrigation_holdout` is not negative, but it has only `5` true change pixels and contributes almost no spatial margin.
 
 ## Next Valid Step

@@ -107,6 +107,103 @@ def _write_csv(path: Path, rows: list[dict], fieldnames: list[str]) -> None:
             writer.writerow(row)
 
 
+def _shift_mask(mask: np.ndarray, dy: int, dx: int) -> np.ndarray:
+    shifted = np.zeros(mask.shape, dtype=bool)
+    src_y0 = max(0, -dy)
+    src_y1 = mask.shape[0] - max(0, dy)
+    src_x0 = max(0, -dx)
+    src_x1 = mask.shape[1] - max(0, dx)
+    dst_y0 = max(0, dy)
+    dst_x0 = max(0, dx)
+    dst_y1 = dst_y0 + (src_y1 - src_y0)
+    dst_x1 = dst_x0 + (src_x1 - src_x0)
+    if src_y1 > src_y0 and src_x1 > src_x0:
+        shifted[dst_y0:dst_y1, dst_x0:dst_x1] = mask[src_y0:src_y1, src_x0:src_x1]
+    return shifted
+
+
+def _centroid(mask: np.ndarray) -> tuple[float | None, float | None]:
+    points = np.argwhere(mask)
+    if points.size == 0:
+        return None, None
+    yx = points.mean(axis=0)
+    return float(yx[0]), float(yx[1])
+
+
+def best_shift_diagnostic(
+    true_change: np.ndarray,
+    model_change: np.ndarray,
+    max_shift: int = 4,
+) -> dict:
+    raw_f1 = binary_change_metrics(true_change, model_change)["f1"]
+    best_f1 = raw_f1
+    best_dy = 0
+    best_dx = 0
+    for dy in range(-max_shift, max_shift + 1):
+        for dx in range(-max_shift, max_shift + 1):
+            shifted = _shift_mask(model_change, dy, dx)
+            shifted_f1 = binary_change_metrics(true_change, shifted)["f1"]
+            if shifted_f1 > best_f1:
+                best_f1 = shifted_f1
+                best_dy = dy
+                best_dx = dx
+
+    true_y, true_x = _centroid(true_change)
+    model_y, model_x = _centroid(model_change)
+    return {
+        "raw_change_f1": float(raw_f1),
+        "best_shift_change_f1": float(best_f1),
+        "best_dy": int(best_dy),
+        "best_dx": int(best_dx),
+        "centroid_true_y": true_y,
+        "centroid_true_x": true_x,
+        "centroid_model_y": model_y,
+        "centroid_model_x": model_x,
+    }
+
+
+def make_batch2_alignment_table(
+    out_dir: Path,
+    labels_dir: Path = DEFAULT_LABELS_DIR,
+    predictions_dir: Path = DEFAULT_PREDICTIONS_DIR,
+    areas: list[str] | None = None,
+    start_year: int = 2020,
+    end_year: int = 2021,
+    max_shift: int = 4,
+) -> list[dict]:
+    if areas is None:
+        areas = [
+            path.name.removesuffix(f"_lulc_pred_{start_year}_{end_year}.npy")
+            for path in sorted(Path(predictions_dir).glob(f"*_lulc_pred_{start_year}_{end_year}.npy"))
+        ]
+
+    rows = []
+    for area in areas:
+        start = np.load(Path(labels_dir) / f"{area}_lulc_{start_year}.npy")
+        end = np.load(Path(labels_dir) / f"{area}_lulc_{end_year}.npy")
+        pred = np.load(Path(predictions_dir) / f"{area}_lulc_pred_{start_year}_{end_year}.npy")
+        true_change = end != start
+        model_change = pred != start
+        rows.append({"area": area, **best_shift_diagnostic(true_change, model_change, max_shift=max_shift)})
+
+    _write_csv(
+        Path(out_dir) / "batch2_spatial_alignment_shift.csv",
+        rows,
+        [
+            "area",
+            "raw_change_f1",
+            "best_shift_change_f1",
+            "best_dy",
+            "best_dx",
+            "centroid_true_y",
+            "centroid_true_x",
+            "centroid_model_y",
+            "centroid_model_x",
+        ],
+    )
+    return rows
+
+
 def make_xiongan_spatial_panel(
     out_dir: Path,
     labels_dir: Path = DEFAULT_LABELS_DIR,
@@ -279,12 +376,23 @@ def main() -> None:
         out_dir=args.output_dir,
         results_dir=args.results_dir,
     )
+    areas = [row["area"] for row in _read_metrics(args.results_dir / "benchmark_metrics_by_pair.csv")]
+    alignment_rows = make_batch2_alignment_table(
+        out_dir=args.output_dir,
+        labels_dir=args.labels_dir,
+        predictions_dir=args.predictions_dir,
+        areas=areas,
+    )
+    xiongan_alignment = next(row for row in alignment_rows if row["area"] == "xiong_an_fringe_holdout")
     summary_path = args.output_dir / "batch2_diagnostic_summary.txt"
     summary_path.write_text(
         "\n".join(
             [
                 f"xiongan_model_change_f1={xiongan_summary['model_change_f1']}",
                 f"xiongan_shuffle_change_f1={xiongan_summary['shuffle_change_f1']}",
+                f"xiongan_best_shift_change_f1={xiongan_alignment['best_shift_change_f1']}",
+                f"xiongan_best_shift_dy={xiongan_alignment['best_dy']}",
+                f"xiongan_best_shift_dx={xiongan_alignment['best_dx']}",
                 f"batch2_spatial_ci_low={sensitivity_summary['batch2_spatial_ci_low']}",
                 f"drop_xiongan_spatial_ci_low={sensitivity_summary['drop_xiongan_spatial_ci_low']}",
                 f"xiongan_spatial_advantage={sensitivity_summary['xiongan_spatial_advantage']}",
