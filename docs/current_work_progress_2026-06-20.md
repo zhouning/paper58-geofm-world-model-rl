@@ -698,11 +698,39 @@ Practical next experiment:
 - Add or mine xiong'an-like urban-fringe cases with substantial `5/7 -> 11` transitions to test whether the class-`11` bottleneck repeats.
 - In parallel, use suzhou-like cases to test small-offset localization sensitivity separately from the class-`11` representation failure.
 
+## Batch 4 Urban Failure-Mode Manifest
+
+Batch 4 design spec:
+
+```text
+docs/superpowers/specs/2026-06-20-paper58-batch4-urban-failure-modes-design.md
+```
+
+Batch 4 manifest:
+
+```text
+data/independent_change_labels/paper58_holdout_areas_batch4.json
+```
+
+Manifest-only status:
+
+- Batch 4 currently exists only as a candidate manifest. No acquisition, prediction generation, registry build, provenance audit, or benchmark evaluation has been run yet for this batch.
+- The batch contains `10` strict Tier 1 urban candidates, all with year pair `2020-2021`.
+- The intended mix is `7` `xiong_an_like` urban-fringe candidates plus `3` `suzhou_like` urban-fringe candidates.
+- Batch 4 area names are intentionally disjoint from Batch 1, Batch 2, and Batch 3.
+- All rows keep `development_contact_status = none` and explicit no-contact evidence in the manifest.
+
+Interpretation rule:
+
+- Batch 4-only should be treated as the next primary external readout after acquisition and prediction complete.
+- If Batch 4 fails, keep that failure visible rather than pooling it away.
+- If Batch 4 passes, compare it against Batch 2 and Batch 3 before making any stronger manuscript claim.
+
 ## Resume Instruction
 
 In a new window, continue from branch `paper58-benchmark`.
 
-Batch 2 and Batch 3 checks are complete.
+Batch 2 and Batch 3 checks are complete, and Batch 4 manifest design is now recorded.
 
 Resume from the current decision rule:
 
@@ -720,4 +748,5 @@ Resume from the current decision rule:
 - remember that `taihu_marsh_edge_holdout` was excluded only because it had `zero_reference_change`,
 - remember that the Batch 2 vs Batch 3 comparison diagnostic identifies xiong'an as the lowest spatial row across both batches and Batch 3 urban as broader but still not uniformly perfect,
 - remember that the urban contrast diagnostic separates xiong'an's near-zero observed class-`11` representation from suzhou/wuhan/beibu's smaller forecast-suppressed class-`11` cases,
+- remember that Batch 4 currently exists only as a manifest-only mixed urban design (`7 xiong_an_like + 3 suzhou_like`) and still needs acquisition before it becomes evidence,
 - continue with stronger and more diverse experiments first rather than shifting attention to the manuscript.

@@ -278,6 +278,34 @@ def test_repository_batch3_holdout_manifest_targets_urban_wetland_robustness():
     assert all("Batch 3" in area.notes for area in tier1)
 
 
+def test_repository_batch4_holdout_manifest_targets_urban_failure_modes():
+    manifest_dir = DEFAULT_HOLDOUT_MANIFEST.parent
+    previous_area_names = {
+        area.area
+        for manifest_path in (
+            DEFAULT_HOLDOUT_MANIFEST,
+            manifest_dir / "paper58_holdout_areas_batch2.json",
+            manifest_dir / "paper58_holdout_areas_batch3.json",
+        )
+        for area in load_holdout_manifest(manifest_path)
+    }
+    batch4_path = manifest_dir / "paper58_holdout_areas_batch4.json"
+
+    areas = load_holdout_manifest(batch4_path)
+    lookup = manifest_lookup(areas)
+    tier1 = [area for area in areas if tier_from_provenance(area.area, lookup) == "tier1"]
+    area_names = {area.area for area in areas}
+
+    assert len(areas) == 10
+    assert len(tier1) == 10
+    assert area_names.isdisjoint(previous_area_names)
+    assert all(area.stratum == "Urban" for area in tier1)
+    assert sum("xiong_an_like" in area.notes for area in tier1) >= 7
+    assert sum("suzhou_like" in area.notes for area in tier1) >= 3
+    assert all(area.years == (2020, 2021) for area in tier1)
+    assert all("Batch 4" in area.notes for area in tier1)
+
+
 def test_build_combined_holdout_manifest_merges_two_valid_manifests(tmp_path: Path):
     batch1 = tmp_path / "batch1.json"
     batch2 = tmp_path / "batch2.json"
