@@ -1,0 +1,103 @@
+{
+  "version": 1,
+  "created": "2026-06-20",
+  "purpose": "Paper58 Batch 2 external Tier 1 stability candidates",
+  "areas": [
+    {
+      "area": "xiong_an_fringe_holdout",
+      "bbox": [115.90, 38.95, 116.00, 39.05],
+      "stratum": "Urban",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent inland urban-fringe candidate outside Batch 1 urban boxes",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",
+      "expected_role": "positive_change_candidate",
+      "notes": "Batch 2 urban inland candidate"
+    },
+    {
+      "area": "beibu_gulf_urban_holdout",
+      "bbox": [109.15, 21.55, 109.25, 21.65],
+      "stratum": "Urban",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent coastal urban-edge candidate outside Batch 1 urban boxes",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",
+      "expected_role": "reserve_positive_change_candidate",
+      "notes": "Batch 2 urban coastal candidate"
+    },
+    {
+      "area": "songnen_plain_holdout",
+      "bbox": [124.80, 45.55, 124.90, 45.65],
+      "stratum": "Agriculture",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent plains agriculture candidate outside Batch 1 agriculture boxes",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",
+      "expected_role": "positive_change_candidate",
+      "notes": "Batch 2 agriculture plains candidate"
+    },
+    {
+      "area": "hexi_irrigation_holdout",
+      "bbox": [100.10, 38.65, 100.20, 38.75],
+      "stratum": "Agriculture",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent dryland irrigation candidate outside Batch 1 agriculture boxes",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",
+      "expected_role": "reserve_positive_change_candidate",
+      "notes": "Batch 2 agriculture dryland candidate"
+    },
+    {
+      "area": "changbai_margin_holdout",
+      "bbox": [127.60, 42.15, 127.70, 42.25],
+      "stratum": "Forest",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent forest candidate outside Batch 1 northeast forest boxes",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",
+      "expected_role": "positive_change_candidate",
+      "notes": "Batch 2 forest candidate"
+    },
+    {
+      "area": "erlong_lake_margin_holdout",
+      "bbox": [123.65, 43.25, 123.75, 43.35],
+      "stratum": "Wetland",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent inland wetland-margin candidate outside Poyang and Dongting contexts",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",
+      "expected_role": "positive_change_candidate",
+      "notes": "Batch 2 wetland candidate"
+    },
+    {
+      "area": "ordos_grassland_holdout",
+      "bbox": [109.45, 39.25, 109.55, 39.35],
+      "stratum": "Grassland",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent grassland candidate to test ecological heterogeneity",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",
+      "expected_role": "positive_change_candidate",
+      "notes": "Batch 2 grassland candidate"
+    },
+    {
+      "area": "west_sichuan_plateau_holdout",
+      "bbox": [102.55, 31.95, 102.65, 32.05],
+      "stratum": "Plateau",
+      "years": [2020, 2021],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "selection_reason": "independent plateau candidate outside Batch 1 plateau and forest boxes",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",
+      "expected_role": "positive_change_candidate",
+      "notes": "Batch 2 plateau candidate"
+    }
+  ]
+}

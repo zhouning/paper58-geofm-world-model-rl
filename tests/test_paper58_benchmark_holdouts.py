@@ -243,6 +243,18 @@ def test_repository_holdout_manifest_has_minimum_external_batch():
     assert tier_from_provenance("wuyi_mountain", lookup) == "tier2"
 
 
+def test_repository_batch2_holdout_manifest_has_target_batch_shape():
+    manifest_path = DEFAULT_HOLDOUT_MANIFEST.parent / "paper58_holdout_areas_batch2.json"
+    areas = load_holdout_manifest(manifest_path)
+    lookup = manifest_lookup(areas)
+    tier1 = [area for area in areas if tier_from_provenance(area.area, lookup) == "tier1"]
+
+    assert len(areas) == 8
+    assert len(tier1) == 8
+    assert len({area.stratum for area in tier1}) >= 5
+    assert all(area.years == (2020, 2021) for area in tier1)
+
+
 def test_build_combined_holdout_manifest_merges_two_valid_manifests(tmp_path: Path):
     batch1 = tmp_path / "batch1.json"
     batch2 = tmp_path / "batch2.json"
