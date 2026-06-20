@@ -15,6 +15,7 @@ xiongan_spatial_advantage=-0.07471971561389112
 xiongan_reference_top_transition=5->11:38
 xiongan_reference_top_transition_fate=5->11;decoded_end=5:38;model_end=5:38;mean_true_end_prob=0.00162;top_mean_prob=5:0.923946
 xiongan_true_end_class11_mean_prob=0.001815
+xiongan_shifted_top_transition_fate=5->11;raw_end=5:38;shifted_end=5:38;raw_match_pixels=0;shifted_match_pixels=0
 xiongan_forecast_top_transition_fate=5->11;observed_end=5:38;forecast_end=5:38;observed_mean_true_end_prob=0.00162;forecast_mean_true_end_prob=0.001977;mean_true_end_prob_delta=0.000357
 xiongan_forecast_true_end_class11_mean_prob=0.001797
 xiongan_forecast_true_end_class11_prob_delta=-1.8e-05

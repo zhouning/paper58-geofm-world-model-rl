@@ -9,6 +9,7 @@ from scripts.paper58_benchmark.make_batch2_diagnostics import (
     make_batch2_alignment_table,
     make_forecast_transition_fate_table,
     make_forecast_true_end_confidence_table,
+    make_shifted_transition_fate_table,
     make_transition_fate_table,
     make_transition_table,
     transition_count_rows,
@@ -609,4 +610,54 @@ def test_make_forecast_true_end_confidence_table_compares_observed_and_forecast_
         "forecast_mean_true_end_prob,forecast_median_true_end_prob,mean_true_end_prob_delta,"
         "observed_top_pred_class,observed_top_pred_count,"
         "forecast_top_pred_class,forecast_top_pred_count"
+    )
+
+
+def test_make_shifted_transition_fate_table_tracks_best_shifted_transition_destinations(tmp_path: Path):
+    labels = tmp_path / "labels"
+    predictions = tmp_path / "predicted"
+    output = tmp_path / "diagnostics"
+    labels.mkdir()
+    predictions.mkdir()
+
+    start = np.array(
+        [
+            [5, 5, 5],
+            [5, 5, 5],
+            [5, 5, 5],
+        ],
+        dtype=np.int32,
+    )
+    end = start.copy()
+    end[2, 2] = 11
+    pred = start.copy()
+    pred[1, 1] = 11
+    np.save(labels / "toy_lulc_2020.npy", start)
+    np.save(labels / "toy_lulc_2021.npy", end)
+    np.save(predictions / "toy_lulc_pred_2020_2021.npy", pred)
+
+    rows = make_shifted_transition_fate_table(
+        out_dir=output,
+        labels_dir=labels,
+        predictions_dir=predictions,
+        area="toy",
+        start_year=2020,
+        end_year=2021,
+        shift_dy=1,
+        shift_dx=1,
+        top_n_true_transitions=3,
+    )
+
+    assert rows == [
+        {
+            "true_transition": "5->11",
+            "n_true_pixels": 1,
+            "raw_model_end_top": "5:1",
+            "shifted_model_end_top": "11:1",
+            "raw_match_pixels": 0,
+            "shifted_match_pixels": 1,
+        }
+    ]
+    assert (output / "toy_shifted_transition_fate.csv").read_text(encoding="utf-8").splitlines()[0] == (
+        "true_transition,n_true_pixels,raw_model_end_top,shifted_model_end_top,raw_match_pixels,shifted_match_pixels"
     )

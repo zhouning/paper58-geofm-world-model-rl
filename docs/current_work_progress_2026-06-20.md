@@ -353,6 +353,7 @@ paper/rse_submission_paper58/diagnostics_batch2/batch2_decoder_true_end_confiden
 paper/rse_submission_paper58/diagnostics_batch2/batch2_forecast_true_end_confidence_by_area.csv
 paper/rse_submission_paper58/diagnostics_batch2/xiong_an_fringe_holdout_transition_counts.csv
 paper/rse_submission_paper58/diagnostics_batch2/xiong_an_fringe_holdout_transition_fate.csv
+paper/rse_submission_paper58/diagnostics_batch2/xiong_an_fringe_holdout_shifted_transition_fate.csv
 paper/rse_submission_paper58/diagnostics_batch2/xiong_an_fringe_holdout_forecast_transition_fate.csv
 paper/rse_submission_paper58/diagnostics_batch2/batch2_diagnostic_summary.txt
 ```
@@ -457,6 +458,14 @@ Forecast-embedding confidence audit for `xiong_an_fringe_holdout`:
   - `west_sichuan_plateau_holdout`: observed `0.51839`, forecast `0.576219`
   - `hexi_irrigation_holdout`: observed `0.813417`, forecast `0.839603`, but only `1` pixel
 
+Shifted-transition fate audit for `xiong_an_fringe_holdout`:
+
+- The audit applies the best whole-mask shift (`dy = 3`, `dx = 3`) to the model changed pixels and then rechecks the true transition pixels.
+- The shift improves coarse change-mask F1 from `0.23188405797101452` to `0.35398230088495575`, but it does not recover class `11` transition typing.
+- True `5->11` (`38` pixels): raw model end `5:38`; shifted model end `5:38`; raw class-11 matches `0`; shifted class-11 matches `0`.
+- True `7->11` (`14` pixels): raw model end `7:11;5:3`; shifted model end `7:7;1:6;5:1`; raw class-11 matches `0`; shifted class-11 matches `0`.
+- True `5->7` (`30` pixels): raw class-7 matches `4`; shifted class-7 matches `1`, so the best coarse shift does not improve this semantic transition either.
+
 Interpretation of the transition-fate audit:
 
 - The largest missed transition (`5->11`) is already absent in the decoded 2021 observed embedding, not only in the model forecast.
@@ -465,12 +474,13 @@ Interpretation of the transition-fate audit:
 - The new probability readout strengthens that diagnosis: class `11` is not merely losing the argmax by a small margin in the true 2021 embedding; it is receiving near-zero average probability on the two most important missed wetland transitions.
 - The cross-area table shows this is unusually severe in `xiong_an_fringe_holdout`, not a uniform class-`11` failure across all Batch 2 holdouts.
 - The forecast-embedding probability audit further narrows the failure: forecast dynamics do not erase a strong class `11` signal in xiong'an, because the observed 2021 embedding already assigns near-zero probability to class `11`. Forecasting leaves that near-zero signal essentially unchanged for the aggregated class `11` pixels.
+- The shifted-transition fate audit separates localization from semantics: the best spatial shift improves binary change overlap but still gives zero class-`11` matches for `5->11` and `7->11`, so the class-`11` failure is not solved by the spatial shift.
 
 Practical reading:
 
 - The model is detecting change mass in `xiong_an_fringe_holdout`, but the spatial placement and/or transition typing is misaligned enough that shuffling the same predicted map performs better.
 - The best-shift result indicates a local spatial alignment problem: a small translation of the predicted change mask recovers more signal than the raw prediction.
-- The new transition-fate and decoder-confidence audits show that semantic transition failure and spatial-localization failure are both involved; `5->11` in particular now looks more like a decoder/representation bottleneck than a pure forecast-only error.
+- The new transition-fate, decoder-confidence, forecast-confidence, and shifted-transition audits show that semantic transition failure and spatial-localization failure are both involved; `5->11` in particular now looks like a decoder/representation bottleneck that is not repaired by the best spatial shift.
 - The forecast-confidence audit points away from "forecast stage erased a separable wetland signal" as the primary explanation for class `11`; the observed AlphaEarth embedding plus decoder already misses that semantic transition in xiong'an.
 - `hexi_irrigation_holdout` is not negative, but it has only `5` true change pixels and contributes almost no spatial margin.
 
@@ -503,4 +513,5 @@ Resume from the Batch 2 decision rule above:
 - remember that the decoder-confidence audit shows class `11` gets near-zero probability on the main missed wetland transitions,
 - remember that the cross-area confidence table shows xiong'an is the lowest-confidence class-`11` case in Batch 2,
 - remember that the forecast-confidence audit shows forecast embeddings do not materially reduce xiong'an class `11` probability beyond the already near-zero observed 2021 embedding,
+- remember that the shifted-transition fate audit shows xiong'an's best spatial shift does not recover `5->11` or `7->11` semantic matches,
 - continue with stronger and more diverse experiments first.

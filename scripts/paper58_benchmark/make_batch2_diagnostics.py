@@ -167,6 +167,24 @@ def _shift_mask(mask: np.ndarray, dy: int, dx: int) -> np.ndarray:
     return shifted
 
 
+def _shift_changed_prediction(start: np.ndarray, pred: np.ndarray, dy: int, dx: int) -> np.ndarray:
+    shifted = start.copy()
+    changed = pred != start
+    src_y0 = max(0, -dy)
+    src_y1 = pred.shape[0] - max(0, dy)
+    src_x0 = max(0, -dx)
+    src_x1 = pred.shape[1] - max(0, dx)
+    dst_y0 = max(0, dy)
+    dst_x0 = max(0, dx)
+    dst_y1 = dst_y0 + (src_y1 - src_y0)
+    dst_x1 = dst_x0 + (src_x1 - src_x0)
+    if src_y1 > src_y0 and src_x1 > src_x0:
+        src_changed = changed[src_y0:src_y1, src_x0:src_x1]
+        shifted_window = shifted[dst_y0:dst_y1, dst_x0:dst_x1]
+        shifted_window[src_changed] = pred[src_y0:src_y1, src_x0:src_x1][src_changed]
+    return shifted
+
+
 def _centroid(mask: np.ndarray) -> tuple[float | None, float | None]:
     points = np.argwhere(mask)
     if points.size == 0:
@@ -553,6 +571,58 @@ def make_transition_fate_table(
             "top_mean_prob",
             "second_mean_prob_class",
             "second_mean_prob",
+        ],
+    )
+    return rows
+
+
+def make_shifted_transition_fate_table(
+    out_dir: Path,
+    labels_dir: Path = DEFAULT_LABELS_DIR,
+    predictions_dir: Path = DEFAULT_PREDICTIONS_DIR,
+    area: str = "xiong_an_fringe_holdout",
+    start_year: int = 2020,
+    end_year: int = 2021,
+    shift_dy: int = 3,
+    shift_dx: int = 3,
+    top_n_true_transitions: int = 8,
+) -> list[dict]:
+    start = np.load(Path(labels_dir) / f"{area}_lulc_{start_year}.npy")
+    end = np.load(Path(labels_dir) / f"{area}_lulc_{end_year}.npy")
+    pred = np.load(Path(predictions_dir) / f"{area}_lulc_pred_{start_year}_{end_year}.npy")
+    shifted_pred = _shift_changed_prediction(start, pred, shift_dy, shift_dx)
+
+    transition_counts: dict[tuple[int, int], int] = {}
+    changed = start != end
+    for start_class, end_class in zip(start[changed].ravel(), end[changed].ravel()):
+        key = (int(start_class), int(end_class))
+        transition_counts[key] = transition_counts.get(key, 0) + 1
+    ranked = sorted(transition_counts.items(), key=lambda item: (-item[1], item[0]))[:top_n_true_transitions]
+
+    rows = []
+    for (start_class, end_class), n_pixels in ranked:
+        mask = (start == start_class) & (end == end_class)
+        rows.append(
+            {
+                "true_transition": f"{start_class}->{end_class}",
+                "n_true_pixels": n_pixels,
+                "raw_model_end_top": _class_count_summary(pred[mask]),
+                "shifted_model_end_top": _class_count_summary(shifted_pred[mask]),
+                "raw_match_pixels": int(np.count_nonzero(pred[mask] == end_class)),
+                "shifted_match_pixels": int(np.count_nonzero(shifted_pred[mask] == end_class)),
+            }
+        )
+
+    _write_csv(
+        Path(out_dir) / f"{area}_shifted_transition_fate.csv",
+        rows,
+        [
+            "true_transition",
+            "n_true_pixels",
+            "raw_model_end_top",
+            "shifted_model_end_top",
+            "raw_match_pixels",
+            "shifted_match_pixels",
         ],
     )
     return rows
@@ -1013,6 +1083,7 @@ def main() -> None:
         predictions_dir=args.predictions_dir,
         areas=areas,
     )
+    xiongan_alignment = next(row for row in alignment_rows if row["area"] == "xiong_an_fringe_holdout")
     decoder_audit_rows = make_embedding_decoder_audit_table(
         out_dir=args.output_dir,
         decoder=decoder,
@@ -1036,6 +1107,14 @@ def main() -> None:
         embeddings_dir=args.embeddings_dir,
         predictions_dir=args.predictions_dir,
         area="xiong_an_fringe_holdout",
+    )
+    shifted_transition_fate_rows = make_shifted_transition_fate_table(
+        out_dir=args.output_dir,
+        labels_dir=args.labels_dir,
+        predictions_dir=args.predictions_dir,
+        area="xiong_an_fringe_holdout",
+        shift_dy=int(xiongan_alignment["best_dy"]),
+        shift_dx=int(xiongan_alignment["best_dx"]),
     )
     true_end_confidence_rows = make_decoder_true_end_confidence_table(
         out_dir=args.output_dir,
@@ -1061,7 +1140,6 @@ def main() -> None:
         embeddings_dir=args.embeddings_dir,
         areas=areas,
     )
-    xiongan_alignment = next(row for row in alignment_rows if row["area"] == "xiong_an_fringe_holdout")
     xiongan_decoder_audit = next(row for row in decoder_audit_rows if row["area"] == "xiong_an_fringe_holdout")
     xiongan_transition_top = next(
         (
@@ -1072,6 +1150,7 @@ def main() -> None:
         None,
     )
     xiongan_transition_fate_top = transition_fate_rows[0] if transition_fate_rows else None
+    xiongan_shifted_transition_fate_top = shifted_transition_fate_rows[0] if shifted_transition_fate_rows else None
     xiongan_forecast_transition_fate_top = forecast_transition_fate_rows[0] if forecast_transition_fate_rows else None
     xiongan_class11_confidence = next(
         (
@@ -1134,6 +1213,16 @@ def main() -> None:
                 )
                 if xiongan_class11_confidence is not None
                 else "xiongan_true_end_class11_mean_prob=",
+                (
+                    "xiongan_shifted_top_transition_fate="
+                    f"{xiongan_shifted_transition_fate_top['true_transition']};"
+                    f"raw_end={xiongan_shifted_transition_fate_top['raw_model_end_top']};"
+                    f"shifted_end={xiongan_shifted_transition_fate_top['shifted_model_end_top']};"
+                    f"raw_match_pixels={xiongan_shifted_transition_fate_top['raw_match_pixels']};"
+                    f"shifted_match_pixels={xiongan_shifted_transition_fate_top['shifted_match_pixels']}"
+                )
+                if xiongan_shifted_transition_fate_top is not None
+                else "xiongan_shifted_top_transition_fate=",
                 (
                     "xiongan_forecast_top_transition_fate="
                     f"{xiongan_forecast_transition_fate_top['true_transition']};"
