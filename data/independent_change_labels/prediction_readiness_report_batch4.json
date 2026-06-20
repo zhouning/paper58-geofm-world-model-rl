@@ -1,0 +1,142 @@
+{
+  "status": "complete",
+  "n_predictions": 10,
+  "n_skipped": 0,
+  "weights_path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\src\\adk_world_model\\weights\\latent_dynamics_v1.pt",
+  "decoder_path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\src\\adk_world_model\\weights\\lulc_decoder_v1.pkl",
+  "output_dir": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted",
+  "records": [
+    {
+      "area": "baiyangdian_new_area_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "embedding_file": "data\\independent_change_labels\\embeddings\\baiyangdian_new_area_holdout_emb_2020.npy",
+      "context_file": "data\\independent_change_labels\\embeddings\\baiyangdian_new_area_holdout_context.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\baiyangdian_new_area_holdout_lulc_pred_2020_2021.npy",
+      "shape": [
+        24,
+        23
+      ],
+      "status": "generated"
+    },
+    {
+      "area": "ezhou_lakeside_expansion_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "embedding_file": "data\\independent_change_labels\\embeddings\\ezhou_lakeside_expansion_holdout_emb_2020.npy",
+      "context_file": "data\\independent_change_labels\\embeddings\\ezhou_lakeside_expansion_holdout_context.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\ezhou_lakeside_expansion_holdout_lulc_pred_2020_2021.npy",
+      "shape": [
+        24,
+        23
+      ],
+      "status": "generated"
+    },
+    {
+      "area": "hengshui_lake_urban_edge_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "embedding_file": "data\\independent_change_labels\\embeddings\\hengshui_lake_urban_edge_holdout_emb_2020.npy",
+      "context_file": "data\\independent_change_labels\\embeddings\\hengshui_lake_urban_edge_holdout_context.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\hengshui_lake_urban_edge_holdout_lulc_pred_2020_2021.npy",
+      "shape": [
+        23,
+        23
+      ],
+      "status": "generated"
+    },
+    {
+      "area": "jiangmen_estuary_newtown_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "embedding_file": "data\\independent_change_labels\\embeddings\\jiangmen_estuary_newtown_holdout_emb_2020.npy",
+      "context_file": "data\\independent_change_labels\\embeddings\\jiangmen_estuary_newtown_holdout_context.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\jiangmen_estuary_newtown_holdout_lulc_pred_2020_2021.npy",
+      "shape": [
+        24,
+        23
+      ],
+      "status": "generated"
+    },
+    {
+      "area": "jiaxing_ring_urban_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "embedding_file": "data\\independent_change_labels\\embeddings\\jiaxing_ring_urban_holdout_emb_2020.npy",
+      "context_file": "data\\independent_change_labels\\embeddings\\jiaxing_ring_urban_holdout_context.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\jiaxing_ring_urban_holdout_lulc_pred_2020_2021.npy",
+      "shape": [
+        23,
+        23
+      ],
+      "status": "generated"
+    },
+    {
+      "area": "kunshan_dense_edge_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "embedding_file": "data\\independent_change_labels\\embeddings\\kunshan_dense_edge_holdout_emb_2020.npy",
+      "context_file": "data\\independent_change_labels\\embeddings\\kunshan_dense_edge_holdout_context.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\kunshan_dense_edge_holdout_lulc_pred_2020_2021.npy",
+      "shape": [
+        23,
+        24
+      ],
+      "status": "generated"
+    },
+    {
+      "area": "ningbo_inner_bay_edge_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "embedding_file": "data\\independent_change_labels\\embeddings\\ningbo_inner_bay_edge_holdout_emb_2020.npy",
+      "context_file": "data\\independent_change_labels\\embeddings\\ningbo_inner_bay_edge_holdout_context.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\ningbo_inner_bay_edge_holdout_lulc_pred_2020_2021.npy",
+      "shape": [
+        23,
+        23
+      ],
+      "status": "generated"
+    },
+    {
+      "area": "xinxiang_floodplain_newtown_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "embedding_file": "data\\independent_change_labels\\embeddings\\xinxiang_floodplain_newtown_holdout_emb_2020.npy",
+      "context_file": "data\\independent_change_labels\\embeddings\\xinxiang_floodplain_newtown_holdout_context.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\xinxiang_floodplain_newtown_holdout_lulc_pred_2020_2021.npy",
+      "shape": [
+        23,
+        24
+      ],
+      "status": "generated"
+    },
+    {
+      "area": "xiongxian_river_corridor_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "embedding_file": "data\\independent_change_labels\\embeddings\\xiongxian_river_corridor_holdout_emb_2020.npy",
+      "context_file": "data\\independent_change_labels\\embeddings\\xiongxian_river_corridor_holdout_context.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\xiongxian_river_corridor_holdout_lulc_pred_2020_2021.npy",
+      "shape": [
+        23,
+        24
+      ],
+      "status": "generated"
+    },
+    {
+      "area": "yancheng_coastal_new_district_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "embedding_file": "data\\independent_change_labels\\embeddings\\yancheng_coastal_new_district_holdout_emb_2020.npy",
+      "context_file": "data\\independent_change_labels\\embeddings\\yancheng_coastal_new_district_holdout_context.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\yancheng_coastal_new_district_holdout_lulc_pred_2020_2021.npy",
+      "shape": [
+        24,
+        24
+      ],
+      "status": "generated"
+    }
+  ],
+  "skipped": [],
+  "next_step": "Run scripts/rse_revision/evaluate_independent_change_validation.py."
+}

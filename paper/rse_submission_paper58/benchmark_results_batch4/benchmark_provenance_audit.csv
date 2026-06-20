@@ -1,0 +1,11 @@
+area,start_year,end_year,tier,stratum,development_contact_status,contact_evidence,qc_status,audit_status
+baiyangdian_new_area_holdout,2020,2021,tier1,Urban,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, and Batch 3 manifests",include,ok
+ezhou_lakeside_expansion_holdout,2020,2021,tier1,Urban,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, and Batch 3 manifests",include,ok
+hengshui_lake_urban_edge_holdout,2020,2021,tier1,Urban,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, and Batch 3 manifests",include,ok
+jiangmen_estuary_newtown_holdout,2020,2021,tier1,Urban,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, and Batch 3 manifests",include,ok
+jiaxing_ring_urban_holdout,2020,2021,tier1,Urban,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, and Batch 3 manifests",include,ok
+kunshan_dense_edge_holdout,2020,2021,tier1,Urban,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, and Batch 3 manifests",include,ok
+ningbo_inner_bay_edge_holdout,2020,2021,tier1,Urban,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, and Batch 3 manifests",include,ok
+xinxiang_floodplain_newtown_holdout,2020,2021,tier1,Urban,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, and Batch 3 manifests",include,ok
+xiongxian_river_corridor_holdout,2020,2021,tier1,Urban,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, and Batch 3 manifests",include,ok
+yancheng_coastal_new_district_holdout,2020,2021,tier1,Urban,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, and Batch 3 manifests",include,ok

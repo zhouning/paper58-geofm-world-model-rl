@@ -726,11 +726,72 @@ Interpretation rule:
 - If Batch 4 fails, keep that failure visible rather than pooling it away.
 - If Batch 4 passes, compare it against Batch 2 and Batch 3 before making any stronger manuscript claim.
 
+## Batch 4 External Urban Failure-Mode Check
+
+Batch 4 acquisition and prediction status:
+
+- Labels: `Independent LULC label fetch: complete, 20 record(s), 0 failure(s)`
+- Embeddings: `Change-validation embedding fetch: complete, 20 grid(s), 10 context grid(s), 0 failure(s)`
+- Predictions: `Change-validation prediction generation: complete, 10 prediction(s)`
+- Registry: `10` candidate pair(s), `10` included pair(s)
+- Provenance audit: `10` row(s), `0` invalid Tier 1 row(s)
+
+Batch 4 outputs:
+
+```text
+paper/rse_submission_paper58/benchmark_results_batch4
+```
+
+Batch 4 gate summary from:
+
+```text
+paper/rse_submission_paper58/benchmark_results_batch4/benchmark_gate_report.json
+```
+
+```json
+{
+  "status": "fail",
+  "tier1_primary_change": {
+    "n_rows": 10,
+    "n_clusters": 10,
+    "ci_low": 0.09074926988339427
+  },
+  "tier1_spatial_change": {
+    "n_rows": 10,
+    "n_clusters": 10,
+    "ci_low": 0.06973994206162697
+  },
+  "positive_tier1_strata": 1
+}
+```
+
+Batch 4 interpretation:
+
+- Batch 4-only fails the full benchmark gate.
+- That failure is not a rerun of the Batch 2 spatial collapse. Batch 4 primary and spatial gates both pass, but the batch is intentionally all-Urban, so it cannot satisfy the benchmark's cross-stratum requirement of `3` positive Tier 1 strata.
+- Therefore the correct reading is "useful targeted urban evidence, but not a substitute for the multi-stratum external gate."
+- No QC exclusions occurred in Batch 4; all `10` Tier 1 urban rows were evaluated.
+
+Batch 4 within-batch urban split:
+
+- `xiong_an_like` subset (`7` rows): mean primary advantage `0.11029778521218196`, mean spatial advantage `0.07609815979578147`, `1` negative primary row, `0` negative spatial rows.
+- `suzhou_like` subset (`3` rows): mean primary advantage `0.21521442869783067`, mean spatial advantage `0.1710894196229192`, `0` negative primary rows, `0` negative spatial rows.
+- Worst `xiong_an_like` primary row: `xinxiang_floodplain_newtown_holdout` with primary advantage `-0.004336043360433604` and only `7` true change pixels.
+- Weakest `xiong_an_like` spatial row: `xiongxian_river_corridor_holdout` with spatial advantage `0.020533766015777985`.
+- All `3` `suzhou_like` rows remain positive on both primary and spatial advantage.
+
+Practical reading:
+
+- Batch 4 adds independent urban-only evidence that the Batch 2 `xiong_an` failure mode does not automatically recur across every similar urban-fringe candidate.
+- The `suzhou_like` slice looks stronger than the `xiong_an_like` slice in this batch, which is directionally consistent with the earlier diagnosis that `xiong_an` is the harder representation/decoder bottleneck case.
+- Batch 4 does not erase Batch 2. It narrows the problem: the severe Batch 2 failure is not reproduced as a batch-level urban spatial collapse here, but the harder `xiong_an_like` subset is still weaker than the `suzhou_like` subset.
+- Because Batch 4 is all Urban by design, it should be treated as a targeted diagnostic batch rather than as the next manuscript-strengthening benchmark gate.
+
 ## Resume Instruction
 
 In a new window, continue from branch `paper58-benchmark`.
 
-Batch 2 and Batch 3 checks are complete, and Batch 4 manifest design is now recorded.
+Batch 2 and Batch 3 checks are complete, and Batch 4 external urban-only readout is now recorded.
 
 Resume from the current decision rule:
 
@@ -748,5 +809,6 @@ Resume from the current decision rule:
 - remember that `taihu_marsh_edge_holdout` was excluded only because it had `zero_reference_change`,
 - remember that the Batch 2 vs Batch 3 comparison diagnostic identifies xiong'an as the lowest spatial row across both batches and Batch 3 urban as broader but still not uniformly perfect,
 - remember that the urban contrast diagnostic separates xiong'an's near-zero observed class-`11` representation from suzhou/wuhan/beibu's smaller forecast-suppressed class-`11` cases,
-- remember that Batch 4 currently exists only as a manifest-only mixed urban design (`7 xiong_an_like + 3 suzhou_like`) and still needs acquisition before it becomes evidence,
+- remember that Batch 4-only now fails the full benchmark gate because it is all-Urban and therefore misses the `3`-strata requirement, even though its primary and spatial Tier 1 confidence bounds are both positive,
+- remember that the Batch 4 `suzhou_like` subset is stronger than the Batch 4 `xiong_an_like` subset, and that the weakest new primary row is `xinxiang_floodplain_newtown_holdout`,
 - continue with stronger and more diverse experiments first rather than shifting attention to the manuscript.

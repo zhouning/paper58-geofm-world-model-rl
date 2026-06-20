@@ -1,0 +1,515 @@
+{
+  "status": "complete",
+  "source": "AlphaEarth annual satellite embeddings via src.adk_world_model.world_model.extract_embeddings",
+  "scale_m": 500,
+  "output_dir": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings",
+  "n_records": 20,
+  "n_context_records": 10,
+  "n_failures": 0,
+  "records": [
+    {
+      "area": "baiyangdian_new_area_holdout",
+      "year": 2020,
+      "bbox": [
+        115.98,
+        38.82,
+        116.08,
+        38.92
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\baiyangdian_new_area_holdout_emb_2020.npy",
+      "shape": [
+        24,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "baiyangdian_new_area_holdout",
+      "year": 2021,
+      "bbox": [
+        115.98,
+        38.82,
+        116.08,
+        38.92
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\baiyangdian_new_area_holdout_emb_2021.npy",
+      "shape": [
+        24,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "hengshui_lake_urban_edge_holdout",
+      "year": 2020,
+      "bbox": [
+        115.6,
+        37.66,
+        115.7,
+        37.76
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\hengshui_lake_urban_edge_holdout_emb_2020.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "hengshui_lake_urban_edge_holdout",
+      "year": 2021,
+      "bbox": [
+        115.6,
+        37.66,
+        115.7,
+        37.76
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\hengshui_lake_urban_edge_holdout_emb_2021.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "xiongxian_river_corridor_holdout",
+      "year": 2020,
+      "bbox": [
+        116.16,
+        39.02,
+        116.26,
+        39.12
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\xiongxian_river_corridor_holdout_emb_2020.npy",
+      "shape": [
+        23,
+        24,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "xiongxian_river_corridor_holdout",
+      "year": 2021,
+      "bbox": [
+        116.16,
+        39.02,
+        116.26,
+        39.12
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\xiongxian_river_corridor_holdout_emb_2021.npy",
+      "shape": [
+        23,
+        24,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "xinxiang_floodplain_newtown_holdout",
+      "year": 2020,
+      "bbox": [
+        113.96,
+        35.18,
+        114.06,
+        35.28
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\xinxiang_floodplain_newtown_holdout_emb_2020.npy",
+      "shape": [
+        23,
+        24,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "xinxiang_floodplain_newtown_holdout",
+      "year": 2021,
+      "bbox": [
+        113.96,
+        35.18,
+        114.06,
+        35.28
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\xinxiang_floodplain_newtown_holdout_emb_2021.npy",
+      "shape": [
+        23,
+        24,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "ezhou_lakeside_expansion_holdout",
+      "year": 2020,
+      "bbox": [
+        114.86,
+        30.34,
+        114.96,
+        30.44
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\ezhou_lakeside_expansion_holdout_emb_2020.npy",
+      "shape": [
+        24,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "ezhou_lakeside_expansion_holdout",
+      "year": 2021,
+      "bbox": [
+        114.86,
+        30.34,
+        114.96,
+        30.44
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\ezhou_lakeside_expansion_holdout_emb_2021.npy",
+      "shape": [
+        24,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "jiangmen_estuary_newtown_holdout",
+      "year": 2020,
+      "bbox": [
+        113.04,
+        22.52,
+        113.14,
+        22.62
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\jiangmen_estuary_newtown_holdout_emb_2020.npy",
+      "shape": [
+        24,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "jiangmen_estuary_newtown_holdout",
+      "year": 2021,
+      "bbox": [
+        113.04,
+        22.52,
+        113.14,
+        22.62
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\jiangmen_estuary_newtown_holdout_emb_2021.npy",
+      "shape": [
+        24,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "yancheng_coastal_new_district_holdout",
+      "year": 2020,
+      "bbox": [
+        120.18,
+        33.3,
+        120.28,
+        33.4
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\yancheng_coastal_new_district_holdout_emb_2020.npy",
+      "shape": [
+        24,
+        24,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "yancheng_coastal_new_district_holdout",
+      "year": 2021,
+      "bbox": [
+        120.18,
+        33.3,
+        120.28,
+        33.4
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\yancheng_coastal_new_district_holdout_emb_2021.npy",
+      "shape": [
+        24,
+        24,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "kunshan_dense_edge_holdout",
+      "year": 2020,
+      "bbox": [
+        120.98,
+        31.3,
+        121.08,
+        31.4
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\kunshan_dense_edge_holdout_emb_2020.npy",
+      "shape": [
+        23,
+        24,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "kunshan_dense_edge_holdout",
+      "year": 2021,
+      "bbox": [
+        120.98,
+        31.3,
+        121.08,
+        31.4
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\kunshan_dense_edge_holdout_emb_2021.npy",
+      "shape": [
+        23,
+        24,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "jiaxing_ring_urban_holdout",
+      "year": 2020,
+      "bbox": [
+        120.68,
+        30.64,
+        120.78,
+        30.74
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\jiaxing_ring_urban_holdout_emb_2020.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "jiaxing_ring_urban_holdout",
+      "year": 2021,
+      "bbox": [
+        120.68,
+        30.64,
+        120.78,
+        30.74
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\jiaxing_ring_urban_holdout_emb_2021.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "ningbo_inner_bay_edge_holdout",
+      "year": 2020,
+      "bbox": [
+        121.62,
+        29.88,
+        121.72,
+        29.98
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\ningbo_inner_bay_edge_holdout_emb_2020.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "ningbo_inner_bay_edge_holdout",
+      "year": 2021,
+      "bbox": [
+        121.62,
+        29.88,
+        121.72,
+        29.98
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\ningbo_inner_bay_edge_holdout_emb_2021.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    }
+  ],
+  "context_records": [
+    {
+      "area": "baiyangdian_new_area_holdout",
+      "bbox": [
+        115.98,
+        38.82,
+        116.08,
+        38.92
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\baiyangdian_new_area_holdout_context.npy",
+      "shape": [
+        2,
+        24,
+        23
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "hengshui_lake_urban_edge_holdout",
+      "bbox": [
+        115.6,
+        37.66,
+        115.7,
+        37.76
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\hengshui_lake_urban_edge_holdout_context.npy",
+      "shape": [
+        2,
+        23,
+        23
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "xiongxian_river_corridor_holdout",
+      "bbox": [
+        116.16,
+        39.02,
+        116.26,
+        39.12
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\xiongxian_river_corridor_holdout_context.npy",
+      "shape": [
+        2,
+        23,
+        24
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "xinxiang_floodplain_newtown_holdout",
+      "bbox": [
+        113.96,
+        35.18,
+        114.06,
+        35.28
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\xinxiang_floodplain_newtown_holdout_context.npy",
+      "shape": [
+        2,
+        23,
+        24
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "ezhou_lakeside_expansion_holdout",
+      "bbox": [
+        114.86,
+        30.34,
+        114.96,
+        30.44
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\ezhou_lakeside_expansion_holdout_context.npy",
+      "shape": [
+        2,
+        24,
+        23
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "jiangmen_estuary_newtown_holdout",
+      "bbox": [
+        113.04,
+        22.52,
+        113.14,
+        22.62
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\jiangmen_estuary_newtown_holdout_context.npy",
+      "shape": [
+        2,
+        24,
+        23
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "yancheng_coastal_new_district_holdout",
+      "bbox": [
+        120.18,
+        33.3,
+        120.28,
+        33.4
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\yancheng_coastal_new_district_holdout_context.npy",
+      "shape": [
+        2,
+        24,
+        24
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "kunshan_dense_edge_holdout",
+      "bbox": [
+        120.98,
+        31.3,
+        121.08,
+        31.4
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\kunshan_dense_edge_holdout_context.npy",
+      "shape": [
+        2,
+        23,
+        24
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "jiaxing_ring_urban_holdout",
+      "bbox": [
+        120.68,
+        30.64,
+        120.78,
+        30.74
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\jiaxing_ring_urban_holdout_context.npy",
+      "shape": [
+        2,
+        23,
+        23
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "ningbo_inner_bay_edge_holdout",
+      "bbox": [
+        121.62,
+        29.88,
+        121.72,
+        29.98
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\ningbo_inner_bay_edge_holdout_context.npy",
+      "shape": [
+        2,
+        23,
+        23
+      ],
+      "status": "fetched"
+    }
+  ],
+  "failures": [],
+  "next_step": "Run scripts/rse_revision/generate_change_validation_predictions.py with --embedding-dir data/independent_change_labels/embeddings, then rerun independent validation."
+}
