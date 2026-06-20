@@ -478,6 +478,79 @@ def make_transition_fate_table(
     return rows
 
 
+def make_decoder_true_end_confidence_table(
+    out_dir: Path,
+    decoder,
+    labels_dir: Path = DEFAULT_LABELS_DIR,
+    embeddings_dir: Path = DEFAULT_EMBEDDINGS_DIR,
+    areas: list[str] | None = None,
+    start_year: int = 2020,
+    end_year: int = 2021,
+) -> list[dict]:
+    if areas is None:
+        areas = [
+            path.name.removesuffix(f"_emb_{end_year}.npy")
+            for path in sorted(Path(embeddings_dir).glob(f"*_emb_{end_year}.npy"))
+        ]
+
+    rows = []
+    for area in areas:
+        start = np.load(Path(labels_dir) / f"{area}_lulc_{start_year}.npy")
+        end = np.load(Path(labels_dir) / f"{area}_lulc_{end_year}.npy")
+        emb_end = np.load(Path(embeddings_dir) / f"{area}_emb_{end_year}.npy")
+        probability_grid = _probability_grid(emb_end, decoder)
+        if probability_grid is None:
+            continue
+
+        probabilities, classes = probability_grid
+        class_to_index = {class_id: index for index, class_id in enumerate(classes)}
+        decoded_end = _decode_lulc(emb_end, decoder)
+        changed = start != end
+        for end_class in sorted({int(value) for value in np.unique(end[changed])}):
+            end_class_index = class_to_index.get(end_class)
+            if end_class_index is None:
+                continue
+            mask = changed & (end == end_class)
+            true_end_probabilities = probabilities[mask, end_class_index]
+
+            decoded_counts: dict[int, int] = {}
+            for value in decoded_end[mask].ravel():
+                class_id = int(value)
+                decoded_counts[class_id] = decoded_counts.get(class_id, 0) + 1
+            top_pred_class, top_pred_count = sorted(
+                decoded_counts.items(),
+                key=lambda item: (-item[1], item[0]),
+            )[0]
+
+            rows.append(
+                {
+                    "area": area,
+                    "true_end_class": end_class,
+                    "n_pixels": int(np.count_nonzero(mask)),
+                    "mean_true_end_prob": _rounded_float(true_end_probabilities.mean()),
+                    "median_true_end_prob": _rounded_float(np.median(true_end_probabilities)),
+                    "top_pred_class": top_pred_class,
+                    "top_pred_count": top_pred_count,
+                }
+            )
+
+    rows.sort(key=lambda row: (row["true_end_class"], row["mean_true_end_prob"], row["area"]))
+    _write_csv(
+        Path(out_dir) / "batch2_decoder_true_end_confidence_by_area.csv",
+        rows,
+        [
+            "area",
+            "true_end_class",
+            "n_pixels",
+            "mean_true_end_prob",
+            "median_true_end_prob",
+            "top_pred_class",
+            "top_pred_count",
+        ],
+    )
+    return rows
+
+
 def make_xiongan_spatial_panel(
     out_dir: Path,
     labels_dir: Path = DEFAULT_LABELS_DIR,
@@ -684,6 +757,13 @@ def main() -> None:
         predictions_dir=args.predictions_dir,
         area="xiong_an_fringe_holdout",
     )
+    true_end_confidence_rows = make_decoder_true_end_confidence_table(
+        out_dir=args.output_dir,
+        decoder=decoder,
+        labels_dir=args.labels_dir,
+        embeddings_dir=args.embeddings_dir,
+        areas=areas,
+    )
     xiongan_alignment = next(row for row in alignment_rows if row["area"] == "xiong_an_fringe_holdout")
     xiongan_decoder_audit = next(row for row in decoder_audit_rows if row["area"] == "xiong_an_fringe_holdout")
     xiongan_transition_top = next(
@@ -695,6 +775,14 @@ def main() -> None:
         None,
     )
     xiongan_transition_fate_top = transition_fate_rows[0] if transition_fate_rows else None
+    xiongan_class11_confidence = next(
+        (
+            row
+            for row in true_end_confidence_rows
+            if row["area"] == "xiong_an_fringe_holdout" and row["true_end_class"] == 11
+        ),
+        None,
+    )
     summary_path = args.output_dir / "batch2_diagnostic_summary.txt"
     summary_path.write_text(
         "\n".join(
@@ -734,6 +822,12 @@ def main() -> None:
                 )
                 if xiongan_transition_fate_top is not None
                 else "xiongan_reference_top_transition_fate=",
+                (
+                    "xiongan_true_end_class11_mean_prob="
+                    f"{xiongan_class11_confidence['mean_true_end_prob']}"
+                )
+                if xiongan_class11_confidence is not None
+                else "xiongan_true_end_class11_mean_prob=",
             ]
         ),
         encoding="utf-8",

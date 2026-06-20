@@ -4,6 +4,7 @@ import numpy as np
 
 from scripts.paper58_benchmark.make_batch2_diagnostics import (
     best_shift_diagnostic,
+    make_decoder_true_end_confidence_table,
     make_embedding_decoder_audit_table,
     make_batch2_alignment_table,
     make_transition_fate_table,
@@ -309,4 +310,73 @@ def test_make_transition_fate_table_tracks_true_transition_destinations(tmp_path
         "true_transition,n_true_pixels,decoded_start_top,decoded_end_top,model_end_top,"
         "mean_true_end_prob,median_true_end_prob,top_mean_prob_class,top_mean_prob,"
         "second_mean_prob_class,second_mean_prob"
+    )
+
+
+def test_make_decoder_true_end_confidence_table_sorts_low_confidence_rows_first(tmp_path: Path):
+    labels = tmp_path / "labels"
+    embeddings = tmp_path / "embeddings"
+    output = tmp_path / "diagnostics"
+    labels.mkdir()
+    embeddings.mkdir()
+
+    start_a = np.array([[5, 5], [5, 5]], dtype=np.int32)
+    end_a = np.array([[11, 5], [5, 5]], dtype=np.int32)
+    end_a_probs = np.array(
+        [
+            [[0.90, 0.09, 0.01], [0.80, 0.15, 0.05]],
+            [[0.80, 0.15, 0.05], [0.80, 0.15, 0.05]],
+        ],
+        dtype=np.float32,
+    )
+
+    start_b = np.array([[5, 5], [5, 5]], dtype=np.int32)
+    end_b = np.array([[11, 11], [5, 5]], dtype=np.int32)
+    end_b_probs = np.array(
+        [
+            [[0.30, 0.20, 0.50], [0.20, 0.20, 0.60]],
+            [[0.80, 0.15, 0.05], [0.80, 0.15, 0.05]],
+        ],
+        dtype=np.float32,
+    )
+
+    np.save(labels / "area_a_lulc_2020.npy", start_a)
+    np.save(labels / "area_a_lulc_2021.npy", end_a)
+    np.save(labels / "area_b_lulc_2020.npy", start_b)
+    np.save(labels / "area_b_lulc_2021.npy", end_b)
+    np.save(embeddings / "area_a_emb_2021.npy", _toy_prob_embedding(end_a_probs))
+    np.save(embeddings / "area_b_emb_2021.npy", _toy_prob_embedding(end_b_probs))
+
+    rows = make_decoder_true_end_confidence_table(
+        out_dir=output,
+        decoder=ToyProbDecoder(),
+        labels_dir=labels,
+        embeddings_dir=embeddings,
+        areas=["area_a", "area_b"],
+        start_year=2020,
+        end_year=2021,
+    )
+
+    assert rows == [
+        {
+            "area": "area_a",
+            "true_end_class": 11,
+            "n_pixels": 1,
+            "mean_true_end_prob": 0.01,
+            "median_true_end_prob": 0.01,
+            "top_pred_class": 5,
+            "top_pred_count": 1,
+        },
+        {
+            "area": "area_b",
+            "true_end_class": 11,
+            "n_pixels": 2,
+            "mean_true_end_prob": 0.55,
+            "median_true_end_prob": 0.55,
+            "top_pred_class": 11,
+            "top_pred_count": 2,
+        },
+    ]
+    assert (output / "batch2_decoder_true_end_confidence_by_area.csv").read_text(encoding="utf-8").splitlines()[0] == (
+        "area,true_end_class,n_pixels,mean_true_end_prob,median_true_end_prob,top_pred_class,top_pred_count"
     )

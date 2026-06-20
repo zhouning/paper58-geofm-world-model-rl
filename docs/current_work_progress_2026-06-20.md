@@ -349,6 +349,7 @@ paper/rse_submission_paper58/diagnostics_batch2/batch2_spatial_advantage_ranked.
 paper/rse_submission_paper58/diagnostics_batch2/batch2_spatial_leave_one_out.csv
 paper/rse_submission_paper58/diagnostics_batch2/batch2_spatial_alignment_shift.csv
 paper/rse_submission_paper58/diagnostics_batch2/batch2_embedding_decoder_audit.csv
+paper/rse_submission_paper58/diagnostics_batch2/batch2_decoder_true_end_confidence_by_area.csv
 paper/rse_submission_paper58/diagnostics_batch2/xiong_an_fringe_holdout_transition_counts.csv
 paper/rse_submission_paper58/diagnostics_batch2/xiong_an_fringe_holdout_transition_fate.csv
 paper/rse_submission_paper58/diagnostics_batch2/batch2_diagnostic_summary.txt
@@ -429,12 +430,23 @@ Decoder-confidence audit inside the same transition-fate table:
 - true `5->7`: class `7` is not impossible, but still secondary on average: mean `0.213349` versus class `5` mean `0.784187`
 - true `7->5`: class `5` is correctly dominant on average with mean `0.919697`
 
+Cross-area decoder-confidence audit for true end class `11`:
+
+- `xiong_an_fringe_holdout`: `52` changed pixels ending as class `11`, mean true-end probability `0.001815`, median `0.001362`, top decoded class `5` (`50` pixels)
+- `beibu_gulf_urban_holdout`: mean `0.103621`
+- `erlong_lake_margin_holdout`: mean `0.105357`
+- `songnen_plain_holdout`: mean `0.306869`
+- `ordos_grassland_holdout`: mean `0.370788`
+- `west_sichuan_plateau_holdout`: mean `0.51839`
+- `hexi_irrigation_holdout`: mean `0.813417`, but only `1` changed pixel ending as class `11`
+
 Interpretation of the transition-fate audit:
 
 - The largest missed transition (`5->11`) is already absent in the decoded 2021 observed embedding, not only in the model forecast.
 - Therefore the current evidence does not support a simple story of "the dynamics model alone misplaced an otherwise separable wetland transition."
 - The stronger hypothesis is that some critical urban-fringe transitions are weakly separated in the current embedding-plus-decoder semantic view, and the future model inherits that limitation.
 - The new probability readout strengthens that diagnosis: class `11` is not merely losing the argmax by a small margin in the true 2021 embedding; it is receiving near-zero average probability on the two most important missed wetland transitions.
+- The cross-area table shows this is unusually severe in `xiong_an_fringe_holdout`, not a uniform class-`11` failure across all Batch 2 holdouts.
 
 Practical reading:
 
@@ -470,4 +482,5 @@ Resume from the Batch 2 decision rule above:
 - remember that the decoder/localization audit points away from simple label/embedding registration as the main cause,
 - remember that the new transition-fate audit makes `5->11` and part of `5->7` look representation/decoder-limited, not just forecast-limited,
 - remember that the decoder-confidence audit shows class `11` gets near-zero probability on the main missed wetland transitions,
+- remember that the cross-area confidence table shows xiong'an is the lowest-confidence class-`11` case in Batch 2,
 - continue with stronger and more diverse experiments first.
