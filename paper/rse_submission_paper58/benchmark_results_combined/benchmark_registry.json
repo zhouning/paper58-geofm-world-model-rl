@@ -1,0 +1,742 @@
+{
+  "rows": [
+    {
+      "area": "beibu_gulf_urban_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "tier": "tier1",
+      "stratum": "Urban",
+      "bbox": [
+        109.15,
+        21.55,
+        109.25,
+        21.65
+      ],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",
+      "expected_role": "reserve_positive_change_candidate",
+      "label_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/beibu_gulf_urban_holdout_lulc_2020.npy",
+      "label_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/beibu_gulf_urban_holdout_lulc_2021.npy",
+      "prediction_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/predicted/beibu_gulf_urban_holdout_lulc_pred_2020_2021.npy",
+      "embedding_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/beibu_gulf_urban_holdout_emb_2020.npy",
+      "embedding_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/beibu_gulf_urban_holdout_emb_2021.npy",
+      "context_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/beibu_gulf_urban_holdout_context.npy",
+      "label_shape": [
+        24,
+        23
+      ],
+      "prediction_shape": [
+        24,
+        23
+      ],
+      "embedding_shape": [
+        24,
+        23,
+        64
+      ],
+      "n_pixels": 552,
+      "true_change_pixels": 60,
+      "true_change_pct": 0.10869565217391304,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "changbai_margin_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "tier": "tier1",
+      "stratum": "Forest",
+      "bbox": [
+        127.6,
+        42.15,
+        127.7,
+        42.25
+      ],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",
+      "expected_role": "positive_change_candidate",
+      "label_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/changbai_margin_holdout_lulc_2020.npy",
+      "label_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/changbai_margin_holdout_lulc_2021.npy",
+      "prediction_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/predicted/changbai_margin_holdout_lulc_pred_2020_2021.npy",
+      "embedding_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/changbai_margin_holdout_emb_2020.npy",
+      "embedding_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/changbai_margin_holdout_emb_2021.npy",
+      "context_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/changbai_margin_holdout_context.npy",
+      "label_shape": [
+        23,
+        23
+      ],
+      "prediction_shape": [
+        23,
+        23
+      ],
+      "embedding_shape": [
+        23,
+        23,
+        64
+      ],
+      "n_pixels": 529,
+      "true_change_pixels": 1,
+      "true_change_pct": 0.001890359168241966,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "dongting_lake_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "tier": "tier1",
+      "stratum": "Wetland",
+      "bbox": [
+        112.8,
+        29.2,
+        112.9,
+        29.3
+      ],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas",
+      "expected_role": "positive_change_candidate",
+      "label_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/dongting_lake_holdout_lulc_2020.npy",
+      "label_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/dongting_lake_holdout_lulc_2021.npy",
+      "prediction_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/predicted/dongting_lake_holdout_lulc_pred_2020_2021.npy",
+      "embedding_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/dongting_lake_holdout_emb_2020.npy",
+      "embedding_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/dongting_lake_holdout_emb_2021.npy",
+      "context_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/dongting_lake_holdout_context.npy",
+      "label_shape": [
+        23,
+        23
+      ],
+      "prediction_shape": [
+        23,
+        23
+      ],
+      "embedding_shape": [
+        23,
+        23,
+        64
+      ],
+      "n_pixels": 529,
+      "true_change_pixels": 72,
+      "true_change_pct": 0.13610586011342155,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "erlong_lake_margin_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "tier": "tier1",
+      "stratum": "Wetland",
+      "bbox": [
+        123.65,
+        43.25,
+        123.75,
+        43.35
+      ],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",
+      "expected_role": "positive_change_candidate",
+      "label_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/erlong_lake_margin_holdout_lulc_2020.npy",
+      "label_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/erlong_lake_margin_holdout_lulc_2021.npy",
+      "prediction_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/predicted/erlong_lake_margin_holdout_lulc_pred_2020_2021.npy",
+      "embedding_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/erlong_lake_margin_holdout_emb_2020.npy",
+      "embedding_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/erlong_lake_margin_holdout_emb_2021.npy",
+      "context_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/erlong_lake_margin_holdout_context.npy",
+      "label_shape": [
+        23,
+        23
+      ],
+      "prediction_shape": [
+        23,
+        23
+      ],
+      "embedding_shape": [
+        23,
+        23,
+        64
+      ],
+      "n_pixels": 529,
+      "true_change_pixels": 36,
+      "true_change_pct": 0.06805293005671077,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "haibei_plateau_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "tier": "tier1",
+      "stratum": "Plateau",
+      "bbox": [
+        100.9,
+        37.2,
+        101.0,
+        37.3
+      ],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas",
+      "expected_role": "positive_change_candidate",
+      "label_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/haibei_plateau_holdout_lulc_2020.npy",
+      "label_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/haibei_plateau_holdout_lulc_2021.npy",
+      "prediction_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/predicted/haibei_plateau_holdout_lulc_pred_2020_2021.npy",
+      "embedding_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/haibei_plateau_holdout_emb_2020.npy",
+      "embedding_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/haibei_plateau_holdout_emb_2021.npy",
+      "context_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/haibei_plateau_holdout_context.npy",
+      "label_shape": [
+        23,
+        23
+      ],
+      "prediction_shape": [
+        23,
+        23
+      ],
+      "embedding_shape": [
+        23,
+        23,
+        64
+      ],
+      "n_pixels": 529,
+      "true_change_pixels": 11,
+      "true_change_pct": 0.020793950850661626,
+      "qc_status": "exclude",
+      "excluded_reason": "class_collapse"
+    },
+    {
+      "area": "hexi_irrigation_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "tier": "tier1",
+      "stratum": "Agriculture",
+      "bbox": [
+        100.1,
+        38.65,
+        100.2,
+        38.75
+      ],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",
+      "expected_role": "reserve_positive_change_candidate",
+      "label_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/hexi_irrigation_holdout_lulc_2020.npy",
+      "label_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/hexi_irrigation_holdout_lulc_2021.npy",
+      "prediction_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/predicted/hexi_irrigation_holdout_lulc_pred_2020_2021.npy",
+      "embedding_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/hexi_irrigation_holdout_emb_2020.npy",
+      "embedding_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/hexi_irrigation_holdout_emb_2021.npy",
+      "context_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/hexi_irrigation_holdout_context.npy",
+      "label_shape": [
+        24,
+        23
+      ],
+      "prediction_shape": [
+        24,
+        23
+      ],
+      "embedding_shape": [
+        24,
+        23,
+        64
+      ],
+      "n_pixels": 552,
+      "true_change_pixels": 5,
+      "true_change_pct": 0.009057971014492754,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "ordos_grassland_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "tier": "tier1",
+      "stratum": "Grassland",
+      "bbox": [
+        109.45,
+        39.25,
+        109.55,
+        39.35
+      ],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",
+      "expected_role": "positive_change_candidate",
+      "label_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/ordos_grassland_holdout_lulc_2020.npy",
+      "label_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/ordos_grassland_holdout_lulc_2021.npy",
+      "prediction_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/predicted/ordos_grassland_holdout_lulc_pred_2020_2021.npy",
+      "embedding_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/ordos_grassland_holdout_emb_2020.npy",
+      "embedding_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/ordos_grassland_holdout_emb_2021.npy",
+      "context_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/ordos_grassland_holdout_context.npy",
+      "label_shape": [
+        23,
+        24
+      ],
+      "prediction_shape": [
+        23,
+        24
+      ],
+      "embedding_shape": [
+        23,
+        24,
+        64
+      ],
+      "n_pixels": 552,
+      "true_change_pixels": 45,
+      "true_change_pct": 0.08152173913043478,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "poyang_lake",
+      "start_year": 2020,
+      "end_year": 2021,
+      "tier": "tier2",
+      "stratum": "Wetland",
+      "bbox": [
+        116.0,
+        29.0,
+        116.1,
+        29.1
+      ],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "development_contact_status": "known_contact",
+      "contact_evidence": "area appears in DEFAULT_TRAINING_AREAS in src/adk_world_model/world_model.py",
+      "expected_role": "provenance_audit",
+      "label_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/poyang_lake_lulc_2020.npy",
+      "label_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/poyang_lake_lulc_2021.npy",
+      "prediction_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/predicted/poyang_lake_lulc_pred_2020_2021.npy",
+      "embedding_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/poyang_lake_emb_2020.npy",
+      "embedding_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/poyang_lake_emb_2021.npy",
+      "context_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/poyang_lake_context.npy",
+      "label_shape": [
+        23,
+        23
+      ],
+      "prediction_shape": [
+        23,
+        23
+      ],
+      "embedding_shape": [
+        23,
+        23,
+        64
+      ],
+      "n_pixels": 529,
+      "true_change_pixels": 92,
+      "true_change_pct": 0.17391304347826086,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "qinling_mountain_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "tier": "tier1",
+      "stratum": "Forest",
+      "bbox": [
+        108.4,
+        33.8,
+        108.5,
+        33.9
+      ],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas",
+      "expected_role": "reserve_positive_change_candidate",
+      "label_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/qinling_mountain_holdout_lulc_2020.npy",
+      "label_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/qinling_mountain_holdout_lulc_2021.npy",
+      "prediction_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/predicted/qinling_mountain_holdout_lulc_pred_2020_2021.npy",
+      "embedding_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/qinling_mountain_holdout_emb_2020.npy",
+      "embedding_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/qinling_mountain_holdout_emb_2021.npy",
+      "context_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/qinling_mountain_holdout_context.npy",
+      "label_shape": [
+        23,
+        23
+      ],
+      "prediction_shape": [
+        23,
+        23
+      ],
+      "embedding_shape": [
+        23,
+        23,
+        64
+      ],
+      "n_pixels": 529,
+      "true_change_pixels": 84,
+      "true_change_pct": 0.15879017013232513,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "sanjiang_plain_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "tier": "tier1",
+      "stratum": "Agriculture",
+      "bbox": [
+        133.2,
+        47.2,
+        133.3,
+        47.3
+      ],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas",
+      "expected_role": "reserve_positive_change_candidate",
+      "label_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/sanjiang_plain_holdout_lulc_2020.npy",
+      "label_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/sanjiang_plain_holdout_lulc_2021.npy",
+      "prediction_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/predicted/sanjiang_plain_holdout_lulc_pred_2020_2021.npy",
+      "embedding_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/sanjiang_plain_holdout_emb_2020.npy",
+      "embedding_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/sanjiang_plain_holdout_emb_2021.npy",
+      "context_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/sanjiang_plain_holdout_context.npy",
+      "label_shape": [
+        23,
+        23
+      ],
+      "prediction_shape": [
+        23,
+        23
+      ],
+      "embedding_shape": [
+        23,
+        23,
+        64
+      ],
+      "n_pixels": 529,
+      "true_change_pixels": 195,
+      "true_change_pct": 0.3686200378071834,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "shenzhen_outer_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "tier": "tier1",
+      "stratum": "Urban",
+      "bbox": [
+        114.25,
+        22.65,
+        114.35,
+        22.75
+      ],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas",
+      "expected_role": "reserve_positive_change_candidate",
+      "label_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/shenzhen_outer_holdout_lulc_2020.npy",
+      "label_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/shenzhen_outer_holdout_lulc_2021.npy",
+      "prediction_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/predicted/shenzhen_outer_holdout_lulc_pred_2020_2021.npy",
+      "embedding_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/shenzhen_outer_holdout_emb_2020.npy",
+      "embedding_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/shenzhen_outer_holdout_emb_2021.npy",
+      "context_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/shenzhen_outer_holdout_context.npy",
+      "label_shape": [
+        24,
+        23
+      ],
+      "prediction_shape": [
+        24,
+        23
+      ],
+      "embedding_shape": [
+        24,
+        23,
+        64
+      ],
+      "n_pixels": 552,
+      "true_change_pixels": 13,
+      "true_change_pct": 0.02355072463768116,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "songnen_plain_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "tier": "tier1",
+      "stratum": "Agriculture",
+      "bbox": [
+        124.8,
+        45.55,
+        124.9,
+        45.65
+      ],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",
+      "expected_role": "positive_change_candidate",
+      "label_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/songnen_plain_holdout_lulc_2020.npy",
+      "label_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/songnen_plain_holdout_lulc_2021.npy",
+      "prediction_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/predicted/songnen_plain_holdout_lulc_pred_2020_2021.npy",
+      "embedding_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/songnen_plain_holdout_emb_2020.npy",
+      "embedding_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/songnen_plain_holdout_emb_2021.npy",
+      "context_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/songnen_plain_holdout_context.npy",
+      "label_shape": [
+        23,
+        23
+      ],
+      "prediction_shape": [
+        23,
+        23
+      ],
+      "embedding_shape": [
+        23,
+        23,
+        64
+      ],
+      "n_pixels": 529,
+      "true_change_pixels": 152,
+      "true_change_pct": 0.28733459357277885,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "tarim_oasis_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "tier": "tier1",
+      "stratum": "Agriculture",
+      "bbox": [
+        80.2,
+        41.1,
+        80.3,
+        41.2
+      ],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas",
+      "expected_role": "positive_change_candidate",
+      "label_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/tarim_oasis_holdout_lulc_2020.npy",
+      "label_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/tarim_oasis_holdout_lulc_2021.npy",
+      "prediction_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/predicted/tarim_oasis_holdout_lulc_pred_2020_2021.npy",
+      "embedding_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/tarim_oasis_holdout_emb_2020.npy",
+      "embedding_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/tarim_oasis_holdout_emb_2021.npy",
+      "context_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/tarim_oasis_holdout_context.npy",
+      "label_shape": [
+        23,
+        23
+      ],
+      "prediction_shape": [
+        23,
+        23
+      ],
+      "embedding_shape": [
+        23,
+        23,
+        64
+      ],
+      "n_pixels": 529,
+      "true_change_pixels": 50,
+      "true_change_pct": 0.0945179584120983,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "tianjin_binhai_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "tier": "tier1",
+      "stratum": "Urban",
+      "bbox": [
+        117.45,
+        38.95,
+        117.55,
+        39.05
+      ],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas",
+      "expected_role": "positive_change_candidate",
+      "label_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/tianjin_binhai_holdout_lulc_2020.npy",
+      "label_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/tianjin_binhai_holdout_lulc_2021.npy",
+      "prediction_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/predicted/tianjin_binhai_holdout_lulc_pred_2020_2021.npy",
+      "embedding_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/tianjin_binhai_holdout_emb_2020.npy",
+      "embedding_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/tianjin_binhai_holdout_emb_2021.npy",
+      "context_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/tianjin_binhai_holdout_context.npy",
+      "label_shape": [
+        24,
+        24
+      ],
+      "prediction_shape": [
+        24,
+        24
+      ],
+      "embedding_shape": [
+        24,
+        24,
+        64
+      ],
+      "n_pixels": 576,
+      "true_change_pixels": 49,
+      "true_change_pct": 0.08506944444444445,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "west_sichuan_plateau_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "tier": "tier1",
+      "stratum": "Plateau",
+      "bbox": [
+        102.55,
+        31.95,
+        102.65,
+        32.05
+      ],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",
+      "expected_role": "positive_change_candidate",
+      "label_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/west_sichuan_plateau_holdout_lulc_2020.npy",
+      "label_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/west_sichuan_plateau_holdout_lulc_2021.npy",
+      "prediction_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/predicted/west_sichuan_plateau_holdout_lulc_pred_2020_2021.npy",
+      "embedding_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/west_sichuan_plateau_holdout_emb_2020.npy",
+      "embedding_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/west_sichuan_plateau_holdout_emb_2021.npy",
+      "context_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/west_sichuan_plateau_holdout_context.npy",
+      "label_shape": [
+        23,
+        23
+      ],
+      "prediction_shape": [
+        23,
+        23
+      ],
+      "embedding_shape": [
+        23,
+        23,
+        64
+      ],
+      "n_pixels": 529,
+      "true_change_pixels": 59,
+      "true_change_pct": 0.11153119092627599,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "wuyi_mountain",
+      "start_year": 2020,
+      "end_year": 2021,
+      "tier": "tier2",
+      "stratum": "Forest",
+      "bbox": [
+        117.6,
+        27.7,
+        117.7,
+        27.8
+      ],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "development_contact_status": "known_contact",
+      "contact_evidence": "area appears in DEFAULT_TRAINING_AREAS in src/adk_world_model/world_model.py",
+      "expected_role": "negative_control",
+      "label_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/wuyi_mountain_lulc_2020.npy",
+      "label_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/wuyi_mountain_lulc_2021.npy",
+      "prediction_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/predicted/wuyi_mountain_lulc_pred_2020_2021.npy",
+      "embedding_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/wuyi_mountain_emb_2020.npy",
+      "embedding_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/wuyi_mountain_emb_2021.npy",
+      "context_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/wuyi_mountain_context.npy",
+      "label_shape": [
+        23,
+        23
+      ],
+      "prediction_shape": [
+        23,
+        23
+      ],
+      "embedding_shape": [
+        23,
+        23,
+        64
+      ],
+      "n_pixels": 529,
+      "true_change_pixels": 0,
+      "true_change_pct": 0.0,
+      "qc_status": "negative_control",
+      "excluded_reason": "zero_reference_change"
+    },
+    {
+      "area": "xiaoxinganling_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "tier": "tier1",
+      "stratum": "Forest",
+      "bbox": [
+        128.8,
+        47.7,
+        128.9,
+        47.8
+      ],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas",
+      "expected_role": "positive_change_candidate",
+      "label_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/xiaoxinganling_holdout_lulc_2020.npy",
+      "label_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/xiaoxinganling_holdout_lulc_2021.npy",
+      "prediction_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/predicted/xiaoxinganling_holdout_lulc_pred_2020_2021.npy",
+      "embedding_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/xiaoxinganling_holdout_emb_2020.npy",
+      "embedding_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/xiaoxinganling_holdout_emb_2021.npy",
+      "context_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/xiaoxinganling_holdout_context.npy",
+      "label_shape": [
+        24,
+        24
+      ],
+      "prediction_shape": [
+        24,
+        24
+      ],
+      "embedding_shape": [
+        24,
+        24,
+        64
+      ],
+      "n_pixels": 576,
+      "true_change_pixels": 35,
+      "true_change_pct": 0.06076388888888889,
+      "qc_status": "include",
+      "excluded_reason": ""
+    },
+    {
+      "area": "xiong_an_fringe_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "tier": "tier1",
+      "stratum": "Urban",
+      "bbox": [
+        115.9,
+        38.95,
+        116.0,
+        39.05
+      ],
+      "data_source": "ESRI_LULC_10m_and_AlphaEarth",
+      "development_contact_status": "none",
+      "contact_evidence": "area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",
+      "expected_role": "positive_change_candidate",
+      "label_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/xiong_an_fringe_holdout_lulc_2020.npy",
+      "label_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/labels/xiong_an_fringe_holdout_lulc_2021.npy",
+      "prediction_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/predicted/xiong_an_fringe_holdout_lulc_pred_2020_2021.npy",
+      "embedding_start_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/xiong_an_fringe_holdout_emb_2020.npy",
+      "embedding_end_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/xiong_an_fringe_holdout_emb_2021.npy",
+      "context_path": "D:/test/paper58-geofm-world-model-rl/.worktrees/paper58-benchmark/data/independent_change_labels/embeddings/xiong_an_fringe_holdout_context.npy",
+      "label_shape": [
+        24,
+        24
+      ],
+      "prediction_shape": [
+        24,
+        24
+      ],
+      "embedding_shape": [
+        24,
+        24,
+        64
+      ],
+      "n_pixels": 576,
+      "true_change_pixels": 125,
+      "true_change_pct": 0.2170138888888889,
+      "qc_status": "include",
+      "excluded_reason": ""
+    }
+  ]
+}
