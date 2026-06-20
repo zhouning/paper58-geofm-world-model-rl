@@ -22,6 +22,7 @@ DEFAULT_LABELS_DIR = ROOT / "data" / "independent_change_labels" / "labels"
 DEFAULT_EMBEDDINGS_DIR = ROOT / "data" / "independent_change_labels" / "embeddings"
 DEFAULT_PREDICTIONS_DIR = ROOT / "data" / "independent_change_labels" / "predicted"
 DEFAULT_DECODER_PATH = ROOT / "src" / "adk_world_model" / "weights" / "lulc_decoder_v1.pkl"
+DEFAULT_WEIGHTS_PATH = ROOT / "src" / "adk_world_model" / "weights" / "latent_dynamics_v1.pt"
 
 BLUE = "#2C7FB8"
 GRAY = "#8A8F93"
@@ -115,9 +116,34 @@ def _load_decoder(path: Path):
     return joblib.load(path)
 
 
+def _load_forecast_model(path: Path):
+    from scripts.rse_revision.generate_change_validation_predictions import _load_model
+
+    return _load_model(path)
+
+
 def _decode_lulc(embedding_grid: np.ndarray, decoder) -> np.ndarray:
     h, w = embedding_grid.shape[:2]
     return decoder.predict(embedding_grid.reshape(-1, embedding_grid.shape[-1])).reshape(h, w).astype(np.int32)
+
+
+def _predict_embedding_for_area(
+    model,
+    area: str,
+    start_year: int,
+    embeddings_dir: Path = DEFAULT_EMBEDDINGS_DIR,
+) -> np.ndarray:
+    from scripts.rse_revision.generate_change_validation_predictions import _predict_next_embedding
+
+    embeddings_dir = Path(embeddings_dir)
+    emb = np.load(embeddings_dir / f"{area}_emb_{start_year}.npy").astype(np.float32, copy=False)
+    context_path = embeddings_dir / f"{area}_context.npy"
+    context = np.load(context_path).astype(np.float32, copy=False) if context_path.exists() else None
+    if context is not None and (context.shape[1] != emb.shape[0] or context.shape[2] != emb.shape[1]):
+        raise ValueError(
+            f"Context shape mismatch for {area}: embedding={emb.shape}, context={context.shape}"
+        )
+    return _predict_next_embedding(model, emb, context)
 
 
 def _pixel_accuracy(reference: np.ndarray, prediction: np.ndarray) -> float:
@@ -225,6 +251,60 @@ def _probability_grid(embedding_grid: np.ndarray, decoder) -> tuple[np.ndarray, 
 
 def _rounded_float(value: float) -> float:
     return round(float(value), 6)
+
+
+def _top_pred_class_and_count(decoded_grid: np.ndarray, mask: np.ndarray) -> tuple[int | None, int]:
+    decoded_counts: dict[int, int] = {}
+    for value in decoded_grid[mask].ravel():
+        class_id = int(value)
+        decoded_counts[class_id] = decoded_counts.get(class_id, 0) + 1
+    if not decoded_counts:
+        return None, 0
+    top_pred_class, top_pred_count = sorted(
+        decoded_counts.items(),
+        key=lambda item: (-item[1], item[0]),
+    )[0]
+    return top_pred_class, top_pred_count
+
+
+def _probability_fields_for_mask(
+    probabilities: np.ndarray | None,
+    classes: list[int] | None,
+    mask: np.ndarray,
+    true_end_class: int,
+    prefix: str,
+) -> dict:
+    fields = {
+        f"{prefix}_mean_true_end_prob": None,
+        f"{prefix}_median_true_end_prob": None,
+        f"{prefix}_top_mean_prob_class": None,
+        f"{prefix}_top_mean_prob": None,
+    }
+    if probabilities is None or classes is None:
+        return fields
+
+    class_to_index = {class_id: index for index, class_id in enumerate(classes)}
+    true_end_index = class_to_index.get(true_end_class)
+    if true_end_index is None:
+        return fields
+
+    masked_probabilities = probabilities[mask]
+    if masked_probabilities.size == 0:
+        return fields
+
+    mean_probabilities = masked_probabilities.mean(axis=0)
+    true_end_probabilities = masked_probabilities[:, true_end_index]
+    ranked_probability_indices = sorted(
+        range(len(classes)),
+        key=lambda index: (-mean_probabilities[index], classes[index]),
+    )
+    fields[f"{prefix}_mean_true_end_prob"] = _rounded_float(true_end_probabilities.mean())
+    fields[f"{prefix}_median_true_end_prob"] = _rounded_float(np.median(true_end_probabilities))
+    if ranked_probability_indices:
+        top_index = ranked_probability_indices[0]
+        fields[f"{prefix}_top_mean_prob_class"] = classes[top_index]
+        fields[f"{prefix}_top_mean_prob"] = _rounded_float(mean_probabilities[top_index])
+    return fields
 
 
 def make_batch2_alignment_table(
@@ -478,6 +558,99 @@ def make_transition_fate_table(
     return rows
 
 
+def make_forecast_transition_fate_table(
+    out_dir: Path,
+    decoder,
+    model,
+    labels_dir: Path = DEFAULT_LABELS_DIR,
+    embeddings_dir: Path = DEFAULT_EMBEDDINGS_DIR,
+    predictions_dir: Path = DEFAULT_PREDICTIONS_DIR,
+    area: str = "xiong_an_fringe_holdout",
+    start_year: int = 2020,
+    end_year: int = 2021,
+    top_n_true_transitions: int = 8,
+) -> list[dict]:
+    start = np.load(Path(labels_dir) / f"{area}_lulc_{start_year}.npy")
+    end = np.load(Path(labels_dir) / f"{area}_lulc_{end_year}.npy")
+    pred = np.load(Path(predictions_dir) / f"{area}_lulc_pred_{start_year}_{end_year}.npy")
+    emb_end = np.load(Path(embeddings_dir) / f"{area}_emb_{end_year}.npy")
+    decoded_end = _decode_lulc(emb_end, decoder)
+    observed_probability_grid = _probability_grid(emb_end, decoder)
+
+    pred_emb = _predict_embedding_for_area(model, area, start_year, embeddings_dir)
+    forecast_probability_grid = _probability_grid(pred_emb, decoder)
+
+    transition_counts: dict[tuple[int, int], int] = {}
+    changed = start != end
+    for start_class, end_class in zip(start[changed].ravel(), end[changed].ravel()):
+        key = (int(start_class), int(end_class))
+        transition_counts[key] = transition_counts.get(key, 0) + 1
+    ranked = sorted(transition_counts.items(), key=lambda item: (-item[1], item[0]))[:top_n_true_transitions]
+
+    observed_probabilities, observed_classes = (
+        observed_probability_grid if observed_probability_grid is not None else (None, None)
+    )
+    forecast_probabilities, forecast_classes = (
+        forecast_probability_grid if forecast_probability_grid is not None else (None, None)
+    )
+
+    rows = []
+    for (start_class, end_class), n_pixels in ranked:
+        mask = (start == start_class) & (end == end_class)
+        observed_fields = _probability_fields_for_mask(
+            observed_probabilities,
+            observed_classes,
+            mask,
+            end_class,
+            prefix="observed",
+        )
+        forecast_fields = _probability_fields_for_mask(
+            forecast_probabilities,
+            forecast_classes,
+            mask,
+            end_class,
+            prefix="forecast",
+        )
+        observed_mean = observed_fields["observed_mean_true_end_prob"]
+        forecast_mean = forecast_fields["forecast_mean_true_end_prob"]
+        rows.append(
+            {
+                "true_transition": f"{start_class}->{end_class}",
+                "n_true_pixels": n_pixels,
+                "observed_end_top": _class_count_summary(decoded_end[mask]),
+                "forecast_end_top": _class_count_summary(pred[mask]),
+                **observed_fields,
+                **forecast_fields,
+                "mean_true_end_prob_delta": (
+                    _rounded_float(forecast_mean - observed_mean)
+                    if observed_mean is not None and forecast_mean is not None
+                    else None
+                ),
+            }
+        )
+
+    _write_csv(
+        Path(out_dir) / f"{area}_forecast_transition_fate.csv",
+        rows,
+        [
+            "true_transition",
+            "n_true_pixels",
+            "observed_end_top",
+            "forecast_end_top",
+            "observed_mean_true_end_prob",
+            "observed_median_true_end_prob",
+            "forecast_mean_true_end_prob",
+            "forecast_median_true_end_prob",
+            "mean_true_end_prob_delta",
+            "observed_top_mean_prob_class",
+            "observed_top_mean_prob",
+            "forecast_top_mean_prob_class",
+            "forecast_top_mean_prob",
+        ],
+    )
+    return rows
+
+
 def make_decoder_true_end_confidence_table(
     out_dir: Path,
     decoder,
@@ -546,6 +719,111 @@ def make_decoder_true_end_confidence_table(
             "median_true_end_prob",
             "top_pred_class",
             "top_pred_count",
+        ],
+    )
+    return rows
+
+
+def make_forecast_true_end_confidence_table(
+    out_dir: Path,
+    decoder,
+    model,
+    labels_dir: Path = DEFAULT_LABELS_DIR,
+    embeddings_dir: Path = DEFAULT_EMBEDDINGS_DIR,
+    areas: list[str] | None = None,
+    start_year: int = 2020,
+    end_year: int = 2021,
+) -> list[dict]:
+    if areas is None:
+        areas = [
+            path.name.removesuffix(f"_emb_{end_year}.npy")
+            for path in sorted(Path(embeddings_dir).glob(f"*_emb_{end_year}.npy"))
+        ]
+
+    rows = []
+    for area in areas:
+        start = np.load(Path(labels_dir) / f"{area}_lulc_{start_year}.npy")
+        end = np.load(Path(labels_dir) / f"{area}_lulc_{end_year}.npy")
+        emb_end = np.load(Path(embeddings_dir) / f"{area}_emb_{end_year}.npy")
+        observed_probability_grid = _probability_grid(emb_end, decoder)
+        if observed_probability_grid is None:
+            continue
+        observed_probabilities, observed_classes = observed_probability_grid
+        decoded_end = _decode_lulc(emb_end, decoder)
+
+        pred_emb = _predict_embedding_for_area(model, area, start_year, embeddings_dir)
+        forecast_probability_grid = _probability_grid(pred_emb, decoder)
+        if forecast_probability_grid is None:
+            continue
+        forecast_probabilities, forecast_classes = forecast_probability_grid
+        forecast_decoded_end = _decode_lulc(pred_emb, decoder)
+
+        changed = start != end
+        for end_class in sorted({int(value) for value in np.unique(end[changed])}):
+            mask = changed & (end == end_class)
+            observed_fields = _probability_fields_for_mask(
+                observed_probabilities,
+                observed_classes,
+                mask,
+                end_class,
+                prefix="observed",
+            )
+            forecast_fields = _probability_fields_for_mask(
+                forecast_probabilities,
+                forecast_classes,
+                mask,
+                end_class,
+                prefix="forecast",
+            )
+            observed_probability_fields = {
+                "observed_mean_true_end_prob": observed_fields["observed_mean_true_end_prob"],
+                "observed_median_true_end_prob": observed_fields["observed_median_true_end_prob"],
+            }
+            forecast_probability_fields = {
+                "forecast_mean_true_end_prob": forecast_fields["forecast_mean_true_end_prob"],
+                "forecast_median_true_end_prob": forecast_fields["forecast_median_true_end_prob"],
+            }
+            observed_top_pred_class, observed_top_pred_count = _top_pred_class_and_count(decoded_end, mask)
+            forecast_top_pred_class, forecast_top_pred_count = _top_pred_class_and_count(forecast_decoded_end, mask)
+            observed_mean = observed_fields["observed_mean_true_end_prob"]
+            forecast_mean = forecast_fields["forecast_mean_true_end_prob"]
+
+            rows.append(
+                {
+                    "area": area,
+                    "true_end_class": end_class,
+                    "n_pixels": int(np.count_nonzero(mask)),
+                    **observed_probability_fields,
+                    **forecast_probability_fields,
+                    "mean_true_end_prob_delta": (
+                        _rounded_float(forecast_mean - observed_mean)
+                        if observed_mean is not None and forecast_mean is not None
+                        else None
+                    ),
+                    "observed_top_pred_class": observed_top_pred_class,
+                    "observed_top_pred_count": observed_top_pred_count,
+                    "forecast_top_pred_class": forecast_top_pred_class,
+                    "forecast_top_pred_count": forecast_top_pred_count,
+                }
+            )
+
+    rows.sort(key=lambda row: (row["true_end_class"], row["observed_mean_true_end_prob"], row["area"]))
+    _write_csv(
+        Path(out_dir) / "batch2_forecast_true_end_confidence_by_area.csv",
+        rows,
+        [
+            "area",
+            "true_end_class",
+            "n_pixels",
+            "observed_mean_true_end_prob",
+            "observed_median_true_end_prob",
+            "forecast_mean_true_end_prob",
+            "forecast_median_true_end_prob",
+            "mean_true_end_prob_delta",
+            "observed_top_pred_class",
+            "observed_top_pred_count",
+            "forecast_top_pred_class",
+            "forecast_top_pred_count",
         ],
     )
     return rows
@@ -712,11 +990,13 @@ def main() -> None:
     parser.add_argument("--embeddings-dir", type=Path, default=DEFAULT_EMBEDDINGS_DIR)
     parser.add_argument("--predictions-dir", type=Path, default=DEFAULT_PREDICTIONS_DIR)
     parser.add_argument("--decoder", type=Path, default=DEFAULT_DECODER_PATH)
+    parser.add_argument("--weights", type=Path, default=DEFAULT_WEIGHTS_PATH)
     args = parser.parse_args()
 
     apply_style()
     args.output_dir.mkdir(parents=True, exist_ok=True)
     decoder = _load_decoder(args.decoder)
+    model = _load_forecast_model(args.weights)
     xiongan_summary = make_xiongan_spatial_panel(
         out_dir=args.output_dir,
         labels_dir=args.labels_dir,
@@ -764,6 +1044,23 @@ def main() -> None:
         embeddings_dir=args.embeddings_dir,
         areas=areas,
     )
+    forecast_transition_fate_rows = make_forecast_transition_fate_table(
+        out_dir=args.output_dir,
+        decoder=decoder,
+        model=model,
+        labels_dir=args.labels_dir,
+        embeddings_dir=args.embeddings_dir,
+        predictions_dir=args.predictions_dir,
+        area="xiong_an_fringe_holdout",
+    )
+    forecast_true_end_confidence_rows = make_forecast_true_end_confidence_table(
+        out_dir=args.output_dir,
+        decoder=decoder,
+        model=model,
+        labels_dir=args.labels_dir,
+        embeddings_dir=args.embeddings_dir,
+        areas=areas,
+    )
     xiongan_alignment = next(row for row in alignment_rows if row["area"] == "xiong_an_fringe_holdout")
     xiongan_decoder_audit = next(row for row in decoder_audit_rows if row["area"] == "xiong_an_fringe_holdout")
     xiongan_transition_top = next(
@@ -775,10 +1072,19 @@ def main() -> None:
         None,
     )
     xiongan_transition_fate_top = transition_fate_rows[0] if transition_fate_rows else None
+    xiongan_forecast_transition_fate_top = forecast_transition_fate_rows[0] if forecast_transition_fate_rows else None
     xiongan_class11_confidence = next(
         (
             row
             for row in true_end_confidence_rows
+            if row["area"] == "xiong_an_fringe_holdout" and row["true_end_class"] == 11
+        ),
+        None,
+    )
+    xiongan_forecast_class11_confidence = next(
+        (
+            row
+            for row in forecast_true_end_confidence_rows
             if row["area"] == "xiong_an_fringe_holdout" and row["true_end_class"] == 11
         ),
         None,
@@ -828,6 +1134,29 @@ def main() -> None:
                 )
                 if xiongan_class11_confidence is not None
                 else "xiongan_true_end_class11_mean_prob=",
+                (
+                    "xiongan_forecast_top_transition_fate="
+                    f"{xiongan_forecast_transition_fate_top['true_transition']};"
+                    f"observed_end={xiongan_forecast_transition_fate_top['observed_end_top']};"
+                    f"forecast_end={xiongan_forecast_transition_fate_top['forecast_end_top']};"
+                    f"observed_mean_true_end_prob={xiongan_forecast_transition_fate_top['observed_mean_true_end_prob']};"
+                    f"forecast_mean_true_end_prob={xiongan_forecast_transition_fate_top['forecast_mean_true_end_prob']};"
+                    f"mean_true_end_prob_delta={xiongan_forecast_transition_fate_top['mean_true_end_prob_delta']}"
+                )
+                if xiongan_forecast_transition_fate_top is not None
+                else "xiongan_forecast_top_transition_fate=",
+                (
+                    "xiongan_forecast_true_end_class11_mean_prob="
+                    f"{xiongan_forecast_class11_confidence['forecast_mean_true_end_prob']}"
+                )
+                if xiongan_forecast_class11_confidence is not None
+                else "xiongan_forecast_true_end_class11_mean_prob=",
+                (
+                    "xiongan_forecast_true_end_class11_prob_delta="
+                    f"{xiongan_forecast_class11_confidence['mean_true_end_prob_delta']}"
+                )
+                if xiongan_forecast_class11_confidence is not None
+                else "xiongan_forecast_true_end_class11_prob_delta=",
             ]
         ),
         encoding="utf-8",

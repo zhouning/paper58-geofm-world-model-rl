@@ -7,6 +7,8 @@ from scripts.paper58_benchmark.make_batch2_diagnostics import (
     make_decoder_true_end_confidence_table,
     make_embedding_decoder_audit_table,
     make_batch2_alignment_table,
+    make_forecast_transition_fate_table,
+    make_forecast_true_end_confidence_table,
     make_transition_fate_table,
     make_transition_table,
     transition_count_rows,
@@ -379,4 +381,232 @@ def test_make_decoder_true_end_confidence_table_sorts_low_confidence_rows_first(
     ]
     assert (output / "batch2_decoder_true_end_confidence_by_area.csv").read_text(encoding="utf-8").splitlines()[0] == (
         "area,true_end_class,n_pixels,mean_true_end_prob,median_true_end_prob,top_pred_class,top_pred_count"
+    )
+
+
+def test_make_forecast_transition_fate_table_compares_observed_and_forecast_probabilities(
+    tmp_path: Path, monkeypatch
+):
+    import scripts.paper58_benchmark.make_batch2_diagnostics as diagnostics
+
+    labels = tmp_path / "labels"
+    embeddings = tmp_path / "embeddings"
+    predictions = tmp_path / "predicted"
+    output = tmp_path / "diagnostics"
+    labels.mkdir()
+    embeddings.mkdir()
+    predictions.mkdir()
+
+    start = np.array([[5, 5], [7, 7]], dtype=np.int32)
+    end = np.array([[11, 7], [5, 11]], dtype=np.int32)
+    pred = np.array([[5, 7], [5, 5]], dtype=np.int32)
+    observed_end_probs = np.array(
+        [
+            [[0.90, 0.09, 0.01], [0.20, 0.70, 0.10]],
+            [[0.80, 0.15, 0.05], [0.60, 0.30, 0.10]],
+        ],
+        dtype=np.float32,
+    )
+    forecast_end_probs = np.array(
+        [
+            [[0.97, 0.025, 0.005], [0.30, 0.65, 0.05]],
+            [[0.85, 0.10, 0.05], [0.88, 0.115, 0.005]],
+        ],
+        dtype=np.float32,
+    )
+
+    np.save(labels / "toy_lulc_2020.npy", start)
+    np.save(labels / "toy_lulc_2021.npy", end)
+    np.save(embeddings / "toy_emb_2021.npy", _toy_prob_embedding(observed_end_probs))
+    np.save(predictions / "toy_lulc_pred_2020_2021.npy", pred)
+    monkeypatch.setattr(
+        diagnostics,
+        "_predict_embedding_for_area",
+        lambda model, area, start_year, embeddings_dir: _toy_prob_embedding(forecast_end_probs),
+    )
+
+    rows = make_forecast_transition_fate_table(
+        out_dir=output,
+        decoder=ToyProbDecoder(),
+        model=object(),
+        labels_dir=labels,
+        embeddings_dir=embeddings,
+        predictions_dir=predictions,
+        area="toy",
+        start_year=2020,
+        end_year=2021,
+        top_n_true_transitions=4,
+    )
+
+    assert {row["true_transition"]: row for row in rows} == {
+        "5->11": {
+            "true_transition": "5->11",
+            "n_true_pixels": 1,
+            "observed_end_top": "5:1",
+            "forecast_end_top": "5:1",
+            "observed_mean_true_end_prob": 0.01,
+            "observed_median_true_end_prob": 0.01,
+            "forecast_mean_true_end_prob": 0.005,
+            "forecast_median_true_end_prob": 0.005,
+            "mean_true_end_prob_delta": -0.005,
+            "observed_top_mean_prob_class": 5,
+            "observed_top_mean_prob": 0.9,
+            "forecast_top_mean_prob_class": 5,
+            "forecast_top_mean_prob": 0.97,
+        },
+        "5->7": {
+            "true_transition": "5->7",
+            "n_true_pixels": 1,
+            "observed_end_top": "7:1",
+            "forecast_end_top": "7:1",
+            "observed_mean_true_end_prob": 0.7,
+            "observed_median_true_end_prob": 0.7,
+            "forecast_mean_true_end_prob": 0.65,
+            "forecast_median_true_end_prob": 0.65,
+            "mean_true_end_prob_delta": -0.05,
+            "observed_top_mean_prob_class": 7,
+            "observed_top_mean_prob": 0.7,
+            "forecast_top_mean_prob_class": 7,
+            "forecast_top_mean_prob": 0.65,
+        },
+        "7->5": {
+            "true_transition": "7->5",
+            "n_true_pixels": 1,
+            "observed_end_top": "5:1",
+            "forecast_end_top": "5:1",
+            "observed_mean_true_end_prob": 0.8,
+            "observed_median_true_end_prob": 0.8,
+            "forecast_mean_true_end_prob": 0.85,
+            "forecast_median_true_end_prob": 0.85,
+            "mean_true_end_prob_delta": 0.05,
+            "observed_top_mean_prob_class": 5,
+            "observed_top_mean_prob": 0.8,
+            "forecast_top_mean_prob_class": 5,
+            "forecast_top_mean_prob": 0.85,
+        },
+        "7->11": {
+            "true_transition": "7->11",
+            "n_true_pixels": 1,
+            "observed_end_top": "5:1",
+            "forecast_end_top": "5:1",
+            "observed_mean_true_end_prob": 0.1,
+            "observed_median_true_end_prob": 0.1,
+            "forecast_mean_true_end_prob": 0.005,
+            "forecast_median_true_end_prob": 0.005,
+            "mean_true_end_prob_delta": -0.095,
+            "observed_top_mean_prob_class": 5,
+            "observed_top_mean_prob": 0.6,
+            "forecast_top_mean_prob_class": 5,
+            "forecast_top_mean_prob": 0.88,
+        },
+    }
+    assert (output / "toy_forecast_transition_fate.csv").read_text(encoding="utf-8").splitlines()[0] == (
+        "true_transition,n_true_pixels,observed_end_top,forecast_end_top,"
+        "observed_mean_true_end_prob,observed_median_true_end_prob,"
+        "forecast_mean_true_end_prob,forecast_median_true_end_prob,mean_true_end_prob_delta,"
+        "observed_top_mean_prob_class,observed_top_mean_prob,"
+        "forecast_top_mean_prob_class,forecast_top_mean_prob"
+    )
+
+
+def test_make_forecast_true_end_confidence_table_compares_observed_and_forecast_by_area(
+    tmp_path: Path, monkeypatch
+):
+    import scripts.paper58_benchmark.make_batch2_diagnostics as diagnostics
+
+    labels = tmp_path / "labels"
+    embeddings = tmp_path / "embeddings"
+    output = tmp_path / "diagnostics"
+    labels.mkdir()
+    embeddings.mkdir()
+
+    start = np.array([[5, 5], [7, 7]], dtype=np.int32)
+    end = np.array([[11, 7], [5, 11]], dtype=np.int32)
+    observed_end_probs = np.array(
+        [
+            [[0.90, 0.09, 0.01], [0.20, 0.70, 0.10]],
+            [[0.80, 0.15, 0.05], [0.60, 0.30, 0.10]],
+        ],
+        dtype=np.float32,
+    )
+    forecast_end_probs = np.array(
+        [
+            [[0.97, 0.025, 0.005], [0.30, 0.65, 0.05]],
+            [[0.85, 0.10, 0.05], [0.88, 0.115, 0.005]],
+        ],
+        dtype=np.float32,
+    )
+
+    np.save(labels / "toy_lulc_2020.npy", start)
+    np.save(labels / "toy_lulc_2021.npy", end)
+    np.save(embeddings / "toy_emb_2021.npy", _toy_prob_embedding(observed_end_probs))
+    monkeypatch.setattr(
+        diagnostics,
+        "_predict_embedding_for_area",
+        lambda model, area, start_year, embeddings_dir: _toy_prob_embedding(forecast_end_probs),
+    )
+
+    rows = make_forecast_true_end_confidence_table(
+        out_dir=output,
+        decoder=ToyProbDecoder(),
+        model=object(),
+        labels_dir=labels,
+        embeddings_dir=embeddings,
+        areas=["toy"],
+        start_year=2020,
+        end_year=2021,
+    )
+
+    assert rows == [
+        {
+            "area": "toy",
+            "true_end_class": 5,
+            "n_pixels": 1,
+            "observed_mean_true_end_prob": 0.8,
+            "observed_median_true_end_prob": 0.8,
+            "forecast_mean_true_end_prob": 0.85,
+            "forecast_median_true_end_prob": 0.85,
+            "mean_true_end_prob_delta": 0.05,
+            "observed_top_pred_class": 5,
+            "observed_top_pred_count": 1,
+            "forecast_top_pred_class": 5,
+            "forecast_top_pred_count": 1,
+        },
+        {
+            "area": "toy",
+            "true_end_class": 7,
+            "n_pixels": 1,
+            "observed_mean_true_end_prob": 0.7,
+            "observed_median_true_end_prob": 0.7,
+            "forecast_mean_true_end_prob": 0.65,
+            "forecast_median_true_end_prob": 0.65,
+            "mean_true_end_prob_delta": -0.05,
+            "observed_top_pred_class": 7,
+            "observed_top_pred_count": 1,
+            "forecast_top_pred_class": 7,
+            "forecast_top_pred_count": 1,
+        },
+        {
+            "area": "toy",
+            "true_end_class": 11,
+            "n_pixels": 2,
+            "observed_mean_true_end_prob": 0.055,
+            "observed_median_true_end_prob": 0.055,
+            "forecast_mean_true_end_prob": 0.005,
+            "forecast_median_true_end_prob": 0.005,
+            "mean_true_end_prob_delta": -0.05,
+            "observed_top_pred_class": 5,
+            "observed_top_pred_count": 2,
+            "forecast_top_pred_class": 5,
+            "forecast_top_pred_count": 2,
+        },
+    ]
+    assert (
+        output / "batch2_forecast_true_end_confidence_by_area.csv"
+    ).read_text(encoding="utf-8").splitlines()[0] == (
+        "area,true_end_class,n_pixels,"
+        "observed_mean_true_end_prob,observed_median_true_end_prob,"
+        "forecast_mean_true_end_prob,forecast_median_true_end_prob,mean_true_end_prob_delta,"
+        "observed_top_pred_class,observed_top_pred_count,"
+        "forecast_top_pred_class,forecast_top_pred_count"
     )

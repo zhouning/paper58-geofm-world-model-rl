@@ -350,8 +350,10 @@ paper/rse_submission_paper58/diagnostics_batch2/batch2_spatial_leave_one_out.csv
 paper/rse_submission_paper58/diagnostics_batch2/batch2_spatial_alignment_shift.csv
 paper/rse_submission_paper58/diagnostics_batch2/batch2_embedding_decoder_audit.csv
 paper/rse_submission_paper58/diagnostics_batch2/batch2_decoder_true_end_confidence_by_area.csv
+paper/rse_submission_paper58/diagnostics_batch2/batch2_forecast_true_end_confidence_by_area.csv
 paper/rse_submission_paper58/diagnostics_batch2/xiong_an_fringe_holdout_transition_counts.csv
 paper/rse_submission_paper58/diagnostics_batch2/xiong_an_fringe_holdout_transition_fate.csv
+paper/rse_submission_paper58/diagnostics_batch2/xiong_an_fringe_holdout_forecast_transition_fate.csv
 paper/rse_submission_paper58/diagnostics_batch2/batch2_diagnostic_summary.txt
 ```
 
@@ -440,6 +442,21 @@ Cross-area decoder-confidence audit for true end class `11`:
 - `west_sichuan_plateau_holdout`: mean `0.51839`
 - `hexi_irrigation_holdout`: mean `0.813417`, but only `1` changed pixel ending as class `11`
 
+Forecast-embedding confidence audit for `xiong_an_fringe_holdout`:
+
+- The audit recomputes the 2020->2021 forecast embedding and compares decoder probabilities on the observed 2021 embedding versus the forecast embedding.
+- Top true transition `5->11` (`38` pixels): observed 2021 embedding gives class `11` mean probability `0.00162`; forecast embedding gives `0.001977`; both decode all pixels as class `5`.
+- True `7->11` (`14` pixels): observed class `11` mean probability `0.002345`; forecast class `11` mean probability `0.001308`.
+- Aggregated true end class `11` in xiong'an (`52` changed pixels): observed mean `0.001815`, forecast mean `0.001797`, delta `-0.000018`; top decoded class remains `5`.
+- Cross-area observed-vs-forecast class `11` confidence:
+  - `xiong_an_fringe_holdout`: observed `0.001815`, forecast `0.001797`
+  - `beibu_gulf_urban_holdout`: observed `0.103621`, forecast `0.064316`
+  - `erlong_lake_margin_holdout`: observed `0.105357`, forecast `0.213454`
+  - `songnen_plain_holdout`: observed `0.306869`, forecast `0.427367`
+  - `ordos_grassland_holdout`: observed `0.370788`, forecast `0.662011`
+  - `west_sichuan_plateau_holdout`: observed `0.51839`, forecast `0.576219`
+  - `hexi_irrigation_holdout`: observed `0.813417`, forecast `0.839603`, but only `1` pixel
+
 Interpretation of the transition-fate audit:
 
 - The largest missed transition (`5->11`) is already absent in the decoded 2021 observed embedding, not only in the model forecast.
@@ -447,12 +464,14 @@ Interpretation of the transition-fate audit:
 - The stronger hypothesis is that some critical urban-fringe transitions are weakly separated in the current embedding-plus-decoder semantic view, and the future model inherits that limitation.
 - The new probability readout strengthens that diagnosis: class `11` is not merely losing the argmax by a small margin in the true 2021 embedding; it is receiving near-zero average probability on the two most important missed wetland transitions.
 - The cross-area table shows this is unusually severe in `xiong_an_fringe_holdout`, not a uniform class-`11` failure across all Batch 2 holdouts.
+- The forecast-embedding probability audit further narrows the failure: forecast dynamics do not erase a strong class `11` signal in xiong'an, because the observed 2021 embedding already assigns near-zero probability to class `11`. Forecasting leaves that near-zero signal essentially unchanged for the aggregated class `11` pixels.
 
 Practical reading:
 
 - The model is detecting change mass in `xiong_an_fringe_holdout`, but the spatial placement and/or transition typing is misaligned enough that shuffling the same predicted map performs better.
 - The best-shift result indicates a local spatial alignment problem: a small translation of the predicted change mask recovers more signal than the raw prediction.
 - The new transition-fate and decoder-confidence audits show that semantic transition failure and spatial-localization failure are both involved; `5->11` in particular now looks more like a decoder/representation bottleneck than a pure forecast-only error.
+- The forecast-confidence audit points away from "forecast stage erased a separable wetland signal" as the primary explanation for class `11`; the observed AlphaEarth embedding plus decoder already misses that semantic transition in xiong'an.
 - `hexi_irrigation_holdout` is not negative, but it has only `5` true change pixels and contributes almost no spatial margin.
 
 ## Next Valid Step
@@ -463,8 +482,8 @@ Recommended next steps:
 
 - prioritize a new external Batch 3 that strengthens urban spatial robustness rather than pooling Batch 2 away,
 - treat `xiong_an_fringe_holdout` as a diagnostic area for spatial-localization failure, not as manuscript-strengthening evidence,
-- run a targeted future-prediction localization robustness audit around `xiong_an_fringe_holdout` if model debugging is prioritized before Batch 3,
-- if model debugging continues, separate forecast-stage error from decoder-stage error before spending time on architecture changes,
+- use the new forecast-confidence audit as the current forecast-vs-decoder separation: class `11` in xiong'an is primarily representation/decoder-limited, while the spatial failure still needs localization-focused debugging,
+- if model debugging continues before Batch 3, focus on spatial localization robustness and alternate decoder/representation probes rather than immediately changing the dynamics model,
 - consider Batch 3 urban replacement holdouts if the next priority is stronger external evidence rather than model debugging,
 - keep manuscript work limited to transparent negative or mixed-evidence reporting until an independent new batch passes on its own.
 
@@ -483,4 +502,5 @@ Resume from the Batch 2 decision rule above:
 - remember that the new transition-fate audit makes `5->11` and part of `5->7` look representation/decoder-limited, not just forecast-limited,
 - remember that the decoder-confidence audit shows class `11` gets near-zero probability on the main missed wetland transitions,
 - remember that the cross-area confidence table shows xiong'an is the lowest-confidence class-`11` case in Batch 2,
+- remember that the forecast-confidence audit shows forecast embeddings do not materially reduce xiong'an class `11` probability beyond the already near-zero observed 2021 embedding,
 - continue with stronger and more diverse experiments first.
