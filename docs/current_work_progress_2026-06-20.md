@@ -884,6 +884,64 @@ Next step:
 
 - Run Batch 5 acquisition only after accepting this manifest-only design as the next experiment step.
 
+## Batch 5 Mixed-Gate External Readout
+
+Batch 5 acquisition and prediction status:
+
+- Labels: `Independent LULC label fetch: complete, 14 record(s), 0 failure(s)`
+- Embeddings: `Change-validation embedding fetch: complete, 14 grid(s), 7 context grid(s), 0 failure(s)`
+- Predictions: `Change-validation prediction generation: complete, 7 prediction(s)`
+- Registry: `7` candidate pair(s), `7` included pair(s)
+- Provenance audit: `7` row(s), `0` invalid Tier 1 row(s)
+
+Batch 5 outputs:
+
+```text
+paper/rse_submission_paper58/benchmark_results_batch5
+```
+
+Batch 5 gate summary from:
+
+```text
+paper/rse_submission_paper58/benchmark_results_batch5/benchmark_gate_report.json
+```
+
+```json
+{
+  "status": "pass",
+  "tier1_primary_change": {
+    "n_rows": 7,
+    "n_clusters": 7,
+    "ci_low": 0.03874008044819379
+  },
+  "tier1_spatial_change": {
+    "n_rows": 7,
+    "n_clusters": 7,
+    "ci_low": 0.026682096295538787
+  },
+  "positive_tier1_strata": 4
+}
+```
+
+Batch 5 interpretation:
+
+- Batch 5-only independently passes the full gate.
+- The batch restores cross-stratum support after the intentionally all-Urban Batch 4 design, with positive Tier 1 evidence across `4` strata.
+- All `7` evaluated rows remain strict Tier 1 by provenance, so this readout is not being rescued by Tier mixing or pooled reinterpretation.
+
+Risk still kept visible:
+
+- `liaohe_delta_wetland_holdout` is a real negative row inside a passing batch: primary advantage `-0.009467775748968649`, spatial advantage `-0.036697621375040734`, with `62` true change pixels.
+- `wenan_lakeplain_newtown_holdout` is also weak on primary advantage: `-0.03290246768507639`, though its spatial advantage remains slightly positive at `0.010098010098010098`.
+- Therefore Batch 5 is better read as a successful mixed-gate experiment with retained within-batch heterogeneity, not as permission to erase Batch 2 or claim uniformly strong behavior.
+
+Practical reading:
+
+- The mixed design worked as intended for the benchmark gate: it preserved the urban stress probe while restoring enough non-Urban support to satisfy the cross-stratum rule.
+- `renqiu_baiyangdian_edge_holdout`, `wuxi_taihu_dense_edge_holdout`, `dabie_forest_edge_holdout`, and `xilingol_grassland_margin_holdout` are supportive rows.
+- `liaohe_delta_wetland_holdout` is the first Batch 5 follow-up target if another diagnostic round is needed, because it is a negative wetland row with non-trivial reference change rather than a tiny-count artifact.
+- Batch 5 does not justify strengthening the manuscript by itself. Any later narrative still has to retain the contradictory Batch 2 failure, the supportive-but-not-uniform Batch 3 pass, and the targeted Batch 4 urban diagnostic result.
+
 ## Resume Instruction
 
 In a new window, continue from branch `paper58-benchmark`.

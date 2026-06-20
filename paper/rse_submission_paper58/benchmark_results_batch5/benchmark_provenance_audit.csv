@@ -1,0 +1,8 @@
+area,start_year,end_year,tier,stratum,development_contact_status,contact_evidence,qc_status,audit_status
+dabie_forest_edge_holdout,2020,2021,tier1,Forest,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, Batch 3, and Batch 4 manifests",include,ok
+huaibei_irrigation_plain_holdout,2020,2021,tier1,Agriculture,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, Batch 3, and Batch 4 manifests",include,ok
+liaohe_delta_wetland_holdout,2020,2021,tier1,Wetland,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, Batch 3, and Batch 4 manifests",include,ok
+renqiu_baiyangdian_edge_holdout,2020,2021,tier1,Urban,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, Batch 3, and Batch 4 manifests",include,ok
+wenan_lakeplain_newtown_holdout,2020,2021,tier1,Urban,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, Batch 3, and Batch 4 manifests",include,ok
+wuxi_taihu_dense_edge_holdout,2020,2021,tier1,Urban,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, Batch 3, and Batch 4 manifests",include,ok
+xilingol_grassland_margin_holdout,2020,2021,tier1,Grassland,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and the Batch 1, Batch 2, Batch 3, and Batch 4 manifests",include,ok

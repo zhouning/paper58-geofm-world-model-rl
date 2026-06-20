@@ -1,18 +1,18 @@
 {
   "status": "complete",
-  "n_predictions": 10,
+  "n_predictions": 7,
   "n_skipped": 0,
   "weights_path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\src\\adk_world_model\\weights\\latent_dynamics_v1.pt",
   "decoder_path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\src\\adk_world_model\\weights\\lulc_decoder_v1.pkl",
   "output_dir": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted",
   "records": [
     {
-      "area": "fuzhou_delta_urban_holdout",
+      "area": "dabie_forest_edge_holdout",
       "start_year": 2020,
       "end_year": 2021,
-      "embedding_file": "data\\independent_change_labels\\embeddings\\fuzhou_delta_urban_holdout_emb_2020.npy",
-      "context_file": "data\\independent_change_labels\\embeddings\\fuzhou_delta_urban_holdout_context.npy",
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\fuzhou_delta_urban_holdout_lulc_pred_2020_2021.npy",
+      "embedding_file": "data\\independent_change_labels\\embeddings\\dabie_forest_edge_holdout_emb_2020.npy",
+      "context_file": "data\\independent_change_labels\\embeddings\\dabie_forest_edge_holdout_context.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\dabie_forest_edge_holdout_lulc_pred_2020_2021.npy",
       "shape": [
         23,
         23
@@ -20,12 +20,12 @@
       "status": "generated"
     },
     {
-      "area": "honghu_lake_margin_holdout",
+      "area": "huaibei_irrigation_plain_holdout",
       "start_year": 2020,
       "end_year": 2021,
-      "embedding_file": "data\\independent_change_labels\\embeddings\\honghu_lake_margin_holdout_emb_2020.npy",
-      "context_file": "data\\independent_change_labels\\embeddings\\honghu_lake_margin_holdout_context.npy",
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\honghu_lake_margin_holdout_lulc_pred_2020_2021.npy",
+      "embedding_file": "data\\independent_change_labels\\embeddings\\huaibei_irrigation_plain_holdout_emb_2020.npy",
+      "context_file": "data\\independent_change_labels\\embeddings\\huaibei_irrigation_plain_holdout_context.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\huaibei_irrigation_plain_holdout_lulc_pred_2020_2021.npy",
       "shape": [
         23,
         23
@@ -33,12 +33,12 @@
       "status": "generated"
     },
     {
-      "area": "hulun_grassland_margin_holdout",
+      "area": "liaohe_delta_wetland_holdout",
       "start_year": 2020,
       "end_year": 2021,
-      "embedding_file": "data\\independent_change_labels\\embeddings\\hulun_grassland_margin_holdout_emb_2020.npy",
-      "context_file": "data\\independent_change_labels\\embeddings\\hulun_grassland_margin_holdout_context.npy",
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\hulun_grassland_margin_holdout_lulc_pred_2020_2021.npy",
+      "embedding_file": "data\\independent_change_labels\\embeddings\\liaohe_delta_wetland_holdout_emb_2020.npy",
+      "context_file": "data\\independent_change_labels\\embeddings\\liaohe_delta_wetland_holdout_context.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\liaohe_delta_wetland_holdout_lulc_pred_2020_2021.npy",
       "shape": [
         23,
         23
@@ -46,12 +46,12 @@
       "status": "generated"
     },
     {
-      "area": "nanling_forest_edge_holdout",
+      "area": "renqiu_baiyangdian_edge_holdout",
       "start_year": 2020,
       "end_year": 2021,
-      "embedding_file": "data\\independent_change_labels\\embeddings\\nanling_forest_edge_holdout_emb_2020.npy",
-      "context_file": "data\\independent_change_labels\\embeddings\\nanling_forest_edge_holdout_context.npy",
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\nanling_forest_edge_holdout_lulc_pred_2020_2021.npy",
+      "embedding_file": "data\\independent_change_labels\\embeddings\\renqiu_baiyangdian_edge_holdout_emb_2020.npy",
+      "context_file": "data\\independent_change_labels\\embeddings\\renqiu_baiyangdian_edge_holdout_context.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\renqiu_baiyangdian_edge_holdout_lulc_pred_2020_2021.npy",
       "shape": [
         23,
         23
@@ -59,12 +59,25 @@
       "status": "generated"
     },
     {
-      "area": "nanning_fringe_holdout",
+      "area": "wenan_lakeplain_newtown_holdout",
       "start_year": 2020,
       "end_year": 2021,
-      "embedding_file": "data\\independent_change_labels\\embeddings\\nanning_fringe_holdout_emb_2020.npy",
-      "context_file": "data\\independent_change_labels\\embeddings\\nanning_fringe_holdout_context.npy",
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\nanning_fringe_holdout_lulc_pred_2020_2021.npy",
+      "embedding_file": "data\\independent_change_labels\\embeddings\\wenan_lakeplain_newtown_holdout_emb_2020.npy",
+      "context_file": "data\\independent_change_labels\\embeddings\\wenan_lakeplain_newtown_holdout_context.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\wenan_lakeplain_newtown_holdout_lulc_pred_2020_2021.npy",
+      "shape": [
+        24,
+        23
+      ],
+      "status": "generated"
+    },
+    {
+      "area": "wuxi_taihu_dense_edge_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "embedding_file": "data\\independent_change_labels\\embeddings\\wuxi_taihu_dense_edge_holdout_emb_2020.npy",
+      "context_file": "data\\independent_change_labels\\embeddings\\wuxi_taihu_dense_edge_holdout_context.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\wuxi_taihu_dense_edge_holdout_lulc_pred_2020_2021.npy",
       "shape": [
         23,
         23
@@ -72,67 +85,15 @@
       "status": "generated"
     },
     {
-      "area": "suzhou_fringe_holdout",
+      "area": "xilingol_grassland_margin_holdout",
       "start_year": 2020,
       "end_year": 2021,
-      "embedding_file": "data\\independent_change_labels\\embeddings\\suzhou_fringe_holdout_emb_2020.npy",
-      "context_file": "data\\independent_change_labels\\embeddings\\suzhou_fringe_holdout_context.npy",
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\suzhou_fringe_holdout_lulc_pred_2020_2021.npy",
-      "shape": [
-        23,
-        23
-      ],
-      "status": "generated"
-    },
-    {
-      "area": "taihu_marsh_edge_holdout",
-      "start_year": 2020,
-      "end_year": 2021,
-      "embedding_file": "data\\independent_change_labels\\embeddings\\taihu_marsh_edge_holdout_emb_2020.npy",
-      "context_file": "data\\independent_change_labels\\embeddings\\taihu_marsh_edge_holdout_context.npy",
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\taihu_marsh_edge_holdout_lulc_pred_2020_2021.npy",
-      "shape": [
-        23,
-        23
-      ],
-      "status": "generated"
-    },
-    {
-      "area": "weihe_irrigation_margin_holdout",
-      "start_year": 2020,
-      "end_year": 2021,
-      "embedding_file": "data\\independent_change_labels\\embeddings\\weihe_irrigation_margin_holdout_emb_2020.npy",
-      "context_file": "data\\independent_change_labels\\embeddings\\weihe_irrigation_margin_holdout_context.npy",
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\weihe_irrigation_margin_holdout_lulc_pred_2020_2021.npy",
+      "embedding_file": "data\\independent_change_labels\\embeddings\\xilingol_grassland_margin_holdout_emb_2020.npy",
+      "context_file": "data\\independent_change_labels\\embeddings\\xilingol_grassland_margin_holdout_context.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\xilingol_grassland_margin_holdout_lulc_pred_2020_2021.npy",
       "shape": [
         23,
         24
-      ],
-      "status": "generated"
-    },
-    {
-      "area": "wuhan_outer_ring_holdout",
-      "start_year": 2020,
-      "end_year": 2021,
-      "embedding_file": "data\\independent_change_labels\\embeddings\\wuhan_outer_ring_holdout_emb_2020.npy",
-      "context_file": "data\\independent_change_labels\\embeddings\\wuhan_outer_ring_holdout_context.npy",
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\wuhan_outer_ring_holdout_lulc_pred_2020_2021.npy",
-      "shape": [
-        23,
-        23
-      ],
-      "status": "generated"
-    },
-    {
-      "area": "zhalong_wetland_edge_holdout",
-      "start_year": 2020,
-      "end_year": 2021,
-      "embedding_file": "data\\independent_change_labels\\embeddings\\zhalong_wetland_edge_holdout_emb_2020.npy",
-      "context_file": "data\\independent_change_labels\\embeddings\\zhalong_wetland_edge_holdout_context.npy",
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\predicted\\zhalong_wetland_edge_holdout_lulc_pred_2020_2021.npy",
-      "shape": [
-        23,
-        23
       ],
       "status": "generated"
     }
