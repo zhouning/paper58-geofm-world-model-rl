@@ -1,0 +1,9 @@
+area,start_year,end_year,tier,stratum,development_contact_status,contact_evidence,qc_status,audit_status
+beibu_gulf_urban_holdout,2020,2021,tier1,Urban,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",include,ok
+changbai_margin_holdout,2020,2021,tier1,Forest,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",include,ok
+erlong_lake_margin_holdout,2020,2021,tier1,Wetland,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",include,ok
+hexi_irrigation_holdout,2020,2021,tier1,Agriculture,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",include,ok
+ordos_grassland_holdout,2020,2021,tier1,Grassland,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",include,ok
+songnen_plain_holdout,2020,2021,tier1,Agriculture,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",include,ok
+west_sichuan_plateau_holdout,2020,2021,tier1,Plateau,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",include,ok
+xiong_an_fringe_holdout,2020,2021,tier1,Urban,none,"area name and bbox are absent from DEFAULT_TRAINING_AREAS, known development areas, and Batch 1 manifest",include,ok
