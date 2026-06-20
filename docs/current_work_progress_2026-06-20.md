@@ -5,7 +5,7 @@
 - Repository: `D:\test\paper58-geofm-world-model-rl`
 - Active worktree: `D:\test\paper58-geofm-world-model-rl\.worktrees\paper58-benchmark`
 - Active branch: `paper58-benchmark`
-- Resume from commit: `094e35d` (`data: add Paper58 Batch 3 holdout manifest`)
+- Resume from current pushed `paper58-benchmark` branch head.
 
 ## Governing Rule
 
@@ -946,12 +946,13 @@ Practical reading:
 
 In a new window, continue from branch `paper58-benchmark`.
 
-Batch 2 and Batch 3 checks are complete, Batch 4 external urban-only readout is recorded, and Batch 5 mixed-gate design direction is specified.
+Batch 2 and Batch 3 checks are complete, Batch 4 external urban-only readout is recorded, and Batch 5 mixed-gate external readout is complete and pushed.
 
 Resume from the current decision rule:
 
 - treat `benchmark_results_batch2` as the primary readout,
 - treat `benchmark_results_batch3` as the primary new independent supportive readout,
+- treat `benchmark_results_batch5` as the latest independent mixed-gate pass, but not as permission to erase Batch 2 or directly strengthen the manuscript,
 - do not treat the combined pooled pass as permission to strengthen the manuscript,
 - use `xiong_an_fringe_holdout` as the first diagnostic target when planning the next experiment,
 - remember that the decoder/localization audit points away from simple label/embedding registration as the main cause,
@@ -967,5 +968,7 @@ Resume from the current decision rule:
 - remember that Batch 4-only now fails the full benchmark gate because it is all-Urban and therefore misses the `3`-strata requirement, even though its primary and spatial Tier 1 confidence bounds are both positive,
 - remember that the Batch 4 `suzhou_like` subset is stronger than the Batch 4 `xiong_an_like` subset, and that the weakest new primary row is `xinxiang_floodplain_newtown_holdout`,
 - remember that Batch 4 deep diagnostics identify `xiongxian_river_corridor_holdout` as the clearest new class-`11` representation bottleneck analogue and `baiyangdian_new_area_holdout` as a possible forecast-suppression case,
-- remember that Batch 5 should be mixed-gate manifest-only next: `2` xiong'an-like Urban, `1` suzhou-like Urban, `2` Wetland/Agriculture, and `1-2` Forest/Grassland candidates, with no prior batch area-name overlap,
+- remember that Batch 5-only passes with `primary ci_low = 0.03874008044819379`, `spatial ci_low = 0.026682096295538787`, and `positive_tier1_strata = 4`,
+- remember that Batch 5 still contains important within-batch risk: `liaohe_delta_wetland_holdout` is negative on primary and spatial advantage, and `wenan_lakeplain_newtown_holdout` is negative on primary advantage,
+- use `liaohe_delta_wetland_holdout` as the first Batch 5 diagnostic follow-up if continuing experiments, because it is a negative wetland row with `62` true change pixels,
 - continue with stronger and more diverse experiments first rather than shifting attention to the manuscript.
