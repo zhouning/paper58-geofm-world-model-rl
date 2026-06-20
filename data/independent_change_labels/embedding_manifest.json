@@ -2,55 +2,89 @@
   "status": "complete",
   "source": "AlphaEarth annual satellite embeddings via src.adk_world_model.world_model.extract_embeddings",
   "scale_m": 500,
-  "output_dir": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\embeddings",
-  "n_records": 4,
-  "n_context_records": 2,
+  "output_dir": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings",
+  "n_records": 16,
+  "n_context_records": 8,
   "n_failures": 0,
   "records": [
     {
-      "area": "poyang_lake",
+      "area": "tianjin_binhai_holdout",
       "year": 2020,
       "bbox": [
-        116.0,
-        29.0,
-        116.1,
-        29.1
+        117.45,
+        38.95,
+        117.55,
+        39.05
       ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\embeddings\\poyang_lake_emb_2020.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\tianjin_binhai_holdout_emb_2020.npy",
       "shape": [
-        23,
-        23,
+        24,
+        24,
         64
       ],
       "status": "fetched"
     },
     {
-      "area": "poyang_lake",
+      "area": "tianjin_binhai_holdout",
       "year": 2021,
       "bbox": [
-        116.0,
-        29.0,
-        116.1,
-        29.1
+        117.45,
+        38.95,
+        117.55,
+        39.05
       ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\embeddings\\poyang_lake_emb_2021.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\tianjin_binhai_holdout_emb_2021.npy",
       "shape": [
-        23,
-        23,
+        24,
+        24,
         64
       ],
       "status": "fetched"
     },
     {
-      "area": "wuyi_mountain",
+      "area": "shenzhen_outer_holdout",
       "year": 2020,
       "bbox": [
-        117.6,
-        27.7,
-        117.7,
-        27.8
+        114.25,
+        22.65,
+        114.35,
+        22.75
       ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\embeddings\\wuyi_mountain_emb_2020.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\shenzhen_outer_holdout_emb_2020.npy",
+      "shape": [
+        24,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "shenzhen_outer_holdout",
+      "year": 2021,
+      "bbox": [
+        114.25,
+        22.65,
+        114.35,
+        22.75
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\shenzhen_outer_holdout_emb_2021.npy",
+      "shape": [
+        24,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "tarim_oasis_holdout",
+      "year": 2020,
+      "bbox": [
+        80.2,
+        41.1,
+        80.3,
+        41.2
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\tarim_oasis_holdout_emb_2020.npy",
       "shape": [
         23,
         23,
@@ -59,15 +93,185 @@
       "status": "fetched"
     },
     {
-      "area": "wuyi_mountain",
+      "area": "tarim_oasis_holdout",
       "year": 2021,
       "bbox": [
-        117.6,
-        27.7,
-        117.7,
-        27.8
+        80.2,
+        41.1,
+        80.3,
+        41.2
       ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\embeddings\\wuyi_mountain_emb_2021.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\tarim_oasis_holdout_emb_2021.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "sanjiang_plain_holdout",
+      "year": 2020,
+      "bbox": [
+        133.2,
+        47.2,
+        133.3,
+        47.3
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\sanjiang_plain_holdout_emb_2020.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "sanjiang_plain_holdout",
+      "year": 2021,
+      "bbox": [
+        133.2,
+        47.2,
+        133.3,
+        47.3
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\sanjiang_plain_holdout_emb_2021.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "dongting_lake_holdout",
+      "year": 2020,
+      "bbox": [
+        112.8,
+        29.2,
+        112.9,
+        29.3
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\dongting_lake_holdout_emb_2020.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "dongting_lake_holdout",
+      "year": 2021,
+      "bbox": [
+        112.8,
+        29.2,
+        112.9,
+        29.3
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\dongting_lake_holdout_emb_2021.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "xiaoxinganling_holdout",
+      "year": 2020,
+      "bbox": [
+        128.8,
+        47.7,
+        128.9,
+        47.8
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\xiaoxinganling_holdout_emb_2020.npy",
+      "shape": [
+        24,
+        24,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "xiaoxinganling_holdout",
+      "year": 2021,
+      "bbox": [
+        128.8,
+        47.7,
+        128.9,
+        47.8
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\xiaoxinganling_holdout_emb_2021.npy",
+      "shape": [
+        24,
+        24,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "qinling_mountain_holdout",
+      "year": 2020,
+      "bbox": [
+        108.4,
+        33.8,
+        108.5,
+        33.9
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\qinling_mountain_holdout_emb_2020.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "qinling_mountain_holdout",
+      "year": 2021,
+      "bbox": [
+        108.4,
+        33.8,
+        108.5,
+        33.9
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\qinling_mountain_holdout_emb_2021.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "haibei_plateau_holdout",
+      "year": 2020,
+      "bbox": [
+        100.9,
+        37.2,
+        101.0,
+        37.3
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\haibei_plateau_holdout_emb_2020.npy",
+      "shape": [
+        23,
+        23,
+        64
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "haibei_plateau_holdout",
+      "year": 2021,
+      "bbox": [
+        100.9,
+        37.2,
+        101.0,
+        37.3
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\haibei_plateau_holdout_emb_2021.npy",
       "shape": [
         23,
         23,
@@ -78,14 +282,46 @@
   ],
   "context_records": [
     {
-      "area": "poyang_lake",
+      "area": "tianjin_binhai_holdout",
       "bbox": [
-        116.0,
-        29.0,
-        116.1,
-        29.1
+        117.45,
+        38.95,
+        117.55,
+        39.05
       ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\embeddings\\poyang_lake_context.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\tianjin_binhai_holdout_context.npy",
+      "shape": [
+        2,
+        24,
+        24
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "shenzhen_outer_holdout",
+      "bbox": [
+        114.25,
+        22.65,
+        114.35,
+        22.75
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\shenzhen_outer_holdout_context.npy",
+      "shape": [
+        2,
+        24,
+        23
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "tarim_oasis_holdout",
+      "bbox": [
+        80.2,
+        41.1,
+        80.3,
+        41.2
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\tarim_oasis_holdout_context.npy",
       "shape": [
         2,
         23,
@@ -94,14 +330,78 @@
       "status": "fetched"
     },
     {
-      "area": "wuyi_mountain",
+      "area": "sanjiang_plain_holdout",
       "bbox": [
-        117.6,
-        27.7,
-        117.7,
-        27.8
+        133.2,
+        47.2,
+        133.3,
+        47.3
       ],
-      "path": "D:\\test\\paper58-geofm-world-model-rl\\data\\independent_change_labels\\embeddings\\wuyi_mountain_context.npy",
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\sanjiang_plain_holdout_context.npy",
+      "shape": [
+        2,
+        23,
+        23
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "dongting_lake_holdout",
+      "bbox": [
+        112.8,
+        29.2,
+        112.9,
+        29.3
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\dongting_lake_holdout_context.npy",
+      "shape": [
+        2,
+        23,
+        23
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "xiaoxinganling_holdout",
+      "bbox": [
+        128.8,
+        47.7,
+        128.9,
+        47.8
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\xiaoxinganling_holdout_context.npy",
+      "shape": [
+        2,
+        24,
+        24
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "qinling_mountain_holdout",
+      "bbox": [
+        108.4,
+        33.8,
+        108.5,
+        33.9
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\qinling_mountain_holdout_context.npy",
+      "shape": [
+        2,
+        23,
+        23
+      ],
+      "status": "fetched"
+    },
+    {
+      "area": "haibei_plateau_holdout",
+      "bbox": [
+        100.9,
+        37.2,
+        101.0,
+        37.3
+      ],
+      "path": "D:\\test\\paper58-geofm-world-model-rl\\.worktrees\\paper58-benchmark\\data\\independent_change_labels\\embeddings\\haibei_plateau_holdout_context.npy",
       "shape": [
         2,
         23,
