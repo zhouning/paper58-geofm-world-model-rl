@@ -1,39 +1,83 @@
 {
   "summary": {
-    "n_registry_rows": 12,
-    "n_evaluated": 11,
-    "n_failures": 1,
-    "model_change_f1_mean": 0.3654494112426427,
-    "primary_change_advantage_mean": 0.1959107914909829
+    "n_registry_rows": 20,
+    "n_evaluated": 18,
+    "n_failures": 2,
+    "model_change_f1_mean": 0.3782366693382442,
+    "primary_change_advantage_mean": 0.22544023365192667
   },
   "summary_by_tier": {
+    "tier1": {
+      "n": 7,
+      "mean": 0.25162800142943026,
+      "median": 0.21408323959505066,
+      "n_positive": 7,
+      "n_negative": 0
+    },
     "tier2": {
       "n": 11,
-      "mean": 0.1959107914909829,
-      "median": 0.19883978775639508,
+      "mean": 0.20877529052078805,
+      "median": 0.21680196309147615,
       "n_positive": 11,
       "n_negative": 0
     }
   },
   "summary_by_stratum": {
+    "tier1": {
+      "Agriculture": {
+        "n": 2,
+        "mean": 0.4686633249791144,
+        "median": 0.4686633249791144,
+        "n_positive": 2,
+        "n_negative": 0
+      },
+      "Forest": {
+        "n": 2,
+        "mean": 0.11672399684670565,
+        "median": 0.11672399684670565,
+        "n_positive": 2,
+        "n_negative": 0
+      },
+      "Urban": {
+        "n": 2,
+        "mean": 0.0719227174311415,
+        "median": 0.0719227174311415,
+        "n_positive": 2,
+        "n_negative": 0
+      },
+      "Wetland": {
+        "n": 1,
+        "mean": 0.4467759314920888,
+        "median": 0.4467759314920888,
+        "n_positive": 1,
+        "n_negative": 0
+      }
+    },
     "tier2": {
       "Mixed": {
         "n": 10,
-        "mean": 0.18915389297588645,
-        "median": 0.19590960803940538,
+        "mean": 0.20437328627194318,
+        "median": 0.21345687265504687,
         "n_positive": 10,
         "n_negative": 0
       },
       "Wetland": {
         "n": 1,
-        "mean": 0.26347977664194755,
-        "median": 0.26347977664194755,
+        "mean": 0.25279533300923673,
+        "median": 0.25279533300923673,
         "n_positive": 1,
         "n_negative": 0
       }
     }
   },
   "spatial_summary_by_tier": {
+    "tier1": {
+      "n": 7,
+      "mean": 0.11020757535580673,
+      "median": 0.16342007434944228,
+      "n_positive": 5,
+      "n_negative": 2
+    },
     "tier2": {
       "n": 11,
       "mean": 0.07153608531184517,
@@ -43,22 +87,22 @@
     }
   },
   "gate_report": {
-    "status": "insufficient_tier1",
+    "status": "pass",
     "tier1_primary_change": {
-      "n_rows": 0,
-      "n_clusters": 0,
-      "mean": null,
-      "median": null,
-      "ci_low": null,
-      "ci_high": null
+      "n_rows": 7,
+      "n_clusters": 7,
+      "mean": 0.25162800142943026,
+      "median": 0.21408323959505066,
+      "ci_low": 0.10190708381580636,
+      "ci_high": 0.4099235447784561
     },
     "tier1_spatial_change": {
-      "n_rows": 0,
-      "n_clusters": 0,
-      "mean": null,
-      "median": null,
-      "ci_low": null,
-      "ci_high": null
+      "n_rows": 7,
+      "n_clusters": 7,
+      "mean": 0.11020757535580673,
+      "median": 0.16342007434944228,
+      "ci_low": 0.04810621853180953,
+      "ci_high": 0.16711471734787858
     },
     "tier1_embedding": {
       "n_rows": 0,
@@ -68,10 +112,10 @@
       "ci_low": null,
       "ci_high": null
     },
-    "positive_tier1_strata": 0,
+    "positive_tier1_strata": 4,
     "required_positive_tier1_strata": 3,
-    "primary_gate_pass": false,
-    "spatial_gate_pass": false,
-    "strata_gate_pass": false
+    "primary_gate_pass": true,
+    "spatial_gate_pass": true,
+    "strata_gate_pass": true
   }
 }

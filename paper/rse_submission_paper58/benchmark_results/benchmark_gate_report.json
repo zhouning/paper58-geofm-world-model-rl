@@ -1,20 +1,20 @@
 {
-  "status": "insufficient_tier1",
+  "status": "pass",
   "tier1_primary_change": {
-    "n_rows": 0,
-    "n_clusters": 0,
-    "mean": null,
-    "median": null,
-    "ci_low": null,
-    "ci_high": null
+    "n_rows": 7,
+    "n_clusters": 7,
+    "mean": 0.25162800142943026,
+    "median": 0.21408323959505066,
+    "ci_low": 0.10190708381580636,
+    "ci_high": 0.4099235447784561
   },
   "tier1_spatial_change": {
-    "n_rows": 0,
-    "n_clusters": 0,
-    "mean": null,
-    "median": null,
-    "ci_low": null,
-    "ci_high": null
+    "n_rows": 7,
+    "n_clusters": 7,
+    "mean": 0.11020757535580673,
+    "median": 0.16342007434944228,
+    "ci_low": 0.04810621853180953,
+    "ci_high": 0.16711471734787858
   },
   "tier1_embedding": {
     "n_rows": 0,
@@ -24,9 +24,9 @@
     "ci_low": null,
     "ci_high": null
   },
-  "positive_tier1_strata": 0,
+  "positive_tier1_strata": 4,
   "required_positive_tier1_strata": 3,
-  "primary_gate_pass": false,
-  "spatial_gate_pass": false,
-  "strata_gate_pass": false
+  "primary_gate_pass": true,
+  "spatial_gate_pass": true,
+  "strata_gate_pass": true
 }

@@ -8,6 +8,14 @@ bishan,2020,2021,tier2,Mixed,uncertain,area missing from Paper58 holdout manifes
 bishan,2021,2022,tier2,Mixed,uncertain,area missing from Paper58 holdout manifest,include,ok
 bishan,2022,2023,tier2,Mixed,uncertain,area missing from Paper58 holdout manifest,include,ok
 bishan,2023,2024,tier2,Mixed,uncertain,area missing from Paper58 holdout manifest,include,ok
+dongting_lake_holdout,2020,2021,tier1,Wetland,none,area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas,include,ok
+haibei_plateau_holdout,2020,2021,tier1,Plateau,none,area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas,exclude,ok
 heping,2017,2020,tier2,Mixed,uncertain,area missing from Paper58 holdout manifest,include,ok
 poyang_lake,2020,2021,tier2,Wetland,known_contact,area appears in DEFAULT_TRAINING_AREAS in src/adk_world_model/world_model.py,include,ok
+qinling_mountain_holdout,2020,2021,tier1,Forest,none,area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas,include,ok
+sanjiang_plain_holdout,2020,2021,tier1,Agriculture,none,area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas,include,ok
+shenzhen_outer_holdout,2020,2021,tier1,Urban,none,area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas,include,ok
+tarim_oasis_holdout,2020,2021,tier1,Agriculture,none,area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas,include,ok
+tianjin_binhai_holdout,2020,2021,tier1,Urban,none,area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas,include,ok
 wuyi_mountain,2020,2021,tier2,Forest,known_contact,area appears in DEFAULT_TRAINING_AREAS in src/adk_world_model/world_model.py,negative_control,ok
+xiaoxinganling_holdout,2020,2021,tier1,Forest,none,area name and bbox are absent from DEFAULT_TRAINING_AREAS and known development areas,include,ok
