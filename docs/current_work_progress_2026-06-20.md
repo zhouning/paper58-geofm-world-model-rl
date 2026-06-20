@@ -240,10 +240,107 @@ Expanded Tier 1 interpretation:
 - `haibei_plateau_holdout` remains visible in the registry as Tier 1 provenance but was excluded by QC with `class_collapse`.
 - `poyang_lake` and `wuyi_mountain` remain Tier 2 because of known training contact.
 
+## Batch 2 Tier 1 Stability Check
+
+Design:
+
+```text
+docs/superpowers/specs/2026-06-20-paper58-batch2-tier1-design.md
+```
+
+Plan:
+
+```text
+docs/superpowers/plans/2026-06-20-paper58-batch2-tier1-stability.md
+```
+
+Batch 2 only outputs:
+
+```text
+paper/rse_submission_paper58/benchmark_results_batch2
+```
+
+Combined outputs:
+
+```text
+paper/rse_submission_paper58/benchmark_results_combined
+```
+
+Decision rule:
+
+- Batch 2 only is the primary stability check.
+- Combined pass does not strengthen the evidence if Batch 2 only fails or remains insufficient.
+
+Batch 2 only gate summary from:
+
+```text
+paper/rse_submission_paper58/benchmark_results_batch2/benchmark_gate_report.json
+```
+
+```json
+{
+  "status": "fail",
+  "tier1_primary_change": {
+    "n_rows": 8,
+    "n_clusters": 8,
+    "ci_low": 0.07977047981666133
+  },
+  "tier1_spatial_change": {
+    "n_rows": 8,
+    "n_clusters": 8,
+    "ci_low": -0.01096989826772667
+  },
+  "positive_tier1_strata": 6
+}
+```
+
+Combined gate summary from:
+
+```text
+paper/rse_submission_paper58/benchmark_results_combined/benchmark_gate_report.json
+```
+
+```json
+{
+  "status": "pass",
+  "tier1_primary_change": {
+    "n_rows": 15,
+    "n_clusters": 15,
+    "ci_low": 0.11119339244025246
+  },
+  "tier1_spatial_change": {
+    "n_rows": 15,
+    "n_clusters": 15,
+    "ci_low": 0.025691451755083954
+  },
+  "positive_tier1_strata": 6
+}
+```
+
+Stability-check interpretation:
+
+- Batch 2 only fails because the spatial Tier 1 lower confidence bound is below zero.
+- Combined pooling passes, but that pooled pass cannot be used as stronger evidence because Batch 2 only failed.
+- The practical stop/go outcome is still "do more experiments before strengthening manuscript claims."
+
 ## Next Valid Step
+
+Continue experiment-first work on `paper58-benchmark`.
+
+Recommended next steps:
+
+- inspect Batch 2 failure cases in `paper/rse_submission_paper58/benchmark_results_batch2/benchmark_failures.csv`,
+- decide whether the next experiment should expand spatially diverse strict Tier 1 holdouts or target model/decoder robustness analysis,
+- keep manuscript work limited to transparent negative or mixed-evidence reporting until an independent new batch passes on its own.
 
 ## Resume Instruction
 
 In a new window, continue from branch `paper58-benchmark`.
 
-The expanded strict Tier 1 gate has passed, so the next manuscript-facing step may be a separate revision plan that maps every proposed claim to the benchmark outputs. Do not directly strengthen the manuscript prose without that claim-to-evidence mapping.
+Batch 2 stability check is complete.
+
+Resume from the Batch 2 decision rule above:
+
+- treat `benchmark_results_batch2` as the primary readout,
+- do not treat the combined pooled pass as permission to strengthen the manuscript,
+- continue with stronger and more diverse experiments first.
