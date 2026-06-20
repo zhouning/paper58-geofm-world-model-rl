@@ -19,7 +19,9 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_RESULTS_DIR = ROOT / "paper" / "rse_submission_paper58" / "benchmark_results_batch2"
 DEFAULT_OUTPUT_DIR = ROOT / "paper" / "rse_submission_paper58" / "diagnostics_batch2"
 DEFAULT_LABELS_DIR = ROOT / "data" / "independent_change_labels" / "labels"
+DEFAULT_EMBEDDINGS_DIR = ROOT / "data" / "independent_change_labels" / "embeddings"
 DEFAULT_PREDICTIONS_DIR = ROOT / "data" / "independent_change_labels" / "predicted"
+DEFAULT_DECODER_PATH = ROOT / "src" / "adk_world_model" / "weights" / "lulc_decoder_v1.pkl"
 
 BLUE = "#2C7FB8"
 GRAY = "#8A8F93"
@@ -107,6 +109,23 @@ def _write_csv(path: Path, rows: list[dict], fieldnames: list[str]) -> None:
             writer.writerow(row)
 
 
+def _load_decoder(path: Path):
+    import joblib
+
+    return joblib.load(path)
+
+
+def _decode_lulc(embedding_grid: np.ndarray, decoder) -> np.ndarray:
+    h, w = embedding_grid.shape[:2]
+    return decoder.predict(embedding_grid.reshape(-1, embedding_grid.shape[-1])).reshape(h, w).astype(np.int32)
+
+
+def _pixel_accuracy(reference: np.ndarray, prediction: np.ndarray) -> float:
+    if reference.shape != prediction.shape:
+        raise ValueError(f"Shape mismatch: reference={reference.shape}, prediction={prediction.shape}")
+    return float(np.mean(reference == prediction)) if reference.size else 0.0
+
+
 def _shift_mask(mask: np.ndarray, dy: int, dx: int) -> np.ndarray:
     shifted = np.zeros(mask.shape, dtype=bool)
     src_y0 = max(0, -dy)
@@ -162,6 +181,30 @@ def best_shift_diagnostic(
     }
 
 
+def transition_count_rows(
+    start: np.ndarray,
+    end: np.ndarray,
+    change_mask: np.ndarray,
+    source: str,
+    limit: int = 12,
+) -> list[dict]:
+    counts: dict[tuple[int, int], int] = {}
+    ys, xs = np.where(change_mask)
+    for y, x in zip(ys, xs):
+        key = (int(start[y, x]), int(end[y, x]))
+        counts[key] = counts.get(key, 0) + 1
+    ranked = sorted(counts.items(), key=lambda item: (-item[1], item[0]))[:limit]
+    return [
+        {
+            "source": source,
+            "start_class": start_class,
+            "end_class": end_class,
+            "n_pixels": n_pixels,
+        }
+        for (start_class, end_class), n_pixels in ranked
+    ]
+
+
 def make_batch2_alignment_table(
     out_dir: Path,
     labels_dir: Path = DEFAULT_LABELS_DIR,
@@ -200,6 +243,124 @@ def make_batch2_alignment_table(
             "centroid_model_y",
             "centroid_model_x",
         ],
+    )
+    return rows
+
+
+def make_embedding_decoder_audit_table(
+    out_dir: Path,
+    decoder,
+    labels_dir: Path = DEFAULT_LABELS_DIR,
+    embeddings_dir: Path = DEFAULT_EMBEDDINGS_DIR,
+    predictions_dir: Path = DEFAULT_PREDICTIONS_DIR,
+    areas: list[str] | None = None,
+    start_year: int = 2020,
+    end_year: int = 2021,
+    max_shift: int = 4,
+) -> list[dict]:
+    if areas is None:
+        areas = [
+            path.name.removesuffix(f"_lulc_pred_{start_year}_{end_year}.npy")
+            for path in sorted(Path(predictions_dir).glob(f"*_lulc_pred_{start_year}_{end_year}.npy"))
+        ]
+
+    rows = []
+    for area in areas:
+        start = np.load(Path(labels_dir) / f"{area}_lulc_{start_year}.npy")
+        end = np.load(Path(labels_dir) / f"{area}_lulc_{end_year}.npy")
+        pred = np.load(Path(predictions_dir) / f"{area}_lulc_pred_{start_year}_{end_year}.npy")
+        emb_start = np.load(Path(embeddings_dir) / f"{area}_emb_{start_year}.npy")
+        emb_end = np.load(Path(embeddings_dir) / f"{area}_emb_{end_year}.npy")
+
+        decoded_start = _decode_lulc(emb_start, decoder)
+        decoded_end = _decode_lulc(emb_end, decoder)
+        true_change = end != start
+        decoded_observed_change = decoded_end != decoded_start
+        model_change = pred != start
+        model_change_decoded_start = pred != decoded_start
+        decoded_metrics = binary_change_metrics(true_change, decoded_observed_change)
+        decoded_shift = best_shift_diagnostic(true_change, decoded_observed_change, max_shift=max_shift)
+
+        rows.append(
+            {
+                "area": area,
+                "start_decode_accuracy": _pixel_accuracy(start, decoded_start),
+                "end_decode_accuracy": _pixel_accuracy(end, decoded_end),
+                "true_change_pixels": int(np.count_nonzero(true_change)),
+                "decoded_observed_change_pixels": int(np.count_nonzero(decoded_observed_change)),
+                "decoded_observed_change_precision": float(decoded_metrics["precision"]),
+                "decoded_observed_change_recall": float(decoded_metrics["recall"]),
+                "decoded_observed_change_f1": float(decoded_metrics["f1"]),
+                "decoded_observed_best_shift_change_f1": float(decoded_shift["best_shift_change_f1"]),
+                "decoded_observed_best_dy": int(decoded_shift["best_dy"]),
+                "decoded_observed_best_dx": int(decoded_shift["best_dx"]),
+                "model_change_f1_label_start": float(binary_change_metrics(true_change, model_change)["f1"]),
+                "model_change_f1_decoded_start": float(
+                    binary_change_metrics(true_change, model_change_decoded_start)["f1"]
+                ),
+                "model_end_accuracy": _pixel_accuracy(end, pred),
+                "model_start_accuracy": _pixel_accuracy(start, pred),
+            }
+        )
+
+    _write_csv(
+        Path(out_dir) / "batch2_embedding_decoder_audit.csv",
+        rows,
+        [
+            "area",
+            "start_decode_accuracy",
+            "end_decode_accuracy",
+            "true_change_pixels",
+            "decoded_observed_change_pixels",
+            "decoded_observed_change_precision",
+            "decoded_observed_change_recall",
+            "decoded_observed_change_f1",
+            "decoded_observed_best_shift_change_f1",
+            "decoded_observed_best_dy",
+            "decoded_observed_best_dx",
+            "model_change_f1_label_start",
+            "model_change_f1_decoded_start",
+            "model_end_accuracy",
+            "model_start_accuracy",
+        ],
+    )
+    return rows
+
+
+def make_transition_table(
+    out_dir: Path,
+    decoder,
+    labels_dir: Path = DEFAULT_LABELS_DIR,
+    embeddings_dir: Path = DEFAULT_EMBEDDINGS_DIR,
+    predictions_dir: Path = DEFAULT_PREDICTIONS_DIR,
+    area: str = "xiong_an_fringe_holdout",
+    start_year: int = 2020,
+    end_year: int = 2021,
+    limit: int = 12,
+) -> list[dict]:
+    start = np.load(Path(labels_dir) / f"{area}_lulc_{start_year}.npy")
+    end = np.load(Path(labels_dir) / f"{area}_lulc_{end_year}.npy")
+    pred = np.load(Path(predictions_dir) / f"{area}_lulc_pred_{start_year}_{end_year}.npy")
+    emb_start = np.load(Path(embeddings_dir) / f"{area}_emb_{start_year}.npy")
+    emb_end = np.load(Path(embeddings_dir) / f"{area}_emb_{end_year}.npy")
+    decoded_start = _decode_lulc(emb_start, decoder)
+    decoded_end = _decode_lulc(emb_end, decoder)
+
+    rows = (
+        transition_count_rows(start, end, end != start, source="reference_change", limit=limit)
+        + transition_count_rows(start, pred, pred != start, source="model_change", limit=limit)
+        + transition_count_rows(
+            decoded_start,
+            decoded_end,
+            decoded_end != decoded_start,
+            source="decoded_observed_change",
+            limit=limit,
+        )
+    )
+    _write_csv(
+        Path(out_dir) / f"{area}_transition_counts.csv",
+        rows,
+        ["source", "start_class", "end_class", "n_pixels"],
     )
     return rows
 
@@ -362,11 +523,14 @@ def main() -> None:
     parser.add_argument("--results-dir", type=Path, default=DEFAULT_RESULTS_DIR)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--labels-dir", type=Path, default=DEFAULT_LABELS_DIR)
+    parser.add_argument("--embeddings-dir", type=Path, default=DEFAULT_EMBEDDINGS_DIR)
     parser.add_argument("--predictions-dir", type=Path, default=DEFAULT_PREDICTIONS_DIR)
+    parser.add_argument("--decoder", type=Path, default=DEFAULT_DECODER_PATH)
     args = parser.parse_args()
 
     apply_style()
     args.output_dir.mkdir(parents=True, exist_ok=True)
+    decoder = _load_decoder(args.decoder)
     xiongan_summary = make_xiongan_spatial_panel(
         out_dir=args.output_dir,
         labels_dir=args.labels_dir,
@@ -383,7 +547,32 @@ def main() -> None:
         predictions_dir=args.predictions_dir,
         areas=areas,
     )
+    decoder_audit_rows = make_embedding_decoder_audit_table(
+        out_dir=args.output_dir,
+        decoder=decoder,
+        labels_dir=args.labels_dir,
+        embeddings_dir=args.embeddings_dir,
+        predictions_dir=args.predictions_dir,
+        areas=areas,
+    )
+    transition_rows = make_transition_table(
+        out_dir=args.output_dir,
+        decoder=decoder,
+        labels_dir=args.labels_dir,
+        embeddings_dir=args.embeddings_dir,
+        predictions_dir=args.predictions_dir,
+        area="xiong_an_fringe_holdout",
+    )
     xiongan_alignment = next(row for row in alignment_rows if row["area"] == "xiong_an_fringe_holdout")
+    xiongan_decoder_audit = next(row for row in decoder_audit_rows if row["area"] == "xiong_an_fringe_holdout")
+    xiongan_transition_top = next(
+        (
+            row
+            for row in transition_rows
+            if row["source"] == "reference_change"
+        ),
+        None,
+    )
     summary_path = args.output_dir / "batch2_diagnostic_summary.txt"
     summary_path.write_text(
         "\n".join(
@@ -393,9 +582,25 @@ def main() -> None:
                 f"xiongan_best_shift_change_f1={xiongan_alignment['best_shift_change_f1']}",
                 f"xiongan_best_shift_dy={xiongan_alignment['best_dy']}",
                 f"xiongan_best_shift_dx={xiongan_alignment['best_dx']}",
+                f"xiongan_start_decode_accuracy={xiongan_decoder_audit['start_decode_accuracy']}",
+                f"xiongan_end_decode_accuracy={xiongan_decoder_audit['end_decode_accuracy']}",
+                f"xiongan_decoded_observed_change_f1={xiongan_decoder_audit['decoded_observed_change_f1']}",
+                (
+                    "xiongan_decoded_observed_best_shift_change_f1="
+                    f"{xiongan_decoder_audit['decoded_observed_best_shift_change_f1']}"
+                ),
+                f"xiongan_decoded_observed_best_shift_dy={xiongan_decoder_audit['decoded_observed_best_dy']}",
+                f"xiongan_decoded_observed_best_shift_dx={xiongan_decoder_audit['decoded_observed_best_dx']}",
                 f"batch2_spatial_ci_low={sensitivity_summary['batch2_spatial_ci_low']}",
                 f"drop_xiongan_spatial_ci_low={sensitivity_summary['drop_xiongan_spatial_ci_low']}",
                 f"xiongan_spatial_advantage={sensitivity_summary['xiongan_spatial_advantage']}",
+                (
+                    "xiongan_reference_top_transition="
+                    f"{xiongan_transition_top['start_class']}->{xiongan_transition_top['end_class']}:"
+                    f"{xiongan_transition_top['n_pixels']}"
+                )
+                if xiongan_transition_top is not None
+                else "xiongan_reference_top_transition=",
             ]
         ),
         encoding="utf-8",

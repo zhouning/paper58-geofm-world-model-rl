@@ -4,7 +4,10 @@ import numpy as np
 
 from scripts.paper58_benchmark.make_batch2_diagnostics import (
     best_shift_diagnostic,
+    make_embedding_decoder_audit_table,
     make_batch2_alignment_table,
+    make_transition_table,
+    transition_count_rows,
 )
 
 
@@ -64,4 +67,121 @@ def test_make_batch2_alignment_table_writes_shift_diagnostics(tmp_path: Path):
     assert (output / "batch2_spatial_alignment_shift.csv").read_text(encoding="utf-8").splitlines()[0] == (
         "area,raw_change_f1,best_shift_change_f1,best_dy,best_dx,"
         "centroid_true_y,centroid_true_x,centroid_model_y,centroid_model_x"
+    )
+
+
+class ToyDecoder:
+    def predict(self, pixels):
+        return (pixels[:, 0] > 0.5).astype(np.int32)
+
+
+def _toy_embedding(class_grid: np.ndarray) -> np.ndarray:
+    embedding = np.zeros((*class_grid.shape, 64), dtype=np.float32)
+    embedding[..., 0] = class_grid
+    return embedding
+
+
+def test_transition_count_rows_counts_source_end_pairs():
+    start = np.array([[1, 1, 2], [2, 2, 2]], dtype=np.int32)
+    end = np.array([[1, 3, 3], [2, 4, 4]], dtype=np.int32)
+    mask = start != end
+
+    rows = transition_count_rows(start, end, mask, source="reference_change", limit=3)
+
+    assert rows == [
+        {"source": "reference_change", "start_class": 2, "end_class": 4, "n_pixels": 2},
+        {"source": "reference_change", "start_class": 1, "end_class": 3, "n_pixels": 1},
+        {"source": "reference_change", "start_class": 2, "end_class": 3, "n_pixels": 1},
+    ]
+
+
+def test_make_embedding_decoder_audit_table_writes_decoded_change_metrics(tmp_path: Path):
+    labels = tmp_path / "labels"
+    embeddings = tmp_path / "embeddings"
+    predictions = tmp_path / "predicted"
+    output = tmp_path / "diagnostics"
+    labels.mkdir()
+    embeddings.mkdir()
+    predictions.mkdir()
+
+    start = np.zeros((2, 2), dtype=np.int32)
+    end = np.array([[0, 1], [0, 0]], dtype=np.int32)
+    pred = np.array([[0, 1], [1, 0]], dtype=np.int32)
+    np.save(labels / "toy_lulc_2020.npy", start)
+    np.save(labels / "toy_lulc_2021.npy", end)
+    np.save(embeddings / "toy_emb_2020.npy", _toy_embedding(start))
+    np.save(embeddings / "toy_emb_2021.npy", _toy_embedding(end))
+    np.save(predictions / "toy_lulc_pred_2020_2021.npy", pred)
+
+    rows = make_embedding_decoder_audit_table(
+        out_dir=output,
+        decoder=ToyDecoder(),
+        labels_dir=labels,
+        embeddings_dir=embeddings,
+        predictions_dir=predictions,
+        areas=["toy"],
+        start_year=2020,
+        end_year=2021,
+        max_shift=2,
+    )
+
+    assert rows == [
+        {
+            "area": "toy",
+            "start_decode_accuracy": 1.0,
+            "end_decode_accuracy": 1.0,
+            "true_change_pixels": 1,
+            "decoded_observed_change_pixels": 1,
+            "decoded_observed_change_precision": 1.0,
+            "decoded_observed_change_recall": 1.0,
+            "decoded_observed_change_f1": 1.0,
+            "decoded_observed_best_shift_change_f1": 1.0,
+            "decoded_observed_best_dy": 0,
+            "decoded_observed_best_dx": 0,
+            "model_change_f1_label_start": 2 / 3,
+            "model_change_f1_decoded_start": 2 / 3,
+            "model_end_accuracy": 0.75,
+            "model_start_accuracy": 0.5,
+        }
+    ]
+    assert (output / "batch2_embedding_decoder_audit.csv").exists()
+
+
+def test_make_transition_table_writes_reference_model_and_decoded_sources(tmp_path: Path):
+    labels = tmp_path / "labels"
+    embeddings = tmp_path / "embeddings"
+    predictions = tmp_path / "predicted"
+    output = tmp_path / "diagnostics"
+    labels.mkdir()
+    embeddings.mkdir()
+    predictions.mkdir()
+
+    start = np.array([[0, 0], [0, 0]], dtype=np.int32)
+    end = np.array([[0, 1], [0, 0]], dtype=np.int32)
+    pred = np.array([[0, 1], [1, 0]], dtype=np.int32)
+    np.save(labels / "toy_lulc_2020.npy", start)
+    np.save(labels / "toy_lulc_2021.npy", end)
+    np.save(embeddings / "toy_emb_2020.npy", _toy_embedding(start))
+    np.save(embeddings / "toy_emb_2021.npy", _toy_embedding(end))
+    np.save(predictions / "toy_lulc_pred_2020_2021.npy", pred)
+
+    rows = make_transition_table(
+        out_dir=output,
+        decoder=ToyDecoder(),
+        labels_dir=labels,
+        embeddings_dir=embeddings,
+        predictions_dir=predictions,
+        area="toy",
+        start_year=2020,
+        end_year=2021,
+        limit=5,
+    )
+
+    assert rows == [
+        {"source": "reference_change", "start_class": 0, "end_class": 1, "n_pixels": 1},
+        {"source": "model_change", "start_class": 0, "end_class": 1, "n_pixels": 2},
+        {"source": "decoded_observed_change", "start_class": 0, "end_class": 1, "n_pixels": 1},
+    ]
+    assert (output / "toy_transition_counts.csv").read_text(encoding="utf-8").splitlines()[0] == (
+        "source,start_class,end_class,n_pixels"
     )

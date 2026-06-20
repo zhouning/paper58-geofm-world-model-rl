@@ -348,6 +348,8 @@ paper/rse_submission_paper58/diagnostics_batch2/fig_batch2_xiongan_spatial_failu
 paper/rse_submission_paper58/diagnostics_batch2/batch2_spatial_advantage_ranked.csv
 paper/rse_submission_paper58/diagnostics_batch2/batch2_spatial_leave_one_out.csv
 paper/rse_submission_paper58/diagnostics_batch2/batch2_spatial_alignment_shift.csv
+paper/rse_submission_paper58/diagnostics_batch2/batch2_embedding_decoder_audit.csv
+paper/rse_submission_paper58/diagnostics_batch2/xiong_an_fringe_holdout_transition_counts.csv
 paper/rse_submission_paper58/diagnostics_batch2/batch2_diagnostic_summary.txt
 ```
 
@@ -371,7 +373,7 @@ Spatial-advantage ordering within Batch 2:
 Leave-one-out spatial sensitivity:
 
 - All 8 rows: spatial `ci_low = -0.01096989826772667`
-- Drop `xiong_an_fringe_holdout`: spatial `ci_low = 0.01871708986647101`
+- Drop `xiong_an_fringe_holdout`: spatial `ci_low = 0.01871684745598648`
 - Dropping any other single row leaves spatial `ci_low <= 0`
 
 Interpretation:
@@ -391,10 +393,26 @@ Interpretation:
 
 This means the negative spatial result for `xiong_an_fringe_holdout` is not just a fixed-seed shuffle artifact.
 
+Decoder/localization audit for `xiong_an_fringe_holdout`:
+
+- 2020 original embedding decoded against 2020 ESRI label: accuracy `0.7361111111111112`
+- 2021 original embedding decoded against 2021 ESRI label: accuracy `0.6527777777777778`
+- Change mask from decoded 2020/2021 original embeddings: `F1 = 0.30409356725146197`
+- Best shift for decoded-observed change remains `dy = 0`, `dx = 0`, with `F1 = 0.30409356725146197`
+- Model-predicted change against the ESRI start label: `F1 = 0.23188405797101452`
+- Model-predicted change against the decoded start label: `F1 = 0.0`
+
+Interpretation of the decoder/localization audit:
+
+- The ESRI label and original AlphaEarth embedding grids are not showing the same `dy = 3`, `dx = 3` shift seen in the future model prediction.
+- Therefore the leading root-cause hypothesis is not a simple label/embedding grid registration error.
+- The current evidence points more narrowly to the learned future-prediction output or its transition typing/localization under this urban-fringe case.
+
 Observed transition mismatch for `xiong_an_fringe_holdout`:
 
-- true dominant transitions include `5->11` and `5->7`
-- predicted changed pixels are dominated by `4->1`, `0->11`, and `7->5`
+- true dominant transitions: `5->11` (`38` pixels), `5->7` (`30`), `7->11` (`14`), `7->5` (`12`)
+- predicted changed pixels: `4->1` (`49`), `7->5` (`26`), `0->11` (`24`), `4->5` (`18`)
+- decoded-observed changed pixels: `7->5` (`27`), `5->1` (`11`), `5->7` (`7`)
 
 Practical reading:
 
@@ -408,10 +426,10 @@ Continue experiment-first work on `paper58-benchmark`.
 
 Recommended next steps:
 
-- inspect Batch 2 failure cases in `paper/rse_submission_paper58/benchmark_results_batch2/benchmark_failures.csv`,
 - prioritize a new external Batch 3 that strengthens urban spatial robustness rather than pooling Batch 2 away,
 - treat `xiong_an_fringe_holdout` as a diagnostic area for spatial-localization failure, not as manuscript-strengthening evidence,
-- decide whether the next experiment should add urban replacement holdouts first or run a targeted model/decoder robustness audit around `xiong_an_fringe_holdout`,
+- run a targeted future-prediction localization robustness audit around `xiong_an_fringe_holdout` if model debugging is prioritized before Batch 3,
+- consider Batch 3 urban replacement holdouts if the next priority is stronger external evidence rather than model debugging,
 - keep manuscript work limited to transparent negative or mixed-evidence reporting until an independent new batch passes on its own.
 
 ## Resume Instruction
@@ -425,4 +443,5 @@ Resume from the Batch 2 decision rule above:
 - treat `benchmark_results_batch2` as the primary readout,
 - do not treat the combined pooled pass as permission to strengthen the manuscript,
 - use `xiong_an_fringe_holdout` as the first diagnostic target when planning the next experiment,
+- remember that the decoder/localization audit points away from simple label/embedding registration as the main cause,
 - continue with stronger and more diverse experiments first.
