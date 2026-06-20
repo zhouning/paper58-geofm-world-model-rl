@@ -350,6 +350,7 @@ paper/rse_submission_paper58/diagnostics_batch2/batch2_spatial_leave_one_out.csv
 paper/rse_submission_paper58/diagnostics_batch2/batch2_spatial_alignment_shift.csv
 paper/rse_submission_paper58/diagnostics_batch2/batch2_embedding_decoder_audit.csv
 paper/rse_submission_paper58/diagnostics_batch2/xiong_an_fringe_holdout_transition_counts.csv
+paper/rse_submission_paper58/diagnostics_batch2/xiong_an_fringe_holdout_transition_fate.csv
 paper/rse_submission_paper58/diagnostics_batch2/batch2_diagnostic_summary.txt
 ```
 
@@ -414,10 +415,24 @@ Observed transition mismatch for `xiong_an_fringe_holdout`:
 - predicted changed pixels: `4->1` (`49`), `7->5` (`26`), `0->11` (`24`), `4->5` (`18`)
 - decoded-observed changed pixels: `7->5` (`27`), `5->1` (`11`), `5->7` (`7`)
 
+Transition-fate audit for top true transitions in `xiong_an_fringe_holdout`:
+
+- true `5->11` (`38` pixels): decoded 2020 start is `5:38`; decoded 2021 observed end is still `5:38`; model-predicted end is also `5:38`
+- true `5->7` (`30`): decoded 2021 observed end is `5:25;7:5`; model-predicted end is `5:26;7:4`
+- true `7->11` (`14`): decoded 2021 observed end is `5:12;7:2`; model-predicted end is `7:11;5:3`
+- true `7->5` (`12`): decoded 2021 observed end is `5:12`; model-predicted end is `7:9;5:3`
+
+Interpretation of the transition-fate audit:
+
+- The largest missed transition (`5->11`) is already absent in the decoded 2021 observed embedding, not only in the model forecast.
+- Therefore the current evidence does not support a simple story of "the dynamics model alone misplaced an otherwise separable wetland transition."
+- The stronger hypothesis is that some critical urban-fringe transitions are weakly separated in the current embedding-plus-decoder semantic view, and the future model inherits that limitation.
+
 Practical reading:
 
 - The model is detecting change mass in `xiong_an_fringe_holdout`, but the spatial placement and/or transition typing is misaligned enough that shuffling the same predicted map performs better.
 - The best-shift result indicates a local spatial alignment problem: a small translation of the predicted change mask recovers more signal than the raw prediction.
+- The new transition-fate audit shows that semantic transition failure and spatial-localization failure are both involved; `5->11` in particular looks like a decoder/representation bottleneck rather than a pure forecast-only error.
 - `hexi_irrigation_holdout` is not negative, but it has only `5` true change pixels and contributes almost no spatial margin.
 
 ## Next Valid Step
@@ -429,6 +444,7 @@ Recommended next steps:
 - prioritize a new external Batch 3 that strengthens urban spatial robustness rather than pooling Batch 2 away,
 - treat `xiong_an_fringe_holdout` as a diagnostic area for spatial-localization failure, not as manuscript-strengthening evidence,
 - run a targeted future-prediction localization robustness audit around `xiong_an_fringe_holdout` if model debugging is prioritized before Batch 3,
+- if model debugging continues, separate forecast-stage error from decoder-stage error before spending time on architecture changes,
 - consider Batch 3 urban replacement holdouts if the next priority is stronger external evidence rather than model debugging,
 - keep manuscript work limited to transparent negative or mixed-evidence reporting until an independent new batch passes on its own.
 
@@ -444,4 +460,5 @@ Resume from the Batch 2 decision rule above:
 - do not treat the combined pooled pass as permission to strengthen the manuscript,
 - use `xiong_an_fringe_holdout` as the first diagnostic target when planning the next experiment,
 - remember that the decoder/localization audit points away from simple label/embedding registration as the main cause,
+- remember that the new transition-fate audit makes `5->11` and part of `5->7` look representation/decoder-limited, not just forecast-limited,
 - continue with stronger and more diverse experiments first.

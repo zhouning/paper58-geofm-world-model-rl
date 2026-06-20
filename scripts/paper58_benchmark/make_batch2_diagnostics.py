@@ -205,6 +205,15 @@ def transition_count_rows(
     ]
 
 
+def _class_count_summary(values: np.ndarray, limit: int = 4) -> str:
+    counts: dict[int, int] = {}
+    for value in values.ravel():
+        class_id = int(value)
+        counts[class_id] = counts.get(class_id, 0) + 1
+    ranked = sorted(counts.items(), key=lambda item: (-item[1], item[0]))[:limit]
+    return ";".join(f"{class_id}:{n_pixels}" for class_id, n_pixels in ranked)
+
+
 def make_batch2_alignment_table(
     out_dir: Path,
     labels_dir: Path = DEFAULT_LABELS_DIR,
@@ -361,6 +370,53 @@ def make_transition_table(
         Path(out_dir) / f"{area}_transition_counts.csv",
         rows,
         ["source", "start_class", "end_class", "n_pixels"],
+    )
+    return rows
+
+
+def make_transition_fate_table(
+    out_dir: Path,
+    decoder,
+    labels_dir: Path = DEFAULT_LABELS_DIR,
+    embeddings_dir: Path = DEFAULT_EMBEDDINGS_DIR,
+    predictions_dir: Path = DEFAULT_PREDICTIONS_DIR,
+    area: str = "xiong_an_fringe_holdout",
+    start_year: int = 2020,
+    end_year: int = 2021,
+    top_n_true_transitions: int = 8,
+) -> list[dict]:
+    start = np.load(Path(labels_dir) / f"{area}_lulc_{start_year}.npy")
+    end = np.load(Path(labels_dir) / f"{area}_lulc_{end_year}.npy")
+    pred = np.load(Path(predictions_dir) / f"{area}_lulc_pred_{start_year}_{end_year}.npy")
+    emb_start = np.load(Path(embeddings_dir) / f"{area}_emb_{start_year}.npy")
+    emb_end = np.load(Path(embeddings_dir) / f"{area}_emb_{end_year}.npy")
+    decoded_start = _decode_lulc(emb_start, decoder)
+    decoded_end = _decode_lulc(emb_end, decoder)
+
+    transition_counts: dict[tuple[int, int], int] = {}
+    changed = start != end
+    for start_class, end_class in zip(start[changed].ravel(), end[changed].ravel()):
+        key = (int(start_class), int(end_class))
+        transition_counts[key] = transition_counts.get(key, 0) + 1
+    ranked = sorted(transition_counts.items(), key=lambda item: (-item[1], item[0]))[:top_n_true_transitions]
+
+    rows = []
+    for (start_class, end_class), n_pixels in ranked:
+        mask = (start == start_class) & (end == end_class)
+        rows.append(
+            {
+                "true_transition": f"{start_class}->{end_class}",
+                "n_true_pixels": n_pixels,
+                "decoded_start_top": _class_count_summary(decoded_start[mask]),
+                "decoded_end_top": _class_count_summary(decoded_end[mask]),
+                "model_end_top": _class_count_summary(pred[mask]),
+            }
+        )
+
+    _write_csv(
+        Path(out_dir) / f"{area}_transition_fate.csv",
+        rows,
+        ["true_transition", "n_true_pixels", "decoded_start_top", "decoded_end_top", "model_end_top"],
     )
     return rows
 
@@ -563,6 +619,14 @@ def main() -> None:
         predictions_dir=args.predictions_dir,
         area="xiong_an_fringe_holdout",
     )
+    transition_fate_rows = make_transition_fate_table(
+        out_dir=args.output_dir,
+        decoder=decoder,
+        labels_dir=args.labels_dir,
+        embeddings_dir=args.embeddings_dir,
+        predictions_dir=args.predictions_dir,
+        area="xiong_an_fringe_holdout",
+    )
     xiongan_alignment = next(row for row in alignment_rows if row["area"] == "xiong_an_fringe_holdout")
     xiongan_decoder_audit = next(row for row in decoder_audit_rows if row["area"] == "xiong_an_fringe_holdout")
     xiongan_transition_top = next(
@@ -573,6 +637,7 @@ def main() -> None:
         ),
         None,
     )
+    xiongan_transition_fate_top = transition_fate_rows[0] if transition_fate_rows else None
     summary_path = args.output_dir / "batch2_diagnostic_summary.txt"
     summary_path.write_text(
         "\n".join(
@@ -601,6 +666,14 @@ def main() -> None:
                 )
                 if xiongan_transition_top is not None
                 else "xiongan_reference_top_transition=",
+                (
+                    "xiongan_reference_top_transition_fate="
+                    f"{xiongan_transition_fate_top['true_transition']};"
+                    f"decoded_end={xiongan_transition_fate_top['decoded_end_top']};"
+                    f"model_end={xiongan_transition_fate_top['model_end_top']}"
+                )
+                if xiongan_transition_fate_top is not None
+                else "xiongan_reference_top_transition_fate=",
             ]
         ),
         encoding="utf-8",

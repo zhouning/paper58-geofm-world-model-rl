@@ -13,3 +13,4 @@ batch2_spatial_ci_low=-0.01096989826772667
 drop_xiongan_spatial_ci_low=0.01871684745598648
 xiongan_spatial_advantage=-0.07471971561389112
 xiongan_reference_top_transition=5->11:38
+xiongan_reference_top_transition_fate=5->11;decoded_end=5:38;model_end=5:38

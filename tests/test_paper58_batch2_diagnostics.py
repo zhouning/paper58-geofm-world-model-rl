@@ -6,6 +6,7 @@ from scripts.paper58_benchmark.make_batch2_diagnostics import (
     best_shift_diagnostic,
     make_embedding_decoder_audit_table,
     make_batch2_alignment_table,
+    make_transition_fate_table,
     make_transition_table,
     transition_count_rows,
 )
@@ -72,7 +73,7 @@ def test_make_batch2_alignment_table_writes_shift_diagnostics(tmp_path: Path):
 
 class ToyDecoder:
     def predict(self, pixels):
-        return (pixels[:, 0] > 0.5).astype(np.int32)
+        return pixels[:, 0].astype(np.int32)
 
 
 def _toy_embedding(class_grid: np.ndarray) -> np.ndarray:
@@ -184,4 +185,71 @@ def test_make_transition_table_writes_reference_model_and_decoded_sources(tmp_pa
     ]
     assert (output / "toy_transition_counts.csv").read_text(encoding="utf-8").splitlines()[0] == (
         "source,start_class,end_class,n_pixels"
+    )
+
+
+def test_make_transition_fate_table_tracks_true_transition_destinations(tmp_path: Path):
+    labels = tmp_path / "labels"
+    embeddings = tmp_path / "embeddings"
+    predictions = tmp_path / "predicted"
+    output = tmp_path / "diagnostics"
+    labels.mkdir()
+    embeddings.mkdir()
+    predictions.mkdir()
+
+    start = np.array([[5, 5], [7, 7]], dtype=np.int32)
+    end = np.array([[11, 7], [5, 11]], dtype=np.int32)
+    pred = np.array([[5, 7], [7, 5]], dtype=np.int32)
+    decoded_start = np.array([[5, 5], [7, 7]], dtype=np.int32)
+    decoded_end = np.array([[5, 7], [5, 5]], dtype=np.int32)
+    np.save(labels / "toy_lulc_2020.npy", start)
+    np.save(labels / "toy_lulc_2021.npy", end)
+    np.save(embeddings / "toy_emb_2020.npy", _toy_embedding(decoded_start))
+    np.save(embeddings / "toy_emb_2021.npy", _toy_embedding(decoded_end))
+    np.save(predictions / "toy_lulc_pred_2020_2021.npy", pred)
+
+    rows = make_transition_fate_table(
+        out_dir=output,
+        decoder=ToyDecoder(),
+        labels_dir=labels,
+        embeddings_dir=embeddings,
+        predictions_dir=predictions,
+        area="toy",
+        start_year=2020,
+        end_year=2021,
+        top_n_true_transitions=4,
+    )
+
+    assert {row["true_transition"]: row for row in rows} == {
+        "5->11": {
+            "true_transition": "5->11",
+            "n_true_pixels": 1,
+            "decoded_start_top": "5:1",
+            "decoded_end_top": "5:1",
+            "model_end_top": "5:1",
+        },
+        "5->7": {
+            "true_transition": "5->7",
+            "n_true_pixels": 1,
+            "decoded_start_top": "5:1",
+            "decoded_end_top": "7:1",
+            "model_end_top": "7:1",
+        },
+        "7->5": {
+            "true_transition": "7->5",
+            "n_true_pixels": 1,
+            "decoded_start_top": "7:1",
+            "decoded_end_top": "5:1",
+            "model_end_top": "7:1",
+        },
+        "7->11": {
+            "true_transition": "7->11",
+            "n_true_pixels": 1,
+            "decoded_start_top": "7:1",
+            "decoded_end_top": "5:1",
+            "model_end_top": "5:1",
+        },
+    }
+    assert (output / "toy_transition_fate.csv").read_text(encoding="utf-8").splitlines()[0] == (
+        "true_transition,n_true_pixels,decoded_start_top,decoded_end_top,model_end_top"
     )
