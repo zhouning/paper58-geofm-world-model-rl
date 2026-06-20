@@ -837,11 +837,33 @@ Next experimental implication:
 - For targeted diagnosis, prioritize `xiongxian_river_corridor_holdout` and `baiyangdian_new_area_holdout`: the former is the clearer observed class-`11` bottleneck analogue, while the latter may separate observed representation from forecast suppression.
 - If adding a Batch 5, use a mixed design: keep a small number of class-`11` stress urban-fringe rows, but add non-Urban strata to restore the full gate's cross-stratum logic.
 
+## Batch 5 Mixed-Gate Design Direction
+
+Batch 5 design spec:
+
+```text
+docs/superpowers/specs/2026-06-20-paper58-batch5-mixed-gate-design.md
+```
+
+Approved design direction:
+
+- Use a mixed `6-8` row Tier 1 candidate batch rather than another all-Urban batch.
+- Include `2` `xiong_an_like` Urban stress rows, `1` `suzhou_like` Urban localization row, `2` Wetland or Agriculture rows, and `1-2` Forest or Grassland rows.
+- Require no area-name overlap with Batch 1, Batch 2, Batch 3, or Batch 4.
+- Keep the batch manifest-only first; do not run acquisition until the candidate rows and provenance are recorded.
+
+Design rationale:
+
+- Batch 2 failed the spatial gate.
+- Batch 3 passed as a mixed external batch.
+- Batch 4 passed primary and spatial confidence checks but failed the full gate because it was all Urban.
+- Therefore Batch 5 should restore the full gate's cross-stratum logic while retaining a small urban stress probe.
+
 ## Resume Instruction
 
 In a new window, continue from branch `paper58-benchmark`.
 
-Batch 2 and Batch 3 checks are complete, and Batch 4 external urban-only readout is now recorded.
+Batch 2 and Batch 3 checks are complete, Batch 4 external urban-only readout is recorded, and Batch 5 mixed-gate design direction is specified.
 
 Resume from the current decision rule:
 
@@ -862,4 +884,5 @@ Resume from the current decision rule:
 - remember that Batch 4-only now fails the full benchmark gate because it is all-Urban and therefore misses the `3`-strata requirement, even though its primary and spatial Tier 1 confidence bounds are both positive,
 - remember that the Batch 4 `suzhou_like` subset is stronger than the Batch 4 `xiong_an_like` subset, and that the weakest new primary row is `xinxiang_floodplain_newtown_holdout`,
 - remember that Batch 4 deep diagnostics identify `xiongxian_river_corridor_holdout` as the clearest new class-`11` representation bottleneck analogue and `baiyangdian_new_area_holdout` as a possible forecast-suppression case,
+- remember that Batch 5 should be mixed-gate manifest-only next: `2` xiong'an-like Urban, `1` suzhou-like Urban, `2` Wetland/Agriculture, and `1-2` Forest/Grassland candidates, with no prior batch area-name overlap,
 - continue with stronger and more diverse experiments first rather than shifting attention to the manuscript.
