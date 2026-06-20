@@ -82,6 +82,25 @@ def _toy_embedding(class_grid: np.ndarray) -> np.ndarray:
     return embedding
 
 
+class ToyProbDecoder:
+    classes_ = np.array([5, 7, 11], dtype=np.int32)
+
+    def predict_proba(self, pixels):
+        probs = pixels[:, :3].astype(np.float64)
+        totals = probs.sum(axis=1, keepdims=True)
+        return probs / totals
+
+    def predict(self, pixels):
+        probs = self.predict_proba(pixels)
+        return self.classes_[np.argmax(probs, axis=1)]
+
+
+def _toy_prob_embedding(prob_grid: np.ndarray) -> np.ndarray:
+    embedding = np.zeros((*prob_grid.shape[:2], 64), dtype=np.float32)
+    embedding[..., :3] = prob_grid
+    return embedding
+
+
 def test_transition_count_rows_counts_source_end_pairs():
     start = np.array([[1, 1, 2], [2, 2, 2]], dtype=np.int32)
     end = np.array([[1, 3, 3], [2, 4, 4]], dtype=np.int32)
@@ -200,17 +219,29 @@ def test_make_transition_fate_table_tracks_true_transition_destinations(tmp_path
     start = np.array([[5, 5], [7, 7]], dtype=np.int32)
     end = np.array([[11, 7], [5, 11]], dtype=np.int32)
     pred = np.array([[5, 7], [7, 5]], dtype=np.int32)
-    decoded_start = np.array([[5, 5], [7, 7]], dtype=np.int32)
-    decoded_end = np.array([[5, 7], [5, 5]], dtype=np.int32)
+    start_probs = np.array(
+        [
+            [[1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
+            [[0.0, 1.0, 0.0], [0.0, 1.0, 0.0]],
+        ],
+        dtype=np.float32,
+    )
+    end_probs = np.array(
+        [
+            [[0.90, 0.09, 0.01], [0.20, 0.70, 0.10]],
+            [[0.80, 0.15, 0.05], [0.60, 0.30, 0.10]],
+        ],
+        dtype=np.float32,
+    )
     np.save(labels / "toy_lulc_2020.npy", start)
     np.save(labels / "toy_lulc_2021.npy", end)
-    np.save(embeddings / "toy_emb_2020.npy", _toy_embedding(decoded_start))
-    np.save(embeddings / "toy_emb_2021.npy", _toy_embedding(decoded_end))
+    np.save(embeddings / "toy_emb_2020.npy", _toy_prob_embedding(start_probs))
+    np.save(embeddings / "toy_emb_2021.npy", _toy_prob_embedding(end_probs))
     np.save(predictions / "toy_lulc_pred_2020_2021.npy", pred)
 
     rows = make_transition_fate_table(
         out_dir=output,
-        decoder=ToyDecoder(),
+        decoder=ToyProbDecoder(),
         labels_dir=labels,
         embeddings_dir=embeddings,
         predictions_dir=predictions,
@@ -227,6 +258,12 @@ def test_make_transition_fate_table_tracks_true_transition_destinations(tmp_path
             "decoded_start_top": "5:1",
             "decoded_end_top": "5:1",
             "model_end_top": "5:1",
+            "mean_true_end_prob": 0.01,
+            "median_true_end_prob": 0.01,
+            "top_mean_prob_class": 5,
+            "top_mean_prob": 0.9,
+            "second_mean_prob_class": 7,
+            "second_mean_prob": 0.09,
         },
         "5->7": {
             "true_transition": "5->7",
@@ -234,6 +271,12 @@ def test_make_transition_fate_table_tracks_true_transition_destinations(tmp_path
             "decoded_start_top": "5:1",
             "decoded_end_top": "7:1",
             "model_end_top": "7:1",
+            "mean_true_end_prob": 0.7,
+            "median_true_end_prob": 0.7,
+            "top_mean_prob_class": 7,
+            "top_mean_prob": 0.7,
+            "second_mean_prob_class": 5,
+            "second_mean_prob": 0.2,
         },
         "7->5": {
             "true_transition": "7->5",
@@ -241,6 +284,12 @@ def test_make_transition_fate_table_tracks_true_transition_destinations(tmp_path
             "decoded_start_top": "7:1",
             "decoded_end_top": "5:1",
             "model_end_top": "7:1",
+            "mean_true_end_prob": 0.8,
+            "median_true_end_prob": 0.8,
+            "top_mean_prob_class": 5,
+            "top_mean_prob": 0.8,
+            "second_mean_prob_class": 7,
+            "second_mean_prob": 0.15,
         },
         "7->11": {
             "true_transition": "7->11",
@@ -248,8 +297,16 @@ def test_make_transition_fate_table_tracks_true_transition_destinations(tmp_path
             "decoded_start_top": "7:1",
             "decoded_end_top": "5:1",
             "model_end_top": "5:1",
+            "mean_true_end_prob": 0.1,
+            "median_true_end_prob": 0.1,
+            "top_mean_prob_class": 5,
+            "top_mean_prob": 0.6,
+            "second_mean_prob_class": 7,
+            "second_mean_prob": 0.3,
         },
     }
     assert (output / "toy_transition_fate.csv").read_text(encoding="utf-8").splitlines()[0] == (
-        "true_transition,n_true_pixels,decoded_start_top,decoded_end_top,model_end_top"
+        "true_transition,n_true_pixels,decoded_start_top,decoded_end_top,model_end_top,"
+        "mean_true_end_prob,median_true_end_prob,top_mean_prob_class,top_mean_prob,"
+        "second_mean_prob_class,second_mean_prob"
     )

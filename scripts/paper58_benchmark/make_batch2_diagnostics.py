@@ -214,6 +214,19 @@ def _class_count_summary(values: np.ndarray, limit: int = 4) -> str:
     return ";".join(f"{class_id}:{n_pixels}" for class_id, n_pixels in ranked)
 
 
+def _probability_grid(embedding_grid: np.ndarray, decoder) -> tuple[np.ndarray, list[int]] | None:
+    if not hasattr(decoder, "predict_proba") or not hasattr(decoder, "classes_"):
+        return None
+    h, w = embedding_grid.shape[:2]
+    probabilities = decoder.predict_proba(embedding_grid.reshape(-1, embedding_grid.shape[-1]))
+    classes = [int(value) for value in decoder.classes_]
+    return probabilities.reshape(h, w, len(classes)), classes
+
+
+def _rounded_float(value: float) -> float:
+    return round(float(value), 6)
+
+
 def make_batch2_alignment_table(
     out_dir: Path,
     labels_dir: Path = DEFAULT_LABELS_DIR,
@@ -392,6 +405,7 @@ def make_transition_fate_table(
     emb_end = np.load(Path(embeddings_dir) / f"{area}_emb_{end_year}.npy")
     decoded_start = _decode_lulc(emb_start, decoder)
     decoded_end = _decode_lulc(emb_end, decoder)
+    probability_grid = _probability_grid(emb_end, decoder)
 
     transition_counts: dict[tuple[int, int], int] = {}
     changed = start != end
@@ -403,6 +417,36 @@ def make_transition_fate_table(
     rows = []
     for (start_class, end_class), n_pixels in ranked:
         mask = (start == start_class) & (end == end_class)
+        probability_fields = {
+            "mean_true_end_prob": None,
+            "median_true_end_prob": None,
+            "top_mean_prob_class": None,
+            "top_mean_prob": None,
+            "second_mean_prob_class": None,
+            "second_mean_prob": None,
+        }
+        if probability_grid is not None:
+            probabilities, classes = probability_grid
+            class_to_index = {class_id: index for index, class_id in enumerate(classes)}
+            masked_probabilities = probabilities[mask]
+            mean_probabilities = masked_probabilities.mean(axis=0)
+            ranked_probability_indices = sorted(
+                range(len(classes)),
+                key=lambda index: (-mean_probabilities[index], classes[index]),
+            )
+            true_end_index = class_to_index.get(end_class)
+            if true_end_index is not None:
+                true_end_probabilities = masked_probabilities[:, true_end_index]
+                probability_fields["mean_true_end_prob"] = _rounded_float(true_end_probabilities.mean())
+                probability_fields["median_true_end_prob"] = _rounded_float(np.median(true_end_probabilities))
+            if ranked_probability_indices:
+                top_index = ranked_probability_indices[0]
+                probability_fields["top_mean_prob_class"] = classes[top_index]
+                probability_fields["top_mean_prob"] = _rounded_float(mean_probabilities[top_index])
+            if len(ranked_probability_indices) > 1:
+                second_index = ranked_probability_indices[1]
+                probability_fields["second_mean_prob_class"] = classes[second_index]
+                probability_fields["second_mean_prob"] = _rounded_float(mean_probabilities[second_index])
         rows.append(
             {
                 "true_transition": f"{start_class}->{end_class}",
@@ -410,13 +454,26 @@ def make_transition_fate_table(
                 "decoded_start_top": _class_count_summary(decoded_start[mask]),
                 "decoded_end_top": _class_count_summary(decoded_end[mask]),
                 "model_end_top": _class_count_summary(pred[mask]),
+                **probability_fields,
             }
         )
 
     _write_csv(
         Path(out_dir) / f"{area}_transition_fate.csv",
         rows,
-        ["true_transition", "n_true_pixels", "decoded_start_top", "decoded_end_top", "model_end_top"],
+        [
+            "true_transition",
+            "n_true_pixels",
+            "decoded_start_top",
+            "decoded_end_top",
+            "model_end_top",
+            "mean_true_end_prob",
+            "median_true_end_prob",
+            "top_mean_prob_class",
+            "top_mean_prob",
+            "second_mean_prob_class",
+            "second_mean_prob",
+        ],
     )
     return rows
 
@@ -670,7 +727,10 @@ def main() -> None:
                     "xiongan_reference_top_transition_fate="
                     f"{xiongan_transition_fate_top['true_transition']};"
                     f"decoded_end={xiongan_transition_fate_top['decoded_end_top']};"
-                    f"model_end={xiongan_transition_fate_top['model_end_top']}"
+                    f"model_end={xiongan_transition_fate_top['model_end_top']};"
+                    f"mean_true_end_prob={xiongan_transition_fate_top['mean_true_end_prob']};"
+                    f"top_mean_prob={xiongan_transition_fate_top['top_mean_prob_class']}:"
+                    f"{xiongan_transition_fate_top['top_mean_prob']}"
                 )
                 if xiongan_transition_fate_top is not None
                 else "xiongan_reference_top_transition_fate=",

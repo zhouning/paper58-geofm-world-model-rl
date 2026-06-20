@@ -422,17 +422,25 @@ Transition-fate audit for top true transitions in `xiong_an_fringe_holdout`:
 - true `7->11` (`14`): decoded 2021 observed end is `5:12;7:2`; model-predicted end is `7:11;5:3`
 - true `7->5` (`12`): decoded 2021 observed end is `5:12`; model-predicted end is `7:9;5:3`
 
+Decoder-confidence audit inside the same transition-fate table:
+
+- true `5->11`: mean probability assigned to the true end class `11` is only `0.00162` (median `0.00139`); mean top class is `5` with probability `0.923946`
+- true `7->11`: mean probability assigned to class `11` is only `0.002345` (median `0.000939`); mean top class is `5` with probability `0.819499`
+- true `5->7`: class `7` is not impossible, but still secondary on average: mean `0.213349` versus class `5` mean `0.784187`
+- true `7->5`: class `5` is correctly dominant on average with mean `0.919697`
+
 Interpretation of the transition-fate audit:
 
 - The largest missed transition (`5->11`) is already absent in the decoded 2021 observed embedding, not only in the model forecast.
 - Therefore the current evidence does not support a simple story of "the dynamics model alone misplaced an otherwise separable wetland transition."
 - The stronger hypothesis is that some critical urban-fringe transitions are weakly separated in the current embedding-plus-decoder semantic view, and the future model inherits that limitation.
+- The new probability readout strengthens that diagnosis: class `11` is not merely losing the argmax by a small margin in the true 2021 embedding; it is receiving near-zero average probability on the two most important missed wetland transitions.
 
 Practical reading:
 
 - The model is detecting change mass in `xiong_an_fringe_holdout`, but the spatial placement and/or transition typing is misaligned enough that shuffling the same predicted map performs better.
 - The best-shift result indicates a local spatial alignment problem: a small translation of the predicted change mask recovers more signal than the raw prediction.
-- The new transition-fate audit shows that semantic transition failure and spatial-localization failure are both involved; `5->11` in particular looks like a decoder/representation bottleneck rather than a pure forecast-only error.
+- The new transition-fate and decoder-confidence audits show that semantic transition failure and spatial-localization failure are both involved; `5->11` in particular now looks more like a decoder/representation bottleneck than a pure forecast-only error.
 - `hexi_irrigation_holdout` is not negative, but it has only `5` true change pixels and contributes almost no spatial margin.
 
 ## Next Valid Step
@@ -461,4 +469,5 @@ Resume from the Batch 2 decision rule above:
 - use `xiong_an_fringe_holdout` as the first diagnostic target when planning the next experiment,
 - remember that the decoder/localization audit points away from simple label/embedding registration as the main cause,
 - remember that the new transition-fate audit makes `5->11` and part of `5->7` look representation/decoder-limited, not just forecast-limited,
+- remember that the decoder-confidence audit shows class `11` gets near-zero probability on the main missed wetland transitions,
 - continue with stronger and more diverse experiments first.
