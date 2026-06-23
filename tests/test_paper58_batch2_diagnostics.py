@@ -75,6 +75,34 @@ def test_make_batch2_alignment_table_writes_shift_diagnostics(tmp_path: Path):
     )
 
 
+def test_make_batch2_alignment_table_accepts_custom_output_filename(tmp_path: Path):
+    labels = tmp_path / "labels"
+    predictions = tmp_path / "predicted"
+    output = tmp_path / "diagnostics"
+    labels.mkdir()
+    predictions.mkdir()
+
+    start = np.zeros((3, 3), dtype=np.int32)
+    end = start.copy()
+    pred = start.copy()
+    end[2, 2] = 1
+    pred[2, 2] = 1
+    np.save(labels / "toy_lulc_2020.npy", start)
+    np.save(labels / "toy_lulc_2021.npy", end)
+    np.save(predictions / "toy_lulc_pred_2020_2021.npy", pred)
+
+    make_batch2_alignment_table(
+        out_dir=output,
+        labels_dir=labels,
+        predictions_dir=predictions,
+        areas=["toy"],
+        output_filename="batch5_spatial_alignment_shift.csv",
+    )
+
+    assert (output / "batch5_spatial_alignment_shift.csv").exists()
+    assert not (output / "batch2_spatial_alignment_shift.csv").exists()
+
+
 class ToyDecoder:
     def predict(self, pixels):
         return pixels[:, 0].astype(np.int32)
@@ -383,6 +411,34 @@ def test_make_decoder_true_end_confidence_table_sorts_low_confidence_rows_first(
     assert (output / "batch2_decoder_true_end_confidence_by_area.csv").read_text(encoding="utf-8").splitlines()[0] == (
         "area,true_end_class,n_pixels,mean_true_end_prob,median_true_end_prob,top_pred_class,top_pred_count"
     )
+
+
+def test_make_decoder_true_end_confidence_table_accepts_custom_output_filename(tmp_path: Path):
+    labels = tmp_path / "labels"
+    embeddings = tmp_path / "embeddings"
+    output = tmp_path / "diagnostics"
+    labels.mkdir()
+    embeddings.mkdir()
+
+    start = np.array([[5, 5]], dtype=np.int32)
+    end = np.array([[11, 5]], dtype=np.int32)
+    end_probs = np.array([[[0.90, 0.09, 0.01], [0.80, 0.15, 0.05]]], dtype=np.float32)
+
+    np.save(labels / "toy_lulc_2020.npy", start)
+    np.save(labels / "toy_lulc_2021.npy", end)
+    np.save(embeddings / "toy_emb_2021.npy", _toy_prob_embedding(end_probs))
+
+    make_decoder_true_end_confidence_table(
+        out_dir=output,
+        decoder=ToyProbDecoder(),
+        labels_dir=labels,
+        embeddings_dir=embeddings,
+        areas=["toy"],
+        output_filename="batch5_decoder_true_end_confidence_by_area.csv",
+    )
+
+    assert (output / "batch5_decoder_true_end_confidence_by_area.csv").exists()
+    assert not (output / "batch2_decoder_true_end_confidence_by_area.csv").exists()
 
 
 def test_make_forecast_transition_fate_table_compares_observed_and_forecast_probabilities(

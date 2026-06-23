@@ -942,6 +942,66 @@ Practical reading:
 - `liaohe_delta_wetland_holdout` is the first Batch 5 follow-up target if another diagnostic round is needed, because it is a negative wetland row with non-trivial reference change rather than a tiny-count artifact.
 - Batch 5 does not justify strengthening the manuscript by itself. Any later narrative still has to retain the contradictory Batch 2 failure, the supportive-but-not-uniform Batch 3 pass, and the targeted Batch 4 urban diagnostic result.
 
+## Batch 5 Liaohe Wetland Diagnosis
+
+Diagnostic script:
+
+```text
+scripts/paper58_benchmark/make_batch5_liaohe_diagnostics.py
+```
+
+Diagnostic outputs:
+
+```text
+paper/rse_submission_paper58/diagnostics_batch5_liaohe
+```
+
+Generated files include:
+
+```text
+paper/rse_submission_paper58/diagnostics_batch5_liaohe/batch5_liaohe_spatial_alignment_shift.csv
+paper/rse_submission_paper58/diagnostics_batch5_liaohe/batch5_liaohe_embedding_decoder_audit.csv
+paper/rse_submission_paper58/diagnostics_batch5_liaohe/batch5_liaohe_transition_counts_all.csv
+paper/rse_submission_paper58/diagnostics_batch5_liaohe/batch5_liaohe_transition_fate_all.csv
+paper/rse_submission_paper58/diagnostics_batch5_liaohe/batch5_liaohe_shifted_transition_fate_all.csv
+paper/rse_submission_paper58/diagnostics_batch5_liaohe/batch5_liaohe_forecast_transition_fate_all.csv
+paper/rse_submission_paper58/diagnostics_batch5_liaohe/batch5_liaohe_decoder_true_end_confidence_by_area.csv
+paper/rse_submission_paper58/diagnostics_batch5_liaohe/batch5_liaohe_forecast_true_end_confidence_by_area.csv
+paper/rse_submission_paper58/diagnostics_batch5_liaohe/batch5_liaohe_summary.json
+paper/rse_submission_paper58/diagnostics_batch5_liaohe/batch5_liaohe_summary.txt
+```
+
+Comparison rows:
+
+- Focus: `liaohe_delta_wetland_holdout`
+- Prior wetland comparison rows: `erlong_lake_margin_holdout`, `honghu_lake_margin_holdout`, `zhalong_wetland_edge_holdout`
+- Secondary Batch 5 weak-primary risk: `wenan_lakeplain_newtown_holdout`
+
+Liaohe headline metrics:
+
+- Primary advantage: `-0.009467775748968649`
+- Spatial advantage: `-0.036697621375040734`
+- True change pixels: `62`
+- Raw model change F1: `0.1792114695340502`
+- Best-shift change F1: `0.3942307692307692`
+- Best shift: `dy = 2`, `dx = -4`
+
+Liaohe interpretation:
+
+- The best-shift result is large: shifting the model change mask improves change F1 from `0.1792114695340502` to `0.3942307692307692`, so spatial localization is a real part of the Liaohe failure.
+- The dominant true transition is `5->11` with `29` pixels. The decoded observed 2021 embedding is dominated by `5:26;1:3`, and the model prediction is dominated by `5:28;1:1`.
+- Among all Liaohe true class-`11` end pixels (`46` pixels), the observed embedding assigns class `11` mean probability `0.052933` and decodes mostly as class `5` (`35` pixels).
+- The forecast embedding raises mean class-`11` probability to `0.104908`, but the forecast top decoded class still remains `5` (`38` pixels). This is not a simple forecast-erasure case; the observed representation is already weak for class `11`, and the forecast does not recover the argmax.
+- The best spatial shift improves coarse change overlap but does not solve the dominant semantic transition: for true `5->11`, raw model matches are `0`, shifted matches are only `1`.
+- Compared with prior wetland rows, Liaohe has lower class-`11` observed confidence than `erlong_lake_margin_holdout` (`0.105357`) and `zhalong_wetland_edge_holdout` (`0.236527`), while `honghu_lake_margin_holdout` has no class-`11` true-end row in this comparison.
+
+Practical reading:
+
+- `liaohe_delta_wetland_holdout` is a combined spatial-localization and class-`11` representation/decoder weakness case.
+- It is more similar to the Batch 2/Batch 4 class-`11` bottleneck family than to a pure localization-only miss, but its best-shift improvement is strong enough that localization should remain part of the diagnosis.
+- `wenan_lakeplain_newtown_holdout` remains a secondary risk because its primary advantage is negative (`-0.03290246768507639`) with only `10` true change pixels; it should not displace Liaohe as the main Batch 5 follow-up target.
+- This diagnosis does not change the Batch 5 pass and does not erase Batch 2. It preserves the correct reading: Batch 5 is a mixed-gate pass with meaningful within-batch heterogeneity.
+
 ## Resume Instruction
 
 In a new window, continue from branch `paper58-benchmark`.
@@ -970,5 +1030,6 @@ Resume from the current decision rule:
 - remember that Batch 4 deep diagnostics identify `xiongxian_river_corridor_holdout` as the clearest new class-`11` representation bottleneck analogue and `baiyangdian_new_area_holdout` as a possible forecast-suppression case,
 - remember that Batch 5-only passes with `primary ci_low = 0.03874008044819379`, `spatial ci_low = 0.026682096295538787`, and `positive_tier1_strata = 4`,
 - remember that Batch 5 still contains important within-batch risk: `liaohe_delta_wetland_holdout` is negative on primary and spatial advantage, and `wenan_lakeplain_newtown_holdout` is negative on primary advantage,
-- use `liaohe_delta_wetland_holdout` as the first Batch 5 diagnostic follow-up if continuing experiments, because it is a negative wetland row with `62` true change pixels,
+- remember that the Batch 5 Liaohe diagnosis finds both spatial-localization weakness and class-`11` representation/decoder weakness: best shift improves F1 to `0.3942307692307692`, but dominant `5->11` shifted semantic matches remain only `1`,
+- use `liaohe_delta_wetland_holdout` as the first Batch 5 experimental follow-up target if continuing experiments, because it is a negative wetland row with `62` true change pixels and a real class-`11` bottleneck,
 - continue with stronger and more diverse experiments first rather than shifting attention to the manuscript.

@@ -1,0 +1,105 @@
+{
+  "focus_area": "liaohe_delta_wetland_holdout",
+  "focus_metrics": {
+    "area": "liaohe_delta_wetland_holdout",
+    "start_year": 2020,
+    "end_year": 2021,
+    "tier": "tier1",
+    "stratum": "Wetland",
+    "true_change_pixels": 62,
+    "model_change_f1": 0.1792114695340502,
+    "primary_change_advantage": -0.009467775748968649,
+    "spatial_shuffle_change_f1": 0.21590909090909094,
+    "spatial_change_advantage": -0.036697621375040734
+  },
+  "focus_alignment": {
+    "area": "liaohe_delta_wetland_holdout",
+    "raw_change_f1": 0.1792114695340502,
+    "best_shift_change_f1": 0.3942307692307692,
+    "best_dy": 2,
+    "best_dx": -4,
+    "centroid_true_y": 13.85483870967742,
+    "centroid_true_x": 6.354838709677419,
+    "centroid_model_y": 15.294930875576037,
+    "centroid_model_x": 8.953917050691244
+  },
+  "focus_top_transition_fate": {
+    "area": "liaohe_delta_wetland_holdout",
+    "true_transition": "5->11",
+    "n_true_pixels": 29,
+    "decoded_start_top": "5:27;1:1;11:1",
+    "decoded_end_top": "5:26;1:3",
+    "model_end_top": "5:28;1:1",
+    "mean_true_end_prob": 0.055286,
+    "median_true_end_prob": 0.051037,
+    "top_mean_prob_class": 5,
+    "top_mean_prob": 0.768398,
+    "second_mean_prob_class": 1,
+    "second_mean_prob": 0.167576
+  },
+  "focus_forecast_top_transition_fate": {
+    "area": "liaohe_delta_wetland_holdout",
+    "true_transition": "5->11",
+    "n_true_pixels": 29,
+    "observed_end_top": "5:26;1:3",
+    "forecast_end_top": "5:28;1:1",
+    "observed_mean_true_end_prob": 0.055286,
+    "observed_median_true_end_prob": 0.051037,
+    "observed_top_mean_prob_class": 5,
+    "observed_top_mean_prob": 0.768398,
+    "forecast_mean_true_end_prob": 0.116348,
+    "forecast_median_true_end_prob": 0.06905,
+    "forecast_top_mean_prob_class": 5,
+    "forecast_top_mean_prob": 0.773621,
+    "mean_true_end_prob_delta": 0.061062
+  },
+  "focus_class11_confidence": {
+    "area": "liaohe_delta_wetland_holdout",
+    "true_end_class": 11,
+    "n_pixels": 46,
+    "mean_true_end_prob": 0.052933,
+    "median_true_end_prob": 0.046107,
+    "top_pred_class": 5,
+    "top_pred_count": 35
+  },
+  "focus_forecast_class11_confidence": {
+    "area": "liaohe_delta_wetland_holdout",
+    "true_end_class": 11,
+    "n_pixels": 46,
+    "observed_mean_true_end_prob": 0.052933,
+    "observed_median_true_end_prob": 0.046107,
+    "forecast_mean_true_end_prob": 0.104908,
+    "forecast_median_true_end_prob": 0.062999,
+    "mean_true_end_prob_delta": 0.051975,
+    "observed_top_pred_class": 5,
+    "observed_top_pred_count": 35,
+    "forecast_top_pred_class": 5,
+    "forecast_top_pred_count": 38
+  },
+  "wetland_comparison_areas": [
+    "erlong_lake_margin_holdout",
+    "honghu_lake_margin_holdout",
+    "zhalong_wetland_edge_holdout"
+  ],
+  "secondary_risks": [
+    {
+      "area": "wenan_lakeplain_newtown_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "tier": "tier1",
+      "stratum": "Urban",
+      "true_change_pixels": 10,
+      "model_change_f1": 0.05405405405405406,
+      "primary_change_advantage": -0.03290246768507639,
+      "spatial_shuffle_change_f1": 0.04395604395604396,
+      "spatial_change_advantage": 0.010098010098010098
+    }
+  ],
+  "diagnostic_areas": [
+    "liaohe_delta_wetland_holdout",
+    "erlong_lake_margin_holdout",
+    "honghu_lake_margin_holdout",
+    "zhalong_wetland_edge_holdout",
+    "wenan_lakeplain_newtown_holdout"
+  ]
+}

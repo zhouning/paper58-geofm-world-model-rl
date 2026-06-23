@@ -1,0 +1,5 @@
+true_transition,n_true_pixels,observed_end_top,forecast_end_top,observed_mean_true_end_prob,observed_median_true_end_prob,forecast_mean_true_end_prob,forecast_median_true_end_prob,mean_true_end_prob_delta,observed_top_mean_prob_class,observed_top_mean_prob,forecast_top_mean_prob_class,forecast_top_mean_prob
+7->5,5,7:3;5:2,7:3;5:2,0.487302,0.472314,0.45324,0.36096,-0.034062,7,0.510832,7,0.544524
+5->7,3,5:2;7:1,5:2;7:1,0.232864,0.081894,0.318806,0.182406,0.085942,5,0.764583,5,0.677851
+5->1,1,5:1,5:1,0.000528,0.000528,0.000479,0.000479,-4.9e-05,5,0.947685,5,0.962066
+5->11,1,5:1,5:1,0.006276,0.006276,0.008981,0.008981,0.002705,5,0.956371,5,0.941732

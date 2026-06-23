@@ -1,0 +1,6 @@
+true_transition,n_true_pixels,raw_model_end_top,shifted_model_end_top,raw_match_pixels,shifted_match_pixels
+5->11,28,5:24;11:4,5:24;7:3;11:1,4,1
+7->5,3,5:2;7:1,7:3,2,0
+2->11,2,11:2,2:1;11:1,2,1
+5->1,2,5:2,5:2,0,0
+1->11,1,5:1,5:1,0,0

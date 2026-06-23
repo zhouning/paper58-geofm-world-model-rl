@@ -333,6 +333,7 @@ def make_batch2_alignment_table(
     start_year: int = 2020,
     end_year: int = 2021,
     max_shift: int = 4,
+    output_filename: str = "batch2_spatial_alignment_shift.csv",
 ) -> list[dict]:
     if areas is None:
         areas = [
@@ -350,7 +351,7 @@ def make_batch2_alignment_table(
         rows.append({"area": area, **best_shift_diagnostic(true_change, model_change, max_shift=max_shift)})
 
     _write_csv(
-        Path(out_dir) / "batch2_spatial_alignment_shift.csv",
+        Path(out_dir) / output_filename,
         rows,
         [
             "area",
@@ -377,6 +378,7 @@ def make_embedding_decoder_audit_table(
     start_year: int = 2020,
     end_year: int = 2021,
     max_shift: int = 4,
+    output_filename: str = "batch2_embedding_decoder_audit.csv",
 ) -> list[dict]:
     if areas is None:
         areas = [
@@ -424,7 +426,7 @@ def make_embedding_decoder_audit_table(
         )
 
     _write_csv(
-        Path(out_dir) / "batch2_embedding_decoder_audit.csv",
+        Path(out_dir) / output_filename,
         rows,
         [
             "area",
@@ -729,6 +731,7 @@ def make_decoder_true_end_confidence_table(
     areas: list[str] | None = None,
     start_year: int = 2020,
     end_year: int = 2021,
+    output_filename: str = "batch2_decoder_true_end_confidence_by_area.csv",
 ) -> list[dict]:
     if areas is None:
         areas = [
@@ -779,7 +782,7 @@ def make_decoder_true_end_confidence_table(
 
     rows.sort(key=lambda row: (row["true_end_class"], row["mean_true_end_prob"], row["area"]))
     _write_csv(
-        Path(out_dir) / "batch2_decoder_true_end_confidence_by_area.csv",
+        Path(out_dir) / output_filename,
         rows,
         [
             "area",
@@ -803,6 +806,7 @@ def make_forecast_true_end_confidence_table(
     areas: list[str] | None = None,
     start_year: int = 2020,
     end_year: int = 2021,
+    output_filename: str = "batch2_forecast_true_end_confidence_by_area.csv",
 ) -> list[dict]:
     if areas is None:
         areas = [
@@ -879,7 +883,7 @@ def make_forecast_true_end_confidence_table(
 
     rows.sort(key=lambda row: (row["true_end_class"], row["observed_mean_true_end_prob"], row["area"]))
     _write_csv(
-        Path(out_dir) / "batch2_forecast_true_end_confidence_by_area.csv",
+        Path(out_dir) / output_filename,
         rows,
         [
             "area",

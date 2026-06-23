@@ -1,0 +1,11 @@
+source,start_class,end_class,n_pixels
+reference_change,7,5,5
+reference_change,5,7,3
+reference_change,5,1,1
+reference_change,5,11,1
+model_change,7,5,44
+model_change,5,7,33
+model_change,0,11,23
+model_change,1,5,1
+decoded_observed_change,7,5,8
+decoded_observed_change,5,7,1

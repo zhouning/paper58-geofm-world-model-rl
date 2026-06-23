@@ -1,0 +1,13 @@
+focus_area=liaohe_delta_wetland_holdout
+focus_primary_change_advantage=-0.009467775748968649
+focus_spatial_change_advantage=-0.036697621375040734
+focus_true_change_pixels=62
+focus_best_shift_change_f1=0.3942307692307692
+focus_best_shift_dy=2
+focus_best_shift_dx=-4
+focus_top_transition=5->11
+focus_top_transition_decoded_end=5:26;1:3
+focus_top_transition_model_end=5:28;1:1
+focus_class11_mean_true_end_prob=0.052933
+focus_forecast_class11_mean_true_end_prob=0.104908
+secondary_risk_areas=wenan_lakeplain_newtown_holdout
