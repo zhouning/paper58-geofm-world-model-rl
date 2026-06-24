@@ -26,6 +26,15 @@ def test_load_flus_prediction_accepts_csv(tmp_path: Path):
     assert loaded.tolist() == [[1, 2], [2, 3]]
 
 
+def test_load_flus_prediction_accepts_single_row_csv(tmp_path: Path):
+    path = tmp_path / "flus.csv"
+    path.write_text("1,2\n", encoding="utf-8")
+
+    loaded = load_flus_prediction(path, expected_shape=(1, 2), allowed_classes={1, 2})
+
+    assert loaded.tolist() == [[1, 2]]
+
+
 def test_load_flus_prediction_rejects_shape_mismatch(tmp_path: Path):
     path = tmp_path / "flus.npy"
     np.save(path, np.ones((2, 3), dtype=np.int32))

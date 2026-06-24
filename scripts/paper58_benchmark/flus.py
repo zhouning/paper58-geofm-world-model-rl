@@ -20,7 +20,7 @@ def load_flus_prediction(
     if source.suffix.lower() == ".npy":
         arr = np.load(source)
     elif source.suffix.lower() == ".csv":
-        arr = np.loadtxt(source, delimiter=",", dtype=np.int32)
+        arr = np.loadtxt(source, delimiter=",", dtype=np.int32, ndmin=2)
     else:
         raise FLUSIngestionError(f"unsupported FLUS prediction format: {source.suffix}")
 
