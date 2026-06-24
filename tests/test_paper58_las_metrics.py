@@ -46,3 +46,12 @@ def test_method_metric_row_reports_expected_fields():
     assert row["fom"] == pytest.approx(0.5)
     assert row["transition_accuracy"] == pytest.approx(0.5)
     assert row["true_change_pixels"] == 2
+
+
+def test_method_metric_row_rejects_shape_mismatch():
+    start = np.array([[1, 1]], dtype=np.int32)
+    true = np.array([[1, 2]], dtype=np.int32)
+    pred = np.array([[1], [2]], dtype=np.int32)
+
+    with pytest.raises(ValueError, match="shape mismatch"):
+        method_metric_row("paper58_las", "external", "tier1", "Wetland", start, true, pred)
