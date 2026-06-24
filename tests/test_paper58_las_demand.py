@@ -25,6 +25,13 @@ def test_validate_total_demand_rejects_wrong_total():
         validate_total_demand(start, {1: 1, 2: 2})
 
 
+def test_validate_total_demand_rejects_negative_class_demand():
+    start = np.array([[1, 1], [2, 2]], dtype=np.int32)
+
+    with pytest.raises(DemandValidationError, match="demand for class 2 is negative: -1"):
+        validate_total_demand(start, {1: 5, 2: -1})
+
+
 def test_build_editable_mask_respects_exclusion_and_immutable_classes():
     start = np.array([[1, 2, 3], [1, 2, 3]], dtype=np.int32)
     exclusion = np.array([[False, False, True], [False, True, False]])
@@ -51,4 +58,16 @@ def test_remaining_editable_demand_fails_when_fixed_pixels_exceed_demand():
     full_demand = {1: 3, 2: 2, 3: 1}
 
     with pytest.raises(DemandValidationError, match="fixed class 3 count 2 exceeds demand 1"):
+        remaining_editable_demand(start, full_demand, editable)
+
+
+def test_remaining_editable_demand_rejects_remaining_total_mismatch():
+    start = np.array([[1, 4], [2, 2]], dtype=np.int32)
+    editable = np.array([[True, False], [True, True]])
+    full_demand = {1: 1, 2: 3}
+
+    with pytest.raises(
+        DemandValidationError,
+        match="remaining editable demand 4 does not match editable cells 3",
+    ):
         remaining_editable_demand(start, full_demand, editable)
