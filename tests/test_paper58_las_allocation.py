@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 
 from scripts.paper58_benchmark.las_allocation import allocate_demand_constrained
@@ -152,3 +154,20 @@ def test_allocate_large_feasible_demand_avoids_recursive_matching_limit():
 
     assert result.achieved_demand == {1: n_pixels}
     assert result.constraint_violations == []
+
+
+def test_allocate_multiclass_medium_grid_avoids_per_candidate_full_scans():
+    side = 150
+    class_values = [1, 2, 3, 4, 5, 6]
+    rng = np.random.default_rng(1)
+    start = rng.integers(1, 7, size=(side, side), dtype=np.int32)
+    suitability = rng.random((side, side, len(class_values)), dtype=np.float32)
+    target_demand = {cls: (side * side) // len(class_values) for cls in class_values}
+    target_demand[class_values[-1]] += side * side - sum(target_demand.values())
+
+    started = time.perf_counter()
+    result = allocate_demand_constrained(start, suitability, class_values, target_demand)
+    elapsed = time.perf_counter() - started
+
+    assert result.constraint_violations == []
+    assert elapsed < 1.5

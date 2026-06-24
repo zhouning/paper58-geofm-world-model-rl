@@ -36,8 +36,7 @@ def _is_allowed(from_cls: int, to_cls: int, allowed_transitions: set[tuple[int, 
 
 
 def _remaining_demand_is_feasible(
-    start_map: np.ndarray,
-    assigned: np.ndarray,
+    source_counts: dict[int, int],
     remaining: dict[int, int],
     allowed_transitions: set[tuple[int, int]] | None,
 ) -> bool:
@@ -46,12 +45,11 @@ def _remaining_demand_is_feasible(
     if total_required == 0:
         return True
 
-    unassigned = np.asarray(start_map)[~assigned]
-    if int(unassigned.size) < total_required:
+    available = {int(cls): int(count) for cls, count in source_counts.items() if int(count) > 0}
+    if int(sum(available.values())) < total_required:
         return False
 
-    source_counts = {int(cls): int(np.count_nonzero(unassigned == int(cls))) for cls in np.unique(unassigned)}
-    source_classes = sorted(source_counts)
+    source_classes = sorted(available)
     target_classes = sorted(required)
     source_offset = 1
     target_offset = source_offset + len(source_classes)
@@ -59,11 +57,11 @@ def _remaining_demand_is_feasible(
     graph = [[0] * (sink + 1) for _ in range(sink + 1)]
 
     for index, from_cls in enumerate(source_classes):
-        graph[0][source_offset + index] = source_counts[from_cls]
+        graph[0][source_offset + index] = available[from_cls]
     for source_index, from_cls in enumerate(source_classes):
         for target_index, to_cls in enumerate(target_classes):
             if _is_allowed(from_cls, to_cls, allowed_transitions):
-                graph[source_offset + source_index][target_offset + target_index] = source_counts[from_cls]
+                graph[source_offset + source_index][target_offset + target_index] = available[from_cls]
     for index, to_cls in enumerate(target_classes):
         graph[target_offset + index][sink] = required[to_cls]
 
@@ -123,6 +121,10 @@ def allocate_demand_constrained(
     simulated = start.copy()
     assigned = ~editable
     selected: list[dict[str, int | float]] = []
+    editable_values, editable_counts = np.unique(start[editable], return_counts=True)
+    unassigned_source_counts = {
+        int(value): int(count) for value, count in zip(editable_values, editable_counts, strict=False)
+    }
 
     candidates: list[tuple[float, int, int, int, int]] = []
     for row, col in np.argwhere(editable):
@@ -144,14 +146,15 @@ def allocate_demand_constrained(
             continue
         if remaining.get(to_cls, 0) <= 0:
             continue
-        tentative_assigned = assigned.copy()
-        tentative_assigned[row, col] = True
+        tentative_source_counts = unassigned_source_counts.copy()
+        tentative_source_counts[from_cls] = tentative_source_counts.get(from_cls, 0) - 1
         tentative_remaining = remaining.copy()
         tentative_remaining[to_cls] -= 1
-        if not _remaining_demand_is_feasible(start, tentative_assigned, tentative_remaining, allowed_transitions):
+        if not _remaining_demand_is_feasible(tentative_source_counts, tentative_remaining, allowed_transitions):
             continue
         simulated[row, col] = to_cls
         assigned[row, col] = True
+        unassigned_source_counts[from_cls] -= 1
         remaining[to_cls] -= 1
         if from_cls != to_cls:
             selected.append(
