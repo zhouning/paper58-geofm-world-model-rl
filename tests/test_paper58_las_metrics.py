@@ -18,6 +18,14 @@ def test_figure_of_merit_uses_change_intersection_over_union():
     assert figure_of_merit(start, true, pred) == pytest.approx(1 / 3)
 
 
+def test_figure_of_merit_requires_correct_changed_class():
+    start = np.array([[1]], dtype=np.int32)
+    true = np.array([[2]], dtype=np.int32)
+    pred = np.array([[3]], dtype=np.int32)
+
+    assert figure_of_merit(start, true, pred) == pytest.approx(0.0)
+
+
 def test_transition_accuracy_scores_changed_pixels_only():
     start = np.array([[1, 1], [2, 2]], dtype=np.int32)
     true = np.array([[1, 2], [2, 3]], dtype=np.int32)

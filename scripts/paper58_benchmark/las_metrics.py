@@ -20,7 +20,7 @@ def figure_of_merit(start_map: np.ndarray, true_map: np.ndarray, pred_map: np.nd
     union = true_change | pred_change
     if not np.any(union):
         return 1.0
-    intersection = true_change & pred_change
+    intersection = true_change & (pred == true)
     return float(np.count_nonzero(intersection) / np.count_nonzero(union))
 
 
