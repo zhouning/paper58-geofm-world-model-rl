@@ -162,6 +162,16 @@ def allocate_demand_constrained(
             else:
                 simulated[row, col] = assigned_class
                 remaining[assigned_class] -= 1
+                if from_cls != assigned_class:
+                    selected.append(
+                        {
+                            "row": int(row),
+                            "col": int(col),
+                            "from_class": from_cls,
+                            "to_class": assigned_class,
+                            "score": float(scores[row, col, class_to_col[assigned_class]]),
+                        }
+                    )
             assigned[row, col] = True
 
     achieved = _counts(simulated, class_values)
