@@ -200,6 +200,55 @@ def test_evaluate_las_accepts_neighborhood_weight(tmp_path: Path):
     assert result["summary"]["n_evaluated_rows"] == 1
 
 
+def test_evaluate_las_accepts_latent_neighborhood_weight(tmp_path: Path):
+    start = np.array([[1, 2, 1], [1, 2, 1]], dtype=np.int32)
+    end = np.array([[2, 2, 1], [1, 2, 1]], dtype=np.int32)
+    paper58_pred = end.copy()
+    embeddings = np.zeros((2, 3, 2), dtype=np.float32)
+    embeddings[:, 0, :] = np.array([1.0, 0.0], dtype=np.float32)
+    embeddings[:, 1, :] = np.array([1.0, 0.0], dtype=np.float32)
+    embeddings[:, 2, :] = np.array([0.0, 1.0], dtype=np.float32)
+    label_start = tmp_path / "start.npy"
+    label_end = tmp_path / "end.npy"
+    pred_path = tmp_path / "paper58.npy"
+    embedding_path = tmp_path / "embedding_start.npy"
+    np.save(label_start, start)
+    np.save(label_end, end)
+    np.save(pred_path, paper58_pred)
+    np.save(embedding_path, embeddings)
+    registry = tmp_path / "benchmark_registry.json"
+    registry.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "area": "latent_neighborhood",
+                        "start_year": 2020,
+                        "end_year": 2021,
+                        "tier": "tier1",
+                        "stratum": "Urban",
+                        **_provenance_fields(),
+                        "label_start_path": str(label_start),
+                        "label_end_path": str(label_end),
+                        "prediction_path": str(pred_path),
+                        "embedding_start_path": str(embedding_path),
+                        "qc_status": "include",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = evaluate_las(
+        registry_path=registry,
+        output_dir=tmp_path / "las_out",
+        latent_neighborhood_weight=1.0,
+    )
+
+    assert result["summary"]["n_evaluated_rows"] == 1
+
+
 def test_evaluate_las_metric_rows_keep_temporal_pair_keys(tmp_path: Path):
     start = np.array([[1, 1], [2, 2]], dtype=np.int32)
     end = np.array([[1, 2], [2, 3]], dtype=np.int32)

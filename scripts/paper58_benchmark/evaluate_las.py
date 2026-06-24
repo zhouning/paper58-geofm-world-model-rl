@@ -120,6 +120,7 @@ def evaluate_las(
     registry_path: Path = DEFAULT_BENCHMARK_DIR / "benchmark_registry.json",
     output_dir: Path = DEFAULT_BENCHMARK_DIR.parent / "las_results",
     neighborhood_weight: float = 0.0,
+    latent_neighborhood_weight: float = 0.0,
 ) -> dict[str, Any]:
     registry_rows = _read_registry(Path(registry_path))
     included_rows = [row for row in registry_rows if row.get("qc_status") == "include"]
@@ -165,6 +166,9 @@ def evaluate_las(
                 start_probs=start_probs,
                 transition_prior=prior,
             )
+            embedding_start = None
+            if latent_neighborhood_weight > 0.0:
+                embedding_start = _load_array(row.get("embedding_start_path")).astype(np.float32, copy=False)
             allocation = allocate_demand_constrained(
                 start,
                 suitability,
@@ -172,6 +176,8 @@ def evaluate_las(
                 target_demand=derive_observed_demand(end),
                 target_change_pixels=int(np.count_nonzero(paper58_pred != start)),
                 neighborhood_weight=neighborhood_weight,
+                embedding_grid=embedding_start,
+                latent_neighborhood_weight=latent_neighborhood_weight,
             )
         except Exception as exc:
             failure_rows.append(_failure_record(row, "runtime_failure", f"{type(exc).__name__}: {exc}"))
@@ -274,11 +280,18 @@ def main() -> None:
         default=0.0,
         help="Weight for class-neighborhood affinity during LAS allocation.",
     )
+    parser.add_argument(
+        "--latent-neighborhood-weight",
+        type=float,
+        default=0.0,
+        help="Weight for start-embedding semantic neighborhood affinity during LAS allocation.",
+    )
     args = parser.parse_args()
     result = evaluate_las(
         registry_path=args.registry,
         output_dir=args.output_dir,
         neighborhood_weight=args.neighborhood_weight,
+        latent_neighborhood_weight=args.latent_neighborhood_weight,
     )
     print(
         "Paper58-LAS evaluation: "

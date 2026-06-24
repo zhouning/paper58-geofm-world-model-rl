@@ -121,6 +121,31 @@ def test_allocate_neighborhood_weight_prefers_target_class_edges():
     assert result.achieved_demand == target_demand
 
 
+def test_allocate_latent_neighborhood_weight_prefers_semantic_edges():
+    start = np.array([[1, 2, 1], [1, 2, 1]], dtype=np.int32)
+    class_values = [1, 2]
+    suitability = np.zeros((2, 3, 2), dtype=np.float32)
+    embeddings = np.zeros((2, 3, 2), dtype=np.float32)
+    embeddings[:, 0, :] = np.array([1.0, 0.0], dtype=np.float32)
+    embeddings[:, 1, :] = np.array([1.0, 0.0], dtype=np.float32)
+    embeddings[:, 2, :] = np.array([0.0, 1.0], dtype=np.float32)
+    target_demand = {1: 3, 2: 3}
+
+    result = allocate_demand_constrained(
+        start,
+        suitability,
+        class_values,
+        target_demand,
+        embedding_grid=embeddings,
+        latent_neighborhood_weight=2.0,
+    )
+
+    changed = np.argwhere(result.simulated_map != start)
+    assert changed.shape == (1, 2)
+    assert int(changed[0, 1]) == 0
+    assert result.achieved_demand == target_demand
+
+
 def test_allocate_respects_exclusion_mask():
     start = np.array([[1, 1], [2, 2]], dtype=np.int32)
     class_values = [1, 2]
