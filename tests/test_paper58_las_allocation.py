@@ -38,6 +38,25 @@ def test_allocate_respects_exclusion_mask():
     assert result.achieved_demand == target_demand
 
 
+def test_allocate_respects_immutable_classes():
+    start = np.array([[1, 2], [2, 3]], dtype=np.int32)
+    class_values = [1, 2, 3]
+    suitability = np.ones((2, 2, 3), dtype=np.float32)
+    target_demand = {1: 0, 2: 3, 3: 1}
+
+    result = allocate_demand_constrained(
+        start,
+        suitability,
+        class_values,
+        target_demand,
+        immutable_classes={3},
+    )
+
+    assert result.simulated_map[1, 1] == 3
+    assert result.achieved_demand == target_demand
+    assert result.constraint_violations == []
+
+
 def test_allocate_respects_forbidden_transition():
     start = np.array([[1, 2], [2, 2]], dtype=np.int32)
     class_values = [1, 2, 3]
