@@ -33,6 +33,7 @@ def transition_prior_from_pairs(
     training_pairs: list[tuple[np.ndarray, np.ndarray]],
     class_values: list[int],
 ) -> dict[tuple[int, int], float]:
+    known_classes = {int(cls) for cls in class_values}
     counts: dict[int, dict[int, int]] = {}
     for start, end in training_pairs:
         start_arr = np.asarray(start)
@@ -42,6 +43,8 @@ def transition_prior_from_pairs(
         for from_cls, to_cls in zip(start_arr.ravel(), end_arr.ravel()):
             from_key = int(from_cls)
             to_key = int(to_cls)
+            if from_key not in known_classes or to_key not in known_classes:
+                continue
             counts.setdefault(from_key, {})
             counts[from_key][to_key] = counts[from_key].get(to_key, 0) + 1
 
@@ -67,6 +70,11 @@ def _embedding_change_pressure(
     forecast = np.asarray(embedding_forecast, dtype=np.float32)
     if start.shape != forecast.shape:
         raise ValueError(f"embedding shape mismatch: start={start.shape}, forecast={forecast.shape}")
+    if start.ndim != 3:
+        raise ValueError(
+            f"embeddings must be 3D feature grids shaped (H, W, D); got start={start.shape}, "
+            f"forecast={forecast.shape}"
+        )
     if start.shape[:2] != target_shape:
         raise ValueError(f"embedding grid shape {start.shape[:2]} does not match target shape {target_shape}")
     pressure = np.linalg.norm(forecast - start, axis=-1)
