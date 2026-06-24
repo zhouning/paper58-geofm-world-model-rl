@@ -97,3 +97,37 @@ def test_evaluate_las_keeps_failure_rows_visible(tmp_path: Path):
     failures = (output_dir / "las_failures.csv").read_text(encoding="utf-8")
     assert "excluded" in failures
     assert "class_collapse" in failures
+
+
+def test_evaluate_las_keeps_include_runtime_failures_visible(tmp_path: Path):
+    registry = tmp_path / "benchmark_registry.json"
+    registry.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "area": "missing_inputs",
+                        "start_year": 2020,
+                        "end_year": 2021,
+                        "tier": "tier1",
+                        "stratum": "Urban",
+                        **_provenance_fields(),
+                        "label_start_path": str(tmp_path / "missing_start.npy"),
+                        "label_end_path": str(tmp_path / "missing_end.npy"),
+                        "prediction_path": str(tmp_path / "missing_pred.npy"),
+                        "qc_status": "include",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "las_out"
+
+    result = evaluate_las(registry_path=registry, output_dir=output_dir)
+
+    assert result["summary"]["n_evaluated_rows"] == 0
+    assert result["summary"]["n_failed_rows"] == 1
+    failures = (output_dir / "las_failures.csv").read_text(encoding="utf-8")
+    assert "missing_inputs" in failures
+    assert "runtime_failure" in failures

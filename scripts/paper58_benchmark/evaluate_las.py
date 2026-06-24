@@ -74,13 +74,16 @@ def _transition_training_pairs(
     return pairs
 
 
-def _write_failures(path: Path, registry_rows: list[dict[str, Any]]) -> None:
+def _failure_record(row: dict[str, Any], qc_status: str, reason: str) -> dict[str, Any]:
     fields = ["area", "start_year", "end_year", "tier", "qc_status", "excluded_reason"]
-    failures = [
-        {field: row.get(field, "") for field in fields}
-        for row in registry_rows
-        if row.get("qc_status") != "include"
-    ]
+    record = {field: row.get(field, "") for field in fields}
+    record["qc_status"] = qc_status
+    record["excluded_reason"] = reason
+    return record
+
+
+def _write_failures(path: Path, failures: list[dict[str, Any]]) -> None:
+    fields = ["area", "start_year", "end_year", "tier", "qc_status", "excluded_reason"]
     write_csv(path, failures, fields)
 
 
@@ -111,40 +114,50 @@ def evaluate_las(
 
     metric_rows: list[dict[str, Any]] = []
     selected_rows: list[dict[str, int | float | str]] = []
+    failure_rows = [
+        _failure_record(row, str(row.get("qc_status", "")), str(row.get("excluded_reason", "")))
+        for row in registry_rows
+        if row.get("qc_status") != "include"
+    ]
+    evaluated_rows = 0
 
     for row in included_rows:
-        start = _load_array(row.get("label_start_path")).astype(np.int32, copy=False)
-        end = _load_array(row.get("label_end_path")).astype(np.int32, copy=False)
-        paper58_pred = _load_array(row.get("prediction_path")).astype(np.int32, copy=False)
-        if start.shape != end.shape or start.shape != paper58_pred.shape:
-            raise ValueError(
-                f"shape mismatch for {row.get('area')}: start={start.shape}, "
-                f"end={end.shape}, pred={paper58_pred.shape}"
+        try:
+            start = _load_array(row.get("label_start_path")).astype(np.int32, copy=False)
+            end = _load_array(row.get("label_end_path")).astype(np.int32, copy=False)
+            paper58_pred = _load_array(row.get("prediction_path")).astype(np.int32, copy=False)
+            if start.shape != end.shape or start.shape != paper58_pred.shape:
+                raise ValueError(
+                    f"shape mismatch for {row.get('area')}: start={start.shape}, "
+                    f"end={end.shape}, pred={paper58_pred.shape}"
+                )
+
+            class_values = class_values_from_maps(start, end, paper58_pred)
+            flus_path = _path(row.get("flus_prediction_path"))
+            flus_pred = None
+            if flus_path is not None:
+                flus_pred = load_flus_prediction(flus_path, expected_shape=start.shape, allowed_classes=set(class_values))
+                class_values = class_values_from_maps(start, end, paper58_pred, flus_pred)
+
+            start_probs = one_hot_probability_cube(start, class_values, confidence=0.95, floor=0.01)
+            forecast_probs = one_hot_probability_cube(paper58_pred, class_values, confidence=0.95, floor=0.01)
+            prior = transition_prior_from_pairs(_transition_training_pairs(included_rows, row, start.shape), class_values)
+            suitability = build_transition_suitability(
+                start,
+                class_values=class_values,
+                forecast_probs=forecast_probs,
+                start_probs=start_probs,
+                transition_prior=prior,
             )
-
-        class_values = class_values_from_maps(start, end, paper58_pred)
-        flus_path = _path(row.get("flus_prediction_path"))
-        flus_pred = None
-        if flus_path is not None:
-            flus_pred = load_flus_prediction(flus_path, expected_shape=start.shape, allowed_classes=set(class_values))
-            class_values = class_values_from_maps(start, end, paper58_pred, flus_pred)
-
-        start_probs = one_hot_probability_cube(start, class_values, confidence=0.95, floor=0.01)
-        forecast_probs = one_hot_probability_cube(paper58_pred, class_values, confidence=0.95, floor=0.01)
-        prior = transition_prior_from_pairs(_transition_training_pairs(included_rows, row, start.shape), class_values)
-        suitability = build_transition_suitability(
-            start,
-            class_values=class_values,
-            forecast_probs=forecast_probs,
-            start_probs=start_probs,
-            transition_prior=prior,
-        )
-        allocation = allocate_demand_constrained(
-            start,
-            suitability,
-            class_values=class_values,
-            target_demand=derive_observed_demand(end),
-        )
+            allocation = allocate_demand_constrained(
+                start,
+                suitability,
+                class_values=class_values,
+                target_demand=derive_observed_demand(end),
+            )
+        except Exception as exc:
+            failure_rows.append(_failure_record(row, "runtime_failure", f"{type(exc).__name__}: {exc}"))
+            continue
 
         area = str(row.get("area"))
         start_year = int(row.get("start_year"))
@@ -154,7 +167,7 @@ def evaluate_las(
             allocation.simulated_map.astype(np.int32, copy=False),
         )
 
-        metric_rows.append(
+        row_metric_rows = [
             method_metric_row(
                 "paper58_direct",
                 area,
@@ -164,8 +177,8 @@ def evaluate_las(
                 end,
                 paper58_pred,
             )
-        )
-        metric_rows.append(
+        ]
+        row_metric_rows.append(
             method_metric_row(
                 "paper58_las",
                 area,
@@ -177,7 +190,7 @@ def evaluate_las(
             )
         )
         if flus_pred is not None:
-            metric_rows.append(
+            row_metric_rows.append(
                 method_metric_row(
                     "flus",
                     area,
@@ -188,6 +201,7 @@ def evaluate_las(
                     flus_pred,
                 )
             )
+        metric_rows.extend(row_metric_rows)
 
         for selected in allocation.selected_transitions:
             selected_rows.append(
@@ -198,17 +212,19 @@ def evaluate_las(
                     **selected,
                 }
             )
+        evaluated_rows += 1
 
     summary = {
         "n_registry_rows": len(registry_rows),
-        "n_evaluated_rows": len(included_rows),
+        "n_evaluated_rows": evaluated_rows,
+        "n_failed_rows": len(failure_rows),
         "n_metric_rows": len(metric_rows),
         "methods": _method_names(metric_rows),
     }
     result = {"summary": summary, "metrics": metric_rows}
     write_csv(output / "las_metrics_by_method.csv", metric_rows, LAS_METRIC_FIELDS)
     write_json(output / "las_summary.json", result)
-    _write_failures(output / "las_failures.csv", registry_rows)
+    _write_failures(output / "las_failures.csv", failure_rows)
     _write_selected_transitions(output / "las_selected_transitions.csv", selected_rows)
     return result
 
