@@ -26,6 +26,28 @@ def test_load_flus_prediction_accepts_csv(tmp_path: Path):
     assert loaded.tolist() == [[1, 2], [2, 3]]
 
 
+def test_load_flus_prediction_accepts_geotiff(tmp_path: Path):
+    rasterio = pytest.importorskip("rasterio")
+    path = tmp_path / "flus.tif"
+    arr = np.array([[1, 2], [2, 3]], dtype=np.int32)
+    with rasterio.open(
+        path,
+        "w",
+        driver="GTiff",
+        height=arr.shape[0],
+        width=arr.shape[1],
+        count=1,
+        dtype=arr.dtype,
+        transform=rasterio.transform.from_origin(0, arr.shape[0], 1, 1),
+    ) as dataset:
+        dataset.write(arr, 1)
+
+    loaded = load_flus_prediction(path, expected_shape=(2, 2), allowed_classes={1, 2, 3})
+
+    assert loaded.dtype == np.int32
+    assert loaded.tolist() == [[1, 2], [2, 3]]
+
+
 def test_load_flus_prediction_accepts_single_row_csv(tmp_path: Path):
     path = tmp_path / "flus.csv"
     path.write_text("1,2\n", encoding="utf-8")
