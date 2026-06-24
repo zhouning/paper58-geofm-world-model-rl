@@ -269,4 +269,3 @@ If successful, Paper58-LAS converts Paper58 from a latent change predictor into 
 - it adds a new latent allocation and neighborhood competition architecture;
 - it becomes directly comparable with GeoSOS-FLUS;
 - it creates an evidence path for claiming superiority only after matched-condition experiments support that claim.
-
