@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -18,6 +19,7 @@ class FLUSCasePaths:
     restrict_path: Path
     simulation_config_path: Path
     markov_chain_path: Path
+    class_mapping_path: Path
 
 
 def _require_rasterio():
@@ -58,6 +60,75 @@ def _validate_inputs(
             raise FLUSCaseError(f"restrict_mask shape {restrict.shape} does not match start map shape {start.shape}")
         restrict = restrict.astype(np.uint8, copy=False)
     return start.astype(np.int32, copy=False), probability, demand, restrict
+
+
+def _class_mappings(class_values: list[int]) -> tuple[dict[int, int], dict[int, int]]:
+    original_to_encoded = {int(cls): index + 1 for index, cls in enumerate(class_values)}
+    encoded_to_original = {encoded: original for original, encoded in original_to_encoded.items()}
+    return original_to_encoded, encoded_to_original
+
+
+def _encode_start_map(start: np.ndarray, class_values: list[int]) -> np.ndarray:
+    original_to_encoded, _ = _class_mappings(class_values)
+    known = set(original_to_encoded)
+    unknown = sorted({int(value) for value in np.unique(start)} - known)
+    if unknown:
+        raise FLUSCaseError(f"start map contains classes not in class_values: {unknown}")
+    encoded = np.zeros(start.shape, dtype=np.int32)
+    for original, encoded_value in original_to_encoded.items():
+        encoded[start == original] = encoded_value
+    return encoded
+
+
+def decode_flus_labels(encoded_map: np.ndarray, class_values: list[int]) -> np.ndarray:
+    encoded = np.asarray(encoded_map)
+    _, encoded_to_original = _class_mappings([int(cls) for cls in class_values])
+    known = set(encoded_to_original)
+    unknown = sorted({int(value) for value in np.unique(encoded)} - known)
+    if unknown:
+        raise FLUSCaseError(f"encoded FLUS output contains unknown classes: {unknown}")
+    decoded = np.zeros(encoded.shape, dtype=np.int32)
+    for encoded_value, original in encoded_to_original.items():
+        decoded[encoded == encoded_value] = original
+    return decoded
+
+
+def decode_flus_geotiff(encoded_path: Path, decoded_path: Path, class_values: list[int]) -> Path:
+    rasterio, _ = _require_rasterio()
+    source = Path(encoded_path)
+    target = Path(decoded_path)
+    with rasterio.open(source) as dataset:
+        if dataset.count != 1:
+            raise FLUSCaseError(f"encoded FLUS GeoTIFF must have one band, got {dataset.count}")
+        decoded = decode_flus_labels(dataset.read(1), class_values)
+        profile = dataset.profile.copy()
+    profile.update(count=1, dtype=decoded.dtype)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with rasterio.open(target, "w", **profile) as dataset:
+        dataset.write(decoded, 1)
+    return target
+
+
+def find_flus_simulation_result(case_dir: Path, end_year: int) -> Path:
+    directory = Path(case_dir)
+    candidates = [
+        directory / "simresult.tif",
+        directory / f"simresult_{int(end_year)}.tif",
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    names = ", ".join(path.name for path in candidates)
+    raise FLUSCaseError(f"FLUS simulation result not found in {directory}; expected one of: {names}")
+
+
+def _mapping_json(class_values: list[int]) -> str:
+    original_to_encoded, encoded_to_original = _class_mappings(class_values)
+    payload = {
+        "encoded_to_original": {str(key): int(value) for key, value in encoded_to_original.items()},
+        "original_to_encoded": {str(key): int(value) for key, value in original_to_encoded.items()},
+    }
+    return json.dumps(payload, indent=2, ensure_ascii=False)
 
 
 def _write_single_band_geotiff(path: Path, array: np.ndarray) -> None:
@@ -167,8 +238,9 @@ def write_flus_case(
         restrict_path=output / "restrict.tif",
         simulation_config_path=output / "CCregionsimlog.txt",
         markov_chain_path=output / "CCregionMakovChain.csv",
+        class_mapping_path=output / "class_mapping.json",
     )
-    _write_single_band_geotiff(paths.landuse_path, start)
+    _write_single_band_geotiff(paths.landuse_path, _encode_start_map(start, classes))
     _write_probability_geotiff(paths.probability_path, probability)
     _write_single_band_geotiff(paths.restrict_path, restrict)
     paths.simulation_config_path.write_text(
@@ -182,4 +254,5 @@ def write_flus_case(
         encoding="utf-8",
     )
     paths.markov_chain_path.write_text(_markov_chain_csv(classes, demand, int(end_year)), encoding="utf-8")
+    paths.class_mapping_path.write_text(_mapping_json(classes), encoding="utf-8")
     return paths
