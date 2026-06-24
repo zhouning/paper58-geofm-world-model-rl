@@ -40,20 +40,47 @@ def _remaining_demand_is_feasible(
     remaining: dict[int, int],
     allowed_transitions: set[tuple[int, int]] | None,
 ) -> bool:
-    unassigned_pixels = np.argwhere(~assigned)
-    for to_cls, needed in remaining.items():
-        if needed <= 0:
-            continue
-        feasible_count = 0
-        for row, col in unassigned_pixels:
-            from_cls = int(start_map[row, col])
-            if _is_allowed(from_cls, int(to_cls), allowed_transitions):
-                feasible_count += 1
-                if feasible_count >= needed:
-                    break
-        if feasible_count < needed:
-            return False
-    return True
+    slots: list[int] = []
+    for to_cls, needed in sorted(remaining.items()):
+        slots.extend([int(to_cls)] * int(needed))
+    if not slots:
+        return True
+
+    unassigned_pixels = [(int(row), int(col)) for row, col in np.argwhere(~assigned)]
+    if len(unassigned_pixels) < len(slots):
+        return False
+
+    edges: list[list[int]] = []
+    for row, col in unassigned_pixels:
+        from_cls = int(start_map[row, col])
+        edges.append(
+            [
+                slot_index
+                for slot_index, to_cls in enumerate(slots)
+                if _is_allowed(from_cls, to_cls, allowed_transitions)
+            ]
+        )
+
+    slot_to_pixel = [-1] * len(slots)
+
+    def find_match(pixel_index: int, seen: list[bool]) -> bool:
+        for slot_index in edges[pixel_index]:
+            if seen[slot_index]:
+                continue
+            seen[slot_index] = True
+            matched_pixel = slot_to_pixel[slot_index]
+            if matched_pixel == -1 or find_match(matched_pixel, seen):
+                slot_to_pixel[slot_index] = pixel_index
+                return True
+        return False
+
+    matched_slots = 0
+    for pixel_index in range(len(unassigned_pixels)):
+        if find_match(pixel_index, [False] * len(slots)):
+            matched_slots += 1
+            if matched_slots == len(slots):
+                return True
+    return False
 
 
 def allocate_demand_constrained(

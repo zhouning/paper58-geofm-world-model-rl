@@ -77,3 +77,24 @@ def test_allocate_preserves_feasible_scarce_destination():
     assert result.achieved_demand == target_demand
     assert result.unmet_demand == {1: 0, 2: 0, 3: 0}
     assert result.constraint_violations == []
+
+
+def test_allocate_feasibility_guard_does_not_double_count_pixels():
+    start = np.array([[2, 1, 3]], dtype=np.int32)
+    class_values = [1, 2, 3]
+    suitability = np.zeros((1, 3, 3), dtype=np.float32)
+    suitability[0, 0, 2] = 0.9
+    target_demand = {1: 1, 2: 1, 3: 1}
+
+    result = allocate_demand_constrained(
+        start,
+        suitability,
+        class_values,
+        target_demand,
+        allowed_transitions={(2, 3), (1, 2)},
+    )
+
+    assert result.simulated_map.tolist() == [[2, 1, 3]]
+    assert result.achieved_demand == target_demand
+    assert result.unmet_demand == {1: 0, 2: 0, 3: 0}
+    assert result.constraint_violations == []
