@@ -103,6 +103,13 @@ def test_evaluate_las_metric_rows_keep_temporal_pair_keys(tmp_path: Path):
     pairs = {(row["area"], row["start_year"], row["end_year"]) for row in metric_rows}
     assert ("repeat_area", "2020", "2021") in pairs
     assert ("repeat_area", "2021", "2022") in pairs
+    summary_payload = json.loads((output_dir / "las_summary.json").read_text(encoding="utf-8"))
+    json_pairs = {
+        (row["area"], row["start_year"], row["end_year"])
+        for row in summary_payload["metrics"]
+    }
+    assert ("repeat_area", 2020, 2021) in json_pairs
+    assert ("repeat_area", 2021, 2022) in json_pairs
 
 
 def test_evaluate_las_keeps_failure_rows_visible(tmp_path: Path):
