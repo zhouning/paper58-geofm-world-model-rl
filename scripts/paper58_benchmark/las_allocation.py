@@ -34,6 +34,28 @@ def _is_allowed(from_cls: int, to_cls: int, allowed_transitions: set[tuple[int, 
     return (int(from_cls), int(to_cls)) in allowed_transitions
 
 
+def _remaining_demand_is_feasible(
+    start_map: np.ndarray,
+    assigned: np.ndarray,
+    remaining: dict[int, int],
+    allowed_transitions: set[tuple[int, int]] | None,
+) -> bool:
+    unassigned_pixels = np.argwhere(~assigned)
+    for to_cls, needed in remaining.items():
+        if needed <= 0:
+            continue
+        feasible_count = 0
+        for row, col in unassigned_pixels:
+            from_cls = int(start_map[row, col])
+            if _is_allowed(from_cls, int(to_cls), allowed_transitions):
+                feasible_count += 1
+                if feasible_count >= needed:
+                    break
+        if feasible_count < needed:
+            return False
+    return True
+
+
 def allocate_demand_constrained(
     start_map: np.ndarray,
     suitability: np.ndarray,
@@ -76,6 +98,12 @@ def allocate_demand_constrained(
         if assigned[row, col]:
             continue
         if remaining.get(to_cls, 0) <= 0:
+            continue
+        tentative_assigned = assigned.copy()
+        tentative_assigned[row, col] = True
+        tentative_remaining = remaining.copy()
+        tentative_remaining[to_cls] -= 1
+        if not _remaining_demand_is_feasible(start, tentative_assigned, tentative_remaining, allowed_transitions):
             continue
         simulated[row, col] = to_cls
         assigned[row, col] = True
