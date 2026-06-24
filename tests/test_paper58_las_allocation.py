@@ -1,0 +1,57 @@
+import numpy as np
+
+from scripts.paper58_benchmark.las_allocation import allocate_demand_constrained
+
+
+def test_allocate_demand_constrained_meets_target_demand():
+    start = np.array([[1, 1], [2, 2]], dtype=np.int32)
+    class_values = [1, 2]
+    suitability = np.zeros((2, 2, 2), dtype=np.float32)
+    suitability[0, 0, 1] = 0.9
+    suitability[0, 1, 1] = 0.8
+    target_demand = {1: 2, 2: 2}
+
+    result = allocate_demand_constrained(start, suitability, class_values, target_demand)
+
+    assert result.achieved_demand == target_demand
+    assert result.unmet_demand == {1: 0, 2: 0}
+    assert result.simulated_map.shape == start.shape
+
+
+def test_allocate_respects_exclusion_mask():
+    start = np.array([[1, 1], [2, 2]], dtype=np.int32)
+    class_values = [1, 2]
+    suitability = np.zeros((2, 2, 2), dtype=np.float32)
+    suitability[:, :, 1] = 1.0
+    target_demand = {1: 1, 2: 3}
+    exclusion = np.array([[True, False], [False, False]])
+
+    result = allocate_demand_constrained(
+        start,
+        suitability,
+        class_values,
+        target_demand,
+        exclusion_mask=exclusion,
+    )
+
+    assert result.simulated_map[0, 0] == 1
+    assert result.achieved_demand == target_demand
+
+
+def test_allocate_respects_forbidden_transition():
+    start = np.array([[1, 2], [2, 2]], dtype=np.int32)
+    class_values = [1, 2, 3]
+    suitability = np.ones((2, 2, 3), dtype=np.float32)
+    target_demand = {1: 1, 2: 1, 3: 2}
+
+    result = allocate_demand_constrained(
+        start,
+        suitability,
+        class_values,
+        target_demand,
+        allowed_transitions={(2, 3)},
+    )
+
+    assert result.simulated_map[0, 0] == 1
+    assert np.count_nonzero(result.simulated_map == 3) == 2
+    assert result.constraint_violations == []
