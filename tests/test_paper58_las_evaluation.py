@@ -66,6 +66,48 @@ def test_evaluate_las_writes_method_rows(tmp_path: Path):
     assert (output_dir / "simulated" / "external_2020_2021_paper58_las.npy").exists()
 
 
+def test_evaluate_las_uses_paper58_gross_change_budget(tmp_path: Path):
+    start = np.array([[1, 2]], dtype=np.int32)
+    end = np.array([[2, 1]], dtype=np.int32)
+    paper58_pred = np.array([[2, 1]], dtype=np.int32)
+
+    label_start = tmp_path / "start.npy"
+    label_end = tmp_path / "end.npy"
+    pred_path = tmp_path / "paper58.npy"
+    np.save(label_start, start)
+    np.save(label_end, end)
+    np.save(pred_path, paper58_pred)
+
+    registry = tmp_path / "benchmark_registry.json"
+    registry.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "area": "gross_budget",
+                        "start_year": 2020,
+                        "end_year": 2021,
+                        "tier": "tier1",
+                        "stratum": "Urban",
+                        **_provenance_fields(),
+                        "label_start_path": str(label_start),
+                        "label_end_path": str(label_end),
+                        "prediction_path": str(pred_path),
+                        "qc_status": "include",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "las_out"
+
+    evaluate_las(registry_path=registry, output_dir=output_dir)
+
+    simulated = np.load(output_dir / "simulated" / "gross_budget_2020_2021_paper58_las.npy")
+    assert simulated.tolist() == [[2, 1]]
+
+
 def test_evaluate_las_metric_rows_keep_temporal_pair_keys(tmp_path: Path):
     start = np.array([[1, 1], [2, 2]], dtype=np.int32)
     end = np.array([[1, 2], [2, 3]], dtype=np.int32)

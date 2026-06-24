@@ -169,6 +169,7 @@ def evaluate_las(
                 suitability,
                 class_values=class_values,
                 target_demand=derive_observed_demand(end),
+                target_change_pixels=int(np.count_nonzero(paper58_pred != start)),
             )
         except Exception as exc:
             failure_rows.append(_failure_record(row, "runtime_failure", f"{type(exc).__name__}: {exc}"))

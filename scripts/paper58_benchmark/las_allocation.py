@@ -101,6 +101,95 @@ def _remaining_demand_is_feasible(
     return False
 
 
+def _add_balanced_change_swaps(
+    simulated: np.ndarray,
+    start: np.ndarray,
+    scores: np.ndarray,
+    class_values: list[int],
+    class_to_col: dict[int, int],
+    editable: np.ndarray,
+    selected: list[dict[str, int | float]],
+    allowed_transitions: set[tuple[int, int]] | None,
+    target_change_pixels: int | None,
+) -> None:
+    if target_change_pixels is None:
+        return
+    target = int(target_change_pixels)
+    if target < 0:
+        raise DemandValidationError(f"target_change_pixels must be non-negative: {target}")
+    remaining_extra = target - int(np.count_nonzero(simulated != start))
+    if remaining_extra < 2:
+        return
+
+    stable_coords = [
+        (int(row), int(col))
+        for row, col in np.argwhere(editable & (simulated == start))
+        if int(start[row, col]) in class_to_col
+    ]
+    known_classes = {int(cls) for cls in class_values}
+    swap_candidates: list[tuple[float, int, int, int, int, int, int]] = []
+    for left_index, (left_row, left_col) in enumerate(stable_coords):
+        left_cls = int(start[left_row, left_col])
+        if left_cls not in known_classes:
+            continue
+        for right_row, right_col in stable_coords[left_index + 1 :]:
+            right_cls = int(start[right_row, right_col])
+            if right_cls == left_cls or right_cls not in known_classes:
+                continue
+            if not _is_allowed(left_cls, right_cls, allowed_transitions):
+                continue
+            if not _is_allowed(right_cls, left_cls, allowed_transitions):
+                continue
+            left_score = float(scores[left_row, left_col, class_to_col[right_cls]])
+            right_score = float(scores[right_row, right_col, class_to_col[left_cls]])
+            swap_candidates.append(
+                (
+                    left_score + right_score,
+                    left_row,
+                    left_col,
+                    left_cls,
+                    right_row,
+                    right_col,
+                    right_cls,
+                )
+            )
+
+    swap_candidates.sort(key=lambda item: (-item[0], item[1], item[2], item[4], item[5]))
+    used: set[tuple[int, int]] = set()
+    for _, left_row, left_col, left_cls, right_row, right_col, right_cls in swap_candidates:
+        if remaining_extra < 2:
+            break
+        left = (left_row, left_col)
+        right = (right_row, right_col)
+        if left in used or right in used:
+            continue
+        if simulated[left_row, left_col] != left_cls or simulated[right_row, right_col] != right_cls:
+            continue
+        simulated[left_row, left_col] = right_cls
+        simulated[right_row, right_col] = left_cls
+        used.add(left)
+        used.add(right)
+        remaining_extra -= 2
+        selected.append(
+            {
+                "row": left_row,
+                "col": left_col,
+                "from_class": left_cls,
+                "to_class": right_cls,
+                "score": float(scores[left_row, left_col, class_to_col[right_cls]]),
+            }
+        )
+        selected.append(
+            {
+                "row": right_row,
+                "col": right_col,
+                "from_class": right_cls,
+                "to_class": left_cls,
+                "score": float(scores[right_row, right_col, class_to_col[left_cls]]),
+            }
+        )
+
+
 def allocate_demand_constrained(
     start_map: np.ndarray,
     suitability: np.ndarray,
@@ -109,6 +198,7 @@ def allocate_demand_constrained(
     exclusion_mask: np.ndarray | None = None,
     immutable_classes: set[int] | None = None,
     allowed_transitions: set[tuple[int, int]] | None = None,
+    target_change_pixels: int | None = None,
 ) -> LASAllocationResult:
     start = np.asarray(start_map)
     scores = np.asarray(suitability, dtype=np.float32)
@@ -234,6 +324,18 @@ def allocate_demand_constrained(
                         }
                     )
             assigned[row, col] = True
+
+    _add_balanced_change_swaps(
+        simulated,
+        start,
+        scores,
+        class_values,
+        class_to_col,
+        editable,
+        selected,
+        allowed_transitions,
+        target_change_pixels,
+    )
 
     achieved = _counts(simulated, class_values)
     unmet = {int(cls): max(0, int(demand.get(int(cls), 0)) - int(achieved.get(int(cls), 0))) for cls in class_values}
