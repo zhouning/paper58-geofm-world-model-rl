@@ -112,6 +112,49 @@ def test_evaluate_las_metric_rows_keep_temporal_pair_keys(tmp_path: Path):
     assert ("repeat_area", 2021, 2022) in json_pairs
 
 
+def test_evaluate_las_relocates_cross_machine_registry_paths(tmp_path: Path, monkeypatch):
+    start = np.array([[1, 1], [2, 2]], dtype=np.int32)
+    end = np.array([[1, 2], [2, 3]], dtype=np.int32)
+    pred = np.array([[1, 2], [2, 2]], dtype=np.int32)
+    label_dir = tmp_path / "data" / "independent_change_labels" / "labels"
+    pred_dir = tmp_path / "data" / "independent_change_labels" / "predicted"
+    label_dir.mkdir(parents=True)
+    pred_dir.mkdir(parents=True)
+    label_start = label_dir / "relocated_lulc_2020.npy"
+    label_end = label_dir / "relocated_lulc_2021.npy"
+    pred_path = pred_dir / "relocated_lulc_pred_2020_2021.npy"
+    np.save(label_start, start)
+    np.save(label_end, end)
+    np.save(pred_path, pred)
+    monkeypatch.chdir(tmp_path)
+    registry = tmp_path / "benchmark_registry.json"
+    registry.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "area": "relocated",
+                        "start_year": 2020,
+                        "end_year": 2021,
+                        "tier": "tier1",
+                        "stratum": "Wetland",
+                        **_provenance_fields(),
+                        "label_start_path": "D:/other/machine/data/independent_change_labels/labels/relocated_lulc_2020.npy",
+                        "label_end_path": "D:/other/machine/data/independent_change_labels/labels/relocated_lulc_2021.npy",
+                        "prediction_path": "D:/other/machine/data/independent_change_labels/predicted/relocated_lulc_pred_2020_2021.npy",
+                        "qc_status": "include",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = evaluate_las(registry_path=registry, output_dir=tmp_path / "las_out")
+
+    assert result["summary"]["n_evaluated_rows"] == 1
+
+
 def test_evaluate_las_keeps_failure_rows_visible(tmp_path: Path):
     registry = tmp_path / "benchmark_registry.json"
     registry.write_text(

@@ -44,7 +44,16 @@ LAS_METRIC_FIELDS = [
 def _path(value: object) -> Path | None:
     if value in (None, ""):
         return None
-    return Path(str(value))
+    candidate = Path(str(value))
+    if candidate.exists():
+        return candidate
+    normalized = str(value).replace("\\", "/")
+    for marker in ("data/", "paper/", "experiments/"):
+        if marker in normalized:
+            relocated = Path.cwd() / normalized[normalized.index(marker):]
+            if relocated.exists():
+                return relocated
+    return candidate
 
 
 def _load_array(path_value: object) -> np.ndarray:
