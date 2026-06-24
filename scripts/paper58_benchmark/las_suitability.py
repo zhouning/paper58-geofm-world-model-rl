@@ -64,8 +64,10 @@ def _embedding_change_pressure(
     embedding_forecast: np.ndarray | None,
     target_shape: tuple[int, int],
 ) -> np.ndarray:
-    if embedding_start is None or embedding_forecast is None:
+    if embedding_start is None and embedding_forecast is None:
         return np.zeros(target_shape, dtype=np.float32)
+    if embedding_start is None or embedding_forecast is None:
+        raise ValueError("embedding_start and embedding_forecast must be provided together")
     start = np.asarray(embedding_start, dtype=np.float32)
     forecast = np.asarray(embedding_forecast, dtype=np.float32)
     if start.shape != forecast.shape:

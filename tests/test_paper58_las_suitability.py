@@ -85,6 +85,20 @@ def test_build_transition_suitability_rejects_2d_embeddings():
         )
 
 
+def test_build_transition_suitability_rejects_partial_embedding_inputs():
+    start = np.array([[1, 2]], dtype=np.int32)
+    forecast_probs = np.array([[[0.1, 0.8], [0.7, 0.2]]], dtype=np.float32)
+    embedding_start = np.array([[[0.0], [1.0]]], dtype=np.float32)
+
+    with pytest.raises(ValueError, match="embedding_start and embedding_forecast must be provided together"):
+        build_transition_suitability(
+            start,
+            class_values=[1, 2],
+            forecast_probs=forecast_probs,
+            embedding_start=embedding_start,
+        )
+
+
 def test_build_transition_suitability_uses_3d_embedding_change_pressure():
     start = np.array([[1]], dtype=np.int32)
     forecast_probs = np.array([[[0.0, 0.0]]], dtype=np.float32)
