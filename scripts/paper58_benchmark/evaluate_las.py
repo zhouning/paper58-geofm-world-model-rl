@@ -119,6 +119,7 @@ def _with_years(metric_row: dict[str, Any], start_year: int, end_year: int) -> d
 def evaluate_las(
     registry_path: Path = DEFAULT_BENCHMARK_DIR / "benchmark_registry.json",
     output_dir: Path = DEFAULT_BENCHMARK_DIR.parent / "las_results",
+    neighborhood_weight: float = 0.0,
 ) -> dict[str, Any]:
     registry_rows = _read_registry(Path(registry_path))
     included_rows = [row for row in registry_rows if row.get("qc_status") == "include"]
@@ -170,6 +171,7 @@ def evaluate_las(
                 class_values=class_values,
                 target_demand=derive_observed_demand(end),
                 target_change_pixels=int(np.count_nonzero(paper58_pred != start)),
+                neighborhood_weight=neighborhood_weight,
             )
         except Exception as exc:
             failure_rows.append(_failure_record(row, "runtime_failure", f"{type(exc).__name__}: {exc}"))
@@ -266,8 +268,18 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate Paper58-LAS against Paper58 direct and FLUS-compatible outputs.")
     parser.add_argument("--registry", type=Path, default=DEFAULT_BENCHMARK_DIR / "benchmark_registry.json")
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_BENCHMARK_DIR.parent / "las_results")
+    parser.add_argument(
+        "--neighborhood-weight",
+        type=float,
+        default=0.0,
+        help="Weight for class-neighborhood affinity during LAS allocation.",
+    )
     args = parser.parse_args()
-    result = evaluate_las(registry_path=args.registry, output_dir=args.output_dir)
+    result = evaluate_las(
+        registry_path=args.registry,
+        output_dir=args.output_dir,
+        neighborhood_weight=args.neighborhood_weight,
+    )
     print(
         "Paper58-LAS evaluation: "
         f"{result['summary']['n_evaluated_rows']} evaluated row(s), "

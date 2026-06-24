@@ -35,6 +35,51 @@ def _is_allowed(from_cls: int, to_cls: int, allowed_transitions: set[tuple[int, 
     return (int(from_cls), int(to_cls)) in allowed_transitions
 
 
+def _neighborhood_affinity_cube(label_map: np.ndarray, class_values: list[int]) -> np.ndarray:
+    labels = np.asarray(label_map)
+    affinity = np.zeros(labels.shape + (len(class_values),), dtype=np.float32)
+    neighbor_counts = np.zeros(labels.shape, dtype=np.float32)
+    if labels.size == 0:
+        return affinity
+
+    height, width = labels.shape
+    class_to_col = {int(cls): index for index, cls in enumerate(class_values)}
+    for row_offset in (-1, 0, 1):
+        for col_offset in (-1, 0, 1):
+            if row_offset == 0 and col_offset == 0:
+                continue
+            src_row_start = max(0, -row_offset)
+            src_row_end = min(height, height - row_offset)
+            dst_row_start = max(0, row_offset)
+            dst_row_end = min(height, height + row_offset)
+            src_col_start = max(0, -col_offset)
+            src_col_end = min(width, width - col_offset)
+            dst_col_start = max(0, col_offset)
+            dst_col_end = min(width, width + col_offset)
+            source = labels[src_row_start:src_row_end, src_col_start:src_col_end]
+            target = affinity[dst_row_start:dst_row_end, dst_col_start:dst_col_end]
+            for cls, class_index in class_to_col.items():
+                target[..., class_index] += source == cls
+            neighbor_counts[dst_row_start:dst_row_end, dst_col_start:dst_col_end] += 1.0
+
+    valid = neighbor_counts > 0
+    affinity[valid] /= neighbor_counts[valid, None]
+    return affinity
+
+
+def _allocation_score(
+    scores: np.ndarray,
+    neighborhood: np.ndarray,
+    neighborhood_weight: float,
+    row: int,
+    col: int,
+    target_cls: int,
+    class_to_col: dict[int, int],
+) -> float:
+    class_index = class_to_col[int(target_cls)]
+    return float(scores[row, col, class_index] + neighborhood_weight * neighborhood[row, col, class_index])
+
+
 def _remaining_demand_is_feasible(
     source_counts: dict[int, int],
     remaining: dict[int, int],
@@ -105,6 +150,8 @@ def _add_balanced_change_swaps(
     simulated: np.ndarray,
     start: np.ndarray,
     scores: np.ndarray,
+    neighborhood: np.ndarray,
+    neighborhood_weight: float,
     class_values: list[int],
     class_to_col: dict[int, int],
     editable: np.ndarray,
@@ -140,8 +187,12 @@ def _add_balanced_change_swaps(
                 continue
             if not _is_allowed(right_cls, left_cls, allowed_transitions):
                 continue
-            left_score = float(scores[left_row, left_col, class_to_col[right_cls]])
-            right_score = float(scores[right_row, right_col, class_to_col[left_cls]])
+            left_score = _allocation_score(
+                scores, neighborhood, neighborhood_weight, left_row, left_col, right_cls, class_to_col
+            )
+            right_score = _allocation_score(
+                scores, neighborhood, neighborhood_weight, right_row, right_col, left_cls, class_to_col
+            )
             swap_candidates.append(
                 (
                     left_score + right_score,
@@ -176,7 +227,9 @@ def _add_balanced_change_swaps(
                 "col": left_col,
                 "from_class": left_cls,
                 "to_class": right_cls,
-                "score": float(scores[left_row, left_col, class_to_col[right_cls]]),
+                "score": _allocation_score(
+                    scores, neighborhood, neighborhood_weight, left_row, left_col, right_cls, class_to_col
+                ),
             }
         )
         selected.append(
@@ -185,7 +238,9 @@ def _add_balanced_change_swaps(
                 "col": right_col,
                 "from_class": right_cls,
                 "to_class": left_cls,
-                "score": float(scores[right_row, right_col, class_to_col[left_cls]]),
+                "score": _allocation_score(
+                    scores, neighborhood, neighborhood_weight, right_row, right_col, left_cls, class_to_col
+                ),
             }
         )
 
@@ -199,6 +254,7 @@ def allocate_demand_constrained(
     immutable_classes: set[int] | None = None,
     allowed_transitions: set[tuple[int, int]] | None = None,
     target_change_pixels: int | None = None,
+    neighborhood_weight: float = 0.0,
 ) -> LASAllocationResult:
     start = np.asarray(start_map)
     scores = np.asarray(suitability, dtype=np.float32)
@@ -210,6 +266,10 @@ def allocate_demand_constrained(
     editable = build_editable_mask(start, exclusion_mask=exclusion_mask, immutable_classes=immutable_classes)
     remaining = remaining_editable_demand(start, demand, editable)
     class_to_col = {int(cls): index for index, cls in enumerate(class_values)}
+    weight = float(neighborhood_weight)
+    if weight < 0.0:
+        raise DemandValidationError(f"neighborhood_weight must be non-negative: {weight}")
+    neighborhood = _neighborhood_affinity_cube(start, class_values) if weight > 0.0 else np.zeros_like(scores)
     simulated = start.copy()
     assigned = ~editable
     selected: list[dict[str, int | float]] = []
@@ -223,7 +283,7 @@ def allocate_demand_constrained(
         from_cls = int(start[row, col])
         if remaining.get(from_cls, 0) <= 0 or from_cls not in class_to_col:
             continue
-        stay_score = float(scores[row, col, class_to_col[from_cls]])
+        stay_score = _allocation_score(scores, neighborhood, weight, int(row), int(col), from_cls, class_to_col)
         best_change_score: float | None = None
         for to_cls in class_values:
             to_key = int(to_cls)
@@ -233,7 +293,7 @@ def allocate_demand_constrained(
                 continue
             if not _is_allowed(from_cls, to_key, allowed_transitions):
                 continue
-            change_score = float(scores[row, col, class_to_col[to_key]])
+            change_score = _allocation_score(scores, neighborhood, weight, int(row), int(col), to_key, class_to_col)
             best_change_score = change_score if best_change_score is None else max(best_change_score, change_score)
         persistence_margin = float("inf") if best_change_score is None else stay_score - best_change_score
         stable_candidates.append((persistence_margin, stay_score, int(row), int(col), from_cls))
@@ -265,7 +325,7 @@ def allocate_demand_constrained(
                 continue
             if not _is_allowed(from_cls, to_key, allowed_transitions):
                 continue
-            score = float(scores[row, col, class_to_col[to_key]])
+            score = _allocation_score(scores, neighborhood, weight, int(row), int(col), to_key, class_to_col)
             if from_cls == to_key:
                 score += 1e-6
             candidates.append((score, int(row), int(col), from_cls, to_key))
@@ -320,7 +380,9 @@ def allocate_demand_constrained(
                             "col": int(col),
                             "from_class": from_cls,
                             "to_class": assigned_class,
-                            "score": float(scores[row, col, class_to_col[assigned_class]]),
+                            "score": _allocation_score(
+                                scores, neighborhood, weight, int(row), int(col), assigned_class, class_to_col
+                            ),
                         }
                     )
             assigned[row, col] = True
@@ -329,6 +391,8 @@ def allocate_demand_constrained(
         simulated,
         start,
         scores,
+        neighborhood,
+        weight,
         class_values,
         class_to_col,
         editable,

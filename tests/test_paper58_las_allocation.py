@@ -91,6 +91,36 @@ def test_allocate_uses_minimum_required_changes_for_net_demand():
     assert result.achieved_demand == target_demand
 
 
+def test_allocate_neighborhood_weight_prefers_target_class_edges():
+    start = np.array(
+        [
+            [1, 1, 2],
+            [1, 1, 2],
+            [1, 1, 2],
+        ],
+        dtype=np.int32,
+    )
+    class_values = [1, 2]
+    suitability = np.zeros((3, 3, 2), dtype=np.float32)
+    suitability[1, 0, 1] = 0.9
+    suitability[1, 1, 1] = 0.1
+    target_demand = {1: 5, 2: 4}
+
+    result = allocate_demand_constrained(
+        start,
+        suitability,
+        class_values,
+        target_demand,
+        neighborhood_weight=3.0,
+    )
+
+    assert result.simulated_map[1, 0] == 1
+    changed = np.argwhere(result.simulated_map != start)
+    assert changed.shape == (1, 2)
+    assert tuple(changed[0]) in {(1, 1), (2, 1)}
+    assert result.achieved_demand == target_demand
+
+
 def test_allocate_respects_exclusion_mask():
     start = np.array([[1, 1], [2, 2]], dtype=np.int32)
     class_values = [1, 2]
