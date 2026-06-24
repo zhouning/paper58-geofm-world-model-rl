@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import deque
 from dataclasses import dataclass
 
 import numpy as np
@@ -40,46 +41,63 @@ def _remaining_demand_is_feasible(
     remaining: dict[int, int],
     allowed_transitions: set[tuple[int, int]] | None,
 ) -> bool:
-    slots: list[int] = []
-    for to_cls, needed in sorted(remaining.items()):
-        slots.extend([int(to_cls)] * int(needed))
-    if not slots:
+    required = {int(cls): int(needed) for cls, needed in remaining.items() if int(needed) > 0}
+    total_required = int(sum(required.values()))
+    if total_required == 0:
         return True
 
-    unassigned_pixels = [(int(row), int(col)) for row, col in np.argwhere(~assigned)]
-    if len(unassigned_pixels) < len(slots):
+    unassigned = np.asarray(start_map)[~assigned]
+    if int(unassigned.size) < total_required:
         return False
 
-    edges: list[list[int]] = []
-    for row, col in unassigned_pixels:
-        from_cls = int(start_map[row, col])
-        edges.append(
-            [
-                slot_index
-                for slot_index, to_cls in enumerate(slots)
-                if _is_allowed(from_cls, to_cls, allowed_transitions)
-            ]
-        )
+    source_counts = {int(cls): int(np.count_nonzero(unassigned == int(cls))) for cls in np.unique(unassigned)}
+    source_classes = sorted(source_counts)
+    target_classes = sorted(required)
+    source_offset = 1
+    target_offset = source_offset + len(source_classes)
+    sink = target_offset + len(target_classes)
+    graph = [[0] * (sink + 1) for _ in range(sink + 1)]
 
-    slot_to_pixel = [-1] * len(slots)
+    for index, from_cls in enumerate(source_classes):
+        graph[0][source_offset + index] = source_counts[from_cls]
+    for source_index, from_cls in enumerate(source_classes):
+        for target_index, to_cls in enumerate(target_classes):
+            if _is_allowed(from_cls, to_cls, allowed_transitions):
+                graph[source_offset + source_index][target_offset + target_index] = source_counts[from_cls]
+    for index, to_cls in enumerate(target_classes):
+        graph[target_offset + index][sink] = required[to_cls]
 
-    def find_match(pixel_index: int, seen: list[bool]) -> bool:
-        for slot_index in edges[pixel_index]:
-            if seen[slot_index]:
-                continue
-            seen[slot_index] = True
-            matched_pixel = slot_to_pixel[slot_index]
-            if matched_pixel == -1 or find_match(matched_pixel, seen):
-                slot_to_pixel[slot_index] = pixel_index
-                return True
-        return False
+    flow = 0
+    while True:
+        parent = [-1] * len(graph)
+        parent[0] = 0
+        queue: deque[int] = deque([0])
+        while queue and parent[sink] == -1:
+            node = queue.popleft()
+            for next_node, capacity in enumerate(graph[node]):
+                if capacity > 0 and parent[next_node] == -1:
+                    parent[next_node] = node
+                    queue.append(next_node)
+                    if next_node == sink:
+                        break
+        if parent[sink] == -1:
+            break
 
-    matched_slots = 0
-    for pixel_index in range(len(unassigned_pixels)):
-        if find_match(pixel_index, [False] * len(slots)):
-            matched_slots += 1
-            if matched_slots == len(slots):
-                return True
+        increment = total_required - flow
+        node = sink
+        while node != 0:
+            prev = parent[node]
+            increment = min(increment, graph[prev][node])
+            node = prev
+        node = sink
+        while node != 0:
+            prev = parent[node]
+            graph[prev][node] -= increment
+            graph[node][prev] += increment
+            node = prev
+        flow += increment
+        if flow == total_required:
+            return True
     return False
 
 

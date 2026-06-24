@@ -121,3 +121,15 @@ def test_allocate_records_fallback_changed_transitions():
         "from_class": 1,
         "to_class": 3,
     }.items() <= result.selected_transitions[0].items()
+
+
+def test_allocate_large_feasible_demand_avoids_recursive_matching_limit():
+    n_pixels = 1200
+    start = np.ones((1, n_pixels), dtype=np.int32)
+    class_values = [1]
+    suitability = np.ones((1, n_pixels, 1), dtype=np.float32)
+
+    result = allocate_demand_constrained(start, suitability, class_values, {1: n_pixels})
+
+    assert result.achieved_demand == {1: n_pixels}
+    assert result.constraint_violations == []
