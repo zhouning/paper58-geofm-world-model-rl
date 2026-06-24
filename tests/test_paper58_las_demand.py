@@ -4,6 +4,7 @@ import pytest
 from scripts.paper58_benchmark.las_demand import (
     DemandValidationError,
     build_editable_mask,
+    derive_demand,
     derive_observed_demand,
     remaining_editable_demand,
     validate_total_demand,
@@ -16,6 +17,23 @@ def test_derive_observed_demand_counts_classes():
     demand = derive_observed_demand(end)
 
     assert demand == {1: 1, 2: 2, 3: 3}
+
+
+def test_derive_demand_can_use_paper58_prediction_instead_of_observed_end():
+    start = np.array([[1, 1], [2, 2]], dtype=np.int32)
+    end = np.array([[2, 2], [2, 2]], dtype=np.int32)
+    prediction = np.array([[1, 1], [1, 2]], dtype=np.int32)
+
+    demand = derive_demand(start, end, prediction, demand_source="paper58_prediction")
+
+    assert demand == {1: 3, 2: 1}
+
+
+def test_derive_demand_rejects_unknown_source():
+    start = np.array([[1]], dtype=np.int32)
+
+    with pytest.raises(DemandValidationError, match="unsupported demand_source"):
+        derive_demand(start, start, start, demand_source="unknown")
 
 
 def test_validate_total_demand_rejects_wrong_total():

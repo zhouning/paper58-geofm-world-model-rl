@@ -15,7 +15,7 @@ from scripts.paper58_benchmark.flus_case import (
     find_flus_simulation_result,
     write_flus_case,
 )
-from scripts.paper58_benchmark.las_demand import derive_observed_demand
+from scripts.paper58_benchmark.las_demand import derive_demand
 from scripts.paper58_benchmark.las_suitability import class_values_from_maps, one_hot_probability_cube
 
 
@@ -54,6 +54,7 @@ def run_flus_batch(
     flus_executable: Path,
     console_runner: ConsoleRunner | None = None,
     strict: bool = False,
+    demand_source: str = "observed_end",
 ) -> dict[str, Any]:
     rows = [row for row in _read_registry(Path(registry_path)) if row.get("qc_status") == "include"]
     cases = Path(case_root)
@@ -74,7 +75,7 @@ def run_flus_batch(
             paper58_pred = _load_array(row.get("prediction_path")).astype(np.int32, copy=False)
             classes = class_values_from_maps(start, end, paper58_pred)
             probability = one_hot_probability_cube(paper58_pred, classes, confidence=0.95, floor=0.01)
-            demand = derive_observed_demand(end)
+            demand = derive_demand(start, end, paper58_pred, demand_source=demand_source)
             case_dir = cases / f"{area}_{start_year}_{end_year}"
             write_flus_case(
                 output_dir=case_dir,
@@ -98,6 +99,7 @@ def run_flus_batch(
         "n_rows": len(rows),
         "n_ran": n_ran,
         "n_failed": len(failures),
+        "demand_source": demand_source,
         "failures": failures,
     }
 
@@ -108,6 +110,12 @@ def main() -> None:
     parser.add_argument("--case-root", type=Path, required=True)
     parser.add_argument("--prediction-dir", type=Path, required=True)
     parser.add_argument("--flus-executable", type=Path, required=True)
+    parser.add_argument(
+        "--demand-source",
+        choices=["observed_end", "paper58_prediction", "start_persistence"],
+        default="observed_end",
+        help="Demand source for FLUS case export. observed_end is oracle demand; paper58_prediction is non-oracle.",
+    )
     parser.add_argument("--strict", action="store_true")
     args = parser.parse_args()
     summary = run_flus_batch(
@@ -116,6 +124,7 @@ def main() -> None:
         prediction_dir=args.prediction_dir,
         flus_executable=args.flus_executable,
         strict=args.strict,
+        demand_source=args.demand_source,
     )
     print(
         "FLUS batch run: "

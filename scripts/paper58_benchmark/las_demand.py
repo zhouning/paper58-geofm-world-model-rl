@@ -12,6 +12,24 @@ def derive_observed_demand(end_map: np.ndarray) -> dict[int, int]:
     return {int(value): int(count) for value, count in zip(values, counts)}
 
 
+def derive_demand(
+    start_map: np.ndarray,
+    end_map: np.ndarray,
+    prediction_map: np.ndarray,
+    demand_source: str = "observed_end",
+) -> dict[int, int]:
+    if demand_source == "observed_end":
+        return derive_observed_demand(end_map)
+    if demand_source == "paper58_prediction":
+        return derive_observed_demand(prediction_map)
+    if demand_source == "start_persistence":
+        return derive_observed_demand(start_map)
+    raise DemandValidationError(
+        "unsupported demand_source "
+        f"{demand_source!r}; expected one of: observed_end, paper58_prediction, start_persistence"
+    )
+
+
 def validate_total_demand(start_map: np.ndarray, demand: dict[int, int]) -> None:
     total = int(sum(int(value) for value in demand.values()))
     n_cells = int(np.asarray(start_map).size)

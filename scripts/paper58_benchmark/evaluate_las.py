@@ -10,7 +10,7 @@ import numpy as np
 from scripts.paper58_benchmark.evaluate_benchmark import _read_registry
 from scripts.paper58_benchmark.flus import load_flus_prediction
 from scripts.paper58_benchmark.las_allocation import allocate_demand_constrained
-from scripts.paper58_benchmark.las_demand import derive_observed_demand
+from scripts.paper58_benchmark.las_demand import derive_demand
 from scripts.paper58_benchmark.las_metrics import method_metric_row
 from scripts.paper58_benchmark.las_suitability import (
     build_transition_suitability,
@@ -121,6 +121,7 @@ def evaluate_las(
     output_dir: Path = DEFAULT_BENCHMARK_DIR.parent / "las_results",
     neighborhood_weight: float = 0.0,
     latent_neighborhood_weight: float = 0.0,
+    demand_source: str = "observed_end",
 ) -> dict[str, Any]:
     registry_rows = _read_registry(Path(registry_path))
     included_rows = [row for row in registry_rows if row.get("qc_status") == "include"]
@@ -173,7 +174,7 @@ def evaluate_las(
                 start,
                 suitability,
                 class_values=class_values,
-                target_demand=derive_observed_demand(end),
+                target_demand=derive_demand(start, end, paper58_pred, demand_source=demand_source),
                 target_change_pixels=int(np.count_nonzero(paper58_pred != start)),
                 neighborhood_weight=neighborhood_weight,
                 embedding_grid=embedding_start,
@@ -261,6 +262,7 @@ def evaluate_las(
         "n_failed_rows": len(failure_rows),
         "n_metric_rows": len(metric_rows),
         "methods": _method_names(metric_rows),
+        "demand_source": demand_source,
     }
     result = {"summary": summary, "metrics": metric_rows}
     write_csv(output / "las_metrics_by_method.csv", metric_rows, LAS_METRIC_FIELDS)
@@ -286,12 +288,19 @@ def main() -> None:
         default=0.0,
         help="Weight for start-embedding semantic neighborhood affinity during LAS allocation.",
     )
+    parser.add_argument(
+        "--demand-source",
+        choices=["observed_end", "paper58_prediction", "start_persistence"],
+        default="observed_end",
+        help="Demand source for LAS allocation. observed_end is oracle demand; paper58_prediction is non-oracle.",
+    )
     args = parser.parse_args()
     result = evaluate_las(
         registry_path=args.registry,
         output_dir=args.output_dir,
         neighborhood_weight=args.neighborhood_weight,
         latent_neighborhood_weight=args.latent_neighborhood_weight,
+        demand_source=args.demand_source,
     )
     print(
         "Paper58-LAS evaluation: "
