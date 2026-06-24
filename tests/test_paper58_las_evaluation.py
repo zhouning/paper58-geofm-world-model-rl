@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from scripts.paper58_benchmark.evaluate_las import evaluate_las
 
@@ -64,6 +65,59 @@ def test_evaluate_las_writes_method_rows(tmp_path: Path):
     assert (output_dir / "las_metrics_by_method.csv").exists()
     assert (output_dir / "las_summary.json").exists()
     assert (output_dir / "simulated" / "external_2020_2021_paper58_las.npy").exists()
+
+
+def test_evaluate_las_accepts_geotiff_flus_prediction(tmp_path: Path):
+    rasterio = pytest.importorskip("rasterio")
+    start = np.array([[1, 1], [2, 2]], dtype=np.int32)
+    end = np.array([[1, 2], [2, 3]], dtype=np.int32)
+    paper58_pred = np.array([[1, 2], [2, 2]], dtype=np.int32)
+    flus_pred = np.array([[1, 1], [2, 3]], dtype=np.int32)
+    label_start = tmp_path / "start.npy"
+    label_end = tmp_path / "end.npy"
+    pred_path = tmp_path / "paper58.npy"
+    flus_path = tmp_path / "flus.tif"
+    np.save(label_start, start)
+    np.save(label_end, end)
+    np.save(pred_path, paper58_pred)
+    with rasterio.open(
+        flus_path,
+        "w",
+        driver="GTiff",
+        height=flus_pred.shape[0],
+        width=flus_pred.shape[1],
+        count=1,
+        dtype=flus_pred.dtype,
+        transform=rasterio.transform.from_origin(0, flus_pred.shape[0], 1, 1),
+    ) as dataset:
+        dataset.write(flus_pred, 1)
+    registry = tmp_path / "benchmark_registry.json"
+    registry.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "area": "external_geotiff",
+                        "start_year": 2020,
+                        "end_year": 2021,
+                        "tier": "tier1",
+                        "stratum": "Wetland",
+                        **_provenance_fields(),
+                        "label_start_path": str(label_start),
+                        "label_end_path": str(label_end),
+                        "prediction_path": str(pred_path),
+                        "flus_prediction_path": str(flus_path),
+                        "qc_status": "include",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = evaluate_las(registry_path=registry, output_dir=tmp_path / "las_out")
+
+    assert result["summary"]["methods"] == ["flus", "paper58_direct", "paper58_las"]
 
 
 def test_evaluate_las_uses_paper58_gross_change_budget(tmp_path: Path):
