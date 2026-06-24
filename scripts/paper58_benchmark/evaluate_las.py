@@ -174,7 +174,14 @@ def evaluate_las(
                 start,
                 suitability,
                 class_values=class_values,
-                target_demand=derive_demand(start, end, paper58_pred, demand_source=demand_source),
+                target_demand=derive_demand(
+                    start,
+                    end,
+                    paper58_pred,
+                    demand_source=demand_source,
+                    class_values=class_values,
+                    transition_prior=prior,
+                ),
                 target_change_pixels=int(np.count_nonzero(paper58_pred != start)),
                 neighborhood_weight=neighborhood_weight,
                 embedding_grid=embedding_start,
@@ -290,7 +297,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--demand-source",
-        choices=["observed_end", "paper58_prediction", "start_persistence"],
+        choices=["observed_end", "paper58_prediction", "start_persistence", "transition_prior"],
         default="observed_end",
         help="Demand source for LAS allocation. observed_end is oracle demand; paper58_prediction is non-oracle.",
     )

@@ -9,14 +9,18 @@ from typing import Any
 import numpy as np
 
 from scripts.paper58_benchmark.evaluate_benchmark import _read_registry
-from scripts.paper58_benchmark.evaluate_las import _path
+from scripts.paper58_benchmark.evaluate_las import _path, _transition_training_pairs
 from scripts.paper58_benchmark.flus_case import (
     decode_flus_geotiff,
     find_flus_simulation_result,
     write_flus_case,
 )
 from scripts.paper58_benchmark.las_demand import derive_demand
-from scripts.paper58_benchmark.las_suitability import class_values_from_maps, one_hot_probability_cube
+from scripts.paper58_benchmark.las_suitability import (
+    class_values_from_maps,
+    one_hot_probability_cube,
+    transition_prior_from_pairs,
+)
 
 
 ConsoleRunner = Callable[[Path], None]
@@ -75,7 +79,15 @@ def run_flus_batch(
             paper58_pred = _load_array(row.get("prediction_path")).astype(np.int32, copy=False)
             classes = class_values_from_maps(start, end, paper58_pred)
             probability = one_hot_probability_cube(paper58_pred, classes, confidence=0.95, floor=0.01)
-            demand = derive_demand(start, end, paper58_pred, demand_source=demand_source)
+            prior = transition_prior_from_pairs(_transition_training_pairs(rows, row, start.shape), classes)
+            demand = derive_demand(
+                start,
+                end,
+                paper58_pred,
+                demand_source=demand_source,
+                class_values=classes,
+                transition_prior=prior,
+            )
             case_dir = cases / f"{area}_{start_year}_{end_year}"
             write_flus_case(
                 output_dir=case_dir,
@@ -112,7 +124,7 @@ def main() -> None:
     parser.add_argument("--flus-executable", type=Path, required=True)
     parser.add_argument(
         "--demand-source",
-        choices=["observed_end", "paper58_prediction", "start_persistence"],
+        choices=["observed_end", "paper58_prediction", "start_persistence", "transition_prior"],
         default="observed_end",
         help="Demand source for FLUS case export. observed_end is oracle demand; paper58_prediction is non-oracle.",
     )

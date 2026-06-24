@@ -6,6 +6,7 @@ from scripts.paper58_benchmark.las_demand import (
     build_editable_mask,
     derive_demand,
     derive_observed_demand,
+    project_transition_prior_demand,
     remaining_editable_demand,
     validate_total_demand,
 )
@@ -34,6 +35,48 @@ def test_derive_demand_rejects_unknown_source():
 
     with pytest.raises(DemandValidationError, match="unsupported demand_source"):
         derive_demand(start, start, start, demand_source="unknown")
+
+
+def test_project_transition_prior_demand_projects_start_counts():
+    start = np.array([[1, 1], [1, 2]], dtype=np.int32)
+    prior = {
+        (1, 1): 0.0,
+        (1, 2): 1.0,
+        (2, 1): 1.0,
+        (2, 2): 0.0,
+    }
+
+    demand = project_transition_prior_demand(start, class_values=[1, 2], transition_prior=prior)
+
+    assert demand == {1: 1, 2: 3}
+
+
+def test_project_transition_prior_demand_uses_persistence_for_missing_prior_rows():
+    start = np.array([[1, 1], [2, 2]], dtype=np.int32)
+    prior = {
+        (1, 2): 1.0,
+    }
+
+    demand = project_transition_prior_demand(start, class_values=[1, 2], transition_prior=prior)
+
+    assert demand == {1: 0, 2: 4}
+
+
+def test_derive_demand_can_use_transition_prior():
+    start = np.array([[1, 1], [1, 2]], dtype=np.int32)
+    end = np.array([[1, 1], [1, 1]], dtype=np.int32)
+    prediction = np.array([[2, 2], [2, 2]], dtype=np.int32)
+
+    demand = derive_demand(
+        start,
+        end,
+        prediction,
+        demand_source="transition_prior",
+        class_values=[1, 2],
+        transition_prior={(1, 2): 1.0, (2, 1): 1.0},
+    )
+
+    assert demand == {1: 1, 2: 3}
 
 
 def test_validate_total_demand_rejects_wrong_total():

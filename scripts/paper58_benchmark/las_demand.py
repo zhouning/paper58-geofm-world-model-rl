@@ -12,11 +12,56 @@ def derive_observed_demand(end_map: np.ndarray) -> dict[int, int]:
     return {int(value): int(count) for value, count in zip(values, counts)}
 
 
+def _round_expected_counts(expected: np.ndarray, class_values: list[int], total: int) -> dict[int, int]:
+    base = np.floor(expected).astype(np.int64)
+    deficit = int(total - int(np.sum(base)))
+    if deficit > 0:
+        remainders = expected - base
+        order = sorted(range(len(class_values)), key=lambda index: (-float(remainders[index]), int(class_values[index])))
+        for index in order[:deficit]:
+            base[index] += 1
+    elif deficit < 0:
+        remainders = expected - base
+        order = sorted(range(len(class_values)), key=lambda index: (float(remainders[index]), -int(class_values[index])))
+        for index in order[: abs(deficit)]:
+            if base[index] > 0:
+                base[index] -= 1
+    return {int(cls): int(base[index]) for index, cls in enumerate(class_values)}
+
+
+def project_transition_prior_demand(
+    start_map: np.ndarray,
+    class_values: list[int],
+    transition_prior: dict[tuple[int, int], float],
+) -> dict[int, int]:
+    start = np.asarray(start_map)
+    classes = [int(cls) for cls in class_values]
+    if not classes:
+        raise DemandValidationError("class_values must be non-empty for transition_prior demand")
+    values, counts = np.unique(start, return_counts=True)
+    start_counts = {int(value): int(count) for value, count in zip(values, counts)}
+    expected = np.zeros(len(classes), dtype=np.float64)
+    class_to_index = {int(cls): index for index, cls in enumerate(classes)}
+    for from_cls in classes:
+        count = int(start_counts.get(from_cls, 0))
+        if count == 0:
+            continue
+        row = np.array([float(transition_prior.get((from_cls, to_cls), 0.0)) for to_cls in classes], dtype=np.float64)
+        row_sum = float(np.sum(row))
+        if row_sum <= 0.0:
+            expected[class_to_index[from_cls]] += count
+        else:
+            expected += count * (row / row_sum)
+    return _round_expected_counts(expected, classes, int(start.size))
+
+
 def derive_demand(
     start_map: np.ndarray,
     end_map: np.ndarray,
     prediction_map: np.ndarray,
     demand_source: str = "observed_end",
+    class_values: list[int] | None = None,
+    transition_prior: dict[tuple[int, int], float] | None = None,
 ) -> dict[int, int]:
     if demand_source == "observed_end":
         return derive_observed_demand(end_map)
@@ -24,9 +69,13 @@ def derive_demand(
         return derive_observed_demand(prediction_map)
     if demand_source == "start_persistence":
         return derive_observed_demand(start_map)
+    if demand_source == "transition_prior":
+        if class_values is None or transition_prior is None:
+            raise DemandValidationError("transition_prior demand requires class_values and transition_prior")
+        return project_transition_prior_demand(start_map, class_values, transition_prior)
     raise DemandValidationError(
         "unsupported demand_source "
-        f"{demand_source!r}; expected one of: observed_end, paper58_prediction, start_persistence"
+        f"{demand_source!r}; expected one of: observed_end, paper58_prediction, start_persistence, transition_prior"
     )
 
 
