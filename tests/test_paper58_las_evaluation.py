@@ -131,3 +131,46 @@ def test_evaluate_las_keeps_include_runtime_failures_visible(tmp_path: Path):
     failures = (output_dir / "las_failures.csv").read_text(encoding="utf-8")
     assert "missing_inputs" in failures
     assert "runtime_failure" in failures
+
+
+def test_evaluate_las_keeps_late_row_runtime_failures_visible(tmp_path: Path):
+    start = np.array([[1, 1], [2, 2]], dtype=np.int32)
+    end = np.array([[1, 2], [2, 3]], dtype=np.int32)
+    paper58_pred = np.array([[1, 2], [2, 2]], dtype=np.int32)
+    label_start = tmp_path / "start.npy"
+    label_end = tmp_path / "end.npy"
+    pred_path = tmp_path / "paper58.npy"
+    np.save(label_start, start)
+    np.save(label_end, end)
+    np.save(pred_path, paper58_pred)
+    registry = tmp_path / "benchmark_registry.json"
+    registry.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "area": "bad_year",
+                        "start_year": "not_a_year",
+                        "end_year": 2021,
+                        "tier": "tier1",
+                        "stratum": "Urban",
+                        **_provenance_fields(),
+                        "label_start_path": str(label_start),
+                        "label_end_path": str(label_end),
+                        "prediction_path": str(pred_path),
+                        "qc_status": "include",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "las_out"
+
+    result = evaluate_las(registry_path=registry, output_dir=output_dir)
+
+    assert result["summary"]["n_evaluated_rows"] == 0
+    assert result["summary"]["n_failed_rows"] == 1
+    failures = (output_dir / "las_failures.csv").read_text(encoding="utf-8")
+    assert "bad_year" in failures
+    assert "runtime_failure" in failures

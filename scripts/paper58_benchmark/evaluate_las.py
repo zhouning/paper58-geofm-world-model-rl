@@ -159,59 +159,64 @@ def evaluate_las(
             failure_rows.append(_failure_record(row, "runtime_failure", f"{type(exc).__name__}: {exc}"))
             continue
 
-        area = str(row.get("area"))
-        start_year = int(row.get("start_year"))
-        end_year = int(row.get("end_year"))
-        np.save(
-            simulated_dir / f"{area}_{start_year}_{end_year}_paper58_las.npy",
-            allocation.simulated_map.astype(np.int32, copy=False),
-        )
-
-        row_metric_rows = [
-            method_metric_row(
-                "paper58_direct",
-                area,
-                str(row.get("tier")),
-                str(row.get("stratum")),
-                start,
-                end,
-                paper58_pred,
-            )
-        ]
-        row_metric_rows.append(
-            method_metric_row(
-                "paper58_las",
-                area,
-                str(row.get("tier")),
-                str(row.get("stratum")),
-                start,
-                end,
-                allocation.simulated_map,
-            )
-        )
-        if flus_pred is not None:
-            row_metric_rows.append(
+        try:
+            area = str(row.get("area"))
+            start_year = int(row.get("start_year"))
+            end_year = int(row.get("end_year"))
+            row_metric_rows = [
                 method_metric_row(
-                    "flus",
+                    "paper58_direct",
                     area,
                     str(row.get("tier")),
                     str(row.get("stratum")),
                     start,
                     end,
-                    flus_pred,
+                    paper58_pred,
+                )
+            ]
+            row_metric_rows.append(
+                method_metric_row(
+                    "paper58_las",
+                    area,
+                    str(row.get("tier")),
+                    str(row.get("stratum")),
+                    start,
+                    end,
+                    allocation.simulated_map,
                 )
             )
-        metric_rows.extend(row_metric_rows)
+            if flus_pred is not None:
+                row_metric_rows.append(
+                    method_metric_row(
+                        "flus",
+                        area,
+                        str(row.get("tier")),
+                        str(row.get("stratum")),
+                        start,
+                        end,
+                        flus_pred,
+                    )
+                )
 
-        for selected in allocation.selected_transitions:
-            selected_rows.append(
+            row_selected_rows = [
                 {
                     "area": area,
                     "start_year": start_year,
                     "end_year": end_year,
                     **selected,
                 }
+                for selected in allocation.selected_transitions
+            ]
+            np.save(
+                simulated_dir / f"{area}_{start_year}_{end_year}_paper58_las.npy",
+                allocation.simulated_map.astype(np.int32, copy=False),
             )
+        except Exception as exc:
+            failure_rows.append(_failure_record(row, "runtime_failure", f"{type(exc).__name__}: {exc}"))
+            continue
+
+        metric_rows.extend(row_metric_rows)
+        selected_rows.extend(row_selected_rows)
         evaluated_rows += 1
 
     summary = {
