@@ -1,6 +1,6 @@
 <!doctype html>
 <meta charset="utf-8">
-<title>Paper58-LAS vs FLUS-compatible visual report</title>
+<title>Paper58-LAS vs official FLUS console visual report</title>
 <style>
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:1040px;margin:32px auto;line-height:1.65;color:#222;padding:0 18px}
 h1{font-size:28px} h2{margin-top:34px} img{max-width:100%;border:1px solid #ddd;margin:10px 0 18px} code{background:#f4f4f4;padding:1px 4px;border-radius:3px}
@@ -9,16 +9,16 @@ table{border-collapse:collapse;font-size:14px} td,th{border:1px solid #ddd;paddi
 </style>
 <h1>Paper58-LAS vs GeoSOS-FLUS 路线直观对比图文报告</h1>
 <p>日期：2026-06-24</p>
-<blockquote>这里的 GeoSOS-FLUS 路线指当前可复现实验里的 <b>FLUS-compatible baseline</b>，还不是 GeoSOS-FLUS 官方 native GUI/完整传统驱动因子工作流。</blockquote>
+<blockquote>这里的 GeoSOS-FLUS 路线指当前可复现实验里的 <b>official FLUS console baseline</b>，即使用官方 FLUS console 源码编译出的命令行程序和同一 Batch 5 数据构造的对比基线。它使用官方源码，但还不是 GeoSOS-FLUS native GUI/完整传统驱动因子工作流。</blockquote>
 <h2>现在能不能算全部完成？</h2>
-<p>不能。准确说，Paper58-LAS 与 FLUS-compatible baseline 的可复现控制对比已经完成，并形成强阶段性结论；官方 GeoSOS-FLUS native workflow 对比、zero-local-user-data operational 验证、以及更强 demand forecast 模块还未完成。</p>
-<div class="callout"><b>一眼结论：</b>transition-prior 非 oracle demand 下，Change F1 从 0.101 提高到 0.251，FoM 从 0.030 提高到 0.104。Paper58-LAS 赢在抓到更多真实变化，弱在空间落点误报更多。</div>
+<p>不能。准确说，Paper58-LAS 与 official FLUS console baseline 的可复现控制对比已经完成，并形成强阶段性结论；GeoSOS-FLUS native workflow/完整传统驱动因子输入包对比、zero-local-user-data operational 验证、以及更强 demand forecast 模块还未完成。</p>
+<div class="callout"><b>一眼结论：</b>transition-prior 非 oracle demand 下，official FLUS console 的 Change F1 从 0.101 被 Paper58-LAS 提高到 0.251，FoM 从 0.030 提高到 0.104。Paper58-LAS 赢在抓到更多真实变化，弱在空间落点误报更多。</div>
 <h2>图 1：证据阶梯</h2>
 <img src="figures/fig1_evidence_ladder.png" alt="Evidence ladder">
 <p>oracle demand 和 transition-prior demand 都显示 Paper58-LAS 的 F1/FoM 正优势；Paper58-prediction demand 是保留的负证据。</p>
 <h2>图 2：主设置下的指标对比</h2>
 <img src="figures/fig2_transition_prior_metric_means.png" alt="Transition-prior metric means">
-<p>Paper58-LAS 在 Change F1、FoM、Recall、Transition accuracy 上全部高于 FLUS-compatible baseline，但 allocation disagreement 更高。</p>
+<p>Paper58-LAS 在 Change F1、FoM、Recall、Transition accuracy 上全部高于 official FLUS console baseline，但 allocation disagreement 更高。</p>
 <h2>图 3：逐区胜负</h2>
 <img src="figures/fig3_area_advantages.png" alt="Area advantages">
 <p>7 个 holdout 区域里，6 个区域 Paper58-LAS 获得正优势；Huaibei 是主要负例。</p>
@@ -29,4 +29,4 @@ table{border-collapse:collapse;font-size:14px} td,th{border:1px solid #ddd;paddi
 <img src="figures/fig5_spatial_examples.png" alt="Spatial examples">
 <p>绿色是正确抓到的真实变化，红色是真实变化但没抓对，黄色是稳定区域上的误报变化。Liaohe/Wuxi 展示 Paper58-LAS 抓变化更强，Huaibei 展示当前失败模式。</p>
 <h2>最终判断</h2>
-<p>如果问题是 Paper58 路线是否已经在当前可复现 FLUS-compatible baseline 上形成超越证据，答案是：<b>是，阶段性证据已经很强</b>。如果问题是是否已经正式完成对 GeoSOS-FLUS 官方 native workflow 的全面超越证明，答案是：<b>还没有</b>。</p>
+<p>如果问题是 Paper58 路线是否已经在当前可复现 official FLUS console baseline 上形成超越证据，答案是：<b>是，阶段性证据已经很强</b>。如果问题是是否已经正式完成对 GeoSOS-FLUS native workflow 的全面超越证明，答案是：<b>还没有</b>。</p>

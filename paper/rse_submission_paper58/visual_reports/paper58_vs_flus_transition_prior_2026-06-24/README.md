@@ -2,24 +2,24 @@
 
 日期：2026-06-24
 
-> 说明：这里的 GeoSOS-FLUS 路线指当前可复现实验里的 **FLUS-compatible baseline**，即使用 FLUS console 和同一 Batch 5 数据构造的对比基线。它还不是 GeoSOS-FLUS 官方 native GUI/完整传统驱动因子工作流。
+> 说明：这里的 GeoSOS-FLUS 路线指当前可复现实验里的 **official FLUS console baseline**，即使用官方 FLUS console 源码编译出的命令行程序和同一 Batch 5 数据构造的对比基线。它使用官方源码，但还不是 GeoSOS-FLUS native GUI/完整传统驱动因子工作流。
 
 ## 现在能不能算全部完成？
 
 不能把所有工作都看作完成。更准确的状态是：
 
-- **已完成**：Paper58-LAS 与 FLUS-compatible baseline 的可复现控制对比，包含 oracle demand、Paper58-prediction demand、transition-prior demand 三种设置。
-- **已形成强阶段性结论**：在 oracle demand 和 transition-prior 非 oracle demand 下，Paper58-LAS 均超过 FLUS-compatible baseline。
-- **还未完成**：官方 GeoSOS-FLUS native workflow 对比、zero-local-user-data operational 验证、以及更强 demand forecast 模块。
+- **已完成**：Paper58-LAS 与 official FLUS console baseline 的可复现控制对比，包含 oracle demand、Paper58-prediction demand、transition-prior demand 三种设置。
+- **已形成强阶段性结论**：在 oracle demand 和 transition-prior 非 oracle demand 下，Paper58-LAS 均超过 official FLUS console baseline。
+- **还未完成**：GeoSOS-FLUS native workflow/完整传统驱动因子输入包对比、zero-local-user-data operational 验证、以及更强 demand forecast 模块。
 
 ## 一眼结论
 
-在最有解释力的 `transition_prior` 非 oracle demand 设置下，Paper58-LAS 不读取目标区域 2021 年真实标签来生成需求，仍然显著优于 FLUS-compatible baseline：
+在最有解释力的 `transition_prior` 非 oracle demand 设置下，Paper58-LAS 不读取目标区域 2021 年真实标签来生成需求，仍然显著优于 official FLUS console baseline：
 
-- Change F1：FLUS-compatible `0.101` -> Paper58-LAS `0.251`，平均优势 `+0.150`。
-- FoM：FLUS-compatible `0.030` -> Paper58-LAS `0.104`，平均优势 `+0.074`。
-- Recall：FLUS-compatible `0.123` -> Paper58-LAS `0.519`。
-- Transition accuracy：FLUS-compatible `0.084` -> Paper58-LAS `0.377`。
+- Change F1：official FLUS console `0.101` -> Paper58-LAS `0.251`，平均优势 `+0.150`。
+- FoM：official FLUS console `0.030` -> Paper58-LAS `0.104`，平均优势 `+0.074`。
+- Recall：official FLUS console `0.123` -> Paper58-LAS `0.519`。
+- Transition accuracy：official FLUS console `0.084` -> Paper58-LAS `0.377`。
 
 代价也很清楚：Paper58-LAS 的 allocation disagreement 更高，说明它更敢抓变化、抓到更多真实变化，但空间落点还不够干净。
 
@@ -39,7 +39,7 @@
 
 看图说话：
 
-- Paper58-LAS 在 Change F1、FoM、Recall、Transition accuracy 上全部高于 FLUS-compatible baseline。
+- Paper58-LAS 在 Change F1、FoM、Recall、Transition accuracy 上全部高于 official FLUS console baseline。
 - 最明显的提升来自 Recall 和 Transition accuracy：它能抓住更多真实变化像元，也更常把变化方向判对。
 - 右侧两个 disagreement 是越低越好。Paper58-LAS 的 allocation disagreement 更高，这是当前弱点。
 
@@ -82,11 +82,11 @@
 看图说话：
 
 - 绿色是正确抓到的真实变化，红色是真实变化但没抓对，黄色是稳定区域上的误报变化。
-- Liaohe 和 Wuxi 中，Paper58-LAS 明显有更多绿色，说明它比 FLUS-compatible baseline 更能找到真实变化。
+- Liaohe 和 Wuxi 中，Paper58-LAS 明显有更多绿色，说明它比 official FLUS console baseline 更能找到真实变化。
 - Huaibei 中，Paper58-LAS 出现更多黄色或没把真实变化抓准，这就是逐区指标里它输掉的直观原因。
 
 ## 最终判断
 
-如果问题是“Paper58 路线是否已经在当前可复现 FLUS-compatible baseline 上形成超越证据”，答案是：**是，阶段性证据已经很强**。
+如果问题是“Paper58 路线是否已经在当前可复现 official FLUS console baseline 上形成超越证据”，答案是：**是，阶段性证据已经很强**。
 
-如果问题是“是否已经正式完成对 GeoSOS-FLUS 官方 native workflow 的全面超越证明”，答案是：**还没有**。下一步必须做官方/原生 GeoSOS-FLUS 输入包对比，并验证 Paper58 的 zero-local-user-data 流程。
+如果问题是“是否已经正式完成对 GeoSOS-FLUS native workflow 的全面超越证明”，答案是：**还没有**。下一步必须做 GeoSOS-FLUS native 输入包/完整传统驱动因子工作流对比，并验证 Paper58 的 zero-local-user-data 流程。

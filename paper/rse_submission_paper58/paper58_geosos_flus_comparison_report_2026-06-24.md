@@ -13,12 +13,12 @@
 
 ## 一句话结论
 
-在当前已完成的 Batch 5 严格 holdout 实验中，Paper58-LAS 已经在一个可复现的 FLUS-compatible 控制基线上取得了两类正证据：
+在当前已完成的 Batch 5 严格 holdout 实验中，Paper58-LAS 已经在一个可复现的 official FLUS console 控制基线上取得了两类正证据：
 
-1. oracle demand 控制实验中，平均 change F1 从 `0.1623` 提高到 `0.2967`，平均 FoM 从 `0.0651` 提高到 `0.1299`，7 个区域中 6 个区域优于 FLUS-compatible baseline。
-2. transition-prior 非 oracle demand 实验中，平均 change F1 从 `0.1009` 提高到 `0.2514`，平均 FoM 从 `0.0300` 提高到 `0.1040`，7 个区域中 6 个区域优于 FLUS-compatible baseline。
+1. oracle demand 控制实验中，平均 change F1 从 `0.1623` 提高到 `0.2967`，平均 FoM 从 `0.0651` 提高到 `0.1299`，7 个区域中 6 个区域优于 official FLUS console baseline。
+2. transition-prior 非 oracle demand 实验中，平均 change F1 从 `0.1009` 提高到 `0.2514`，平均 FoM 从 `0.0300` 提高到 `0.1040`，7 个区域中 6 个区域优于 official FLUS console baseline。
 
-这已经支持“Paper58-LAS 在当前可复现 FLUS-compatible baseline 上形成了稳定超越证据”。但这还不能等同于“已经正式超过 GeoSOS-FLUS”。当前基线使用的是 FLUS console 与 Paper58 派生输入构造的控制实验，尚不是 GeoSOS-FLUS 官方原生工作流，也尚未验证 Paper58-LAS 的 zero-local-user-data operational mode。
+这已经支持“Paper58-LAS 在当前可复现 official FLUS console baseline 上形成了稳定超越证据”。但这还不能等同于“已经正式超过 GeoSOS-FLUS native workflow”。当前基线使用的是官方 FLUS console 源码编译出的命令行程序与 Paper58 派生输入构造的控制实验，尚不是 GeoSOS-FLUS native GUI/完整传统驱动因子工作流，也尚未验证 Paper58-LAS 的 zero-local-user-data operational mode。
 
 ## 术语约定
 
@@ -26,8 +26,8 @@
 |---|---|
 | Paper58 direct | Paper58 原始直接预测输出，不经过 LAS 分配器 |
 | Paper58-LAS | 基于 Paper58/AlphaEarth 表征的 Latent Allocation Simulator |
-| FLUS-compatible baseline | 使用 FLUS console、同一需求/类别/范围构造的可复现 FLUS 基线 |
-| GeoSOS-FLUS native | GeoSOS-FLUS 官方或原生工作流，包括传统驱动因子、适宜性建模、需求、约束、邻域参数 |
+| official FLUS console baseline | 使用官方 FLUS console 源码编译出的命令行程序、同一需求/类别/范围构造的可复现 FLUS 基线 |
+| GeoSOS-FLUS native | GeoSOS-FLUS 原生 GUI/完整传统驱动因子工作流，包括传统驱动因子、适宜性建模、需求、约束、邻域参数 |
 | Oracle demand | 使用真实 end-year 土地利用图派生未来类别需求，仅用于控制实验 |
 | Paper58-prediction demand | 使用 Paper58 direct 预测图计数得到未来类别需求，不使用真实 end-year 标签 |
 | Transition-prior demand | 使用训练区域的 start->end 转移频率对目标区域 start map 投影得到需求；不读取目标区域 end-year 标签 |
@@ -128,11 +128,11 @@ flowchart TB
 
 | 方法 | change F1 | FoM | recall | transition accuracy | quantity disagreement | allocation disagreement |
 |---|---:|---:|---:|---:|---:|---:|
-| FLUS-compatible baseline | 0.1623 | 0.0651 | 0.1337 | 0.0978 | 0.0335 | 0.0446 |
+| official FLUS console baseline | 0.1623 | 0.0651 | 0.1337 | 0.0978 | 0.0335 | 0.0446 |
 | Paper58 direct | 0.2262 | 0.0783 | 0.4704 | 0.3056 | 0.1284 | 0.0780 |
 | Paper58-LAS | 0.2967 | 0.1299 | 0.6155 | 0.4645 | 0.0000 | 0.1825 |
 
-### Paper58-LAS 相对 FLUS-compatible baseline 的优势
+### Paper58-LAS 相对 official FLUS console baseline 的优势
 
 | 指标 | 平均优势 | 方向 | positive rows | negative rows | bootstrap 95% CI low | bootstrap 95% CI high | sign-test p |
 |---|---:|---|---:|---:|---:|---:|---:|
@@ -145,7 +145,7 @@ flowchart TB
 
 解释：
 
-- change F1、FoM、recall、transition accuracy 均显示 Paper58-LAS 明显优于 FLUS-compatible baseline。
+- change F1、FoM、recall、transition accuracy 均显示 Paper58-LAS 明显优于 official FLUS console baseline。
 - quantity disagreement 为 0 的优势来自 oracle demand 控制实验，不应被解释为真实需求预测能力已经完成。
 - allocation disagreement 上 FLUS 更低，说明 Paper58-LAS 当前更激进地捕捉变化，提高了 recall 和 FoM，但也带来更多空间位置偏差。这是后续优化重点。
 
@@ -153,17 +153,17 @@ flowchart TB
 
 | 区域 | stratum | F1 advantage | FoM advantage | 结论 |
 |---|---|---:|---:|---|
-| dabie_forest_edge_holdout | Forest | +0.0541 | +0.0525 | LAS 优于 FLUS-compatible |
-| huaibei_irrigation_plain_holdout | Agriculture | -0.0080 | -0.0047 | LAS 略低于 FLUS-compatible |
-| liaohe_delta_wetland_holdout | Wetland | +0.1716 | +0.0718 | LAS 明显优于 FLUS-compatible |
-| renqiu_baiyangdian_edge_holdout | Urban | +0.1671 | +0.0698 | LAS 明显优于 FLUS-compatible |
-| wenan_lakeplain_newtown_holdout | Urban | +0.0727 | +0.0377 | LAS 优于 FLUS-compatible |
-| wuxi_taihu_dense_edge_holdout | Urban | +0.2586 | +0.0978 | LAS 明显优于 FLUS-compatible |
-| xilingol_grassland_margin_holdout | Grassland | +0.2249 | +0.1285 | LAS 明显优于 FLUS-compatible |
+| dabie_forest_edge_holdout | Forest | +0.0541 | +0.0525 | LAS 优于 official FLUS console |
+| huaibei_irrigation_plain_holdout | Agriculture | -0.0080 | -0.0047 | LAS 略低于 official FLUS console |
+| liaohe_delta_wetland_holdout | Wetland | +0.1716 | +0.0718 | LAS 明显优于 official FLUS console |
+| renqiu_baiyangdian_edge_holdout | Urban | +0.1671 | +0.0698 | LAS 明显优于 official FLUS console |
+| wenan_lakeplain_newtown_holdout | Urban | +0.0727 | +0.0377 | LAS 优于 official FLUS console |
+| wuxi_taihu_dense_edge_holdout | Urban | +0.2586 | +0.0978 | LAS 明显优于 official FLUS console |
+| xilingol_grassland_margin_holdout | Grassland | +0.2249 | +0.1285 | LAS 明显优于 official FLUS console |
 
 ### Experiment 2：非 oracle demand 控制对比
 
-为削弱 oracle demand 对结论的支撑，本轮新增非 oracle demand 实验。FLUS-compatible baseline 与 Paper58-LAS 均使用 `paper58_prediction` demand，即未来类别需求由 Paper58 direct 预测图计数得到，而不是由真实 end-year 图得到。
+为削弱 oracle demand 对结论的支撑，本轮新增非 oracle demand 实验。official FLUS console baseline 与 Paper58-LAS 均使用 `paper58_prediction` demand，即未来类别需求由 Paper58 direct 预测图计数得到，而不是由真实 end-year 图得到。
 
 设置：
 
@@ -179,11 +179,11 @@ flowchart TB
 
 | 方法 | change F1 | FoM | recall | transition accuracy | quantity disagreement | allocation disagreement |
 |---|---:|---:|---:|---:|---:|---:|
-| FLUS-compatible baseline | 0.2171 | 0.0852 | 0.3723 | 0.2605 | 0.1146 | 0.0583 |
+| official FLUS console baseline | 0.2171 | 0.0852 | 0.3723 | 0.2605 | 0.1146 | 0.0583 |
 | Paper58 direct | 0.2262 | 0.0783 | 0.4704 | 0.3056 | 0.1284 | 0.0780 |
 | Paper58-LAS | 0.2345 | 0.0819 | 0.4977 | 0.3243 | 0.1284 | 0.0745 |
 
-Paper58-LAS 相对 FLUS-compatible baseline 的非 oracle demand 优势：
+Paper58-LAS 相对 official FLUS console baseline 的非 oracle demand 优势：
 
 | 指标 | 平均优势 | positive rows | negative rows | bootstrap 95% CI low | bootstrap 95% CI high | sign-test p |
 |---|---:|---:|---:|---:|---:|---:|
@@ -207,7 +207,7 @@ Paper58-LAS 相对 FLUS-compatible baseline 的非 oracle demand 优势：
 解释：
 
 - 去掉 oracle demand 后，Paper58-LAS 仍稳定提高 recall 和 transition accuracy。
-- 但 FoM 不再超过 FLUS-compatible baseline，change F1 的优势也没有稳定正 CI。
+- 但 FoM 不再超过 official FLUS console baseline，change F1 的优势也没有稳定正 CI。
 - quantity disagreement 和 allocation disagreement 在非 oracle demand 下均不占优，说明需求预测和空间定位仍是当前瓶颈。
 - 这组结果削弱了“已经可以正式超过 GeoSOS-FLUS”的结论，但加强了下一步研发方向的清晰度：必须补 demand forecast / scenario demand 模块，而不能只依赖 oracle-demand allocation。
 
@@ -232,11 +232,11 @@ transition-prior demand 下的方法均值：
 
 | 方法 | change F1 | FoM | recall | transition accuracy | quantity disagreement | allocation disagreement |
 |---|---:|---:|---:|---:|---:|---:|
-| FLUS-compatible baseline | 0.1009 | 0.0300 | 0.1232 | 0.0844 | 0.0399 | 0.0487 |
+| official FLUS console baseline | 0.1009 | 0.0300 | 0.1232 | 0.0844 | 0.0399 | 0.0487 |
 | Paper58 direct | 0.2262 | 0.0783 | 0.4704 | 0.3056 | 0.1284 | 0.0780 |
 | Paper58-LAS | 0.2514 | 0.1040 | 0.5187 | 0.3772 | 0.0466 | 0.1435 |
 
-Paper58-LAS 相对 FLUS-compatible baseline 的 transition-prior 非 oracle demand 优势：
+Paper58-LAS 相对 official FLUS console baseline 的 transition-prior 非 oracle demand 优势：
 
 | 指标 | 平均优势 | positive rows | negative rows | bootstrap 95% CI low | bootstrap 95% CI high | sign-test p |
 |---|---:|---:|---:|---:|---:|---:|
@@ -251,13 +251,13 @@ Paper58-LAS 相对 FLUS-compatible baseline 的 transition-prior 非 oracle dema
 
 | 区域 | stratum | F1 advantage | FoM advantage | 结论 |
 |---|---|---:|---:|---|
-| dabie_forest_edge_holdout | Forest | +0.1189 | +0.1125 | LAS 明显优于 FLUS-compatible |
-| huaibei_irrigation_plain_holdout | Agriculture | -0.0846 | -0.0471 | LAS 低于 FLUS-compatible，仍是主要负例 |
-| liaohe_delta_wetland_holdout | Wetland | +0.3343 | +0.0882 | LAS 显著优于 FLUS-compatible |
-| renqiu_baiyangdian_edge_holdout | Urban | +0.1000 | +0.0461 | LAS 优于 FLUS-compatible |
-| wenan_lakeplain_newtown_holdout | Urban | +0.0727 | +0.0377 | LAS 优于 FLUS-compatible |
-| wuxi_taihu_dense_edge_holdout | Urban | +0.1226 | +0.0726 | LAS 明显优于 FLUS-compatible |
-| xilingol_grassland_margin_holdout | Grassland | +0.3893 | +0.2083 | LAS 显著优于 FLUS-compatible |
+| dabie_forest_edge_holdout | Forest | +0.1189 | +0.1125 | LAS 明显优于 official FLUS console |
+| huaibei_irrigation_plain_holdout | Agriculture | -0.0846 | -0.0471 | LAS 低于 official FLUS console，仍是主要负例 |
+| liaohe_delta_wetland_holdout | Wetland | +0.3343 | +0.0882 | LAS 显著优于 official FLUS console |
+| renqiu_baiyangdian_edge_holdout | Urban | +0.1000 | +0.0461 | LAS 优于 official FLUS console |
+| wenan_lakeplain_newtown_holdout | Urban | +0.0727 | +0.0377 | LAS 优于 official FLUS console |
+| wuxi_taihu_dense_edge_holdout | Urban | +0.1226 | +0.0726 | LAS 明显优于 official FLUS console |
+| xilingol_grassland_margin_holdout | Grassland | +0.3893 | +0.2083 | LAS 显著优于 official FLUS console |
 
 transition-prior demand 下的 `neighborhood_weight` 小扫描：
 
@@ -274,16 +274,16 @@ transition-prior demand 下的 `neighborhood_weight` 小扫描：
 - 与 `paper58_prediction` demand 相比，`transition_prior` demand 使 Paper58-LAS 在非 oracle 条件下重新获得 F1 和 FoM 的稳定正优势，且 bootstrap CI low 均为正。
 - 这种优势不是单个邻域权重造成的偶然结果；`neighborhood_weight=0.5` 到 `3.0` 均保持 F1 与 FoM 的正向优势。
 - `huaibei_irrigation_plain_holdout` 仍是唯一主要负行，说明农业灌溉平原场景下的转移先验或适宜性排序仍需专项诊断。
-- allocation disagreement 仍显著劣于 FLUS-compatible baseline，说明 Paper58-LAS 当前更擅长捕捉变化数量和方向，但空间精确落点仍不足。
-- 因此，transition-prior 实验把阶段性结论从“oracle demand 下超过 FLUS-compatible baseline”推进为“在一个非 oracle、leave-one-area-out 需求设置下也超过 FLUS-compatible baseline”。这显著强化了路线可行性，但仍不是官方 GeoSOS-FLUS native 对比。
+- allocation disagreement 仍显著劣于 official FLUS console baseline，说明 Paper58-LAS 当前更擅长捕捉变化数量和方向，但空间精确落点仍不足。
+- 因此，transition-prior 实验把阶段性结论从“oracle demand 下超过 official FLUS console baseline”推进为“在一个非 oracle、leave-one-area-out 需求设置下也超过 official FLUS console baseline”。这显著强化了路线可行性，但仍不是 GeoSOS-FLUS native workflow 对比。
 
 ## 当前可以成立的结论
 
 1. Paper58-LAS 已经不只是 Paper58 direct 的后处理，而是形成了一个可评估的土地利用模拟扩展。
-2. 在同一 Paper58 probability、同一 oracle demand、同一类别体系和同一 Batch 5 holdout 条件下，Paper58-LAS 明显超过 FLUS-compatible baseline。
-3. 在 transition-prior 非 oracle demand 条件下，Paper58-LAS 也明显超过 FLUS-compatible baseline：F1 与 FoM 的平均优势均为正，且 bootstrap CI low 为正。
+2. 在同一 Paper58 probability、同一 oracle demand、同一类别体系和同一 Batch 5 holdout 条件下，Paper58-LAS 明显超过 official FLUS console baseline。
+3. 在 transition-prior 非 oracle demand 条件下，Paper58-LAS 也明显超过 official FLUS console baseline：F1 与 FoM 的平均优势均为正，且 bootstrap CI low 为正。
 4. Paper58-LAS 的主要优势来自更高的 change recall 和 transition accuracy；它更能捕捉真实变化像元和变化方向。
-5. `paper58_prediction` demand 是一个重要负证据：直接用 Paper58 预测图计数做需求时，FoM 尚未稳定超过 FLUS-compatible baseline。
+5. `paper58_prediction` demand 是一个重要负证据：直接用 Paper58 预测图计数做需求时，FoM 尚未稳定超过 official FLUS console baseline。
 6. 当前最大弱点是 demand forecast 与 allocation disagreement，说明需求预测和空间定位仍需优化。
 7. `huaibei_irrigation_plain_holdout` 是 oracle-demand 与 transition-prior demand 条件下共同出现的主要负行，应作为下一轮诊断重点。
 
@@ -321,7 +321,7 @@ transition-prior demand 下的 `neighborhood_weight` 小扫描：
 - 同一类别体系。
 - FLUS 与 Paper58-LAS 使用同一 probability/suitability。
 
-当前状态：已完成 oracle demand 与 transition-prior 非 oracle demand 两类控制实验，Paper58-LAS 均优于 FLUS-compatible baseline；`paper58_prediction` demand 作为负证据保留。
+当前状态：已完成 oracle demand 与 transition-prior 非 oracle demand 两类控制实验，Paper58-LAS 均优于 official FLUS console baseline；`paper58_prediction` demand 作为负证据保留。
 
 ### Track B：原生系统实验
 
@@ -356,14 +356,14 @@ transition-prior demand 下的 `neighborhood_weight` 小扫描：
 2. 第二页：三层公平性框架，说明 controlled、native、operational 三种对比的用途。
 3. 第三页：Batch 5 oracle demand 与 transition-prior demand 当前实证结果，展示 F1、FoM、recall、transition accuracy 柱状图。
 4. 第四页：逐区地图或 change mask 对比，重点展示 Liaohe、Wuxi、Huaibei。
-5. 第五页：结论边界，明确“已超过 FLUS-compatible baseline”与“尚未正式超过 GeoSOS-FLUS native workflow”的区别。
+5. 第五页：结论边界，明确“已超过 official FLUS console baseline”与“尚未正式超过 GeoSOS-FLUS native workflow”的区别。
 
 ## 最终判断
 
-Paper58-LAS 当前已经具备超过 FLUS-compatible baseline 的实验证据，且优势不是单一指标偶然出现，而是在 F1、FoM、recall 和 transition accuracy 上同时出现。这个结果说明：基于 AlphaEarth/GeoFM 的 latent suitability 与 latent allocation 路线是可行的，且已经超过了用 FLUS console 构造的控制基线。
+Paper58-LAS 当前已经具备超过 official FLUS console baseline 的实验证据，且优势不是单一指标偶然出现，而是在 F1、FoM、recall 和 transition accuracy 上同时出现。这个结果说明：基于 AlphaEarth/GeoFM 的 latent suitability 与 latent allocation 路线是可行的，且已经超过了用 FLUS console 构造的控制基线。
 
-更强的新证据来自 transition-prior 非 oracle demand：在不读取目标区域 end-year 标签的条件下，Paper58-LAS 仍然取得 F1 `+0.1505`、FoM `+0.0741` 的平均优势，且两个核心指标的 bootstrap CI low 均为正。这使阶段性结论从“oracle demand 下超过 FLUS-compatible baseline”推进到“在一个 leave-one-area-out 非 oracle demand 设置下也超过 FLUS-compatible baseline”。
+更强的新证据来自 transition-prior 非 oracle demand：在不读取目标区域 end-year 标签的条件下，Paper58-LAS 仍然取得 F1 `+0.1505`、FoM `+0.0741` 的平均优势，且两个核心指标的 bootstrap CI low 均为正。这使阶段性结论从“oracle demand 下超过 official FLUS console baseline”推进到“在一个 leave-one-area-out 非 oracle demand 设置下也超过 official FLUS console baseline”。
 
 但是，`paper58_prediction` demand 的弱结果和 allocation disagreement 的持续劣势表明，正式的 GeoSOS-FLUS 超越结论还需要完成三件事：GeoSOS-FLUS native workflow 对比、可解释且稳健的需求预测模块、zero-local-user-data operational 验证。最稳妥的阶段性结论是：
 
-> Paper58-LAS has surpassed a matched FLUS-compatible baseline under controlled Batch 5 oracle-demand conditions and under a leave-one-area-out transition-prior non-oracle demand setting. This is strong evidence that the Paper58 AlphaEarth/GeoFM route can outperform a reproducible FLUS-compatible simulator, but the official GeoSOS-FLUS surpass claim still requires native GeoSOS-FLUS comparison, stronger demand modelling, and explicit validation of the zero-local-user-data workflow.
+> Paper58-LAS has surpassed a matched official FLUS console baseline under controlled Batch 5 oracle-demand conditions and under a leave-one-area-out transition-prior non-oracle demand setting. This is strong evidence that the Paper58 AlphaEarth/GeoFM route can outperform a reproducible official FLUS console simulator, but the official GeoSOS-FLUS surpass claim still requires native GeoSOS-FLUS comparison, stronger demand modelling, and explicit validation of the zero-local-user-data workflow.
