@@ -1,3 +1,4 @@
+import csv
 import json
 from pathlib import Path
 
@@ -63,6 +64,45 @@ def test_evaluate_las_writes_method_rows(tmp_path: Path):
     assert (output_dir / "las_metrics_by_method.csv").exists()
     assert (output_dir / "las_summary.json").exists()
     assert (output_dir / "simulated" / "external_2020_2021_paper58_las.npy").exists()
+
+
+def test_evaluate_las_metric_rows_keep_temporal_pair_keys(tmp_path: Path):
+    start = np.array([[1, 1], [2, 2]], dtype=np.int32)
+    end = np.array([[1, 2], [2, 3]], dtype=np.int32)
+    pred = np.array([[1, 2], [2, 2]], dtype=np.int32)
+    rows = []
+    for start_year, end_year in [(2020, 2021), (2021, 2022)]:
+        label_start = tmp_path / f"start_{start_year}.npy"
+        label_end = tmp_path / f"end_{end_year}.npy"
+        pred_path = tmp_path / f"paper58_{start_year}_{end_year}.npy"
+        np.save(label_start, start)
+        np.save(label_end, end)
+        np.save(pred_path, pred)
+        rows.append(
+            {
+                "area": "repeat_area",
+                "start_year": start_year,
+                "end_year": end_year,
+                "tier": "tier1",
+                "stratum": "Wetland",
+                **_provenance_fields(),
+                "label_start_path": str(label_start),
+                "label_end_path": str(label_end),
+                "prediction_path": str(pred_path),
+                "qc_status": "include",
+            }
+        )
+    registry = tmp_path / "benchmark_registry.json"
+    registry.write_text(json.dumps({"rows": rows}), encoding="utf-8")
+    output_dir = tmp_path / "las_out"
+
+    evaluate_las(registry_path=registry, output_dir=output_dir)
+
+    with (output_dir / "las_metrics_by_method.csv").open(encoding="utf-8") as f:
+        metric_rows = list(csv.DictReader(f))
+    pairs = {(row["area"], row["start_year"], row["end_year"]) for row in metric_rows}
+    assert ("repeat_area", "2020", "2021") in pairs
+    assert ("repeat_area", "2021", "2022") in pairs
 
 
 def test_evaluate_las_keeps_failure_rows_visible(tmp_path: Path):

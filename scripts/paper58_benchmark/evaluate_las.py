@@ -24,6 +24,8 @@ from scripts.paper58_benchmark.schema import DEFAULT_BENCHMARK_DIR, write_csv, w
 LAS_METRIC_FIELDS = [
     "method",
     "area",
+    "start_year",
+    "end_year",
     "tier",
     "stratum",
     "n_pixels",
@@ -101,6 +103,10 @@ def _method_names(metric_rows: list[dict[str, Any]]) -> list[str]:
     return sorted({str(row["method"]) for row in metric_rows})
 
 
+def _with_years(metric_row: dict[str, Any], start_year: int, end_year: int) -> dict[str, Any]:
+    return {**metric_row, "start_year": start_year, "end_year": end_year}
+
+
 def evaluate_las(
     registry_path: Path = DEFAULT_BENCHMARK_DIR / "benchmark_registry.json",
     output_dir: Path = DEFAULT_BENCHMARK_DIR.parent / "las_results",
@@ -164,37 +170,49 @@ def evaluate_las(
             start_year = int(row.get("start_year"))
             end_year = int(row.get("end_year"))
             row_metric_rows = [
-                method_metric_row(
-                    "paper58_direct",
-                    area,
-                    str(row.get("tier")),
-                    str(row.get("stratum")),
-                    start,
-                    end,
-                    paper58_pred,
-                )
-            ]
-            row_metric_rows.append(
-                method_metric_row(
-                    "paper58_las",
-                    area,
-                    str(row.get("tier")),
-                    str(row.get("stratum")),
-                    start,
-                    end,
-                    allocation.simulated_map,
-                )
-            )
-            if flus_pred is not None:
-                row_metric_rows.append(
+                _with_years(
                     method_metric_row(
-                        "flus",
+                        "paper58_direct",
                         area,
                         str(row.get("tier")),
                         str(row.get("stratum")),
                         start,
                         end,
-                        flus_pred,
+                        paper58_pred,
+                    ),
+                    start_year,
+                    end_year,
+                )
+            ]
+            row_metric_rows.append(
+                _with_years(
+                    method_metric_row(
+                        "paper58_las",
+                        area,
+                        str(row.get("tier")),
+                        str(row.get("stratum")),
+                        start,
+                        end,
+                        allocation.simulated_map,
+                    ),
+                    start_year,
+                    end_year,
+                )
+            )
+            if flus_pred is not None:
+                row_metric_rows.append(
+                    _with_years(
+                        method_metric_row(
+                            "flus",
+                            area,
+                            str(row.get("tier")),
+                            str(row.get("stratum")),
+                            start,
+                            end,
+                            flus_pred,
+                        ),
+                        start_year,
+                        end_year,
                     )
                 )
 
