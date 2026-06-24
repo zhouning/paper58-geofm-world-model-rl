@@ -42,6 +42,14 @@ def test_quantity_and_allocation_disagreement_are_separated():
     assert allocation_disagreement(true, pred) == pytest.approx(0.0)
 
 
+def test_allocation_disagreement_scores_location_errors_with_matched_quantity():
+    true = np.array([[1, 2], [2, 1]], dtype=np.int32)
+    pred = np.array([[2, 1], [1, 2]], dtype=np.int32)
+
+    assert quantity_disagreement(true, pred) == pytest.approx(0.0)
+    assert allocation_disagreement(true, pred) == pytest.approx(1.0)
+
+
 def test_method_metric_row_reports_expected_fields():
     start = np.array([[1, 1], [2, 2]], dtype=np.int32)
     true = np.array([[1, 2], [2, 3]], dtype=np.int32)
@@ -63,3 +71,29 @@ def test_method_metric_row_rejects_shape_mismatch():
 
     with pytest.raises(ValueError, match="shape mismatch"):
         method_metric_row("paper58_las", "external", "tier1", "Wetland", start, true, pred)
+
+
+def test_public_metrics_reject_shape_mismatch():
+    start = np.array([[1, 1]], dtype=np.int32)
+    true = np.array([[1, 2]], dtype=np.int32)
+    pred = np.array([[1], [2]], dtype=np.int32)
+
+    with pytest.raises(ValueError, match="shape mismatch"):
+        figure_of_merit(start, true, pred)
+    with pytest.raises(ValueError, match="shape mismatch"):
+        transition_accuracy(start, true, pred)
+    with pytest.raises(ValueError, match="shape mismatch"):
+        quantity_disagreement(true, pred)
+    with pytest.raises(ValueError, match="shape mismatch"):
+        allocation_disagreement(true, pred)
+
+
+def test_empty_maps_return_finite_perfect_no_change_metrics():
+    start = np.array([], dtype=np.int32)
+    true = np.array([], dtype=np.int32)
+    pred = np.array([], dtype=np.int32)
+
+    assert figure_of_merit(start, true, pred) == pytest.approx(1.0)
+    assert transition_accuracy(start, true, pred) == pytest.approx(1.0)
+    assert quantity_disagreement(true, pred) == pytest.approx(0.0)
+    assert allocation_disagreement(true, pred) == pytest.approx(0.0)
