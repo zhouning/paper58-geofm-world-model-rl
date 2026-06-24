@@ -48,6 +48,8 @@ def _remaining_demand_is_feasible(
     available = {int(cls): int(count) for cls, count in source_counts.items() if int(count) > 0}
     if int(sum(available.values())) < total_required:
         return False
+    if allowed_transitions is None:
+        return True
 
     source_classes = sorted(available)
     target_classes = sorted(required)
@@ -126,8 +128,46 @@ def allocate_demand_constrained(
         int(value): int(count) for value, count in zip(editable_values, editable_counts, strict=False)
     }
 
+    stable_candidates: list[tuple[float, float, int, int, int]] = []
+    for row, col in np.argwhere(editable):
+        from_cls = int(start[row, col])
+        if remaining.get(from_cls, 0) <= 0 or from_cls not in class_to_col:
+            continue
+        stay_score = float(scores[row, col, class_to_col[from_cls]])
+        best_change_score: float | None = None
+        for to_cls in class_values:
+            to_key = int(to_cls)
+            if to_key == from_cls:
+                continue
+            if remaining.get(to_key, 0) <= 0:
+                continue
+            if not _is_allowed(from_cls, to_key, allowed_transitions):
+                continue
+            change_score = float(scores[row, col, class_to_col[to_key]])
+            best_change_score = change_score if best_change_score is None else max(best_change_score, change_score)
+        persistence_margin = float("inf") if best_change_score is None else stay_score - best_change_score
+        stable_candidates.append((persistence_margin, stay_score, int(row), int(col), from_cls))
+
+    stable_candidates.sort(key=lambda item: (-item[0], -item[1], item[2], item[3]))
+    for _, _, row, col, from_cls in stable_candidates:
+        if assigned[row, col]:
+            continue
+        if remaining.get(from_cls, 0) <= 0:
+            continue
+        tentative_source_counts = unassigned_source_counts.copy()
+        tentative_source_counts[from_cls] = tentative_source_counts.get(from_cls, 0) - 1
+        tentative_remaining = remaining.copy()
+        tentative_remaining[from_cls] -= 1
+        if not _remaining_demand_is_feasible(tentative_source_counts, tentative_remaining, allowed_transitions):
+            continue
+        assigned[row, col] = True
+        unassigned_source_counts[from_cls] -= 1
+        remaining[from_cls] -= 1
+
     candidates: list[tuple[float, int, int, int, int]] = []
     for row, col in np.argwhere(editable):
+        if assigned[row, col]:
+            continue
         from_cls = int(start[row, col])
         for to_cls in class_values:
             to_key = int(to_cls)

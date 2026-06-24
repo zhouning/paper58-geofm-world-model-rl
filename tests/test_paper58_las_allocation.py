@@ -20,6 +20,35 @@ def test_allocate_demand_constrained_meets_target_demand():
     assert result.simulated_map.shape == start.shape
 
 
+def test_allocate_preserves_map_when_target_demand_already_satisfied():
+    start = np.array([[1, 2]], dtype=np.int32)
+    class_values = [1, 2]
+    suitability = np.zeros((1, 2, 2), dtype=np.float32)
+    suitability[0, 0, 1] = 0.99
+    suitability[0, 1, 0] = 0.98
+    target_demand = {1: 1, 2: 1}
+
+    result = allocate_demand_constrained(start, suitability, class_values, target_demand)
+
+    assert result.simulated_map.tolist() == [[1, 2]]
+    assert result.selected_transitions == []
+
+
+def test_allocate_uses_minimum_required_changes_for_net_demand():
+    start = np.array([[1, 1, 2]], dtype=np.int32)
+    class_values = [1, 2]
+    suitability = np.zeros((1, 3, 2), dtype=np.float32)
+    suitability[0, 0, 1] = 0.9
+    suitability[0, 1, 1] = 0.8
+    target_demand = {1: 1, 2: 2}
+
+    result = allocate_demand_constrained(start, suitability, class_values, target_demand)
+
+    assert np.count_nonzero(result.simulated_map != start) == 1
+    assert len(result.selected_transitions) == 1
+    assert result.achieved_demand == target_demand
+
+
 def test_allocate_respects_exclusion_mask():
     start = np.array([[1, 1], [2, 2]], dtype=np.int32)
     class_values = [1, 2]
