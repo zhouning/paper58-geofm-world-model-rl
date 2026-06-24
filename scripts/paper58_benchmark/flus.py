@@ -24,7 +24,10 @@ def load_flus_prediction(
     else:
         raise FLUSIngestionError(f"unsupported FLUS prediction format: {source.suffix}")
 
-    pred = np.asarray(arr, dtype=np.int32)
+    raw = np.asarray(arr)
+    if not np.all(np.isfinite(raw)) or not np.array_equal(raw, raw.astype(np.int32)):
+        raise FLUSIngestionError("non-integer FLUS labels")
+    pred = raw.astype(np.int32)
     if pred.shape != expected_shape:
         raise FLUSIngestionError(f"FLUS prediction shape {pred.shape} does not match expected shape {expected_shape}")
     unknown = sorted({int(value) for value in np.unique(pred)} - {int(value) for value in allowed_classes})

@@ -49,3 +49,11 @@ def test_load_flus_prediction_rejects_unknown_classes(tmp_path: Path):
 
     with pytest.raises(FLUSIngestionError, match="unknown FLUS classes: \\[9\\]"):
         load_flus_prediction(path, expected_shape=(1, 2), allowed_classes={1, 2})
+
+
+def test_load_flus_prediction_rejects_non_integral_labels(tmp_path: Path):
+    path = tmp_path / "flus.npy"
+    np.save(path, np.array([[1.0, 1.9]], dtype=np.float32))
+
+    with pytest.raises(FLUSIngestionError, match="non-integer FLUS labels"):
+        load_flus_prediction(path, expected_shape=(1, 2), allowed_classes={1, 2})
