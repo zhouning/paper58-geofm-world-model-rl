@@ -10,7 +10,7 @@ import numpy as np
 from scripts.paper58_benchmark.evaluate_benchmark import _read_registry
 from scripts.paper58_benchmark.flus import load_flus_prediction
 from scripts.paper58_benchmark.las_allocation import allocate_demand_constrained
-from scripts.paper58_benchmark.las_demand import derive_demand
+from scripts.paper58_benchmark.las_demand import derive_change_budget, derive_demand
 from scripts.paper58_benchmark.las_metrics import method_metric_row
 from scripts.paper58_benchmark.las_suitability import (
     build_transition_suitability,
@@ -122,6 +122,8 @@ def evaluate_las(
     neighborhood_weight: float = 0.0,
     latent_neighborhood_weight: float = 0.0,
     demand_source: str = "observed_end",
+    change_budget_source: str = "paper58_prediction",
+    change_budget_scale: float = 1.0,
 ) -> dict[str, Any]:
     registry_rows = _read_registry(Path(registry_path))
     included_rows = [row for row in registry_rows if row.get("qc_status") == "include"]
@@ -170,19 +172,27 @@ def evaluate_las(
             embedding_start = None
             if latent_neighborhood_weight > 0.0:
                 embedding_start = _load_array(row.get("embedding_start_path")).astype(np.float32, copy=False)
+            target_demand = derive_demand(
+                start,
+                end,
+                paper58_pred,
+                demand_source=demand_source,
+                class_values=class_values,
+                transition_prior=prior,
+            )
             allocation = allocate_demand_constrained(
                 start,
                 suitability,
                 class_values=class_values,
-                target_demand=derive_demand(
+                target_demand=target_demand,
+                target_change_pixels=derive_change_budget(
                     start,
                     end,
                     paper58_pred,
-                    demand_source=demand_source,
-                    class_values=class_values,
-                    transition_prior=prior,
+                    target_demand,
+                    change_budget_source=change_budget_source,
+                    change_budget_scale=change_budget_scale,
                 ),
-                target_change_pixels=int(np.count_nonzero(paper58_pred != start)),
                 neighborhood_weight=neighborhood_weight,
                 embedding_grid=embedding_start,
                 latent_neighborhood_weight=latent_neighborhood_weight,
@@ -270,6 +280,8 @@ def evaluate_las(
         "n_metric_rows": len(metric_rows),
         "methods": _method_names(metric_rows),
         "demand_source": demand_source,
+        "change_budget_source": change_budget_source,
+        "change_budget_scale": float(change_budget_scale),
     }
     result = {"summary": summary, "metrics": metric_rows}
     write_csv(output / "las_metrics_by_method.csv", metric_rows, LAS_METRIC_FIELDS)
@@ -301,6 +313,18 @@ def main() -> None:
         default="observed_end",
         help="Demand source for LAS allocation. observed_end is oracle demand; paper58_prediction is non-oracle.",
     )
+    parser.add_argument(
+        "--change-budget-source",
+        choices=["paper58_prediction", "observed_end", "demand_delta", "none"],
+        default="paper58_prediction",
+        help="Gross change budget for balanced LAS swaps. demand_delta uses only the minimum change implied by demand.",
+    )
+    parser.add_argument(
+        "--change-budget-scale",
+        type=float,
+        default=1.0,
+        help="Scale applied to the selected gross change budget, bounded below by the demand-delta budget.",
+    )
     args = parser.parse_args()
     result = evaluate_las(
         registry_path=args.registry,
@@ -308,6 +332,8 @@ def main() -> None:
         neighborhood_weight=args.neighborhood_weight,
         latent_neighborhood_weight=args.latent_neighborhood_weight,
         demand_source=args.demand_source,
+        change_budget_source=args.change_budget_source,
+        change_budget_scale=args.change_budget_scale,
     )
     print(
         "Paper58-LAS evaluation: "

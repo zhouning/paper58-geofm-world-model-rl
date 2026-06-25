@@ -55,6 +55,18 @@ def project_transition_prior_demand(
     return _round_expected_counts(expected, classes, int(start.size))
 
 
+def minimum_change_budget_from_demand(start_map: np.ndarray, target_demand: dict[int, int]) -> int:
+    start = np.asarray(start_map)
+    values, counts = np.unique(start, return_counts=True)
+    start_counts = {int(value): int(count) for value, count in zip(values, counts)}
+    classes = sorted(set(start_counts) | {int(cls) for cls in target_demand})
+    deficits = [
+        max(0, int(target_demand.get(cls, 0)) - int(start_counts.get(cls, 0)))
+        for cls in classes
+    ]
+    return int(sum(deficits))
+
+
 def derive_demand(
     start_map: np.ndarray,
     end_map: np.ndarray,
@@ -77,6 +89,34 @@ def derive_demand(
         "unsupported demand_source "
         f"{demand_source!r}; expected one of: observed_end, paper58_prediction, start_persistence, transition_prior"
     )
+
+
+def derive_change_budget(
+    start_map: np.ndarray,
+    end_map: np.ndarray,
+    prediction_map: np.ndarray,
+    target_demand: dict[int, int],
+    change_budget_source: str = "paper58_prediction",
+    change_budget_scale: float = 1.0,
+) -> int | None:
+    scale = float(change_budget_scale)
+    if scale < 0.0:
+        raise DemandValidationError(f"change_budget_scale must be non-negative: {scale}")
+    if change_budget_source == "paper58_prediction":
+        budget = int(np.count_nonzero(np.asarray(prediction_map) != np.asarray(start_map)))
+    elif change_budget_source == "observed_end":
+        budget = int(np.count_nonzero(np.asarray(end_map) != np.asarray(start_map)))
+    elif change_budget_source == "demand_delta":
+        budget = minimum_change_budget_from_demand(start_map, target_demand)
+    elif change_budget_source == "none":
+        return None
+    else:
+        raise DemandValidationError(
+            "unsupported change_budget_source "
+            f"{change_budget_source!r}; expected one of: paper58_prediction, observed_end, demand_delta, none"
+        )
+    minimum_budget = minimum_change_budget_from_demand(start_map, target_demand)
+    return max(minimum_budget, int(round(budget * scale)))
 
 
 def validate_total_demand(start_map: np.ndarray, demand: dict[int, int]) -> None:

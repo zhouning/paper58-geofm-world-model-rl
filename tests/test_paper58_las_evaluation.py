@@ -162,6 +162,55 @@ def test_evaluate_las_uses_paper58_gross_change_budget(tmp_path: Path):
     assert simulated.tolist() == [[2, 1]]
 
 
+def test_evaluate_las_can_use_demand_delta_change_budget(tmp_path: Path):
+    start = np.array([[1, 2]], dtype=np.int32)
+    end = np.array([[2, 1]], dtype=np.int32)
+    paper58_pred = np.array([[2, 1]], dtype=np.int32)
+
+    label_start = tmp_path / "start.npy"
+    label_end = tmp_path / "end.npy"
+    pred_path = tmp_path / "paper58.npy"
+    np.save(label_start, start)
+    np.save(label_end, end)
+    np.save(pred_path, paper58_pred)
+
+    registry = tmp_path / "benchmark_registry.json"
+    registry.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "area": "demand_delta_budget",
+                        "start_year": 2020,
+                        "end_year": 2021,
+                        "tier": "tier1",
+                        "stratum": "Urban",
+                        **_provenance_fields(),
+                        "label_start_path": str(label_start),
+                        "label_end_path": str(label_end),
+                        "prediction_path": str(pred_path),
+                        "qc_status": "include",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "las_out"
+
+    result = evaluate_las(
+        registry_path=registry,
+        output_dir=output_dir,
+        change_budget_source="demand_delta",
+        change_budget_scale=0.5,
+    )
+
+    simulated = np.load(output_dir / "simulated" / "demand_delta_budget_2020_2021_paper58_las.npy")
+    assert simulated.tolist() == [[1, 2]]
+    assert result["summary"]["change_budget_source"] == "demand_delta"
+    assert result["summary"]["change_budget_scale"] == 0.5
+
+
 def test_evaluate_las_accepts_neighborhood_weight(tmp_path: Path):
     start = np.array([[1, 1, 2], [1, 1, 2], [1, 1, 2]], dtype=np.int32)
     end = np.array([[1, 1, 2], [1, 2, 2], [1, 1, 2]], dtype=np.int32)

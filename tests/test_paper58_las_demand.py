@@ -4,8 +4,10 @@ import pytest
 from scripts.paper58_benchmark.las_demand import (
     DemandValidationError,
     build_editable_mask,
+    derive_change_budget,
     derive_demand,
     derive_observed_demand,
+    minimum_change_budget_from_demand,
     project_transition_prior_demand,
     remaining_editable_demand,
     validate_total_demand,
@@ -77,6 +79,44 @@ def test_derive_demand_can_use_transition_prior():
     )
 
     assert demand == {1: 1, 2: 3}
+
+
+def test_minimum_change_budget_from_demand_uses_net_class_deficits():
+    start = np.array([[1, 1, 2], [2, 3, 3]], dtype=np.int32)
+
+    budget = minimum_change_budget_from_demand(start, {1: 1, 2: 4, 3: 1})
+
+    assert budget == 2
+
+
+def test_derive_change_budget_sources():
+    start = np.array([[1, 1], [2, 2]], dtype=np.int32)
+    end = np.array([[1, 2], [2, 1]], dtype=np.int32)
+    prediction = np.array([[2, 2], [2, 1]], dtype=np.int32)
+    demand = {1: 1, 2: 3}
+
+    assert derive_change_budget(start, end, prediction, demand, "paper58_prediction") == 3
+    assert derive_change_budget(start, end, prediction, demand, "observed_end") == 2
+    assert derive_change_budget(start, end, prediction, demand, "demand_delta") == 1
+    assert derive_change_budget(start, end, prediction, demand, "none") is None
+
+
+def test_derive_change_budget_scale_is_bounded_by_demand_delta():
+    start = np.array([[1, 1], [1, 2]], dtype=np.int32)
+    end = np.array([[1, 2], [2, 2]], dtype=np.int32)
+    prediction = np.array([[2, 2], [2, 1]], dtype=np.int32)
+    demand = {1: 0, 2: 4}
+
+    assert derive_change_budget(start, end, prediction, demand, "paper58_prediction", 0.25) == 3
+    assert derive_change_budget(start, end, prediction, demand, "paper58_prediction", 0.75) == 3
+    assert derive_change_budget(start, end, prediction, demand, "paper58_prediction", 1.0) == 4
+
+
+def test_derive_change_budget_rejects_negative_scale():
+    start = np.array([[1]], dtype=np.int32)
+
+    with pytest.raises(DemandValidationError, match="change_budget_scale"):
+        derive_change_budget(start, start, start, {1: 1}, "paper58_prediction", -0.1)
 
 
 def test_validate_total_demand_rejects_wrong_total():

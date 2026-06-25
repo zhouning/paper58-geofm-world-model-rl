@@ -277,15 +277,42 @@ transition-prior demand 下的 `neighborhood_weight` 小扫描：
 - allocation disagreement 仍显著劣于 official FLUS console baseline，说明 Paper58-LAS 当前更擅长捕捉变化数量和方向，但空间精确落点仍不足。
 - 因此，transition-prior 实验把阶段性结论从“oracle demand 下超过 official FLUS console baseline”推进为“在一个非 oracle、leave-one-area-out 需求设置下也超过 official FLUS console baseline”。这显著强化了路线可行性，但仍不是 GeoSOS-FLUS native workflow 对比。
 
+### Experiment 4：change-budget scale 空间误报控制
+
+日期：2026-06-25。
+
+Experiment 3 暴露出的主要弱点是 allocation disagreement 偏高，即 Paper58-LAS 为了抓住更多真实变化，也产生了更多稳定区误报。为此新增 `change_budget_source` 与 `change_budget_scale`，将 LAS 的 gross change budget 从固定使用 Paper58 direct 变化像元数，改成可缩放预算：
+
+- `paper58_prediction`：沿用 Paper58 direct 的变化像元数。
+- `demand_delta`：仅使用满足目标 demand 所需的最小净变化量；实验证明过于保守。
+- `change_budget_scale`：在上述 gross budget 上缩放，同时不低于 `demand_delta` 下限。
+
+在 transition-prior demand、`neighborhood_weight=2.0` 下的小扫描：
+
+| change_budget_scale | F1 advantage | F1 CI low | FoM advantage | FoM CI low | recall advantage | transition accuracy advantage | allocation disagreement advantage |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 0.25 | +0.0674 | -0.0317 | +0.0308 | -0.0115 | +0.0462 | +0.0346 | -0.0037 |
+| 0.50 | +0.1203 | +0.0001 | +0.0538 | +0.0077 | +0.1698 | +0.1136 | -0.0267 |
+| 0.75 | +0.1439 | +0.0388 | +0.0699 | +0.0229 | +0.3050 | +0.2260 | -0.0598 |
+| 0.90 | +0.1526 | +0.0492 | +0.0762 | +0.0246 | +0.3663 | +0.2752 | -0.0803 |
+| 1.00 | +0.1505 | +0.0454 | +0.0741 | +0.0220 | +0.3955 | +0.2928 | -0.0947 |
+
+解释：
+
+- `demand_delta` 或低 scale 明显过于保守，会牺牲变化召回和核心 F1/FoM。
+- `change_budget_scale=0.9` 是当前最好的折中候选：F1 和 FoM 均略高于 1.0，同时 allocation disagreement 劣势从 `-0.0947` 缩小到 `-0.0803`。
+- 这说明 Paper58-LAS 的空间误报问题可以通过 change budget 校准被部分缓解，但还没有根治；下一轮应继续做区域自适应 scale 或 uncertainty-aware change pruning。
+
 ## 当前可以成立的结论
 
 1. Paper58-LAS 已经不只是 Paper58 direct 的后处理，而是形成了一个可评估的土地利用模拟扩展。
 2. 在同一 Paper58 probability、同一 oracle demand、同一类别体系和同一 Batch 5 holdout 条件下，Paper58-LAS 明显超过 official FLUS console baseline。
 3. 在 transition-prior 非 oracle demand 条件下，Paper58-LAS 也明显超过 official FLUS console baseline：F1 与 FoM 的平均优势均为正，且 bootstrap CI low 为正。
-4. Paper58-LAS 的主要优势来自更高的 change recall 和 transition accuracy；它更能捕捉真实变化像元和变化方向。
-5. `paper58_prediction` demand 是一个重要负证据：直接用 Paper58 预测图计数做需求时，FoM 尚未稳定超过 official FLUS console baseline。
-6. 当前最大弱点是 demand forecast 与 allocation disagreement，说明需求预测和空间定位仍需优化。
-7. `huaibei_irrigation_plain_holdout` 是 oracle-demand 与 transition-prior demand 条件下共同出现的主要负行，应作为下一轮诊断重点。
+4. `change_budget_scale=0.9` 在 transition-prior demand 下进一步改善了 F1/FoM，并部分缓解 allocation disagreement 劣势。
+5. Paper58-LAS 的主要优势来自更高的 change recall 和 transition accuracy；它更能捕捉真实变化像元和变化方向。
+6. `paper58_prediction` demand 是一个重要负证据：直接用 Paper58 预测图计数做需求时，FoM 尚未稳定超过 official FLUS console baseline。
+7. 当前最大弱点仍是 demand forecast 与 allocation disagreement，说明需求预测和空间定位仍需优化。
+8. `huaibei_irrigation_plain_holdout` 是 oracle-demand 与 transition-prior demand 条件下共同出现的主要负行，应作为下一轮诊断重点。
 
 ## 当前不能成立的结论
 
@@ -363,6 +390,8 @@ transition-prior demand 下的 `neighborhood_weight` 小扫描：
 Paper58-LAS 当前已经具备超过 official FLUS console baseline 的实验证据，且优势不是单一指标偶然出现，而是在 F1、FoM、recall 和 transition accuracy 上同时出现。这个结果说明：基于 AlphaEarth/GeoFM 的 latent suitability 与 latent allocation 路线是可行的，且已经超过了用 FLUS console 构造的控制基线。
 
 更强的新证据来自 transition-prior 非 oracle demand：在不读取目标区域 end-year 标签的条件下，Paper58-LAS 仍然取得 F1 `+0.1505`、FoM `+0.0741` 的平均优势，且两个核心指标的 bootstrap CI low 均为正。这使阶段性结论从“oracle demand 下超过 official FLUS console baseline”推进到“在一个 leave-one-area-out 非 oracle demand 设置下也超过 official FLUS console baseline”。
+
+2026-06-25 的 change-budget scale 实验进一步说明：将 gross change budget 缩放到 `0.9` 后，Paper58-LAS 的 F1 advantage 提高到 `+0.1526`，FoM advantage 提高到 `+0.0762`，同时 allocation disagreement 劣势从 `-0.0947` 缩小到 `-0.0803`。这不是最终优化，但说明空间误报问题有可调节空间。
 
 但是，`paper58_prediction` demand 的弱结果和 allocation disagreement 的持续劣势表明，正式的 GeoSOS-FLUS 超越结论还需要完成三件事：GeoSOS-FLUS native workflow 对比、可解释且稳健的需求预测模块、zero-local-user-data operational 验证。最稳妥的阶段性结论是：
 
