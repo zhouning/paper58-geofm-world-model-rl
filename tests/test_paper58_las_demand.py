@@ -99,6 +99,95 @@ def test_derive_demand_can_blend_transition_prior_with_paper58_prediction():
     assert demand == {1: 3, 2: 1}
 
 
+def test_derive_demand_adaptive_blend_keeps_prior_when_demand_conflict_is_low():
+    start = np.array([[1, 1], [1, 2]], dtype=np.int32)
+    end = np.array([[2, 2], [2, 1]], dtype=np.int32)
+    prediction = np.array([[2, 2], [2, 1]], dtype=np.int32)
+
+    demand = derive_demand(
+        start,
+        end,
+        prediction,
+        demand_source="transition_prior_adaptive_blend",
+        class_values=[1, 2],
+        transition_prior={(1, 2): 1.0, (2, 1): 1.0},
+        demand_blend_weight=0.5,
+        adaptive_demand_l1_threshold=0.5,
+        adaptive_demand_change_fraction_high=1.0,
+    )
+
+    assert demand == {1: 1, 2: 3}
+
+
+def test_derive_demand_adaptive_blend_uses_prediction_when_conflict_is_high_and_change_is_moderate():
+    start = np.array([[1, 1], [1, 2]], dtype=np.int32)
+    end = np.array([[2, 2], [2, 1]], dtype=np.int32)
+    prediction = np.array([[1, 1], [1, 1]], dtype=np.int32)
+
+    demand = derive_demand(
+        start,
+        end,
+        prediction,
+        demand_source="transition_prior_adaptive_blend",
+        class_values=[1, 2],
+        transition_prior={(1, 2): 1.0, (2, 1): 1.0},
+        demand_blend_weight=0.5,
+        adaptive_demand_l1_threshold=0.5,
+        adaptive_demand_change_fraction_high=0.30,
+    )
+
+    assert demand == {1: 3, 2: 1}
+
+
+def test_derive_demand_adaptive_blend_keeps_prior_when_prediction_change_is_too_high():
+    start = np.array([[1, 1], [2, 2]], dtype=np.int32)
+    end = np.array([[2, 2], [1, 1]], dtype=np.int32)
+    prediction = np.array([[1, 1], [1, 1]], dtype=np.int32)
+
+    demand = derive_demand(
+        start,
+        end,
+        prediction,
+        demand_source="transition_prior_adaptive_blend",
+        class_values=[1, 2],
+        transition_prior={(1, 1): 1.0, (2, 2): 1.0},
+        demand_blend_weight=0.5,
+        adaptive_demand_l1_threshold=0.5,
+        adaptive_demand_change_fraction_high=0.30,
+    )
+
+    assert demand == {1: 2, 2: 2}
+
+
+@pytest.mark.parametrize(
+    ("threshold", "high", "message"),
+    [
+        (-0.01, 0.30, "adaptive_demand_l1_threshold"),
+        (0.50, -0.01, "adaptive_demand_change_fraction_high"),
+        (0.50, 1.01, "adaptive_demand_change_fraction_high"),
+    ],
+)
+def test_derive_demand_adaptive_blend_rejects_invalid_gate_parameters(
+    threshold: float,
+    high: float,
+    message: str,
+):
+    start = np.array([[1]], dtype=np.int32)
+
+    with pytest.raises(DemandValidationError, match=message):
+        derive_demand(
+            start,
+            start,
+            start,
+            demand_source="transition_prior_adaptive_blend",
+            class_values=[1],
+            transition_prior={(1, 1): 1.0},
+            demand_blend_weight=0.5,
+            adaptive_demand_l1_threshold=threshold,
+            adaptive_demand_change_fraction_high=high,
+        )
+
+
 def test_derive_demand_rejects_invalid_blend_weight():
     start = np.array([[1]], dtype=np.int32)
 

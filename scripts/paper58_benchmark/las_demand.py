@@ -74,6 +74,46 @@ def blend_demand_counts(
     return _round_expected_counts(expected, classes, int(total))
 
 
+def adaptive_transition_prior_blend_demand(
+    start_map: np.ndarray,
+    prediction_map: np.ndarray,
+    class_values: list[int],
+    transition_prior: dict[tuple[int, int], float],
+    demand_blend_weight: float,
+    adaptive_demand_l1_threshold: float,
+    adaptive_demand_change_fraction_high: float,
+) -> dict[int, int]:
+    threshold = float(adaptive_demand_l1_threshold)
+    if threshold < 0.0:
+        raise DemandValidationError(f"adaptive_demand_l1_threshold must be non-negative: {threshold}")
+    change_high = float(adaptive_demand_change_fraction_high)
+    if change_high < 0.0 or change_high > 1.0:
+        raise DemandValidationError(f"adaptive_demand_change_fraction_high must be in [0, 1]: {change_high}")
+
+    start = np.asarray(start_map)
+    prediction = np.asarray(prediction_map)
+    if start.shape != prediction.shape:
+        raise DemandValidationError(
+            f"prediction map shape {prediction.shape} does not match start map shape {start.shape}"
+        )
+    total = int(start.size)
+    prior_demand = project_transition_prior_demand(start, class_values, transition_prior)
+    prediction_demand = derive_observed_demand(prediction)
+    classes = [int(cls) for cls in class_values]
+    l1 = sum(abs(int(prior_demand.get(cls, 0)) - int(prediction_demand.get(cls, 0))) for cls in classes)
+    l1_fraction = (float(l1) / float(total)) if total > 0 else 0.0
+    prediction_change_fraction = (float(np.count_nonzero(prediction != start)) / float(total)) if total > 0 else 0.0
+    if l1_fraction >= threshold and prediction_change_fraction <= change_high:
+        return blend_demand_counts(
+            prior_demand,
+            prediction_demand,
+            class_values,
+            secondary_weight=demand_blend_weight,
+            total=total,
+        )
+    return prior_demand
+
+
 def minimum_change_budget_from_demand(start_map: np.ndarray, target_demand: dict[int, int]) -> int:
     start = np.asarray(start_map)
     values, counts = np.unique(start, return_counts=True)
@@ -94,6 +134,8 @@ def derive_demand(
     class_values: list[int] | None = None,
     transition_prior: dict[tuple[int, int], float] | None = None,
     demand_blend_weight: float = 0.0,
+    adaptive_demand_l1_threshold: float | None = None,
+    adaptive_demand_change_fraction_high: float = 1.0,
 ) -> dict[int, int]:
     if demand_source == "observed_end":
         return derive_observed_demand(end_map)
@@ -117,10 +159,26 @@ def derive_demand(
             secondary_weight=demand_blend_weight,
             total=int(np.asarray(start_map).size),
         )
+    if demand_source == "transition_prior_adaptive_blend":
+        if class_values is None or transition_prior is None:
+            raise DemandValidationError("transition_prior_adaptive_blend demand requires class_values and transition_prior")
+        if adaptive_demand_l1_threshold is None:
+            raise DemandValidationError(
+                "transition_prior_adaptive_blend demand requires adaptive_demand_l1_threshold"
+            )
+        return adaptive_transition_prior_blend_demand(
+            start_map,
+            prediction_map,
+            class_values,
+            transition_prior,
+            demand_blend_weight=demand_blend_weight,
+            adaptive_demand_l1_threshold=adaptive_demand_l1_threshold,
+            adaptive_demand_change_fraction_high=adaptive_demand_change_fraction_high,
+        )
     raise DemandValidationError(
         "unsupported demand_source "
         f"{demand_source!r}; expected one of: observed_end, paper58_prediction, "
-        "start_persistence, transition_prior, transition_prior_blend"
+        "start_persistence, transition_prior, transition_prior_blend, transition_prior_adaptive_blend"
     )
 
 

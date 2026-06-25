@@ -60,6 +60,8 @@ def run_flus_batch(
     strict: bool = False,
     demand_source: str = "observed_end",
     demand_blend_weight: float = 0.0,
+    adaptive_demand_l1_threshold: float | None = None,
+    adaptive_demand_change_fraction_high: float = 1.0,
 ) -> dict[str, Any]:
     rows = [row for row in _read_registry(Path(registry_path)) if row.get("qc_status") == "include"]
     cases = Path(case_root)
@@ -89,6 +91,8 @@ def run_flus_batch(
                 class_values=classes,
                 transition_prior=prior,
                 demand_blend_weight=demand_blend_weight,
+                adaptive_demand_l1_threshold=adaptive_demand_l1_threshold,
+                adaptive_demand_change_fraction_high=adaptive_demand_change_fraction_high,
             )
             case_dir = cases / f"{area}_{start_year}_{end_year}"
             write_flus_case(
@@ -115,6 +119,8 @@ def run_flus_batch(
         "n_failed": len(failures),
         "demand_source": demand_source,
         "demand_blend_weight": float(demand_blend_weight),
+        "adaptive_demand_l1_threshold": adaptive_demand_l1_threshold,
+        "adaptive_demand_change_fraction_high": float(adaptive_demand_change_fraction_high),
         "failures": failures,
     }
 
@@ -133,6 +139,7 @@ def main() -> None:
             "start_persistence",
             "transition_prior",
             "transition_prior_blend",
+            "transition_prior_adaptive_blend",
         ],
         default="observed_end",
         help="Demand source for FLUS case export. observed_end is oracle demand; paper58_prediction is non-oracle.",
@@ -142,6 +149,24 @@ def main() -> None:
         type=float,
         default=0.0,
         help="Weight of Paper58 prediction class counts when demand_source=transition_prior_blend.",
+    )
+    parser.add_argument(
+        "--adaptive-demand-l1-threshold",
+        type=float,
+        default=None,
+        help=(
+            "L1 demand-disagreement fraction required before transition_prior_adaptive_blend "
+            "uses blended demand."
+        ),
+    )
+    parser.add_argument(
+        "--adaptive-demand-change-fraction-high",
+        type=float,
+        default=1.0,
+        help=(
+            "Maximum Paper58 prediction change fraction allowed before "
+            "transition_prior_adaptive_blend uses blended demand."
+        ),
     )
     parser.add_argument("--strict", action="store_true")
     args = parser.parse_args()
@@ -153,6 +178,8 @@ def main() -> None:
         strict=args.strict,
         demand_source=args.demand_source,
         demand_blend_weight=args.demand_blend_weight,
+        adaptive_demand_l1_threshold=args.adaptive_demand_l1_threshold,
+        adaptive_demand_change_fraction_high=args.adaptive_demand_change_fraction_high,
     )
     print(
         "FLUS batch run: "

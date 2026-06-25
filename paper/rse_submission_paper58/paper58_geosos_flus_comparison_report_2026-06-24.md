@@ -466,18 +466,73 @@ LOAO 选择结果：
 - LOAO 审计结果低于直接全局挑最优 adaptive `[0.10,0.20)` 的 F1 `+0.1781`，这是预期的；它牺牲了一部分 tuned best-case 性能，换来更强的非泄漏证据。
 - 这不能证明阈值规则已经跨全新区域完全泛化，因为仍然只是在 Batch 5 的 7 个区域内做 leave-one-area-out；但它已经比“直接在同一 holdout 上选择最优阈值”更接近可发表的模型选择流程。
 
+### Experiment 9：adaptive transition-prior/Paper58 demand gate
+
+日期：2026-06-25。
+
+Experiment 6 的固定 `transition_prior_blend` 是负证据：简单把 Paper58 预测类别计数线性混入 transition-prior demand 会降低 F1/FoM。继续诊断 `huaibei_irrigation_plain_holdout` 后发现，负行的核心不是邻域权重，而是 demand source：transition-prior demand 会把需求推向错误方向，而 Paper58 prediction demand 在该区域接近 FLUS，但在全局又不稳。
+
+因此本轮新增 `transition_prior_adaptive_blend`：
+
+- 先计算 transition-prior demand。
+- 再计算 Paper58 预测图的类别计数 demand。
+- 计算 `demand_l1_fraction = sum(abs(prior_demand - paper58_demand)) / n_pixels`。
+- 计算 `paper58_change_fraction = count(paper58_prediction != start_map) / n_pixels`。
+- 只有当 demand 冲突足够大、且 Paper58 预测变化比例不过高时，才把 Paper58 demand 混入 transition-prior demand。
+- 该门控只使用 start map、Paper58 prediction 和 leave-one-area-out transition prior，不读取目标区域 end map。
+
+核心动机是：Paper58/AlphaEarth 信息不是无条件覆盖历史先验，而是在“先验需求和 foundation-model 预测明显冲突，且预测变化强度仍处于可控范围”时才接管 demand。
+
+在 `scale=0.85 + margin=0.40 + base score=0.10 + base neighborhood_weight=2.00 + adaptive_neighborhood_weight=2.50 + adaptive_change_fraction=[0.10,0.20)` 下扫描 demand gate：
+
+| setting | demand rule | F1 advantage | F1 CI low | FoM advantage | FoM CI low | recall advantage | transition accuracy advantage | allocation disagreement advantage |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| adaptive demand F1 frontier | `blend_weight=0.75`, `l1_threshold=0.14`, `change_high=0.22` | +0.1986 | +0.0856 | +0.0745 | +0.0330 | +0.3908 | +0.2425 | -0.0432 |
+| adaptive demand FoM frontier | `blend_weight=1.00`, `l1_threshold=0.16`, `change_high=0.16` | +0.1883 | +0.0806 | +0.0805 | +0.0387 | +0.3730 | +0.2690 | -0.0634 |
+| previous adaptive neighborhood F1 frontier | transition-prior demand, adaptive neighborhood `[0.10,0.20)` | +0.1781 | +0.0581 | +0.0748 | +0.0245 | +0.3424 | +0.2384 | -0.0537 |
+
+解释：
+
+- `adaptive demand F1 frontier` 将 F1 advantage 从上一轮最强的 `+0.1781` 提高到 `+0.1986`，F1 CI low 从 `+0.0581` 提高到 `+0.0856`，同时 FoM CI low 也提高到 `+0.0330`。
+- `adaptive demand FoM frontier` 将 FoM advantage 推到 `+0.0805`、FoM CI low 推到 `+0.0387`，transition accuracy advantage 推到 `+0.2690`；代价是 allocation disagreement 劣势扩大到 `-0.0634`。
+- 两个 adaptive demand 前沿都保持 7 个 holdout 中 6 个区域优于 official FLUS console baseline；负行仍是 `huaibei_irrigation_plain_holdout`。
+- 在 F1 frontier 下，淮北已接近打平：F1 advantage `-0.0025`，FoM advantage `-0.0144`。在 FoM frontier 下，淮北 FoM 几乎打平：FoM advantage `-0.0024`。
+- 这说明固定线性 blend 的负证据并不否定 Paper58 demand 信息本身；真正有效的是“按冲突和变化强度门控”的 demand arbitration。
+
+进一步把 adaptive demand 候选加入 Experiment 8 的 leave-one-area-out candidate selection audit，候选池扩展为：
+
+- fixed `w=2.00`
+- fixed `w=2.50`
+- adaptive neighborhood `[0.10,0.20)`
+- adaptive neighborhood `[0.11,0.16)`
+- adaptive demand F1 frontier
+- adaptive demand FoM frontier
+
+LOAO 选择结果：
+
+| audit setting | selected candidate counts | F1 advantage | F1 CI low | FoM advantage | FoM CI low | recall advantage | transition accuracy advantage | allocation disagreement advantage |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| primary `change_f1`, tie break `fom` | adaptive demand F1 frontier: 7 | +0.1986 | +0.0856 | +0.0745 | +0.0330 | +0.3908 | +0.2425 | -0.0432 |
+
+解释：
+
+- 每次留出一个区域、只用其余 6 个区域选择候选时，7 次都选择 `adaptive demand F1 frontier`。
+- 这说明新 demand gate 不是只在某一个区域偶然有效，而是在 Batch 5 的 leave-one-area-out 候选选择审计中稳定占优。
+- 仍需保留边界：candidate pool 和 gate 参数来自同一 Batch 5 小样本实验体系，因此它是比直接 holdout 调参更强的证据，但还不是跨全新区域的最终泛化证明。
+
 ## 当前可以成立的结论
 
 1. Paper58-LAS 已经不只是 Paper58 direct 的后处理，而是形成了一个可评估的土地利用模拟扩展。
 2. 在同一 Paper58 probability、同一 oracle demand、同一类别体系和同一 Batch 5 holdout 条件下，Paper58-LAS 明显超过 official FLUS console baseline。
 3. 在 transition-prior 非 oracle demand 条件下，Paper58-LAS 也明显超过 official FLUS console baseline：F1 与 FoM 的平均优势均为正，且 bootstrap CI low 为正。
 4. `change_budget_scale=0.85-0.95` 在 transition-prior demand 下进一步改善了 F1/FoM，并部分缓解 allocation disagreement 劣势。
-5. `balanced_swap_min_margin`、pair-level `balanced_swap_min_base_score` 与 adaptive neighborhood weight 是保留 Paper58 技术架构基础上的新分配层创新；当前 F1/spatial-first 最强候选是 `scale=0.85 + margin=0.40 + base score=0.10 + base neighborhood_weight=2.00 + adaptive_neighborhood_weight=2.50 + adaptive_change_fraction=[0.10,0.20)`，FoM-balanced 最强候选是同一基础设置下的 `[0.11,0.16)`。
-6. leave-one-area-out candidate selection audit 在不使用被留出区域自身结果选设置的条件下，仍取得 F1 advantage `+0.1657`、FoM advantage `+0.0744`，且两者 CI low 为正。
-7. Paper58-LAS 的主要优势来自更高的 change recall 和 transition accuracy；它更能捕捉真实变化像元和变化方向。
-8. `paper58_prediction` demand 是一个重要负证据：直接用 Paper58 预测图计数做需求时，FoM 尚未稳定超过 official FLUS console baseline。
-9. 当前最大弱点仍是 demand forecast 与 allocation disagreement，说明需求预测和空间定位仍需优化。
-10. `huaibei_irrigation_plain_holdout` 是 oracle-demand、transition-prior demand 与 LOAO candidate selection 下共同出现的主要负行，应作为下一轮诊断重点。
+5. `balanced_swap_min_margin`、pair-level `balanced_swap_min_base_score`、adaptive neighborhood weight 与 adaptive demand gate 是保留 Paper58 技术架构基础上的新架构创新；当前 F1/spatial-first 最强候选是 `transition_prior_adaptive_blend` + `blend_weight=0.75` + `l1_threshold=0.14` + `change_high=0.22` + `scale=0.85 + margin=0.40 + base score=0.10 + base neighborhood_weight=2.00 + adaptive_neighborhood_weight=2.50 + adaptive_change_fraction=[0.10,0.20)`。
+6. 当前 FoM/transition-accuracy 最强候选是 `transition_prior_adaptive_blend` + `blend_weight=1.00` + `l1_threshold=0.16` + `change_high=0.16`；它把 FoM advantage 提高到 `+0.0805`、transition accuracy advantage 提高到 `+0.2690`，但 allocation disagreement 劣势更大。
+7. leave-one-area-out candidate selection audit 在加入 adaptive demand 候选后，7 次留出区域选择都选中 adaptive demand F1 frontier，并取得 F1 advantage `+0.1986`、FoM advantage `+0.0745`，且两者 CI low 为正。
+8. Paper58-LAS 的主要优势来自更高的 change recall 和 transition accuracy；它更能捕捉真实变化像元和变化方向。
+9. `paper58_prediction` demand 是一个重要负证据：直接用 Paper58 预测图计数做需求时，FoM 尚未稳定超过 official FLUS console baseline；但 adaptive demand gate 表明 Paper58 demand 信息经过门控后可以提升整体前沿。
+10. 当前最大弱点仍是 demand forecast 与 allocation disagreement，说明需求预测和空间定位仍需优化。
+11. `huaibei_irrigation_plain_holdout` 是 oracle-demand、transition-prior demand 与 LOAO candidate selection 下共同出现的主要负行，应作为下一轮诊断重点。
 
 ## 当前不能成立的结论
 

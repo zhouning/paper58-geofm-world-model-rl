@@ -609,6 +609,61 @@ def test_evaluate_las_accepts_transition_prior_blend_demand(tmp_path: Path):
     assert result["summary"]["demand_blend_weight"] == 0.5
 
 
+def test_evaluate_las_accepts_transition_prior_adaptive_blend_demand(tmp_path: Path):
+    rows = []
+    for area, start, end, pred in [
+        (
+            "adaptive_blend_target_a",
+            np.array([[1, 1], [2, 2]], dtype=np.int32),
+            np.array([[1, 2], [2, 2]], dtype=np.int32),
+            np.array([[1, 1], [1, 2]], dtype=np.int32),
+        ),
+        (
+            "adaptive_blend_target_b",
+            np.array([[1, 1], [2, 2]], dtype=np.int32),
+            np.array([[2, 2], [1, 2]], dtype=np.int32),
+            np.array([[2, 2], [2, 2]], dtype=np.int32),
+        ),
+    ]:
+        start_path = tmp_path / f"{area}_start.npy"
+        end_path = tmp_path / f"{area}_end.npy"
+        pred_path = tmp_path / f"{area}_pred.npy"
+        np.save(start_path, start)
+        np.save(end_path, end)
+        np.save(pred_path, pred)
+        rows.append(
+            {
+                "area": area,
+                "start_year": 2020,
+                "end_year": 2021,
+                "tier": "tier1",
+                "stratum": "Urban",
+                **_provenance_fields(),
+                "label_start_path": str(start_path),
+                "label_end_path": str(end_path),
+                "prediction_path": str(pred_path),
+                "qc_status": "include",
+            }
+        )
+    registry = tmp_path / "benchmark_registry.json"
+    registry.write_text(json.dumps({"rows": rows}), encoding="utf-8")
+
+    result = evaluate_las(
+        registry_path=registry,
+        output_dir=tmp_path / "las_out",
+        demand_source="transition_prior_adaptive_blend",
+        demand_blend_weight=0.75,
+        adaptive_demand_l1_threshold=0.14,
+        adaptive_demand_change_fraction_high=0.22,
+    )
+
+    assert result["summary"]["n_evaluated_rows"] == 2
+    assert result["summary"]["demand_source"] == "transition_prior_adaptive_blend"
+    assert result["summary"]["demand_blend_weight"] == 0.75
+    assert result["summary"]["adaptive_demand_l1_threshold"] == 0.14
+    assert result["summary"]["adaptive_demand_change_fraction_high"] == 0.22
+
+
 def test_evaluate_las_metric_rows_keep_temporal_pair_keys(tmp_path: Path):
     start = np.array([[1, 1], [2, 2]], dtype=np.int32)
     end = np.array([[1, 2], [2, 3]], dtype=np.int32)

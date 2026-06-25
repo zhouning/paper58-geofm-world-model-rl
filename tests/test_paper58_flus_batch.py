@@ -228,3 +228,59 @@ def test_run_flus_batch_can_use_transition_prior_blend_demand(tmp_path: Path):
     assert summary["n_ran"] == 1
     assert summary["demand_source"] == "transition_prior_blend"
     assert summary["demand_blend_weight"] == 0.5
+
+
+def test_run_flus_batch_can_use_transition_prior_adaptive_blend_demand(tmp_path: Path):
+    start = np.array([[1, 1], [2, 2]], dtype=np.int32)
+    end = np.array([[1, 2], [2, 2]], dtype=np.int32)
+    pred = np.array([[1, 1], [1, 2]], dtype=np.int32)
+    start_path = tmp_path / "start.npy"
+    end_path = tmp_path / "end.npy"
+    pred_path = tmp_path / "pred.npy"
+    np.save(start_path, start)
+    np.save(end_path, end)
+    np.save(pred_path, pred)
+    registry = tmp_path / "registry.json"
+    registry.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "area": "adaptive_blend_flus",
+                        "start_year": 2020,
+                        "end_year": 2021,
+                        "tier": "tier1",
+                        "stratum": "Urban",
+                        **_provenance_fields(),
+                        "label_start_path": str(start_path),
+                        "label_end_path": str(end_path),
+                        "prediction_path": str(pred_path),
+                        "qc_status": "include",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    def fake_console(case_dir: Path) -> None:
+        assert (case_dir / "CCregionMakovChain.csv").read_text(encoding="utf-8") == "year,type1,type2\n2021,3,1\n"
+        _write_geotiff(case_dir / "simresult.tif", np.array([[1, 1], [1, 2]], dtype=np.int32))
+
+    summary = run_flus_batch(
+        registry_path=registry,
+        case_root=tmp_path / "cases",
+        prediction_dir=tmp_path / "predictions",
+        flus_executable=tmp_path / "flus_console",
+        demand_source="transition_prior_adaptive_blend",
+        demand_blend_weight=0.75,
+        adaptive_demand_l1_threshold=0.14,
+        adaptive_demand_change_fraction_high=0.30,
+        console_runner=fake_console,
+    )
+
+    assert summary["n_ran"] == 1
+    assert summary["demand_source"] == "transition_prior_adaptive_blend"
+    assert summary["demand_blend_weight"] == 0.75
+    assert summary["adaptive_demand_l1_threshold"] == 0.14
+    assert summary["adaptive_demand_change_fraction_high"] == 0.30

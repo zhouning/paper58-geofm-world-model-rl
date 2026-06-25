@@ -146,6 +146,8 @@ def evaluate_las(
     latent_neighborhood_weight: float = 0.0,
     demand_source: str = "observed_end",
     demand_blend_weight: float = 0.0,
+    adaptive_demand_l1_threshold: float | None = None,
+    adaptive_demand_change_fraction_high: float = 1.0,
     change_budget_source: str = "paper58_prediction",
     change_budget_scale: float = 1.0,
     balanced_swap_min_margin: float | None = None,
@@ -206,6 +208,8 @@ def evaluate_las(
                 class_values=class_values,
                 transition_prior=prior,
                 demand_blend_weight=demand_blend_weight,
+                adaptive_demand_l1_threshold=adaptive_demand_l1_threshold,
+                adaptive_demand_change_fraction_high=adaptive_demand_change_fraction_high,
             )
             target_change_pixels = derive_change_budget(
                 start,
@@ -318,6 +322,8 @@ def evaluate_las(
         "methods": _method_names(metric_rows),
         "demand_source": demand_source,
         "demand_blend_weight": float(demand_blend_weight),
+        "adaptive_demand_l1_threshold": adaptive_demand_l1_threshold,
+        "adaptive_demand_change_fraction_high": float(adaptive_demand_change_fraction_high),
         "adaptive_neighborhood_weight": adaptive_neighborhood_weight,
         "adaptive_change_fraction_low": float(adaptive_change_fraction_low),
         "adaptive_change_fraction_high": float(adaptive_change_fraction_high),
@@ -376,6 +382,7 @@ def main() -> None:
             "start_persistence",
             "transition_prior",
             "transition_prior_blend",
+            "transition_prior_adaptive_blend",
         ],
         default="observed_end",
         help="Demand source for LAS allocation. observed_end is oracle demand; paper58_prediction is non-oracle.",
@@ -385,6 +392,24 @@ def main() -> None:
         type=float,
         default=0.0,
         help="Weight of Paper58 prediction class counts when demand_source=transition_prior_blend.",
+    )
+    parser.add_argument(
+        "--adaptive-demand-l1-threshold",
+        type=float,
+        default=None,
+        help=(
+            "L1 demand-disagreement fraction required before transition_prior_adaptive_blend "
+            "uses blended demand."
+        ),
+    )
+    parser.add_argument(
+        "--adaptive-demand-change-fraction-high",
+        type=float,
+        default=1.0,
+        help=(
+            "Maximum Paper58 prediction change fraction allowed before "
+            "transition_prior_adaptive_blend uses blended demand."
+        ),
     )
     parser.add_argument(
         "--change-budget-source",
@@ -427,6 +452,8 @@ def main() -> None:
         latent_neighborhood_weight=args.latent_neighborhood_weight,
         demand_source=args.demand_source,
         demand_blend_weight=args.demand_blend_weight,
+        adaptive_demand_l1_threshold=args.adaptive_demand_l1_threshold,
+        adaptive_demand_change_fraction_high=args.adaptive_demand_change_fraction_high,
         change_budget_source=args.change_budget_source,
         change_budget_scale=args.change_budget_scale,
         balanced_swap_min_margin=args.balanced_swap_min_margin,
