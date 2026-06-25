@@ -116,10 +116,33 @@ def _with_years(metric_row: dict[str, Any], start_year: int, end_year: int) -> d
     return {**metric_row, "start_year": start_year, "end_year": end_year}
 
 
+def _row_neighborhood_weight(
+    target_change_pixels: int | None,
+    n_pixels: int,
+    neighborhood_weight: float,
+    adaptive_neighborhood_weight: float | None,
+    adaptive_change_fraction_low: float,
+    adaptive_change_fraction_high: float,
+) -> float:
+    if adaptive_neighborhood_weight is None or target_change_pixels is None or n_pixels <= 0:
+        return float(neighborhood_weight)
+    if adaptive_change_fraction_low < 0.0 or adaptive_change_fraction_high > 1.0:
+        raise ValueError("adaptive change fraction bounds must be in [0, 1]")
+    if adaptive_change_fraction_low >= adaptive_change_fraction_high:
+        raise ValueError("adaptive_change_fraction_low must be smaller than adaptive_change_fraction_high")
+    change_fraction = float(target_change_pixels) / float(n_pixels)
+    if adaptive_change_fraction_low <= change_fraction < adaptive_change_fraction_high:
+        return float(adaptive_neighborhood_weight)
+    return float(neighborhood_weight)
+
+
 def evaluate_las(
     registry_path: Path = DEFAULT_BENCHMARK_DIR / "benchmark_registry.json",
     output_dir: Path = DEFAULT_BENCHMARK_DIR.parent / "las_results",
     neighborhood_weight: float = 0.0,
+    adaptive_neighborhood_weight: float | None = None,
+    adaptive_change_fraction_low: float = 0.0,
+    adaptive_change_fraction_high: float = 1.0,
     latent_neighborhood_weight: float = 0.0,
     demand_source: str = "observed_end",
     demand_blend_weight: float = 0.0,
@@ -184,20 +207,28 @@ def evaluate_las(
                 transition_prior=prior,
                 demand_blend_weight=demand_blend_weight,
             )
+            target_change_pixels = derive_change_budget(
+                start,
+                end,
+                paper58_pred,
+                target_demand,
+                change_budget_source=change_budget_source,
+                change_budget_scale=change_budget_scale,
+            )
             allocation = allocate_demand_constrained(
                 start,
                 suitability,
                 class_values=class_values,
                 target_demand=target_demand,
-                target_change_pixels=derive_change_budget(
-                    start,
-                    end,
-                    paper58_pred,
-                    target_demand,
-                    change_budget_source=change_budget_source,
-                    change_budget_scale=change_budget_scale,
+                target_change_pixels=target_change_pixels,
+                neighborhood_weight=_row_neighborhood_weight(
+                    target_change_pixels,
+                    int(start.size),
+                    neighborhood_weight,
+                    adaptive_neighborhood_weight,
+                    adaptive_change_fraction_low,
+                    adaptive_change_fraction_high,
                 ),
-                neighborhood_weight=neighborhood_weight,
                 embedding_grid=embedding_start,
                 latent_neighborhood_weight=latent_neighborhood_weight,
                 balanced_swap_min_margin=balanced_swap_min_margin,
@@ -287,6 +318,9 @@ def evaluate_las(
         "methods": _method_names(metric_rows),
         "demand_source": demand_source,
         "demand_blend_weight": float(demand_blend_weight),
+        "adaptive_neighborhood_weight": adaptive_neighborhood_weight,
+        "adaptive_change_fraction_low": float(adaptive_change_fraction_low),
+        "adaptive_change_fraction_high": float(adaptive_change_fraction_high),
         "change_budget_source": change_budget_source,
         "change_budget_scale": float(change_budget_scale),
         "balanced_swap_min_margin": balanced_swap_min_margin,
@@ -315,6 +349,24 @@ def main() -> None:
         type=float,
         default=0.0,
         help="Weight for start-embedding semantic neighborhood affinity during LAS allocation.",
+    )
+    parser.add_argument(
+        "--adaptive-neighborhood-weight",
+        type=float,
+        default=None,
+        help="Optional alternate neighborhood weight for rows whose predicted change fraction falls in a target range.",
+    )
+    parser.add_argument(
+        "--adaptive-change-fraction-low",
+        type=float,
+        default=0.0,
+        help="Lower bound of predicted change fraction for applying adaptive-neighborhood-weight.",
+    )
+    parser.add_argument(
+        "--adaptive-change-fraction-high",
+        type=float,
+        default=1.0,
+        help="Upper bound of predicted change fraction for applying adaptive-neighborhood-weight.",
     )
     parser.add_argument(
         "--demand-source",
@@ -369,6 +421,9 @@ def main() -> None:
         registry_path=args.registry,
         output_dir=args.output_dir,
         neighborhood_weight=args.neighborhood_weight,
+        adaptive_neighborhood_weight=args.adaptive_neighborhood_weight,
+        adaptive_change_fraction_low=args.adaptive_change_fraction_low,
+        adaptive_change_fraction_high=args.adaptive_change_fraction_high,
         latent_neighborhood_weight=args.latent_neighborhood_weight,
         demand_source=args.demand_source,
         demand_blend_weight=args.demand_blend_weight,

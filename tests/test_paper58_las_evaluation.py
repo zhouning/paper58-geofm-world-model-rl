@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from scripts.paper58_benchmark.evaluate_las import evaluate_las
+from scripts.paper58_benchmark.evaluate_las import _row_neighborhood_weight, evaluate_las
 
 
 def _provenance_fields() -> dict:
@@ -341,6 +341,77 @@ def test_evaluate_las_accepts_neighborhood_weight(tmp_path: Path):
     result = evaluate_las(registry_path=registry, output_dir=tmp_path / "las_out", neighborhood_weight=1.0)
 
     assert result["summary"]["n_evaluated_rows"] == 1
+
+
+def test_evaluate_las_accepts_adaptive_neighborhood_weight(tmp_path: Path):
+    start = np.array([[1, 1, 2], [1, 1, 2], [1, 1, 2]], dtype=np.int32)
+    end = np.array([[1, 1, 2], [1, 2, 2], [1, 1, 2]], dtype=np.int32)
+    paper58_pred = end.copy()
+    label_start = tmp_path / "start.npy"
+    label_end = tmp_path / "end.npy"
+    pred_path = tmp_path / "paper58.npy"
+    np.save(label_start, start)
+    np.save(label_end, end)
+    np.save(pred_path, paper58_pred)
+    registry = tmp_path / "benchmark_registry.json"
+    registry.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "area": "adaptive_neighborhood",
+                        "start_year": 2020,
+                        "end_year": 2021,
+                        "tier": "tier1",
+                        "stratum": "Urban",
+                        **_provenance_fields(),
+                        "label_start_path": str(label_start),
+                        "label_end_path": str(label_end),
+                        "prediction_path": str(pred_path),
+                        "qc_status": "include",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = evaluate_las(
+        registry_path=registry,
+        output_dir=tmp_path / "las_out",
+        neighborhood_weight=0.5,
+        adaptive_neighborhood_weight=2.5,
+        adaptive_change_fraction_low=0.05,
+        adaptive_change_fraction_high=0.20,
+    )
+
+    assert result["summary"]["n_evaluated_rows"] == 1
+    assert result["summary"]["adaptive_neighborhood_weight"] == 2.5
+    assert result["summary"]["adaptive_change_fraction_low"] == 0.05
+    assert result["summary"]["adaptive_change_fraction_high"] == 0.2
+
+
+def test_row_neighborhood_weight_switches_on_change_fraction_range():
+    assert _row_neighborhood_weight(10, 100, 2.0, 2.5, 0.10, 0.20) == 2.5
+    assert _row_neighborhood_weight(19, 100, 2.0, 2.5, 0.10, 0.20) == 2.5
+    assert _row_neighborhood_weight(9, 100, 2.0, 2.5, 0.10, 0.20) == 2.0
+    assert _row_neighborhood_weight(20, 100, 2.0, 2.5, 0.10, 0.20) == 2.0
+    assert _row_neighborhood_weight(None, 100, 2.0, 2.5, 0.10, 0.20) == 2.0
+    assert _row_neighborhood_weight(10, 0, 2.0, 2.5, 0.10, 0.20) == 2.0
+
+
+@pytest.mark.parametrize(
+    ("low", "high", "message"),
+    [
+        (-0.01, 0.20, "bounds must be in \\[0, 1\\]"),
+        (0.10, 1.01, "bounds must be in \\[0, 1\\]"),
+        (0.20, 0.20, "must be smaller"),
+        (0.30, 0.20, "must be smaller"),
+    ],
+)
+def test_row_neighborhood_weight_rejects_invalid_adaptive_bounds(low: float, high: float, message: str):
+    with pytest.raises(ValueError, match=message):
+        _row_neighborhood_weight(10, 100, 2.0, 2.5, low, high)
 
 
 def test_evaluate_las_accepts_latent_neighborhood_weight(tmp_path: Path):

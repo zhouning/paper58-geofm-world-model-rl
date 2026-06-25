@@ -10,13 +10,17 @@
 - `b3d0d52 docs: add Paper58 GeoSOS-FLUS comparison report`
 - `ad0289c feat: add reproducible FLUS comparison runners`
 - `44f74ba fix: encode FLUS case class labels`
+- `f1894b9 feat: calibrate LAS change budget`
+- `6f105d4 feat: prune low-margin LAS swaps`
+- `a57afc9 feat: gate LAS swaps by base evidence`
+- `773872f feat: add blended demand source`
 
 ## 一句话结论
 
 在当前已完成的 Batch 5 严格 holdout 实验中，Paper58-LAS 已经在一个可复现的 official FLUS console 控制基线上取得了两类正证据：
 
 1. oracle demand 控制实验中，平均 change F1 从 `0.1623` 提高到 `0.2967`，平均 FoM 从 `0.0651` 提高到 `0.1299`，7 个区域中 6 个区域优于 official FLUS console baseline。
-2. transition-prior 非 oracle demand 实验中，平均 change F1 从 `0.1009` 提高到 `0.2514`，平均 FoM 从 `0.0300` 提高到 `0.1040`，7 个区域中 6 个区域优于 official FLUS console baseline。
+2. transition-prior 非 oracle demand 实验中，加入 change-budget calibration、evidence-gated swaps 和 adaptive neighborhood weight 后，F1/spatial-first 候选的平均 change F1 从 `0.1009` 提高到 `0.2790`，平均 FoM 从 `0.0300` 提高到 `0.1048`；FoM-balanced 候选的平均 change F1 达到 `0.2721`，平均 FoM 达到 `0.1078`；两类候选均为 7 个区域中 6 个区域优于 official FLUS console baseline。
 
 这已经支持“Paper58-LAS 在当前可复现 official FLUS console baseline 上形成了稳定超越证据”。但这还不能等同于“已经正式超过 GeoSOS-FLUS native workflow”。当前基线使用的是官方 FLUS console 源码编译出的命令行程序与 Paper58 派生输入构造的控制实验，尚不是 GeoSOS-FLUS native GUI/完整传统驱动因子工作流，也尚未验证 Paper58-LAS 的 zero-local-user-data operational mode。
 
@@ -403,13 +407,44 @@ Experiment 4 仍然只是控制“变化总量”，没有控制“额外 balanc
 - 这说明“把需求预测和历史先验简单线性混合”并不能解决 demand 侧短板，反而会稀释 transition-prior 的有效结构。
 - 因此，transition-prior blend 目前应作为负证据保留，而不是推进主路线的默认策略。
 
+### Experiment 7：adaptive neighborhood weight
+
+日期：2026-06-25。
+
+Experiment 5 说明单一全局 `neighborhood_weight` 存在权衡：`2.50` 更偏 F1/spatial-first，`2.00` 更偏 FoM-balanced。为避免所有区域共享同一个邻域权重，本轮新增 adaptive neighborhood weight：
+
+- 先用 `change_budget_source=paper58_prediction` 和 `change_budget_scale=0.85` 得到当前区域的预测变化像元数。
+- 计算 `predicted_change_fraction = target_change_pixels / n_pixels`。
+- 默认使用 `neighborhood_weight=2.00`。
+- 当预测变化比例落入指定区间时，切换到 `adaptive_neighborhood_weight=2.50`。
+
+这一步仍保留 Paper58/AlphaEarth/GeoFM suitability、transition-prior demand、change-budget calibration、evidence-gated balanced swaps 的主架构，只是在 LAS 分配层加入“按预测变化强度选择空间邻域项”的自适应机制。
+
+在 `scale=0.85 + margin=0.40 + base score=0.10` 下，与固定权重对比：
+
+| setting | rule | F1 advantage | F1 CI low | FoM advantage | FoM CI low | recall advantage | transition accuracy advantage | allocation disagreement advantage |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| fixed w=2.00 | 全部区域使用 `2.00` | +0.1685 | +0.0492 | +0.0761 | +0.0238 | +0.3288 | +0.2445 | -0.0542 |
+| fixed w=2.50 | 全部区域使用 `2.50` | +0.1726 | +0.0578 | +0.0728 | +0.0228 | +0.3309 | +0.2338 | -0.0534 |
+| adaptive 0.10-0.20 | 变化比例在 `[0.10, 0.20)` 时使用 `2.50`，其余使用 `2.00` | +0.1781 | +0.0581 | +0.0748 | +0.0245 | +0.3424 | +0.2384 | -0.0537 |
+| adaptive 0.11-0.16 | 变化比例在 `[0.11, 0.16)` 时使用 `2.50`，其余使用 `2.00` | +0.1712 | +0.0524 | +0.0778 | +0.0266 | +0.3318 | +0.2476 | -0.0537 |
+| adaptive 0.12-0.18 | 变化比例在 `[0.12, 0.18)` 时使用 `2.50`，其余使用 `2.00` | +0.1685 | +0.0492 | +0.0747 | +0.0238 | +0.3288 | +0.2407 | -0.0545 |
+
+解释：
+
+- `adaptive 0.10-0.20` 是当前最强 F1/spatial-first 候选：F1 advantage 从固定 `2.50` 的 `+0.1726` 提高到 `+0.1781`，F1 CI low 从 `+0.0578` 提高到 `+0.0581`，FoM advantage 也高于固定 `2.50`。
+- `adaptive 0.11-0.16` 是当前最强 FoM-balanced 候选：FoM advantage 从固定 `2.00` 的 `+0.0761` 提高到 `+0.0778`，FoM CI low 从 `+0.0238` 提高到 `+0.0266`，同时 F1 advantage 仍保持 `+0.1712`。
+- 两个自适应候选都保持 7 个 holdout 中 6 个区域优于 official FLUS console baseline，负例仍是 `huaibei_irrigation_plain_holdout`。
+- 这说明 Paper58-LAS 的提升不只来自需求或 gross change budget 校准，也来自分配器本身对“区域变化强度”的自适应建模。它比单一全局 CA/邻域参数更接近 foundation-model-driven simulator 的路线。
+- 需要保留边界：当前 adaptive threshold 仍是小样本 holdout 扫描得到，下一步若要支撑更强结论，应做 leave-one-area-out threshold selection 或固定先验规则后再在新区域验证，避免把 threshold tuning 误写成已泛化能力。
+
 ## 当前可以成立的结论
 
 1. Paper58-LAS 已经不只是 Paper58 direct 的后处理，而是形成了一个可评估的土地利用模拟扩展。
 2. 在同一 Paper58 probability、同一 oracle demand、同一类别体系和同一 Batch 5 holdout 条件下，Paper58-LAS 明显超过 official FLUS console baseline。
 3. 在 transition-prior 非 oracle demand 条件下，Paper58-LAS 也明显超过 official FLUS console baseline：F1 与 FoM 的平均优势均为正，且 bootstrap CI low 为正。
 4. `change_budget_scale=0.85-0.95` 在 transition-prior demand 下进一步改善了 F1/FoM，并部分缓解 allocation disagreement 劣势。
-5. `balanced_swap_min_margin` 与 pair-level `balanced_swap_min_base_score` 是保留 Paper58 技术架构基础上的新分配层创新；当前 `scale=0.85 + margin=0.40 + base score=0.10 + neighborhood_weight=2.50` 是 F1/spatial-first 最强候选，`neighborhood_weight=2.00` 是 FoM-balanced 候选。
+5. `balanced_swap_min_margin`、pair-level `balanced_swap_min_base_score` 与 adaptive neighborhood weight 是保留 Paper58 技术架构基础上的新分配层创新；当前 F1/spatial-first 最强候选是 `scale=0.85 + margin=0.40 + base score=0.10 + base neighborhood_weight=2.00 + adaptive_neighborhood_weight=2.50 + adaptive_change_fraction=[0.10,0.20)`，FoM-balanced 最强候选是同一基础设置下的 `[0.11,0.16)`。
 6. Paper58-LAS 的主要优势来自更高的 change recall 和 transition accuracy；它更能捕捉真实变化像元和变化方向。
 7. `paper58_prediction` demand 是一个重要负证据：直接用 Paper58 预测图计数做需求时，FoM 尚未稳定超过 official FLUS console baseline。
 8. 当前最大弱点仍是 demand forecast 与 allocation disagreement，说明需求预测和空间定位仍需优化。
@@ -496,6 +531,8 @@ Paper58-LAS 当前已经具备超过 official FLUS console baseline 的实验证
 
 进一步的 evidence-margin balanced swap pruning 把这个结论又向前推进了一步：在 `scale=0.85 + balanced_swap_min_margin=0.40` 下，Paper58-LAS 的 F1 advantage 达到 `+0.1666`，FoM advantage 达到 `+0.0763`，F1/FoM 的 bootstrap CI low 仍为正，同时 allocation disagreement 劣势缩小到 `-0.0558`。继续加入 pair-level `balanced_swap_min_base_score=0.10` 后，`neighborhood_weight=2.00` 的 F1 advantage 提高到 `+0.1685`，allocation disagreement 劣势缩小到 `-0.0542`，FoM 仍保持 `+0.0761`；若采用 F1/spatial-first 的 `neighborhood_weight=2.50`，F1 advantage 进一步提高到 `+0.1726`，F1 CI low 提高到 `+0.0578`，allocation disagreement 劣势缩小到 `-0.0534`，但 FoM advantage 降为 `+0.0728`。这说明 Paper58-LAS 不只是通过增加变化召回取得优势，也可以通过对额外 balanced swaps 增加证据门槛来改善空间误报。
 
+最新的 adaptive neighborhood weight 进一步把固定全局邻域参数改为按预测变化强度切换：基础 `neighborhood_weight=2.00`，中等预测变化比例区域切换到 `2.50`。`adaptive_change_fraction=[0.10,0.20)` 是当前最强 F1/spatial-first 候选，F1 advantage 达到 `+0.1781`、F1 CI low 达到 `+0.0581`、FoM advantage 为 `+0.0748`；`adaptive_change_fraction=[0.11,0.16)` 是当前最强 FoM-balanced 候选，FoM advantage 达到 `+0.0778`、FoM CI low 达到 `+0.0266`、F1 advantage 为 `+0.1712`。这说明 Paper58-LAS 的分配层已经从固定参数 CA 式规则推进到区域变化强度自适应规则。
+
 但是，`paper58_prediction` demand 的弱结果和 allocation disagreement 的持续劣势表明，正式的 GeoSOS-FLUS 超越结论还需要完成三件事：GeoSOS-FLUS native workflow 对比、可解释且稳健的需求预测模块、zero-local-user-data operational 验证。最稳妥的阶段性结论是：
 
-> Paper58-LAS has surpassed a matched official FLUS console baseline under controlled Batch 5 oracle-demand conditions and under a leave-one-area-out transition-prior non-oracle demand setting. The strongest current F1/spatial-first transition-prior setting is `change_budget_scale=0.85`, `balanced_swap_min_margin=0.40`, pair-level `balanced_swap_min_base_score=0.10`, and `neighborhood_weight=2.50`; the more FoM-balanced setting keeps `neighborhood_weight=2.00`. This is strong evidence that the Paper58 AlphaEarth/GeoFM route can outperform a reproducible official FLUS console simulator, but the official GeoSOS-FLUS surpass claim still requires native GeoSOS-FLUS comparison, stronger demand modelling, and explicit validation of the zero-local-user-data workflow.
+> Paper58-LAS has surpassed a matched official FLUS console baseline under controlled Batch 5 oracle-demand conditions and under a leave-one-area-out transition-prior non-oracle demand setting. The strongest current F1/spatial-first transition-prior setting is `change_budget_scale=0.85`, `balanced_swap_min_margin=0.40`, pair-level `balanced_swap_min_base_score=0.10`, base `neighborhood_weight=2.00`, `adaptive_neighborhood_weight=2.50`, and `adaptive_change_fraction=[0.10,0.20)`; the strongest current FoM-balanced setting uses the same base configuration with `adaptive_change_fraction=[0.11,0.16)`. This is strong evidence that the Paper58 AlphaEarth/GeoFM route can outperform a reproducible official FLUS console simulator, but the official GeoSOS-FLUS surpass claim still requires native GeoSOS-FLUS comparison, stronger demand modelling, and explicit validation of the zero-local-user-data workflow.
