@@ -224,6 +224,7 @@ def _add_balanced_change_swaps(
     allowed_transitions: set[tuple[int, int]] | None,
     target_change_pixels: int | None,
     balanced_swap_min_margin: float | None,
+    balanced_swap_min_base_score: float | None,
 ) -> None:
     if target_change_pixels is None:
         return
@@ -299,6 +300,13 @@ def _add_balanced_change_swaps(
             )
             swap_margin = (left_score + right_score) - (left_stay_score + right_stay_score)
             if balanced_swap_min_margin is not None and swap_margin < balanced_swap_min_margin:
+                continue
+            left_base_score = float(scores[left_row, left_col, class_to_col[right_cls]])
+            right_base_score = float(scores[right_row, right_col, class_to_col[left_cls]])
+            if (
+                balanced_swap_min_base_score is not None
+                and left_base_score + right_base_score < balanced_swap_min_base_score
+            ):
                 continue
             swap_candidates.append(
                 (
@@ -381,6 +389,7 @@ def allocate_demand_constrained(
     embedding_grid: np.ndarray | None = None,
     latent_neighborhood_weight: float = 0.0,
     balanced_swap_min_margin: float | None = None,
+    balanced_swap_min_base_score: float | None = None,
 ) -> LASAllocationResult:
     start = np.asarray(start_map)
     scores = np.asarray(suitability, dtype=np.float32)
@@ -401,6 +410,9 @@ def allocate_demand_constrained(
     margin_floor = None if balanced_swap_min_margin is None else float(balanced_swap_min_margin)
     if margin_floor is not None and margin_floor < 0.0:
         raise DemandValidationError(f"balanced_swap_min_margin must be non-negative: {margin_floor}")
+    base_score_floor = None if balanced_swap_min_base_score is None else float(balanced_swap_min_base_score)
+    if base_score_floor is not None and base_score_floor < 0.0:
+        raise DemandValidationError(f"balanced_swap_min_base_score must be non-negative: {base_score_floor}")
     neighborhood = _neighborhood_affinity_cube(start, class_values) if weight > 0.0 else np.zeros_like(scores)
     if latent_weight > 0.0:
         if embedding_grid is None:
@@ -578,6 +590,7 @@ def allocate_demand_constrained(
         allowed_transitions,
         target_change_pixels,
         margin_floor,
+        base_score_floor,
     )
 
     achieved = _counts(simulated, class_values)

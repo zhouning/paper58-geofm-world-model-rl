@@ -125,6 +125,7 @@ def evaluate_las(
     change_budget_source: str = "paper58_prediction",
     change_budget_scale: float = 1.0,
     balanced_swap_min_margin: float | None = None,
+    balanced_swap_min_base_score: float | None = None,
 ) -> dict[str, Any]:
     registry_rows = _read_registry(Path(registry_path))
     included_rows = [row for row in registry_rows if row.get("qc_status") == "include"]
@@ -198,6 +199,7 @@ def evaluate_las(
                 embedding_grid=embedding_start,
                 latent_neighborhood_weight=latent_neighborhood_weight,
                 balanced_swap_min_margin=balanced_swap_min_margin,
+                balanced_swap_min_base_score=balanced_swap_min_base_score,
             )
         except Exception as exc:
             failure_rows.append(_failure_record(row, "runtime_failure", f"{type(exc).__name__}: {exc}"))
@@ -285,6 +287,7 @@ def evaluate_las(
         "change_budget_source": change_budget_source,
         "change_budget_scale": float(change_budget_scale),
         "balanced_swap_min_margin": balanced_swap_min_margin,
+        "balanced_swap_min_base_score": balanced_swap_min_base_score,
     }
     result = {"summary": summary, "metrics": metric_rows}
     write_csv(output / "las_metrics_by_method.csv", metric_rows, LAS_METRIC_FIELDS)
@@ -337,6 +340,15 @@ def main() -> None:
             "A swap pair is allowed only when change score exceeds persistence score by at least this value."
         ),
     )
+    parser.add_argument(
+        "--balanced-swap-min-base-score",
+        type=float,
+        default=None,
+        help=(
+            "Optional raw Paper58/GeoFM suitability floor for extra balanced swaps. "
+            "The pair-level base score sum must meet this floor before neighborhood terms are added."
+        ),
+    )
     args = parser.parse_args()
     result = evaluate_las(
         registry_path=args.registry,
@@ -347,6 +359,7 @@ def main() -> None:
         change_budget_source=args.change_budget_source,
         change_budget_scale=args.change_budget_scale,
         balanced_swap_min_margin=args.balanced_swap_min_margin,
+        balanced_swap_min_base_score=args.balanced_swap_min_base_score,
     )
     print(
         "Paper58-LAS evaluation: "

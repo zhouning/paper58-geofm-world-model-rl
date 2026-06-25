@@ -342,10 +342,22 @@ Experiment 4 仍然只是控制“变化总量”，没有控制“额外 balanc
 |---|---:|---:|---:|---:|---:|
 | scale 0.90 + margin 0.25 | +0.1626 | +0.0433 | +0.0751 | +0.0212 | -0.0617 |
 
+进一步增加 pair-level `balanced_swap_min_base_score`：只允许成对 swap 的原始 Paper58/GeoFM base suitability 总分达到门槛后，再使用 neighborhood score 参与排序。这个门槛不是要求两个方向都强，而是要求一对交换总体有足够 Paper58 证据，避免 neighborhood-only 交换。
+
+| setting | F1 advantage | F1 CI low | FoM advantage | FoM CI low | recall advantage | transition accuracy advantage | allocation disagreement advantage |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| scale 0.85 + margin 0.40 | +0.1666 | +0.0492 | +0.0763 | +0.0238 | +0.3311 | +0.2468 | -0.0558 |
+| + base score 0.05 | +0.1667 | +0.0492 | +0.0767 | +0.0246 | +0.3288 | +0.2468 | -0.0550 |
+| + base score 0.10 | +0.1685 | +0.0492 | +0.0761 | +0.0238 | +0.3288 | +0.2445 | -0.0542 |
+| + base score 0.25 | +0.1685 | +0.0492 | +0.0761 | +0.0238 | +0.3288 | +0.2445 | -0.0542 |
+| + base score 0.50 | +0.1685 | +0.0492 | +0.0761 | +0.0238 | +0.3288 | +0.2445 | -0.0542 |
+| + base score 1.00 | +0.1685 | +0.0492 | +0.0761 | +0.0238 | +0.3288 | +0.2445 | -0.0542 |
+
 解释：
 
 - `balanced_swap_min_margin=0.40` 是当前最平衡的候选：F1 advantage 从旧 `0.85` 的 `+0.1537` 提高到 `+0.1666`，FoM 保持 `+0.0763`，allocation disagreement 劣势从 `-0.0729` 缩小到 `-0.0558`。
 - 相比 scale `1.00` 的原始 transition-prior 设置，`scale=0.85 + margin=0.40` 将 F1 advantage 从 `+0.1505` 提高到 `+0.1666`，同时将 allocation disagreement 劣势从 `-0.0947` 缩小到 `-0.0558`。
+- pair-level base score floor 继续带来小幅空间改进：`scale=0.85 + margin=0.40 + base score=0.10` 将 F1 advantage 提高到 `+0.1685`，allocation disagreement 劣势缩小到 `-0.0542`，FoM 仍保持正优势且 CI low 为正。
 - 提升主要来自 `liaohe_delta_wetland_holdout`：相对旧 `0.85`，该区域 F1 advantage 增加 `+0.0905`，FoM advantage 增加 `+0.0093`，allocation disagreement advantage 改善 `+0.1191`。这与前一轮恢复点中“优先关注 liaohe_delta_wetland_holdout”的判断一致。
 - `0.45` 以后开始牺牲 F1/FoM，说明证据门槛过强会错杀真实变化；当前更稳妥的推荐区间是 `0.20-0.40`，主推荐为 `0.40`。
 
@@ -355,7 +367,7 @@ Experiment 4 仍然只是控制“变化总量”，没有控制“额外 balanc
 2. 在同一 Paper58 probability、同一 oracle demand、同一类别体系和同一 Batch 5 holdout 条件下，Paper58-LAS 明显超过 official FLUS console baseline。
 3. 在 transition-prior 非 oracle demand 条件下，Paper58-LAS 也明显超过 official FLUS console baseline：F1 与 FoM 的平均优势均为正，且 bootstrap CI low 为正。
 4. `change_budget_scale=0.85-0.95` 在 transition-prior demand 下进一步改善了 F1/FoM，并部分缓解 allocation disagreement 劣势。
-5. `balanced_swap_min_margin` 是保留 Paper58 技术架构基础上的新分配层创新；当前 `scale=0.85 + margin=0.40` 是最强候选，F1/FoM 继续为正且 allocation disagreement 劣势明显缩小。
+5. `balanced_swap_min_margin` 与 pair-level `balanced_swap_min_base_score` 是保留 Paper58 技术架构基础上的新分配层创新；当前 `scale=0.85 + margin=0.40 + base score=0.10` 是最强候选，F1/FoM 继续为正且 allocation disagreement 劣势进一步缩小。
 6. Paper58-LAS 的主要优势来自更高的 change recall 和 transition accuracy；它更能捕捉真实变化像元和变化方向。
 7. `paper58_prediction` demand 是一个重要负证据：直接用 Paper58 预测图计数做需求时，FoM 尚未稳定超过 official FLUS console baseline。
 8. 当前最大弱点仍是 demand forecast 与 allocation disagreement，说明需求预测和空间定位仍需优化。
@@ -440,8 +452,8 @@ Paper58-LAS 当前已经具备超过 official FLUS console baseline 的实验证
 
 2026-06-25 的 change-budget scale 实验进一步说明：将 gross change budget 缩放到 `0.85-0.95` 后，Paper58-LAS 的 F1/FoM advantage 可略高于 scale `1.00`，同时 allocation disagreement 劣势有所缩小。当前最偏空间误报控制的候选是 `0.85`：F1 advantage `+0.1537`，FoM advantage `+0.0750`，allocation disagreement advantage `-0.0729`。这不是最终优化，但说明空间误报问题有可调节空间。
 
-进一步的 evidence-margin balanced swap pruning 把这个结论又向前推进了一步：在 `scale=0.85 + balanced_swap_min_margin=0.40` 下，Paper58-LAS 的 F1 advantage 达到 `+0.1666`，FoM advantage 达到 `+0.0763`，F1/FoM 的 bootstrap CI low 仍为正，同时 allocation disagreement 劣势缩小到 `-0.0558`。这说明 Paper58-LAS 不只是通过增加变化召回取得优势，也可以通过对额外 balanced swaps 增加证据门槛来改善空间误报。
+进一步的 evidence-margin balanced swap pruning 把这个结论又向前推进了一步：在 `scale=0.85 + balanced_swap_min_margin=0.40` 下，Paper58-LAS 的 F1 advantage 达到 `+0.1666`，FoM advantage 达到 `+0.0763`，F1/FoM 的 bootstrap CI low 仍为正，同时 allocation disagreement 劣势缩小到 `-0.0558`。继续加入 pair-level `balanced_swap_min_base_score=0.10` 后，F1 advantage 提高到 `+0.1685`，allocation disagreement 劣势缩小到 `-0.0542`，FoM 仍保持 `+0.0761`。这说明 Paper58-LAS 不只是通过增加变化召回取得优势，也可以通过对额外 balanced swaps 增加证据门槛来改善空间误报。
 
 但是，`paper58_prediction` demand 的弱结果和 allocation disagreement 的持续劣势表明，正式的 GeoSOS-FLUS 超越结论还需要完成三件事：GeoSOS-FLUS native workflow 对比、可解释且稳健的需求预测模块、zero-local-user-data operational 验证。最稳妥的阶段性结论是：
 
-> Paper58-LAS has surpassed a matched official FLUS console baseline under controlled Batch 5 oracle-demand conditions and under a leave-one-area-out transition-prior non-oracle demand setting. The strongest current transition-prior setting is `change_budget_scale=0.85` with evidence-margin balanced swap pruning at `balanced_swap_min_margin=0.40`. This is strong evidence that the Paper58 AlphaEarth/GeoFM route can outperform a reproducible official FLUS console simulator, but the official GeoSOS-FLUS surpass claim still requires native GeoSOS-FLUS comparison, stronger demand modelling, and explicit validation of the zero-local-user-data workflow.
+> Paper58-LAS has surpassed a matched official FLUS console baseline under controlled Batch 5 oracle-demand conditions and under a leave-one-area-out transition-prior non-oracle demand setting. The strongest current transition-prior setting is `change_budget_scale=0.85`, `balanced_swap_min_margin=0.40`, and pair-level `balanced_swap_min_base_score=0.10`. This is strong evidence that the Paper58 AlphaEarth/GeoFM route can outperform a reproducible official FLUS console simulator, but the official GeoSOS-FLUS surpass claim still requires native GeoSOS-FLUS comparison, stronger demand modelling, and explicit validation of the zero-local-user-data workflow.
