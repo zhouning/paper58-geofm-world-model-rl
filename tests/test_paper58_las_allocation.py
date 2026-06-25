@@ -55,6 +55,50 @@ def test_allocate_can_add_balanced_swaps_to_reach_change_budget():
     assert len(result.selected_transitions) == 2
 
 
+def test_allocate_can_prune_low_margin_balanced_swaps():
+    start = np.array([[1, 2]], dtype=np.int32)
+    class_values = [1, 2]
+    suitability = np.zeros((1, 2, 2), dtype=np.float32)
+    suitability[0, 0, 1] = 0.04
+    suitability[0, 1, 0] = 0.03
+    target_demand = {1: 1, 2: 1}
+
+    result = allocate_demand_constrained(
+        start,
+        suitability,
+        class_values,
+        target_demand,
+        target_change_pixels=2,
+        balanced_swap_min_margin=0.1,
+    )
+
+    assert result.simulated_map.tolist() == [[1, 2]]
+    assert result.achieved_demand == target_demand
+    assert result.selected_transitions == []
+
+
+def test_allocate_keeps_high_margin_balanced_swaps():
+    start = np.array([[1, 2]], dtype=np.int32)
+    class_values = [1, 2]
+    suitability = np.zeros((1, 2, 2), dtype=np.float32)
+    suitability[0, 0, 1] = 0.09
+    suitability[0, 1, 0] = 0.08
+    target_demand = {1: 1, 2: 1}
+
+    result = allocate_demand_constrained(
+        start,
+        suitability,
+        class_values,
+        target_demand,
+        target_change_pixels=2,
+        balanced_swap_min_margin=0.1,
+    )
+
+    assert result.simulated_map.tolist() == [[2, 1]]
+    assert result.achieved_demand == target_demand
+    assert len(result.selected_transitions) == 2
+
+
 def test_allocate_balanced_swaps_respect_forbidden_transitions():
     start = np.array([[1, 2]], dtype=np.int32)
     class_values = [1, 2]

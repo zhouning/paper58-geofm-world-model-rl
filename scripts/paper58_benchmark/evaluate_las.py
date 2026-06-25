@@ -124,6 +124,7 @@ def evaluate_las(
     demand_source: str = "observed_end",
     change_budget_source: str = "paper58_prediction",
     change_budget_scale: float = 1.0,
+    balanced_swap_min_margin: float | None = None,
 ) -> dict[str, Any]:
     registry_rows = _read_registry(Path(registry_path))
     included_rows = [row for row in registry_rows if row.get("qc_status") == "include"]
@@ -196,6 +197,7 @@ def evaluate_las(
                 neighborhood_weight=neighborhood_weight,
                 embedding_grid=embedding_start,
                 latent_neighborhood_weight=latent_neighborhood_weight,
+                balanced_swap_min_margin=balanced_swap_min_margin,
             )
         except Exception as exc:
             failure_rows.append(_failure_record(row, "runtime_failure", f"{type(exc).__name__}: {exc}"))
@@ -282,6 +284,7 @@ def evaluate_las(
         "demand_source": demand_source,
         "change_budget_source": change_budget_source,
         "change_budget_scale": float(change_budget_scale),
+        "balanced_swap_min_margin": balanced_swap_min_margin,
     }
     result = {"summary": summary, "metrics": metric_rows}
     write_csv(output / "las_metrics_by_method.csv", metric_rows, LAS_METRIC_FIELDS)
@@ -325,6 +328,15 @@ def main() -> None:
         default=1.0,
         help="Scale applied to the selected gross change budget, bounded below by the demand-delta budget.",
     )
+    parser.add_argument(
+        "--balanced-swap-min-margin",
+        type=float,
+        default=None,
+        help=(
+            "Optional evidence margin floor for extra balanced swaps. "
+            "A swap pair is allowed only when change score exceeds persistence score by at least this value."
+        ),
+    )
     args = parser.parse_args()
     result = evaluate_las(
         registry_path=args.registry,
@@ -334,6 +346,7 @@ def main() -> None:
         demand_source=args.demand_source,
         change_budget_source=args.change_budget_source,
         change_budget_scale=args.change_budget_scale,
+        balanced_swap_min_margin=args.balanced_swap_min_margin,
     )
     print(
         "Paper58-LAS evaluation: "

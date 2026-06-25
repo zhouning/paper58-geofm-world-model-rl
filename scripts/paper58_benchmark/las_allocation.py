@@ -223,6 +223,7 @@ def _add_balanced_change_swaps(
     selected: list[dict[str, int | float]],
     allowed_transitions: set[tuple[int, int]] | None,
     target_change_pixels: int | None,
+    balanced_swap_min_margin: float | None,
 ) -> None:
     if target_change_pixels is None:
         return
@@ -274,6 +275,31 @@ def _add_balanced_change_swaps(
                 left_cls,
                 class_to_col,
             )
+            left_stay_score = _allocation_score(
+                scores,
+                neighborhood,
+                neighborhood_weight,
+                latent_neighborhood,
+                latent_neighborhood_weight,
+                left_row,
+                left_col,
+                left_cls,
+                class_to_col,
+            )
+            right_stay_score = _allocation_score(
+                scores,
+                neighborhood,
+                neighborhood_weight,
+                latent_neighborhood,
+                latent_neighborhood_weight,
+                right_row,
+                right_col,
+                right_cls,
+                class_to_col,
+            )
+            swap_margin = (left_score + right_score) - (left_stay_score + right_stay_score)
+            if balanced_swap_min_margin is not None and swap_margin < balanced_swap_min_margin:
+                continue
             swap_candidates.append(
                 (
                     left_score + right_score,
@@ -354,6 +380,7 @@ def allocate_demand_constrained(
     neighborhood_weight: float = 0.0,
     embedding_grid: np.ndarray | None = None,
     latent_neighborhood_weight: float = 0.0,
+    balanced_swap_min_margin: float | None = None,
 ) -> LASAllocationResult:
     start = np.asarray(start_map)
     scores = np.asarray(suitability, dtype=np.float32)
@@ -371,6 +398,9 @@ def allocate_demand_constrained(
     latent_weight = float(latent_neighborhood_weight)
     if latent_weight < 0.0:
         raise DemandValidationError(f"latent_neighborhood_weight must be non-negative: {latent_weight}")
+    margin_floor = None if balanced_swap_min_margin is None else float(balanced_swap_min_margin)
+    if margin_floor is not None and margin_floor < 0.0:
+        raise DemandValidationError(f"balanced_swap_min_margin must be non-negative: {margin_floor}")
     neighborhood = _neighborhood_affinity_cube(start, class_values) if weight > 0.0 else np.zeros_like(scores)
     if latent_weight > 0.0:
         if embedding_grid is None:
@@ -547,6 +577,7 @@ def allocate_demand_constrained(
         selected,
         allowed_transitions,
         target_change_pixels,
+        margin_floor,
     )
 
     achieved = _counts(simulated, class_values)
