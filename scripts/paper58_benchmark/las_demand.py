@@ -55,6 +55,25 @@ def project_transition_prior_demand(
     return _round_expected_counts(expected, classes, int(start.size))
 
 
+def blend_demand_counts(
+    primary_demand: dict[int, int],
+    secondary_demand: dict[int, int],
+    class_values: list[int],
+    secondary_weight: float,
+    total: int,
+) -> dict[int, int]:
+    weight = float(secondary_weight)
+    if weight < 0.0 or weight > 1.0:
+        raise DemandValidationError(f"demand_blend_weight must be in [0, 1]: {weight}")
+    classes = [int(cls) for cls in class_values]
+    if not classes:
+        raise DemandValidationError("class_values must be non-empty for blended demand")
+    primary = np.array([int(primary_demand.get(cls, 0)) for cls in classes], dtype=np.float64)
+    secondary = np.array([int(secondary_demand.get(cls, 0)) for cls in classes], dtype=np.float64)
+    expected = (1.0 - weight) * primary + weight * secondary
+    return _round_expected_counts(expected, classes, int(total))
+
+
 def minimum_change_budget_from_demand(start_map: np.ndarray, target_demand: dict[int, int]) -> int:
     start = np.asarray(start_map)
     values, counts = np.unique(start, return_counts=True)
@@ -74,6 +93,7 @@ def derive_demand(
     demand_source: str = "observed_end",
     class_values: list[int] | None = None,
     transition_prior: dict[tuple[int, int], float] | None = None,
+    demand_blend_weight: float = 0.0,
 ) -> dict[int, int]:
     if demand_source == "observed_end":
         return derive_observed_demand(end_map)
@@ -85,9 +105,22 @@ def derive_demand(
         if class_values is None or transition_prior is None:
             raise DemandValidationError("transition_prior demand requires class_values and transition_prior")
         return project_transition_prior_demand(start_map, class_values, transition_prior)
+    if demand_source == "transition_prior_blend":
+        if class_values is None or transition_prior is None:
+            raise DemandValidationError("transition_prior_blend demand requires class_values and transition_prior")
+        prior_demand = project_transition_prior_demand(start_map, class_values, transition_prior)
+        prediction_demand = derive_observed_demand(prediction_map)
+        return blend_demand_counts(
+            prior_demand,
+            prediction_demand,
+            class_values,
+            secondary_weight=demand_blend_weight,
+            total=int(np.asarray(start_map).size),
+        )
     raise DemandValidationError(
         "unsupported demand_source "
-        f"{demand_source!r}; expected one of: observed_end, paper58_prediction, start_persistence, transition_prior"
+        f"{demand_source!r}; expected one of: observed_end, paper58_prediction, "
+        "start_persistence, transition_prior, transition_prior_blend"
     )
 
 

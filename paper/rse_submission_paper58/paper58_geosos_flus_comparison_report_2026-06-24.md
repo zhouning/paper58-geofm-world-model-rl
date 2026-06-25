@@ -375,6 +375,34 @@ Experiment 4 仍然只是控制“变化总量”，没有控制“额外 balanc
 - 提升主要来自 `liaohe_delta_wetland_holdout`：相对旧 `0.85`，该区域 F1 advantage 增加 `+0.0905`，FoM advantage 增加 `+0.0093`，allocation disagreement advantage 改善 `+0.1191`。这与前一轮恢复点中“优先关注 liaohe_delta_wetland_holdout”的判断一致。
 - `0.45` 以后开始牺牲 F1/FoM，说明证据门槛过强会错杀真实变化；当前更稳妥的推荐区间是 `0.20-0.40`，主推荐为 `0.40`。
 
+### Experiment 6：transition-prior + Paper58 blended demand
+
+日期：2026-06-25。
+
+为了缓解 `transition_prior` demand 过度依赖训练区历史转移、`paper58_prediction` demand 又过于偏离真实需求的矛盾，新增 `transition_prior_blend`：
+
+- 先按 `transition_prior` 生成需求。
+- 再按权重把 Paper58 预测类别计数混入其中。
+- 当前只做保守线性融合，不改变总像元数。
+
+在 `scale=0.85 + margin=0.40 + base score=0.10` 下的小扫描表明，这个方向目前是负证据：
+
+| demand_blend_weight | neighborhood_weight | F1 advantage | F1 CI low | FoM advantage | FoM CI low | allocation disagreement advantage |
+|---:|---:|---:|---:|---:|---:|---:|
+| 0.25 | 2.0 | +0.1561 | +0.0468 | +0.0675 | +0.0202 | -0.0511 |
+| 0.50 | 2.0 | +0.1526 | +0.0584 | +0.0598 | +0.0186 | -0.0388 |
+| 0.75 | 2.0 | +0.1390 | +0.0492 | +0.0584 | +0.0154 | -0.0250 |
+| 0.25 | 2.5 | +0.1533 | +0.0468 | +0.0632 | +0.0165 | -0.0511 |
+| 0.50 | 2.5 | +0.1527 | +0.0614 | +0.0612 | +0.0186 | -0.0377 |
+| 0.75 | 2.5 | +0.1378 | +0.0502 | +0.0579 | +0.0166 | -0.0243 |
+
+解释：
+
+- 混入 Paper58 预测计数后，F1/FoM 都明显低于纯 `transition_prior` demand。
+- 虽然 allocation disagreement 略有改善，但改善幅度不足以抵消 F1/FoM 的下降。
+- 这说明“把需求预测和历史先验简单线性混合”并不能解决 demand 侧短板，反而会稀释 transition-prior 的有效结构。
+- 因此，transition-prior blend 目前应作为负证据保留，而不是推进主路线的默认策略。
+
 ## 当前可以成立的结论
 
 1. Paper58-LAS 已经不只是 Paper58 direct 的后处理，而是形成了一个可评估的土地利用模拟扩展。

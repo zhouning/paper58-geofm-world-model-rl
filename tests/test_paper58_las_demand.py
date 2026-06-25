@@ -81,6 +81,39 @@ def test_derive_demand_can_use_transition_prior():
     assert demand == {1: 1, 2: 3}
 
 
+def test_derive_demand_can_blend_transition_prior_with_paper58_prediction():
+    start = np.array([[1, 1], [1, 2]], dtype=np.int32)
+    end = np.array([[1, 1], [1, 1]], dtype=np.int32)
+    prediction = np.array([[1, 1], [1, 1]], dtype=np.int32)
+
+    demand = derive_demand(
+        start,
+        end,
+        prediction,
+        demand_source="transition_prior_blend",
+        class_values=[1, 2],
+        transition_prior={(1, 2): 1.0, (2, 1): 1.0},
+        demand_blend_weight=0.5,
+    )
+
+    assert demand == {1: 3, 2: 1}
+
+
+def test_derive_demand_rejects_invalid_blend_weight():
+    start = np.array([[1]], dtype=np.int32)
+
+    with pytest.raises(DemandValidationError, match="demand_blend_weight"):
+        derive_demand(
+            start,
+            start,
+            start,
+            demand_source="transition_prior_blend",
+            class_values=[1],
+            transition_prior={(1, 1): 1.0},
+            demand_blend_weight=1.5,
+        )
+
+
 def test_minimum_change_budget_from_demand_uses_net_class_deficits():
     start = np.array([[1, 1, 2], [2, 3, 3]], dtype=np.int32)
 

@@ -122,6 +122,7 @@ def evaluate_las(
     neighborhood_weight: float = 0.0,
     latent_neighborhood_weight: float = 0.0,
     demand_source: str = "observed_end",
+    demand_blend_weight: float = 0.0,
     change_budget_source: str = "paper58_prediction",
     change_budget_scale: float = 1.0,
     balanced_swap_min_margin: float | None = None,
@@ -181,6 +182,7 @@ def evaluate_las(
                 demand_source=demand_source,
                 class_values=class_values,
                 transition_prior=prior,
+                demand_blend_weight=demand_blend_weight,
             )
             allocation = allocate_demand_constrained(
                 start,
@@ -284,6 +286,7 @@ def evaluate_las(
         "n_metric_rows": len(metric_rows),
         "methods": _method_names(metric_rows),
         "demand_source": demand_source,
+        "demand_blend_weight": float(demand_blend_weight),
         "change_budget_source": change_budget_source,
         "change_budget_scale": float(change_budget_scale),
         "balanced_swap_min_margin": balanced_swap_min_margin,
@@ -315,9 +318,21 @@ def main() -> None:
     )
     parser.add_argument(
         "--demand-source",
-        choices=["observed_end", "paper58_prediction", "start_persistence", "transition_prior"],
+        choices=[
+            "observed_end",
+            "paper58_prediction",
+            "start_persistence",
+            "transition_prior",
+            "transition_prior_blend",
+        ],
         default="observed_end",
         help="Demand source for LAS allocation. observed_end is oracle demand; paper58_prediction is non-oracle.",
+    )
+    parser.add_argument(
+        "--demand-blend-weight",
+        type=float,
+        default=0.0,
+        help="Weight of Paper58 prediction class counts when demand_source=transition_prior_blend.",
     )
     parser.add_argument(
         "--change-budget-source",
@@ -356,6 +371,7 @@ def main() -> None:
         neighborhood_weight=args.neighborhood_weight,
         latent_neighborhood_weight=args.latent_neighborhood_weight,
         demand_source=args.demand_source,
+        demand_blend_weight=args.demand_blend_weight,
         change_budget_source=args.change_budget_source,
         change_budget_scale=args.change_budget_scale,
         balanced_swap_min_margin=args.balanced_swap_min_margin,

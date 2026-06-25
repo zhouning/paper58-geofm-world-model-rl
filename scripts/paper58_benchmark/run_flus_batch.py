@@ -59,6 +59,7 @@ def run_flus_batch(
     console_runner: ConsoleRunner | None = None,
     strict: bool = False,
     demand_source: str = "observed_end",
+    demand_blend_weight: float = 0.0,
 ) -> dict[str, Any]:
     rows = [row for row in _read_registry(Path(registry_path)) if row.get("qc_status") == "include"]
     cases = Path(case_root)
@@ -87,6 +88,7 @@ def run_flus_batch(
                 demand_source=demand_source,
                 class_values=classes,
                 transition_prior=prior,
+                demand_blend_weight=demand_blend_weight,
             )
             case_dir = cases / f"{area}_{start_year}_{end_year}"
             write_flus_case(
@@ -112,6 +114,7 @@ def run_flus_batch(
         "n_ran": n_ran,
         "n_failed": len(failures),
         "demand_source": demand_source,
+        "demand_blend_weight": float(demand_blend_weight),
         "failures": failures,
     }
 
@@ -124,9 +127,21 @@ def main() -> None:
     parser.add_argument("--flus-executable", type=Path, required=True)
     parser.add_argument(
         "--demand-source",
-        choices=["observed_end", "paper58_prediction", "start_persistence", "transition_prior"],
+        choices=[
+            "observed_end",
+            "paper58_prediction",
+            "start_persistence",
+            "transition_prior",
+            "transition_prior_blend",
+        ],
         default="observed_end",
         help="Demand source for FLUS case export. observed_end is oracle demand; paper58_prediction is non-oracle.",
+    )
+    parser.add_argument(
+        "--demand-blend-weight",
+        type=float,
+        default=0.0,
+        help="Weight of Paper58 prediction class counts when demand_source=transition_prior_blend.",
     )
     parser.add_argument("--strict", action="store_true")
     args = parser.parse_args()
@@ -137,6 +152,7 @@ def main() -> None:
         flus_executable=args.flus_executable,
         strict=args.strict,
         demand_source=args.demand_source,
+        demand_blend_weight=args.demand_blend_weight,
     )
     print(
         "FLUS batch run: "
