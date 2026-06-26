@@ -102,13 +102,16 @@ def _select_candidate_for_area(
     by_candidate: dict[str, dict[str, dict[str, str]]],
     primary_metric: str,
     tie_break_metrics: list[str],
+    candidate_priority: list[str],
 ) -> tuple[str, tuple[float, ...], int]:
-    ranked: list[tuple[tuple[float, ...], str, int]] = []
+    priority_rank = {candidate: index for index, candidate in enumerate(candidate_priority)}
+    ranked: list[tuple[tuple[float, ...], int, str, int]] = []
     for candidate, rows_by_area in by_candidate.items():
         train_rows = [row for area, row in rows_by_area.items() if area != held_out_area]
-        ranked.append((_selection_score(train_rows, primary_metric, tie_break_metrics), candidate, len(train_rows)))
-    ranked.sort(key=lambda item: (*item[0], item[1]), reverse=True)
-    score, candidate, n_train = ranked[0]
+        priority = priority_rank.get(candidate, len(priority_rank))
+        ranked.append((_selection_score(train_rows, primary_metric, tie_break_metrics), -priority, candidate, len(train_rows)))
+    ranked.sort(key=lambda item: (*item[0], item[1], item[2]), reverse=True)
+    score, _, candidate, n_train = ranked[0]
     return candidate, score, n_train
 
 
@@ -158,13 +161,18 @@ def select_las_candidates_leave_one_area_out(
     output_dir: Path,
     primary_metric: str = "change_f1",
     tie_break_metrics: list[str] | None = None,
+    candidate_priority: list[str] | None = None,
     metrics: list[str] | None = None,
     n_boot: int = 5000,
     seed: int = 42,
 ) -> dict[str, Any]:
     selected_tie_break_metrics = list(tie_break_metrics or [])
+    selected_candidate_priority = list(candidate_priority or [])
     selected_metrics = list(metrics or DEFAULT_METRICS)
     by_candidate = _candidate_rows_by_area(candidate_paths)
+    unknown_priority = sorted(set(selected_candidate_priority) - set(by_candidate))
+    if unknown_priority:
+        raise ValueError(f"candidate_priority contains unknown candidate(s): {unknown_priority}")
     areas = _common_areas(by_candidate)
 
     selected_rows: list[dict[str, Any]] = []
@@ -174,6 +182,7 @@ def select_las_candidates_leave_one_area_out(
             by_candidate,
             primary_metric,
             selected_tie_break_metrics,
+            selected_candidate_priority,
         )
         selected_rows.append(
             _selected_row(
@@ -206,6 +215,7 @@ def select_las_candidates_leave_one_area_out(
         "candidate_names": sorted(candidate_paths),
         "primary_metric": primary_metric,
         "tie_break_metrics": selected_tie_break_metrics,
+        "candidate_priority": selected_candidate_priority,
         "metrics": selected_metrics,
         "selected_candidate_counts": dict(sorted(Counter(row["selected_candidate"] for row in selected_rows).items())),
         "holdout_advantages": {
@@ -239,6 +249,15 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--primary-metric", default="change_f1")
     parser.add_argument("--tie-break-metric", action="append", default=[])
+    parser.add_argument(
+        "--candidate-priority",
+        action="append",
+        default=[],
+        help=(
+            "Candidate name used to break exact selection-score ties. "
+            "Repeat in descending priority order."
+        ),
+    )
     parser.add_argument("--metric", action="append", default=None)
     parser.add_argument("--n-boot", type=int, default=5000)
     parser.add_argument("--seed", type=int, default=42)
@@ -250,6 +269,7 @@ def main() -> None:
         output_dir=args.output_dir,
         primary_metric=args.primary_metric,
         tie_break_metrics=list(args.tie_break_metric),
+        candidate_priority=list(args.candidate_priority),
         metrics=args.metric,
         n_boot=args.n_boot,
         seed=args.seed,

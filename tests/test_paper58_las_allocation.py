@@ -168,6 +168,54 @@ def test_allocate_uses_pair_level_base_score_for_balanced_swaps():
     assert len(result.selected_transitions) == 2
 
 
+def test_allocate_can_prune_one_sided_low_base_score_balanced_swaps():
+    start = np.array([[1, 2]], dtype=np.int32)
+    class_values = [1, 2]
+    suitability = np.zeros((1, 2, 2), dtype=np.float32)
+    suitability[0, 0, 1] = 0.19
+    suitability[0, 1, 0] = 0.02
+    target_demand = {1: 1, 2: 1}
+
+    result = allocate_demand_constrained(
+        start,
+        suitability,
+        class_values,
+        target_demand,
+        target_change_pixels=2,
+        neighborhood_weight=2.0,
+        balanced_swap_min_base_score=0.2,
+        balanced_swap_min_side_base_score=0.05,
+    )
+
+    assert result.simulated_map.tolist() == [[1, 2]]
+    assert result.achieved_demand == target_demand
+    assert result.selected_transitions == []
+
+
+def test_allocate_keeps_balanced_swaps_when_each_side_has_base_support():
+    start = np.array([[1, 2]], dtype=np.int32)
+    class_values = [1, 2]
+    suitability = np.zeros((1, 2, 2), dtype=np.float32)
+    suitability[0, 0, 1] = 0.11
+    suitability[0, 1, 0] = 0.12
+    target_demand = {1: 1, 2: 1}
+
+    result = allocate_demand_constrained(
+        start,
+        suitability,
+        class_values,
+        target_demand,
+        target_change_pixels=2,
+        neighborhood_weight=2.0,
+        balanced_swap_min_base_score=0.2,
+        balanced_swap_min_side_base_score=0.05,
+    )
+
+    assert result.simulated_map.tolist() == [[2, 1]]
+    assert result.achieved_demand == target_demand
+    assert len(result.selected_transitions) == 2
+
+
 def test_allocate_balanced_swaps_respect_forbidden_transitions():
     start = np.array([[1, 2]], dtype=np.int32)
     class_values = [1, 2]

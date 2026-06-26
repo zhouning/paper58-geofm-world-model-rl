@@ -10,6 +10,7 @@ from scripts.paper58_benchmark.las_demand import (
     minimum_change_budget_from_demand,
     project_transition_prior_demand,
     remaining_editable_demand,
+    select_change_budget_scale,
     validate_total_demand,
 )
 
@@ -232,6 +233,130 @@ def test_derive_change_budget_scale_is_bounded_by_demand_delta():
     assert derive_change_budget(start, end, prediction, demand, "paper58_prediction", 0.25) == 3
     assert derive_change_budget(start, end, prediction, demand, "paper58_prediction", 0.75) == 3
     assert derive_change_budget(start, end, prediction, demand, "paper58_prediction", 1.0) == 4
+
+
+def test_select_change_budget_scale_uses_adaptive_scale_for_high_change_fraction():
+    start = np.array([[1, 1, 1, 1, 1]], dtype=np.int32)
+    end = start.copy()
+    prediction = np.array([[2, 2, 2, 2, 1]], dtype=np.int32)
+
+    scale = select_change_budget_scale(
+        start,
+        end,
+        prediction,
+        change_budget_source="paper58_prediction",
+        base_change_budget_scale=0.82,
+        adaptive_change_budget_scale=0.85,
+        adaptive_change_budget_fraction_low=0.13,
+        adaptive_change_budget_fraction_high=0.30,
+    )
+
+    assert scale == 0.85
+
+
+def test_select_change_budget_scale_uses_churn_scale_for_high_reciprocal_churn():
+    start = np.array([[5, 5, 7, 7, 1]], dtype=np.int32)
+    end = start.copy()
+    prediction = np.array([[7, 7, 5, 5, 1]], dtype=np.int32)
+
+    scale = select_change_budget_scale(
+        start,
+        end,
+        prediction,
+        change_budget_source="paper58_prediction",
+        base_change_budget_scale=0.82,
+        adaptive_change_budget_scale=0.85,
+        adaptive_change_budget_fraction_low=0.13,
+        adaptive_change_budget_fraction_high=0.90,
+        adaptive_churn_budget_scale=0.55,
+        adaptive_churn_fraction_high=0.75,
+    )
+
+    assert scale == 0.55
+
+
+def test_select_change_budget_scale_keeps_selected_scale_when_reciprocal_churn_is_low():
+    start = np.array([[1, 1, 1, 1, 1]], dtype=np.int32)
+    end = start.copy()
+    prediction = np.array([[2, 2, 2, 2, 1]], dtype=np.int32)
+
+    scale = select_change_budget_scale(
+        start,
+        end,
+        prediction,
+        change_budget_source="paper58_prediction",
+        base_change_budget_scale=0.82,
+        adaptive_change_budget_scale=0.85,
+        adaptive_change_budget_fraction_low=0.13,
+        adaptive_change_budget_fraction_high=0.30,
+        adaptive_churn_budget_scale=0.55,
+        adaptive_churn_fraction_high=0.75,
+    )
+
+    assert scale == 0.85
+
+
+def test_select_change_budget_scale_uses_adaptive_scale_for_low_change_fraction_when_demand_does_not_blend():
+    start = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1]], dtype=np.int32)
+    end = start.copy()
+    prediction = np.array([[2, 1, 1, 1, 1, 1, 1, 1, 1, 1]], dtype=np.int32)
+
+    scale = select_change_budget_scale(
+        start,
+        end,
+        prediction,
+        change_budget_source="paper58_prediction",
+        base_change_budget_scale=0.82,
+        adaptive_change_budget_scale=0.85,
+        adaptive_change_budget_fraction_low=0.13,
+        adaptive_change_budget_fraction_high=0.30,
+        demand_source="transition_prior_adaptive_blend",
+        class_values=[1, 2],
+        transition_prior={(1, 2): 1.0},
+        adaptive_demand_l1_threshold=2.0,
+        adaptive_demand_change_fraction_high=0.30,
+    )
+
+    assert scale == 0.85
+
+
+def test_select_change_budget_scale_keeps_base_scale_for_low_change_fraction_when_demand_blends():
+    start = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1]], dtype=np.int32)
+    end = start.copy()
+    prediction = np.array([[2, 1, 1, 1, 1, 1, 1, 1, 1, 1]], dtype=np.int32)
+
+    scale = select_change_budget_scale(
+        start,
+        end,
+        prediction,
+        change_budget_source="paper58_prediction",
+        base_change_budget_scale=0.82,
+        adaptive_change_budget_scale=0.85,
+        adaptive_change_budget_fraction_low=0.13,
+        adaptive_change_budget_fraction_high=0.30,
+        demand_source="transition_prior_adaptive_blend",
+        class_values=[1, 2],
+        transition_prior={(1, 2): 1.0},
+        adaptive_demand_l1_threshold=0.05,
+        adaptive_demand_change_fraction_high=0.30,
+    )
+
+    assert scale == 0.82
+
+
+def test_select_change_budget_scale_keeps_base_scale_when_budget_source_is_none():
+    start = np.array([[1, 1], [2, 2]], dtype=np.int32)
+
+    scale = select_change_budget_scale(
+        start,
+        start,
+        start,
+        change_budget_source="none",
+        base_change_budget_scale=0.82,
+        adaptive_change_budget_scale=0.85,
+    )
+
+    assert scale == 0.82
 
 
 def test_derive_change_budget_rejects_negative_scale():

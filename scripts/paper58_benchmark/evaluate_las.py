@@ -10,7 +10,7 @@ import numpy as np
 from scripts.paper58_benchmark.evaluate_benchmark import _read_registry
 from scripts.paper58_benchmark.flus import load_flus_prediction
 from scripts.paper58_benchmark.las_allocation import allocate_demand_constrained
-from scripts.paper58_benchmark.las_demand import derive_change_budget, derive_demand
+from scripts.paper58_benchmark.las_demand import derive_change_budget, derive_demand, select_change_budget_scale
 from scripts.paper58_benchmark.las_metrics import method_metric_row
 from scripts.paper58_benchmark.las_suitability import (
     build_transition_suitability,
@@ -144,14 +144,24 @@ def evaluate_las(
     adaptive_change_fraction_low: float = 0.0,
     adaptive_change_fraction_high: float = 1.0,
     latent_neighborhood_weight: float = 0.0,
+    suitability_forecast_prob_weight: float = 1.0,
+    suitability_probability_gain_weight: float = 0.5,
+    suitability_change_pressure_weight: float = 0.0,
+    suitability_transition_prior_weight: float = 0.25,
     demand_source: str = "observed_end",
     demand_blend_weight: float = 0.0,
     adaptive_demand_l1_threshold: float | None = None,
     adaptive_demand_change_fraction_high: float = 1.0,
     change_budget_source: str = "paper58_prediction",
     change_budget_scale: float = 1.0,
+    adaptive_change_budget_scale: float | None = None,
+    adaptive_change_budget_fraction_low: float = 0.13,
+    adaptive_change_budget_fraction_high: float = 0.30,
+    adaptive_churn_budget_scale: float | None = None,
+    adaptive_churn_fraction_high: float = 0.50,
     balanced_swap_min_margin: float | None = None,
     balanced_swap_min_base_score: float | None = None,
+    balanced_swap_min_side_base_score: float | None = None,
 ) -> dict[str, Any]:
     registry_rows = _read_registry(Path(registry_path))
     included_rows = [row for row in registry_rows if row.get("qc_status") == "include"]
@@ -159,6 +169,18 @@ def evaluate_las(
     simulated_dir = output / "simulated"
     output.mkdir(parents=True, exist_ok=True)
     simulated_dir.mkdir(parents=True, exist_ok=True)
+    pressure_weight = float(suitability_change_pressure_weight)
+    if pressure_weight < 0.0:
+        raise ValueError(f"suitability_change_pressure_weight must be non-negative: {pressure_weight}")
+    forecast_prob_weight = float(suitability_forecast_prob_weight)
+    if forecast_prob_weight < 0.0:
+        raise ValueError(f"suitability_forecast_prob_weight must be non-negative: {forecast_prob_weight}")
+    probability_gain_weight = float(suitability_probability_gain_weight)
+    if probability_gain_weight < 0.0:
+        raise ValueError(f"suitability_probability_gain_weight must be non-negative: {probability_gain_weight}")
+    transition_prior_weight = float(suitability_transition_prior_weight)
+    if transition_prior_weight < 0.0:
+        raise ValueError(f"suitability_transition_prior_weight must be non-negative: {transition_prior_weight}")
 
     metric_rows: list[dict[str, Any]] = []
     selected_rows: list[dict[str, int | float | str]] = []
@@ -190,16 +212,25 @@ def evaluate_las(
             start_probs = one_hot_probability_cube(start, class_values, confidence=0.95, floor=0.01)
             forecast_probs = one_hot_probability_cube(paper58_pred, class_values, confidence=0.95, floor=0.01)
             prior = transition_prior_from_pairs(_transition_training_pairs(included_rows, row, start.shape), class_values)
+            embedding_start = None
+            embedding_forecast = None
+            if latent_neighborhood_weight > 0.0 or pressure_weight > 0.0:
+                embedding_start = _load_array(row.get("embedding_start_path")).astype(np.float32, copy=False)
+            if pressure_weight > 0.0:
+                embedding_forecast = _load_array(row.get("embedding_end_path")).astype(np.float32, copy=False)
             suitability = build_transition_suitability(
                 start,
                 class_values=class_values,
                 forecast_probs=forecast_probs,
                 start_probs=start_probs,
+                embedding_start=embedding_start if pressure_weight > 0.0 else None,
+                embedding_forecast=embedding_forecast,
                 transition_prior=prior,
+                forecast_prob_weight=forecast_prob_weight,
+                probability_gain_weight=probability_gain_weight,
+                change_pressure_weight=pressure_weight,
+                transition_prior_weight=transition_prior_weight,
             )
-            embedding_start = None
-            if latent_neighborhood_weight > 0.0:
-                embedding_start = _load_array(row.get("embedding_start_path")).astype(np.float32, copy=False)
             target_demand = derive_demand(
                 start,
                 end,
@@ -211,13 +242,31 @@ def evaluate_las(
                 adaptive_demand_l1_threshold=adaptive_demand_l1_threshold,
                 adaptive_demand_change_fraction_high=adaptive_demand_change_fraction_high,
             )
+            selected_change_budget_scale = select_change_budget_scale(
+                start,
+                end,
+                paper58_pred,
+                target_demand=target_demand,
+                change_budget_source=change_budget_source,
+                base_change_budget_scale=change_budget_scale,
+                adaptive_change_budget_scale=adaptive_change_budget_scale,
+                adaptive_change_budget_fraction_low=adaptive_change_budget_fraction_low,
+                adaptive_change_budget_fraction_high=adaptive_change_budget_fraction_high,
+                adaptive_churn_budget_scale=adaptive_churn_budget_scale,
+                adaptive_churn_fraction_high=adaptive_churn_fraction_high,
+                demand_source=demand_source,
+                class_values=class_values,
+                transition_prior=prior,
+                adaptive_demand_l1_threshold=adaptive_demand_l1_threshold,
+                adaptive_demand_change_fraction_high=adaptive_demand_change_fraction_high,
+            )
             target_change_pixels = derive_change_budget(
                 start,
                 end,
                 paper58_pred,
                 target_demand,
                 change_budget_source=change_budget_source,
-                change_budget_scale=change_budget_scale,
+                change_budget_scale=selected_change_budget_scale,
             )
             allocation = allocate_demand_constrained(
                 start,
@@ -237,6 +286,7 @@ def evaluate_las(
                 latent_neighborhood_weight=latent_neighborhood_weight,
                 balanced_swap_min_margin=balanced_swap_min_margin,
                 balanced_swap_min_base_score=balanced_swap_min_base_score,
+                balanced_swap_min_side_base_score=balanced_swap_min_side_base_score,
             )
         except Exception as exc:
             failure_rows.append(_failure_record(row, "runtime_failure", f"{type(exc).__name__}: {exc}"))
@@ -327,10 +377,20 @@ def evaluate_las(
         "adaptive_neighborhood_weight": adaptive_neighborhood_weight,
         "adaptive_change_fraction_low": float(adaptive_change_fraction_low),
         "adaptive_change_fraction_high": float(adaptive_change_fraction_high),
+        "suitability_forecast_prob_weight": forecast_prob_weight,
+        "suitability_probability_gain_weight": probability_gain_weight,
+        "suitability_change_pressure_weight": pressure_weight,
+        "suitability_transition_prior_weight": transition_prior_weight,
         "change_budget_source": change_budget_source,
         "change_budget_scale": float(change_budget_scale),
+        "adaptive_change_budget_scale": adaptive_change_budget_scale,
+        "adaptive_change_budget_fraction_low": float(adaptive_change_budget_fraction_low),
+        "adaptive_change_budget_fraction_high": float(adaptive_change_budget_fraction_high),
+        "adaptive_churn_budget_scale": adaptive_churn_budget_scale,
+        "adaptive_churn_fraction_high": float(adaptive_churn_fraction_high),
         "balanced_swap_min_margin": balanced_swap_min_margin,
         "balanced_swap_min_base_score": balanced_swap_min_base_score,
+        "balanced_swap_min_side_base_score": balanced_swap_min_side_base_score,
     }
     result = {"summary": summary, "metrics": metric_rows}
     write_csv(output / "las_metrics_by_method.csv", metric_rows, LAS_METRIC_FIELDS)
@@ -355,6 +415,33 @@ def main() -> None:
         type=float,
         default=0.0,
         help="Weight for start-embedding semantic neighborhood affinity during LAS allocation.",
+    )
+    parser.add_argument(
+        "--suitability-change-pressure-weight",
+        type=float,
+        default=0.0,
+        help=(
+            "Weight for normalized start-to-end embedding change pressure in transition suitability. "
+            "Requires embedding_start_path and embedding_end_path."
+        ),
+    )
+    parser.add_argument(
+        "--suitability-forecast-prob-weight",
+        type=float,
+        default=1.0,
+        help="Weight for Paper58 forecast class probability in transition suitability.",
+    )
+    parser.add_argument(
+        "--suitability-probability-gain-weight",
+        type=float,
+        default=0.5,
+        help="Weight for forecast-minus-start probability gain in transition suitability.",
+    )
+    parser.add_argument(
+        "--suitability-transition-prior-weight",
+        type=float,
+        default=0.25,
+        help="Weight for transition-prior evidence in transition suitability.",
     )
     parser.add_argument(
         "--adaptive-neighborhood-weight",
@@ -424,6 +511,36 @@ def main() -> None:
         help="Scale applied to the selected gross change budget, bounded below by the demand-delta budget.",
     )
     parser.add_argument(
+        "--adaptive-change-budget-scale",
+        type=float,
+        default=None,
+        help="Alternate change-budget scale applied by the adaptive change-budget gate.",
+    )
+    parser.add_argument(
+        "--adaptive-change-budget-fraction-low",
+        type=float,
+        default=0.13,
+        help="Lower raw change-fraction threshold for the adaptive change-budget gate.",
+    )
+    parser.add_argument(
+        "--adaptive-change-budget-fraction-high",
+        type=float,
+        default=0.30,
+        help="Upper raw change-fraction threshold for the adaptive change-budget gate.",
+    )
+    parser.add_argument(
+        "--adaptive-churn-budget-scale",
+        type=float,
+        default=None,
+        help="Alternate change-budget scale applied when reciprocal churn in Paper58 prediction is high.",
+    )
+    parser.add_argument(
+        "--adaptive-churn-fraction-high",
+        type=float,
+        default=0.50,
+        help="Reciprocal churn fraction threshold for the churn-based change-budget gate.",
+    )
+    parser.add_argument(
         "--balanced-swap-min-margin",
         type=float,
         default=None,
@@ -441,6 +558,15 @@ def main() -> None:
             "The pair-level base score sum must meet this floor before neighborhood terms are added."
         ),
     )
+    parser.add_argument(
+        "--balanced-swap-min-side-base-score",
+        type=float,
+        default=None,
+        help=(
+            "Optional per-side raw Paper58/GeoFM suitability floor for extra balanced swaps. "
+            "Both directions in a balanced swap must meet this floor before neighborhood terms are added."
+        ),
+    )
     args = parser.parse_args()
     result = evaluate_las(
         registry_path=args.registry,
@@ -450,14 +576,24 @@ def main() -> None:
         adaptive_change_fraction_low=args.adaptive_change_fraction_low,
         adaptive_change_fraction_high=args.adaptive_change_fraction_high,
         latent_neighborhood_weight=args.latent_neighborhood_weight,
+        suitability_forecast_prob_weight=args.suitability_forecast_prob_weight,
+        suitability_probability_gain_weight=args.suitability_probability_gain_weight,
+        suitability_change_pressure_weight=args.suitability_change_pressure_weight,
+        suitability_transition_prior_weight=args.suitability_transition_prior_weight,
         demand_source=args.demand_source,
         demand_blend_weight=args.demand_blend_weight,
         adaptive_demand_l1_threshold=args.adaptive_demand_l1_threshold,
         adaptive_demand_change_fraction_high=args.adaptive_demand_change_fraction_high,
         change_budget_source=args.change_budget_source,
         change_budget_scale=args.change_budget_scale,
+        adaptive_change_budget_scale=args.adaptive_change_budget_scale,
+        adaptive_change_budget_fraction_low=args.adaptive_change_budget_fraction_low,
+        adaptive_change_budget_fraction_high=args.adaptive_change_budget_fraction_high,
+        adaptive_churn_budget_scale=args.adaptive_churn_budget_scale,
+        adaptive_churn_fraction_high=args.adaptive_churn_fraction_high,
         balanced_swap_min_margin=args.balanced_swap_min_margin,
         balanced_swap_min_base_score=args.balanced_swap_min_base_score,
+        balanced_swap_min_side_base_score=args.balanced_swap_min_side_base_score,
     )
     print(
         "Paper58-LAS evaluation: "

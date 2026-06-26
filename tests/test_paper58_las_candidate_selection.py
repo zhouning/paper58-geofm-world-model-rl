@@ -115,3 +115,27 @@ def test_leave_one_area_out_selection_uses_tie_break_metrics(tmp_path: Path):
     )
 
     assert {row["selected_candidate"] for row in result["selected_rows"]} == {"higher_fom"}
+
+
+def test_leave_one_area_out_selection_uses_explicit_candidate_priority_for_equal_scores(tmp_path: Path):
+    lower_priority = tmp_path / "lower_priority" / "las_comparison_by_area.csv"
+    higher_priority = tmp_path / "higher_priority" / "las_comparison_by_area.csv"
+    rows = [
+        _row("area_a", 0.20, 0.10),
+        _row("area_b", 0.20, 0.10),
+        _row("area_c", 0.20, 0.10),
+    ]
+    _write_comparison(lower_priority, rows)
+    _write_comparison(higher_priority, rows)
+
+    result = select_las_candidates_leave_one_area_out(
+        {"lower_priority": lower_priority, "higher_priority": higher_priority},
+        output_dir=tmp_path / "loo",
+        primary_metric="change_f1",
+        tie_break_metrics=["fom"],
+        candidate_priority=["higher_priority", "lower_priority"],
+        n_boot=100,
+    )
+
+    assert {row["selected_candidate"] for row in result["selected_rows"]} == {"higher_priority"}
+    assert result["summary"]["candidate_priority"] == ["higher_priority", "lower_priority"]

@@ -211,6 +211,101 @@ def test_evaluate_las_can_use_demand_delta_change_budget(tmp_path: Path):
     assert result["summary"]["change_budget_scale"] == 0.5
 
 
+def test_evaluate_las_accepts_adaptive_change_budget_gate(tmp_path: Path):
+    start = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1]], dtype=np.int32)
+    end = start.copy()
+    paper58_pred = np.array([[2, 1, 1, 1, 1, 1, 1, 1, 1, 1]], dtype=np.int32)
+
+    label_start = tmp_path / "start.npy"
+    label_end = tmp_path / "end.npy"
+    pred_path = tmp_path / "paper58.npy"
+    np.save(label_start, start)
+    np.save(label_end, end)
+    np.save(pred_path, paper58_pred)
+
+    registry = tmp_path / "benchmark_registry.json"
+    registry.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "area": "adaptive_budget",
+                        "start_year": 2020,
+                        "end_year": 2021,
+                        "tier": "tier1",
+                        "stratum": "Urban",
+                        **_provenance_fields(),
+                        "label_start_path": str(label_start),
+                        "label_end_path": str(label_end),
+                        "prediction_path": str(pred_path),
+                        "qc_status": "include",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = evaluate_las(
+        registry_path=registry,
+        output_dir=tmp_path / "las_out",
+        change_budget_scale=0.82,
+        adaptive_change_budget_scale=0.85,
+        adaptive_change_budget_fraction_low=0.13,
+        adaptive_change_budget_fraction_high=0.30,
+    )
+
+    assert result["summary"]["adaptive_change_budget_scale"] == 0.85
+    assert result["summary"]["adaptive_change_budget_fraction_low"] == 0.13
+    assert result["summary"]["adaptive_change_budget_fraction_high"] == 0.3
+
+
+def test_evaluate_las_accepts_adaptive_churn_budget_gate(tmp_path: Path):
+    start = np.array([[5, 5, 7, 7, 1]], dtype=np.int32)
+    end = start.copy()
+    paper58_pred = np.array([[7, 7, 5, 5, 1]], dtype=np.int32)
+
+    label_start = tmp_path / "start.npy"
+    label_end = tmp_path / "end.npy"
+    pred_path = tmp_path / "paper58.npy"
+    np.save(label_start, start)
+    np.save(label_end, end)
+    np.save(pred_path, paper58_pred)
+
+    registry = tmp_path / "benchmark_registry.json"
+    registry.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "area": "adaptive_churn",
+                        "start_year": 2020,
+                        "end_year": 2021,
+                        "tier": "tier1",
+                        "stratum": "Urban",
+                        **_provenance_fields(),
+                        "label_start_path": str(label_start),
+                        "label_end_path": str(label_end),
+                        "prediction_path": str(pred_path),
+                        "qc_status": "include",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = evaluate_las(
+        registry_path=registry,
+        output_dir=tmp_path / "las_out",
+        adaptive_churn_budget_scale=0.55,
+        adaptive_churn_fraction_high=0.75,
+    )
+
+    assert result["summary"]["adaptive_churn_budget_scale"] == 0.55
+    assert result["summary"]["adaptive_churn_fraction_high"] == 0.75
+
+
 def test_evaluate_las_passes_balanced_swap_min_margin(tmp_path: Path):
     start = np.array([[1, 2]], dtype=np.int32)
     end = np.array([[2, 1]], dtype=np.int32)
@@ -303,6 +398,53 @@ def test_evaluate_las_passes_balanced_swap_min_base_score(tmp_path: Path):
     simulated = np.load(output_dir / "simulated" / "base_score_budget_2020_2021_paper58_las.npy")
     assert simulated.tolist() == [[1, 2]]
     assert result["summary"]["balanced_swap_min_base_score"] == 9.0
+
+
+def test_evaluate_las_passes_balanced_swap_min_side_base_score(tmp_path: Path):
+    start = np.array([[1, 2]], dtype=np.int32)
+    end = np.array([[2, 1]], dtype=np.int32)
+    paper58_pred = np.array([[2, 1]], dtype=np.int32)
+
+    label_start = tmp_path / "start.npy"
+    label_end = tmp_path / "end.npy"
+    pred_path = tmp_path / "paper58.npy"
+    np.save(label_start, start)
+    np.save(label_end, end)
+    np.save(pred_path, paper58_pred)
+
+    registry = tmp_path / "benchmark_registry.json"
+    registry.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "area": "side_base_score_budget",
+                        "start_year": 2020,
+                        "end_year": 2021,
+                        "tier": "tier1",
+                        "stratum": "Urban",
+                        **_provenance_fields(),
+                        "label_start_path": str(label_start),
+                        "label_end_path": str(label_end),
+                        "prediction_path": str(pred_path),
+                        "qc_status": "include",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "las_out"
+
+    result = evaluate_las(
+        registry_path=registry,
+        output_dir=output_dir,
+        balanced_swap_min_side_base_score=9.0,
+    )
+
+    simulated = np.load(output_dir / "simulated" / "side_base_score_budget_2020_2021_paper58_las.npy")
+    assert simulated.tolist() == [[1, 2]]
+    assert result["summary"]["balanced_swap_min_side_base_score"] == 9.0
 
 
 def test_evaluate_las_accepts_neighborhood_weight(tmp_path: Path):
@@ -461,6 +603,109 @@ def test_evaluate_las_accepts_latent_neighborhood_weight(tmp_path: Path):
     )
 
     assert result["summary"]["n_evaluated_rows"] == 1
+
+
+def test_evaluate_las_uses_embedding_change_pressure_for_suitability(tmp_path: Path):
+    start = np.array([[1, 1]], dtype=np.int32)
+    end = np.array([[1, 2]], dtype=np.int32)
+    paper58_pred = np.array([[1, 1]], dtype=np.int32)
+    embedding_start = np.zeros((1, 2, 1), dtype=np.float32)
+    embedding_end = np.array([[[0.0], [5.0]]], dtype=np.float32)
+
+    label_start = tmp_path / "start.npy"
+    label_end = tmp_path / "end.npy"
+    pred_path = tmp_path / "paper58.npy"
+    embedding_start_path = tmp_path / "embedding_start.npy"
+    embedding_end_path = tmp_path / "embedding_end.npy"
+    np.save(label_start, start)
+    np.save(label_end, end)
+    np.save(pred_path, paper58_pred)
+    np.save(embedding_start_path, embedding_start)
+    np.save(embedding_end_path, embedding_end)
+
+    registry = tmp_path / "benchmark_registry.json"
+    registry.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "area": "embedding_pressure",
+                        "start_year": 2020,
+                        "end_year": 2021,
+                        "tier": "tier1",
+                        "stratum": "Urban",
+                        **_provenance_fields(),
+                        "label_start_path": str(label_start),
+                        "label_end_path": str(label_end),
+                        "prediction_path": str(pred_path),
+                        "embedding_start_path": str(embedding_start_path),
+                        "embedding_end_path": str(embedding_end_path),
+                        "qc_status": "include",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "las_out"
+
+    result = evaluate_las(
+        registry_path=registry,
+        output_dir=output_dir,
+        suitability_change_pressure_weight=1.0,
+    )
+
+    simulated = np.load(output_dir / "simulated" / "embedding_pressure_2020_2021_paper58_las.npy")
+    assert simulated.tolist() == [[1, 2]]
+    assert result["summary"]["suitability_change_pressure_weight"] == 1.0
+
+
+def test_evaluate_las_accepts_suitability_score_weights(tmp_path: Path):
+    start = np.array([[1, 1]], dtype=np.int32)
+    end = np.array([[1, 2]], dtype=np.int32)
+    paper58_pred = np.array([[1, 2]], dtype=np.int32)
+
+    label_start = tmp_path / "start.npy"
+    label_end = tmp_path / "end.npy"
+    pred_path = tmp_path / "paper58.npy"
+    np.save(label_start, start)
+    np.save(label_end, end)
+    np.save(pred_path, paper58_pred)
+
+    registry = tmp_path / "benchmark_registry.json"
+    registry.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "area": "suitability_weights",
+                        "start_year": 2020,
+                        "end_year": 2021,
+                        "tier": "tier1",
+                        "stratum": "Urban",
+                        **_provenance_fields(),
+                        "label_start_path": str(label_start),
+                        "label_end_path": str(label_end),
+                        "prediction_path": str(pred_path),
+                        "qc_status": "include",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = evaluate_las(
+        registry_path=registry,
+        output_dir=tmp_path / "las_out",
+        suitability_forecast_prob_weight=0.75,
+        suitability_probability_gain_weight=0.25,
+        suitability_transition_prior_weight=0.10,
+    )
+
+    assert result["summary"]["suitability_forecast_prob_weight"] == 0.75
+    assert result["summary"]["suitability_probability_gain_weight"] == 0.25
+    assert result["summary"]["suitability_transition_prior_weight"] == 0.10
 
 
 def test_evaluate_las_can_use_paper58_prediction_demand_without_observed_end(tmp_path: Path):
