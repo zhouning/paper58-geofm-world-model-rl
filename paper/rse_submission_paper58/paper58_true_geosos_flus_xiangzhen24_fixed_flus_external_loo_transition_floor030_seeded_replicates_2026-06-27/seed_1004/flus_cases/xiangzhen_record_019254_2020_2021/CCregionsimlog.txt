@@ -1,0 +1,40 @@
+[Path of land use data]
+landuse.tif
+[Path of probability data]
+probability.tif
+[Path of simulation result]
+simresult.tif
+[Path of restricted area]
+restrict.tif
+[Number of types]
+7
+[Future Pixels]
+35678
+1239
+16342
+15299
+716
+0
+1863
+[Cost Matrix]
+1,1,1,1,1,1,1
+1,1,1,1,1,1,1
+1,1,1,1,1,1,1
+1,1,1,1,1,1,1
+1,1,1,1,1,1,1
+1,1,1,1,1,1,1
+1,1,1,1,1,1,1
+[Intensity of neighborhood]
+1
+1
+1
+1
+1
+1
+1
+[Maximum Number Of Iterations]
+10
+[Size of neighborhood]
+3
+[Accelerated factor]
+0.1

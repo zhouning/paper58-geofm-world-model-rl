@@ -1,0 +1,5 @@
+challenger,baseline,metric,n,mean_delta,std_delta,min_delta,max_delta,n_better,better_rate,higher_is_better
+paper58_spatial_demand_ratio_external_loo_transition_floor030,geosos_flus_console,change_f1,5,0.022003280395972647,0.0005554667988177467,0.021415128930041716,0.02289749785850831,5,1.0,True
+paper58_spatial_demand_ratio_external_loo_transition_floor030,geosos_flus_console,fom,5,0.004204101601359897,0.0006872271491291726,0.003415842319471868,0.005018197024861698,5,1.0,True
+paper58_spatial_demand_ratio_external_loo_transition_floor030,geosos_flus_console,transition_accuracy,5,0.006072168164239921,0.0012772671699658282,0.004455532644216609,0.007860475852324633,5,1.0,True
+paper58_spatial_demand_ratio_external_loo_transition_floor030,geosos_flus_console,allocation_disagreement,5,-0.0003721712323088877,0.000741290052182053,-0.0014242402411145175,0.0003712541650846557,3,0.6,False

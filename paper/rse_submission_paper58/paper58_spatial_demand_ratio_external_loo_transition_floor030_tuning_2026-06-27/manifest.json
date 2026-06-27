@@ -1,0 +1,37 @@
+{
+  "created_at_utc": "2026-06-27T16:05:52.590267+00:00",
+  "method": "paper58_spatial_demand_ratio_leave_one_tuning",
+  "change_gate_dirs": [
+    "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/dongting_lake_holdout",
+    "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/erlong_lake_margin_holdout",
+    "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/fuzhou_delta_urban_holdout",
+    "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/haibei_plateau_holdout",
+    "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/sanjiang_plain_holdout",
+    "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/suzhou_fringe_holdout",
+    "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/tarim_oasis_holdout",
+    "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/tianjin_binhai_holdout",
+    "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/weihe_irrigation_margin_holdout",
+    "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/wenan_lakeplain_newtown_holdout",
+    "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/wuhan_outer_ring_holdout"
+  ],
+  "n_cases": 11,
+  "n_parameter_rows": 1620,
+  "selection_rule": "if min_mean_transition_accuracy is reachable, restrict to rows meeting it; then maximize mean_fom, minimize mean_allocation_disagreement, maximize mean_change_f1",
+  "min_mean_transition_accuracy": 0.3,
+  "transition_floor_eligible_rows": 540,
+  "best_parameters": {
+    "ratio_quantile": 0.25,
+    "ratio_multiplier": 1.5,
+    "min_fraction": 0.05,
+    "max_fraction": 0.25,
+    "target_neighborhood_weight": 1.0,
+    "source_neighborhood_penalty": 0.5,
+    "mean_change_f1": 0.3564802848258877,
+    "mean_fom": 0.15210822868675702,
+    "mean_transition_accuracy": 0.3037455656314457,
+    "mean_allocation_disagreement": 0.058164346680414744,
+    "mean_predicted_target_change_fraction": 0.11419631014193624,
+    "n_cases": 11,
+    "parameter_index": 386
+  }
+}

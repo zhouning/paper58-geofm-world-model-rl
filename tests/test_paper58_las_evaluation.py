@@ -5,7 +5,12 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from scripts.paper58_benchmark.evaluate_las import _row_neighborhood_weight, evaluate_las
+from scripts.paper58_benchmark.evaluate_las import (
+    _row_neighborhood_weight,
+    _row_pair_evidence_pairs,
+    _transition_training_pairs,
+    evaluate_las,
+)
 
 
 def _provenance_fields() -> dict:
@@ -120,6 +125,45 @@ def test_evaluate_las_accepts_geotiff_flus_prediction(tmp_path: Path):
     assert result["summary"]["methods"] == ["flus", "paper58_direct", "paper58_las"]
 
 
+def test_las_transition_training_pairs_accept_cross_area_different_shapes(tmp_path: Path):
+    target_start = np.array([[1, 1], [2, 2]], dtype=np.int32)
+    target_end = np.array([[1, 2], [2, 2]], dtype=np.int32)
+    other_start = np.array([[1, 1, 2]], dtype=np.int32)
+    other_end = np.array([[1, 2, 2]], dtype=np.int32)
+
+    paths = {}
+    for name, array in {
+        "target_start": target_start,
+        "target_end": target_end,
+        "other_start": other_start,
+        "other_end": other_end,
+    }.items():
+        path = tmp_path / f"{name}.npy"
+        np.save(path, array)
+        paths[name] = path
+
+    rows = [
+        {
+            "area": "target",
+            "qc_status": "include",
+            "label_start_path": str(paths["target_start"]),
+            "label_end_path": str(paths["target_end"]),
+        },
+        {
+            "area": "other",
+            "qc_status": "include",
+            "label_start_path": str(paths["other_start"]),
+            "label_end_path": str(paths["other_end"]),
+        },
+    ]
+
+    pairs = _transition_training_pairs(rows, rows[0], target_start.shape)
+
+    assert len(pairs) == 1
+    assert np.array_equal(pairs[0][0], other_start)
+    assert np.array_equal(pairs[0][1], other_end)
+
+
 def test_evaluate_las_uses_paper58_gross_change_budget(tmp_path: Path):
     start = np.array([[1, 2]], dtype=np.int32)
     end = np.array([[2, 1]], dtype=np.int32)
@@ -160,6 +204,131 @@ def test_evaluate_las_uses_paper58_gross_change_budget(tmp_path: Path):
 
     simulated = np.load(output_dir / "simulated" / "gross_budget_2020_2021_paper58_las.npy")
     assert simulated.tolist() == [[2, 1]]
+
+
+def test_evaluate_las_passes_targeted_reciprocal_swap_evidence_gate(tmp_path: Path):
+    start = np.array([[5, 7]], dtype=np.int32)
+    end = np.array([[5, 7]], dtype=np.int32)
+    paper58_pred = np.array([[7, 5]], dtype=np.int32)
+
+    label_start = tmp_path / "start.npy"
+    label_end = tmp_path / "end.npy"
+    pred_path = tmp_path / "paper58.npy"
+    np.save(label_start, start)
+    np.save(label_end, end)
+    np.save(pred_path, paper58_pred)
+
+    registry = tmp_path / "benchmark_registry.json"
+    registry.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "area": "targeted_pair_gate",
+                        "start_year": 2020,
+                        "end_year": 2021,
+                        "tier": "tier1",
+                        "stratum": "Agriculture",
+                        **_provenance_fields(),
+                        "label_start_path": str(label_start),
+                        "label_end_path": str(label_end),
+                        "prediction_path": str(pred_path),
+                        "qc_status": "include",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "las_out"
+
+    result = evaluate_las(
+        registry_path=registry,
+        output_dir=output_dir,
+        balanced_swap_evidence_pairs={(5, 7)},
+        balanced_swap_min_pair_side_score=1.5,
+    )
+
+    simulated = np.load(output_dir / "simulated" / "targeted_pair_gate_2020_2021_paper58_las.npy")
+    assert simulated.tolist() == [[5, 7]]
+    assert result["summary"]["balanced_swap_evidence_pairs"] == [[5, 7]]
+    assert result["summary"]["balanced_swap_min_pair_side_score"] == 1.5
+
+
+def test_row_pair_evidence_pairs_requires_high_prediction_churn_and_low_prior_support():
+    start = np.array([[5, 7, 5, 7]], dtype=np.int32)
+    paper58_pred = np.array([[7, 5, 7, 5]], dtype=np.int32)
+
+    gated = _row_pair_evidence_pairs(
+        start,
+        paper58_pred,
+        transition_prior={(5, 7): 0.0, (7, 5): 0.0},
+        evidence_pairs={(5, 7)},
+        min_prediction_fraction=0.75,
+        max_prior_expected_pixels=0.0,
+    )
+    prior_supported = _row_pair_evidence_pairs(
+        start,
+        paper58_pred,
+        transition_prior={(5, 7): 0.5, (7, 5): 0.5},
+        evidence_pairs={(5, 7)},
+        min_prediction_fraction=0.75,
+        max_prior_expected_pixels=0.0,
+    )
+
+    assert gated == {(5, 7)}
+    assert prior_supported == set()
+
+
+def test_evaluate_las_can_apply_adaptive_targeted_pair_gate(tmp_path: Path):
+    start = np.array([[5, 7]], dtype=np.int32)
+    end = np.array([[5, 7]], dtype=np.int32)
+    paper58_pred = np.array([[7, 5]], dtype=np.int32)
+
+    label_start = tmp_path / "start.npy"
+    label_end = tmp_path / "end.npy"
+    pred_path = tmp_path / "paper58.npy"
+    np.save(label_start, start)
+    np.save(label_end, end)
+    np.save(pred_path, paper58_pred)
+
+    registry = tmp_path / "benchmark_registry.json"
+    registry.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "area": "adaptive_pair_gate",
+                        "start_year": 2020,
+                        "end_year": 2021,
+                        "tier": "tier1",
+                        "stratum": "Agriculture",
+                        **_provenance_fields(),
+                        "label_start_path": str(label_start),
+                        "label_end_path": str(label_end),
+                        "prediction_path": str(pred_path),
+                        "qc_status": "include",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "las_out"
+
+    result = evaluate_las(
+        registry_path=registry,
+        output_dir=output_dir,
+        balanced_swap_evidence_pairs={(5, 7)},
+        balanced_swap_min_pair_side_score=1.5,
+        balanced_swap_pair_gate_min_prediction_fraction=0.75,
+        balanced_swap_pair_gate_max_prior_expected_pixels=0.0,
+    )
+
+    simulated = np.load(output_dir / "simulated" / "adaptive_pair_gate_2020_2021_paper58_las.npy")
+    assert simulated.tolist() == [[5, 7]]
+    assert result["summary"]["balanced_swap_pair_gate_min_prediction_fraction"] == 0.75
+    assert result["summary"]["balanced_swap_pair_gate_max_prior_expected_pixels"] == 0.0
 
 
 def test_evaluate_las_can_use_demand_delta_change_budget(tmp_path: Path):
@@ -445,6 +614,129 @@ def test_evaluate_las_passes_balanced_swap_min_side_base_score(tmp_path: Path):
     simulated = np.load(output_dir / "simulated" / "side_base_score_budget_2020_2021_paper58_las.npy")
     assert simulated.tolist() == [[1, 2]]
     assert result["summary"]["balanced_swap_min_side_base_score"] == 9.0
+
+
+def test_evaluate_las_passes_balanced_swap_min_target_neighborhood(tmp_path: Path):
+    start = np.array(
+        [
+            [1, 1, 1],
+            [1, 1, 1],
+            [2, 1, 2],
+        ],
+        dtype=np.int32,
+    )
+    end = start.copy()
+    paper58_pred = np.array(
+        [
+            [2, 1, 1],
+            [1, 1, 1],
+            [1, 1, 2],
+        ],
+        dtype=np.int32,
+    )
+
+    label_start = tmp_path / "start.npy"
+    label_end = tmp_path / "end.npy"
+    pred_path = tmp_path / "paper58.npy"
+    np.save(label_start, start)
+    np.save(label_end, end)
+    np.save(pred_path, paper58_pred)
+
+    registry = tmp_path / "benchmark_registry.json"
+    registry.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "area": "target_neighborhood_budget",
+                        "start_year": 2020,
+                        "end_year": 2021,
+                        "tier": "tier1",
+                        "stratum": "Urban",
+                        **_provenance_fields(),
+                        "label_start_path": str(label_start),
+                        "label_end_path": str(label_end),
+                        "prediction_path": str(pred_path),
+                        "qc_status": "include",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "las_out"
+
+    result = evaluate_las(
+        registry_path=registry,
+        output_dir=output_dir,
+        balanced_swap_min_target_neighborhood=0.75,
+    )
+
+    simulated = np.load(output_dir / "simulated" / "target_neighborhood_budget_2020_2021_paper58_las.npy")
+    assert simulated.tolist() == start.tolist()
+    assert result["summary"]["balanced_swap_min_target_neighborhood"] == 0.75
+
+
+def test_evaluate_las_passes_balanced_swap_target_distance_weight(tmp_path: Path):
+    start = np.array(
+        [
+            [1, 1, 1, 1],
+            [1, 1, 1, 1],
+            [1, 1, 1, 2],
+            [2, 1, 1, 2],
+        ],
+        dtype=np.int32,
+    )
+    end = start.copy()
+    paper58_pred = np.array(
+        [
+            [2, 1, 1, 1],
+            [1, 1, 1, 1],
+            [1, 1, 1, 2],
+            [1, 1, 1, 2],
+        ],
+        dtype=np.int32,
+    )
+
+    label_start = tmp_path / "start.npy"
+    label_end = tmp_path / "end.npy"
+    pred_path = tmp_path / "paper58.npy"
+    np.save(label_start, start)
+    np.save(label_end, end)
+    np.save(pred_path, paper58_pred)
+
+    registry = tmp_path / "benchmark_registry.json"
+    registry.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "area": "target_distance_budget",
+                        "start_year": 2020,
+                        "end_year": 2021,
+                        "tier": "tier1",
+                        "stratum": "Urban",
+                        **_provenance_fields(),
+                        "label_start_path": str(label_start),
+                        "label_end_path": str(label_end),
+                        "prediction_path": str(pred_path),
+                        "qc_status": "include",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = evaluate_las(
+        registry_path=registry,
+        output_dir=tmp_path / "las_out",
+        balanced_swap_target_distance_weight=1.0,
+        balanced_swap_target_distance_radius=3,
+    )
+
+    assert result["summary"]["balanced_swap_target_distance_weight"] == 1.0
+    assert result["summary"]["balanced_swap_target_distance_radius"] == 3
 
 
 def test_evaluate_las_accepts_neighborhood_weight(tmp_path: Path):

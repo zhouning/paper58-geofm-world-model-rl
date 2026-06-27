@@ -216,6 +216,166 @@ def test_allocate_keeps_balanced_swaps_when_each_side_has_base_support():
     assert len(result.selected_transitions) == 2
 
 
+def test_allocate_can_prune_targeted_reciprocal_swap_pair_without_side_evidence():
+    start = np.array([[5, 7]], dtype=np.int32)
+    class_values = [5, 7]
+    suitability = np.zeros((1, 2, 2), dtype=np.float32)
+    suitability[0, 0, 1] = 0.04
+    suitability[0, 1, 0] = 0.03
+    target_demand = {5: 1, 7: 1}
+
+    result = allocate_demand_constrained(
+        start,
+        suitability,
+        class_values,
+        target_demand,
+        target_change_pixels=2,
+        allowed_transitions={(5, 7), (7, 5)},
+        balanced_swap_evidence_pairs={(5, 7)},
+        balanced_swap_min_pair_side_score=0.05,
+    )
+
+    assert result.simulated_map.tolist() == [[5, 7]]
+    assert result.achieved_demand == target_demand
+    assert result.selected_transitions == []
+
+
+def test_allocate_keeps_targeted_reciprocal_swap_pair_with_side_evidence():
+    start = np.array([[5, 7]], dtype=np.int32)
+    class_values = [5, 7]
+    suitability = np.zeros((1, 2, 2), dtype=np.float32)
+    suitability[0, 0, 1] = 0.06
+    suitability[0, 1, 0] = 0.07
+    target_demand = {5: 1, 7: 1}
+
+    result = allocate_demand_constrained(
+        start,
+        suitability,
+        class_values,
+        target_demand,
+        target_change_pixels=2,
+        allowed_transitions={(5, 7), (7, 5)},
+        balanced_swap_evidence_pairs={(5, 7)},
+        balanced_swap_min_pair_side_score=0.05,
+    )
+
+    assert result.simulated_map.tolist() == [[7, 5]]
+    assert result.achieved_demand == target_demand
+    assert len(result.selected_transitions) == 2
+
+
+def test_targeted_reciprocal_pair_gate_uses_total_allocation_evidence():
+    start = np.array([[5, 7], [5, 7]], dtype=np.int32)
+    class_values = [5, 7]
+    suitability = np.zeros((2, 2, 2), dtype=np.float32)
+    suitability[0, 0, 1] = 0.01
+    suitability[0, 1, 0] = 0.01
+    target_demand = {5: 2, 7: 2}
+
+    result = allocate_demand_constrained(
+        start,
+        suitability,
+        class_values,
+        target_demand,
+        target_change_pixels=2,
+        allowed_transitions={(5, 7), (7, 5)},
+        neighborhood_weight=3.0,
+        balanced_swap_evidence_pairs={(5, 7)},
+        balanced_swap_min_pair_side_score=1.5,
+    )
+
+    assert result.simulated_map.tolist() != start.tolist()
+    assert result.achieved_demand == target_demand
+    assert len(result.selected_transitions) == 2
+
+
+def test_allocate_can_prune_balanced_swaps_without_target_neighborhood_support():
+    start = np.array(
+        [
+            [1, 1, 1],
+            [1, 1, 1],
+            [2, 1, 2],
+        ],
+        dtype=np.int32,
+    )
+    class_values = [1, 2]
+    suitability = np.zeros((3, 3, 2), dtype=np.float32)
+    suitability[:, :, :] = 0.99
+    target_demand = {1: 7, 2: 2}
+
+    result = allocate_demand_constrained(
+        start,
+        suitability,
+        class_values,
+        target_demand,
+        target_change_pixels=2,
+        balanced_swap_min_target_neighborhood=0.75,
+    )
+
+    assert result.simulated_map.tolist() == start.tolist()
+    assert result.achieved_demand == target_demand
+    assert result.selected_transitions == []
+
+
+def test_allocate_keeps_balanced_swaps_with_target_neighborhood_support():
+    start = np.array([[1, 2], [1, 2]], dtype=np.int32)
+    class_values = [1, 2]
+    suitability = np.zeros((2, 2, 2), dtype=np.float32)
+    suitability[:, :, :] = 0.99
+    target_demand = {1: 2, 2: 2}
+
+    result = allocate_demand_constrained(
+        start,
+        suitability,
+        class_values,
+        target_demand,
+        target_change_pixels=2,
+        balanced_swap_min_target_neighborhood=0.5,
+    )
+
+    assert result.achieved_demand == target_demand
+    assert np.count_nonzero(result.simulated_map != start) == 2
+    assert len(result.selected_transitions) == 2
+
+
+def test_allocate_distance_weight_ranks_balanced_swaps_near_target_frontiers():
+    start = np.array(
+        [
+            [1, 1, 1, 1],
+            [1, 1, 1, 1],
+            [1, 1, 1, 2],
+            [2, 1, 1, 2],
+        ],
+        dtype=np.int32,
+    )
+    class_values = [1, 2]
+    suitability = np.zeros((4, 4, 2), dtype=np.float32)
+    suitability[:, :, :] = 0.99
+    target_demand = {1: 13, 2: 3}
+
+    baseline = allocate_demand_constrained(
+        start,
+        suitability,
+        class_values,
+        target_demand,
+        target_change_pixels=2,
+    )
+    weighted = allocate_demand_constrained(
+        start,
+        suitability,
+        class_values,
+        target_demand,
+        target_change_pixels=2,
+        balanced_swap_target_distance_weight=1.0,
+        balanced_swap_target_distance_radius=3,
+    )
+
+    assert baseline.simulated_map[0, 0] == 2
+    assert weighted.simulated_map[0, 0] == 1
+    assert weighted.achieved_demand == target_demand
+    assert np.count_nonzero(weighted.simulated_map != start) == 2
+
+
 def test_allocate_balanced_swaps_respect_forbidden_transitions():
     start = np.array([[1, 2]], dtype=np.int32)
     class_values = [1, 2]

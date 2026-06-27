@@ -1,0 +1,25 @@
+{
+  "area": "xiangzhen_record_025932",
+  "start_year": 2020,
+  "end_year": 2021,
+  "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+  "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_025932",
+  "features": [
+    0.35201510787010193,
+    0.23677581548690796,
+    0.028967253863811493,
+    0.755254864692688,
+    0.6000000238418579
+  ],
+  "predicted_target_change_fraction": 0.18382263387023148,
+  "gate_diagnostics": {
+    "valid_pixels": 3176,
+    "candidate_change_pixels": 1118,
+    "target_change_fraction": 0.18382263387023148,
+    "target_change_pixels": 584,
+    "kept_change_pixels": 584,
+    "target_neighborhood_weight": 1.0,
+    "source_neighborhood_penalty": 0.5
+  },
+  "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_025932_lulc_pred_2020_2021.npy"
+}

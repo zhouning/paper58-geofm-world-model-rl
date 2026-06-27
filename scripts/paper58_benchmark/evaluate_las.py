@@ -80,7 +80,7 @@ def _transition_training_pairs(
             continue
         start = np.load(start_path)
         end = np.load(end_path)
-        if start.shape == end.shape == target_shape:
+        if start.shape == end.shape:
             pairs.append((start, end))
     return pairs
 
@@ -114,6 +114,98 @@ def _method_names(metric_rows: list[dict[str, Any]]) -> list[str]:
 
 def _with_years(metric_row: dict[str, Any], start_year: int, end_year: int) -> dict[str, Any]:
     return {**metric_row, "start_year": start_year, "end_year": end_year}
+
+
+def _normalize_pair_specs(pairs: set[tuple[int, int]] | list[tuple[int, int]] | None) -> set[tuple[int, int]]:
+    normalized: set[tuple[int, int]] = set()
+    for left, right in pairs or []:
+        left_key = int(left)
+        right_key = int(right)
+        if left_key == right_key:
+            raise ValueError(f"balanced swap evidence pair must contain two classes: {left_key}")
+        normalized.add(tuple(sorted((left_key, right_key))))
+    return normalized
+
+
+def _parse_pair_specs(values: list[str] | None) -> set[tuple[int, int]]:
+    pairs: set[tuple[int, int]] = set()
+    for value in values or []:
+        parts = str(value).replace(",", ":").split(":")
+        if len(parts) != 2:
+            raise ValueError(f"balanced swap evidence pair must be formatted as from:to, got {value!r}")
+        pairs.add((int(parts[0]), int(parts[1])))
+    return _normalize_pair_specs(pairs)
+
+
+def _pair_specs_for_json(pairs: set[tuple[int, int]]) -> list[list[int]]:
+    return [[int(left), int(right)] for left, right in sorted(pairs)]
+
+
+def _predicted_reciprocal_pair_fraction(
+    start_map: np.ndarray,
+    prediction_map: np.ndarray,
+    left_cls: int,
+    right_cls: int,
+) -> float:
+    start = np.asarray(start_map)
+    prediction = np.asarray(prediction_map)
+    if start.shape != prediction.shape:
+        raise ValueError(f"prediction map shape {prediction.shape} does not match start map shape {start.shape}")
+    gross_changes = int(np.count_nonzero(prediction != start))
+    if gross_changes <= 0:
+        return 0.0
+    pair_changes = int(
+        np.count_nonzero(
+            ((start == int(left_cls)) & (prediction == int(right_cls)))
+            | ((start == int(right_cls)) & (prediction == int(left_cls)))
+        )
+    )
+    return float(pair_changes) / float(gross_changes)
+
+
+def _prior_expected_pair_pixels(
+    start_map: np.ndarray,
+    transition_prior: dict[tuple[int, int], float],
+    left_cls: int,
+    right_cls: int,
+) -> float:
+    start = np.asarray(start_map)
+    left_key = int(left_cls)
+    right_key = int(right_cls)
+    return (
+        float(np.count_nonzero(start == left_key)) * float(transition_prior.get((left_key, right_key), 0.0))
+        + float(np.count_nonzero(start == right_key)) * float(transition_prior.get((right_key, left_key), 0.0))
+    )
+
+
+def _row_pair_evidence_pairs(
+    start_map: np.ndarray,
+    prediction_map: np.ndarray,
+    transition_prior: dict[tuple[int, int], float],
+    evidence_pairs: set[tuple[int, int]],
+    min_prediction_fraction: float | None,
+    max_prior_expected_pixels: float | None,
+) -> set[tuple[int, int]]:
+    if min_prediction_fraction is None and max_prior_expected_pixels is None:
+        return set(evidence_pairs)
+
+    row_pairs: set[tuple[int, int]] = set()
+    for left_cls, right_cls in evidence_pairs:
+        if min_prediction_fraction is not None:
+            prediction_fraction = _predicted_reciprocal_pair_fraction(
+                start_map,
+                prediction_map,
+                left_cls,
+                right_cls,
+            )
+            if prediction_fraction < float(min_prediction_fraction):
+                continue
+        if max_prior_expected_pixels is not None:
+            prior_expected = _prior_expected_pair_pixels(start_map, transition_prior, left_cls, right_cls)
+            if prior_expected > float(max_prior_expected_pixels):
+                continue
+        row_pairs.add((int(left_cls), int(right_cls)))
+    return row_pairs
 
 
 def _row_neighborhood_weight(
@@ -162,6 +254,13 @@ def evaluate_las(
     balanced_swap_min_margin: float | None = None,
     balanced_swap_min_base_score: float | None = None,
     balanced_swap_min_side_base_score: float | None = None,
+    balanced_swap_evidence_pairs: set[tuple[int, int]] | list[tuple[int, int]] | None = None,
+    balanced_swap_min_pair_side_score: float | None = None,
+    balanced_swap_pair_gate_min_prediction_fraction: float | None = None,
+    balanced_swap_pair_gate_max_prior_expected_pixels: float | None = None,
+    balanced_swap_min_target_neighborhood: float | None = None,
+    balanced_swap_target_distance_weight: float = 0.0,
+    balanced_swap_target_distance_radius: int = 2,
 ) -> dict[str, Any]:
     registry_rows = _read_registry(Path(registry_path))
     included_rows = [row for row in registry_rows if row.get("qc_status") == "include"]
@@ -181,6 +280,32 @@ def evaluate_las(
     transition_prior_weight = float(suitability_transition_prior_weight)
     if transition_prior_weight < 0.0:
         raise ValueError(f"suitability_transition_prior_weight must be non-negative: {transition_prior_weight}")
+    evidence_pairs = _normalize_pair_specs(balanced_swap_evidence_pairs)
+    pair_gate_min_prediction_fraction = (
+        None
+        if balanced_swap_pair_gate_min_prediction_fraction is None
+        else float(balanced_swap_pair_gate_min_prediction_fraction)
+    )
+    if pair_gate_min_prediction_fraction is not None and (
+        pair_gate_min_prediction_fraction < 0.0 or pair_gate_min_prediction_fraction > 1.0
+    ):
+        raise ValueError(
+            "balanced_swap_pair_gate_min_prediction_fraction must be in [0, 1]: "
+            f"{pair_gate_min_prediction_fraction}"
+        )
+    pair_gate_max_prior_expected_pixels = (
+        None
+        if balanced_swap_pair_gate_max_prior_expected_pixels is None
+        else float(balanced_swap_pair_gate_max_prior_expected_pixels)
+    )
+    if pair_gate_max_prior_expected_pixels is not None and pair_gate_max_prior_expected_pixels < 0.0:
+        raise ValueError(
+            "balanced_swap_pair_gate_max_prior_expected_pixels must be non-negative: "
+            f"{pair_gate_max_prior_expected_pixels}"
+        )
+    adaptive_pair_gate_enabled = (
+        pair_gate_min_prediction_fraction is not None or pair_gate_max_prior_expected_pixels is not None
+    )
 
     metric_rows: list[dict[str, Any]] = []
     selected_rows: list[dict[str, int | float | str]] = []
@@ -212,6 +337,17 @@ def evaluate_las(
             start_probs = one_hot_probability_cube(start, class_values, confidence=0.95, floor=0.01)
             forecast_probs = one_hot_probability_cube(paper58_pred, class_values, confidence=0.95, floor=0.01)
             prior = transition_prior_from_pairs(_transition_training_pairs(included_rows, row, start.shape), class_values)
+            row_evidence_pairs = _row_pair_evidence_pairs(
+                start,
+                paper58_pred,
+                prior,
+                evidence_pairs,
+                pair_gate_min_prediction_fraction,
+                pair_gate_max_prior_expected_pixels,
+            )
+            row_pair_side_score = balanced_swap_min_pair_side_score
+            if adaptive_pair_gate_enabled and not row_evidence_pairs:
+                row_pair_side_score = None
             embedding_start = None
             embedding_forecast = None
             if latent_neighborhood_weight > 0.0 or pressure_weight > 0.0:
@@ -287,6 +423,11 @@ def evaluate_las(
                 balanced_swap_min_margin=balanced_swap_min_margin,
                 balanced_swap_min_base_score=balanced_swap_min_base_score,
                 balanced_swap_min_side_base_score=balanced_swap_min_side_base_score,
+                balanced_swap_evidence_pairs=row_evidence_pairs,
+                balanced_swap_min_pair_side_score=row_pair_side_score,
+                balanced_swap_min_target_neighborhood=balanced_swap_min_target_neighborhood,
+                balanced_swap_target_distance_weight=balanced_swap_target_distance_weight,
+                balanced_swap_target_distance_radius=balanced_swap_target_distance_radius,
             )
         except Exception as exc:
             failure_rows.append(_failure_record(row, "runtime_failure", f"{type(exc).__name__}: {exc}"))
@@ -391,6 +532,13 @@ def evaluate_las(
         "balanced_swap_min_margin": balanced_swap_min_margin,
         "balanced_swap_min_base_score": balanced_swap_min_base_score,
         "balanced_swap_min_side_base_score": balanced_swap_min_side_base_score,
+        "balanced_swap_evidence_pairs": _pair_specs_for_json(evidence_pairs),
+        "balanced_swap_min_pair_side_score": balanced_swap_min_pair_side_score,
+        "balanced_swap_pair_gate_min_prediction_fraction": pair_gate_min_prediction_fraction,
+        "balanced_swap_pair_gate_max_prior_expected_pixels": pair_gate_max_prior_expected_pixels,
+        "balanced_swap_min_target_neighborhood": balanced_swap_min_target_neighborhood,
+        "balanced_swap_target_distance_weight": float(balanced_swap_target_distance_weight),
+        "balanced_swap_target_distance_radius": int(balanced_swap_target_distance_radius),
     }
     result = {"summary": summary, "metrics": metric_rows}
     write_csv(output / "las_metrics_by_method.csv", metric_rows, LAS_METRIC_FIELDS)
@@ -567,6 +715,67 @@ def main() -> None:
             "Both directions in a balanced swap must meet this floor before neighborhood terms are added."
         ),
     )
+    parser.add_argument(
+        "--balanced-swap-evidence-pair",
+        action="append",
+        default=[],
+        metavar="FROM:TO",
+        help=(
+            "Class pair that should receive the targeted reciprocal-swap evidence gate. "
+            "Can be repeated; pairs are treated as unordered, e.g. 5:7 gates both 5->7 and 7->5."
+        ),
+    )
+    parser.add_argument(
+        "--balanced-swap-min-pair-side-score",
+        type=float,
+        default=None,
+        help=(
+            "Optional per-side allocation-score floor applied only to pairs passed via "
+            "--balanced-swap-evidence-pair."
+        ),
+    )
+    parser.add_argument(
+        "--balanced-swap-pair-gate-min-prediction-fraction",
+        type=float,
+        default=None,
+        help=(
+            "Optional row-level trigger for targeted reciprocal-swap evidence gates. "
+            "The unordered pair must account for at least this fraction of Paper58-predicted gross changes."
+        ),
+    )
+    parser.add_argument(
+        "--balanced-swap-pair-gate-max-prior-expected-pixels",
+        type=float,
+        default=None,
+        help=(
+            "Optional row-level trigger for targeted reciprocal-swap evidence gates. "
+            "The leave-one-area transition prior must expect no more than this many reciprocal-pair pixels."
+        ),
+    )
+    parser.add_argument(
+        "--balanced-swap-min-target-neighborhood",
+        type=float,
+        default=None,
+        help=(
+            "Optional target-class neighborhood support floor for extra balanced swaps. "
+            "Both directions in a balanced swap must have this much target-class neighborhood affinity."
+        ),
+    )
+    parser.add_argument(
+        "--balanced-swap-target-distance-weight",
+        type=float,
+        default=0.0,
+        help=(
+            "Optional ranking bonus weight for extra balanced swaps near target-class frontiers. "
+            "Uses Chebyshev distance to existing target-class pixels in the start map."
+        ),
+    )
+    parser.add_argument(
+        "--balanced-swap-target-distance-radius",
+        type=int,
+        default=2,
+        help="Search radius for balanced-swap target-distance ranking affinity.",
+    )
     args = parser.parse_args()
     result = evaluate_las(
         registry_path=args.registry,
@@ -594,6 +803,13 @@ def main() -> None:
         balanced_swap_min_margin=args.balanced_swap_min_margin,
         balanced_swap_min_base_score=args.balanced_swap_min_base_score,
         balanced_swap_min_side_base_score=args.balanced_swap_min_side_base_score,
+        balanced_swap_evidence_pairs=_parse_pair_specs(args.balanced_swap_evidence_pair),
+        balanced_swap_min_pair_side_score=args.balanced_swap_min_pair_side_score,
+        balanced_swap_pair_gate_min_prediction_fraction=args.balanced_swap_pair_gate_min_prediction_fraction,
+        balanced_swap_pair_gate_max_prior_expected_pixels=args.balanced_swap_pair_gate_max_prior_expected_pixels,
+        balanced_swap_min_target_neighborhood=args.balanced_swap_min_target_neighborhood,
+        balanced_swap_target_distance_weight=args.balanced_swap_target_distance_weight,
+        balanced_swap_target_distance_radius=args.balanced_swap_target_distance_radius,
     )
     print(
         "Paper58-LAS evaluation: "

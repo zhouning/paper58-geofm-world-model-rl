@@ -1,0 +1,308 @@
+{
+  "created_at_utc": "2026-06-27T16:09:35.106623+00:00",
+  "paper58_predictions_dir": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions",
+  "labels_dir": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/labels",
+  "output_dir": "paper/rse_submission_paper58/paper58_true_geosos_flus_xiangzhen24_fixed_flus_external_loo_transition_floor030_seeded_replicates_2026-06-27/seed_1003",
+  "flus_executable": "/Users/zhouning/FLUS_console_crossplatform/build/flus_console",
+  "flus_demand_source": "paper58_prediction",
+  "extra_prediction_specs": {
+    "paper58_spatial_demand_ratio_external_loo_transition_floor030": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_external_loo_transition_floor030_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions"
+  },
+  "samples": [
+    {
+      "area": "xiangzhen_record_000191",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        101,
+        105
+      ],
+      "valid_pixels": 5463,
+      "changed_pixels": 385,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_000191_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_002058",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        156,
+        451
+      ],
+      "valid_pixels": 31736,
+      "changed_pixels": 4678,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_002058_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_002815",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        126,
+        97
+      ],
+      "valid_pixels": 6341,
+      "changed_pixels": 748,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_002815_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_003053",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        113,
+        104
+      ],
+      "valid_pixels": 6910,
+      "changed_pixels": 82,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_003053_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_003882",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        294,
+        174
+      ],
+      "valid_pixels": 27144,
+      "changed_pixels": 1319,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_003882_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_010308",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        72,
+        113
+      ],
+      "valid_pixels": 4757,
+      "changed_pixels": 593,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_010308_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_015068",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        159,
+        95
+      ],
+      "valid_pixels": 8340,
+      "changed_pixels": 864,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_015068_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_019130",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        101,
+        116
+      ],
+      "valid_pixels": 3301,
+      "changed_pixels": 123,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_019130_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_019254",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        223,
+        319
+      ],
+      "valid_pixels": 35459,
+      "changed_pixels": 8037,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_019254_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_020866",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        144,
+        147
+      ],
+      "valid_pixels": 11586,
+      "changed_pixels": 887,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_020866_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_021584",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        230,
+        278
+      ],
+      "valid_pixels": 31231,
+      "changed_pixels": 327,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_021584_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_021766",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        94,
+        94
+      ],
+      "valid_pixels": 4831,
+      "changed_pixels": 898,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_021766_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_022880",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        186,
+        249
+      ],
+      "valid_pixels": 28006,
+      "changed_pixels": 808,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_022880_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_025932",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        72,
+        97
+      ],
+      "valid_pixels": 3176,
+      "changed_pixels": 652,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_025932_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_027267",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        239,
+        253
+      ],
+      "valid_pixels": 25615,
+      "changed_pixels": 794,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_027267_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_028657",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        206,
+        304
+      ],
+      "valid_pixels": 37126,
+      "changed_pixels": 769,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_028657_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_030462",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        213,
+        159
+      ],
+      "valid_pixels": 16329,
+      "changed_pixels": 443,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_030462_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_031108",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        62,
+        127
+      ],
+      "valid_pixels": 4413,
+      "changed_pixels": 430,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_031108_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_031426",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        283,
+        215
+      ],
+      "valid_pixels": 35197,
+      "changed_pixels": 3600,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_031426_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_031513",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        102,
+        78
+      ],
+      "valid_pixels": 3331,
+      "changed_pixels": 117,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_031513_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_033687",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        173,
+        197
+      ],
+      "valid_pixels": 17721,
+      "changed_pixels": 272,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_033687_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_038533",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        111,
+        175
+      ],
+      "valid_pixels": 9720,
+      "changed_pixels": 153,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_038533_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_038743",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        115,
+        139
+      ],
+      "valid_pixels": 6233,
+      "changed_pixels": 189,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_038743_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_042889",
+      "start_year": 2020,
+      "end_year": 2021,
+      "shape": [
+        219,
+        281
+      ],
+      "valid_pixels": 27436,
+      "changed_pixels": 1712,
+      "prediction_path": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/predictions/xiangzhen_record_042889_lulc_pred_2020_2021.npy"
+    }
+  ],
+  "failures": [],
+  "result": {
+    "output_dir": "paper/rse_submission_paper58/paper58_true_geosos_flus_xiangzhen24_fixed_flus_external_loo_transition_floor030_seeded_replicates_2026-06-27/seed_1003",
+    "n_samples": 24,
+    "n_metric_rows": 72,
+    "n_spatial_panels": 24
+  }
+}

@@ -35,6 +35,25 @@ def _is_allowed(from_cls: int, to_cls: int, allowed_transitions: set[tuple[int, 
     return (int(from_cls), int(to_cls)) in allowed_transitions
 
 
+def _normalize_unordered_pairs(pairs: set[tuple[int, int]] | None) -> set[tuple[int, int]]:
+    normalized: set[tuple[int, int]] = set()
+    for left, right in pairs or set():
+        left_key = int(left)
+        right_key = int(right)
+        if left_key == right_key:
+            raise DemandValidationError(f"balanced swap evidence pair must contain two classes: {left_key}")
+        normalized.add(tuple(sorted((left_key, right_key))))
+    return normalized
+
+
+def _is_evidence_gated_pair(
+    from_cls: int,
+    to_cls: int,
+    evidence_pairs: set[tuple[int, int]],
+) -> bool:
+    return tuple(sorted((int(from_cls), int(to_cls)))) in evidence_pairs
+
+
 def _neighborhood_affinity_cube(label_map: np.ndarray, class_values: list[int]) -> np.ndarray:
     labels = np.asarray(label_map)
     affinity = np.zeros(labels.shape + (len(class_values),), dtype=np.float32)
@@ -121,6 +140,33 @@ def _latent_neighborhood_affinity_cube(
 
     valid_counts = class_counts > 0
     affinity[valid_counts] /= class_counts[valid_counts]
+    return affinity
+
+
+def _target_distance_affinity_cube(
+    label_map: np.ndarray,
+    class_values: list[int],
+    radius: int,
+) -> np.ndarray:
+    labels = np.asarray(label_map)
+    search_radius = int(radius)
+    if search_radius < 1:
+        raise DemandValidationError(f"balanced_swap_target_distance_radius must be at least 1: {search_radius}")
+    affinity = np.zeros(labels.shape + (len(class_values),), dtype=np.float32)
+    if labels.size == 0:
+        return affinity
+
+    class_coords = {int(cls): np.argwhere(labels == int(cls)) for cls in class_values}
+    for class_index, cls in enumerate(class_values):
+        coords = class_coords[int(cls)]
+        if coords.size == 0:
+            continue
+        for row in range(labels.shape[0]):
+            for col in range(labels.shape[1]):
+                distances = np.maximum(np.abs(coords[:, 0] - row), np.abs(coords[:, 1] - col))
+                nearest = int(np.min(distances))
+                if nearest <= search_radius:
+                    affinity[row, col, class_index] = float(search_radius + 1 - nearest) / float(search_radius + 1)
     return affinity
 
 
@@ -226,6 +272,11 @@ def _add_balanced_change_swaps(
     balanced_swap_min_margin: float | None,
     balanced_swap_min_base_score: float | None,
     balanced_swap_min_side_base_score: float | None,
+    balanced_swap_evidence_pairs: set[tuple[int, int]],
+    balanced_swap_min_pair_side_score: float | None,
+    balanced_swap_min_target_neighborhood: float | None,
+    target_distance: np.ndarray,
+    balanced_swap_target_distance_weight: float,
 ) -> None:
     if target_change_pixels is None:
         return
@@ -314,9 +365,24 @@ def _add_balanced_change_swaps(
                 and min(left_base_score, right_base_score) < balanced_swap_min_side_base_score
             ):
                 continue
+            if (
+                balanced_swap_min_pair_side_score is not None
+                and _is_evidence_gated_pair(left_cls, right_cls, balanced_swap_evidence_pairs)
+                and min(left_score, right_score) < balanced_swap_min_pair_side_score
+            ):
+                continue
+            if balanced_swap_min_target_neighborhood is not None:
+                left_target_neighborhood = float(neighborhood[left_row, left_col, class_to_col[right_cls]])
+                right_target_neighborhood = float(neighborhood[right_row, right_col, class_to_col[left_cls]])
+                if min(left_target_neighborhood, right_target_neighborhood) < balanced_swap_min_target_neighborhood:
+                    continue
+            target_distance_bonus = balanced_swap_target_distance_weight * (
+                float(target_distance[left_row, left_col, class_to_col[right_cls]])
+                + float(target_distance[right_row, right_col, class_to_col[left_cls]])
+            )
             swap_candidates.append(
                 (
-                    left_score + right_score,
+                    left_score + right_score + target_distance_bonus,
                     left_row,
                     left_col,
                     left_cls,
@@ -358,7 +424,9 @@ def _add_balanced_change_swaps(
                     left_col,
                     right_cls,
                     class_to_col,
-                ),
+                )
+                + balanced_swap_target_distance_weight
+                * float(target_distance[left_row, left_col, class_to_col[right_cls]]),
             }
         )
         selected.append(
@@ -377,7 +445,9 @@ def _add_balanced_change_swaps(
                     right_col,
                     left_cls,
                     class_to_col,
-                ),
+                )
+                + balanced_swap_target_distance_weight
+                * float(target_distance[right_row, right_col, class_to_col[left_cls]]),
             }
         )
 
@@ -397,6 +467,11 @@ def allocate_demand_constrained(
     balanced_swap_min_margin: float | None = None,
     balanced_swap_min_base_score: float | None = None,
     balanced_swap_min_side_base_score: float | None = None,
+    balanced_swap_evidence_pairs: set[tuple[int, int]] | None = None,
+    balanced_swap_min_pair_side_score: float | None = None,
+    balanced_swap_min_target_neighborhood: float | None = None,
+    balanced_swap_target_distance_weight: float = 0.0,
+    balanced_swap_target_distance_radius: int = 2,
 ) -> LASAllocationResult:
     start = np.asarray(start_map)
     scores = np.asarray(suitability, dtype=np.float32)
@@ -427,7 +502,48 @@ def allocate_demand_constrained(
         raise DemandValidationError(
             f"balanced_swap_min_side_base_score must be non-negative: {side_base_score_floor}"
         )
-    neighborhood = _neighborhood_affinity_cube(start, class_values) if weight > 0.0 else np.zeros_like(scores)
+    pair_side_score_floor = (
+        None if balanced_swap_min_pair_side_score is None else float(balanced_swap_min_pair_side_score)
+    )
+    evidence_pairs = _normalize_unordered_pairs(balanced_swap_evidence_pairs)
+    if pair_side_score_floor is not None and pair_side_score_floor < 0.0:
+        raise DemandValidationError(
+            f"balanced_swap_min_pair_side_score must be non-negative: {pair_side_score_floor}"
+        )
+    if pair_side_score_floor is not None and not evidence_pairs:
+        raise DemandValidationError(
+            "balanced_swap_evidence_pairs is required when balanced_swap_min_pair_side_score is set"
+        )
+    target_neighborhood_floor = (
+        None if balanced_swap_min_target_neighborhood is None else float(balanced_swap_min_target_neighborhood)
+    )
+    if target_neighborhood_floor is not None and (
+        target_neighborhood_floor < 0.0 or target_neighborhood_floor > 1.0
+    ):
+        raise DemandValidationError(
+            "balanced_swap_min_target_neighborhood must be in [0, 1]: "
+            f"{target_neighborhood_floor}"
+        )
+    target_distance_weight = float(balanced_swap_target_distance_weight)
+    if target_distance_weight < 0.0:
+        raise DemandValidationError(
+            f"balanced_swap_target_distance_weight must be non-negative: {target_distance_weight}"
+        )
+    target_distance_radius = int(balanced_swap_target_distance_radius)
+    if target_distance_radius < 1:
+        raise DemandValidationError(
+            f"balanced_swap_target_distance_radius must be at least 1: {target_distance_radius}"
+        )
+    neighborhood = (
+        _neighborhood_affinity_cube(start, class_values)
+        if weight > 0.0 or target_neighborhood_floor is not None
+        else np.zeros_like(scores)
+    )
+    target_distance = (
+        _target_distance_affinity_cube(start, class_values, target_distance_radius)
+        if target_distance_weight > 0.0
+        else np.zeros_like(scores)
+    )
     if latent_weight > 0.0:
         if embedding_grid is None:
             raise DemandValidationError("embedding_grid is required when latent_neighborhood_weight is positive")
@@ -606,6 +722,11 @@ def allocate_demand_constrained(
         margin_floor,
         base_score_floor,
         side_base_score_floor,
+        evidence_pairs,
+        pair_side_score_floor,
+        target_neighborhood_floor,
+        target_distance,
+        target_distance_weight,
     )
 
     achieved = _counts(simulated, class_values)
