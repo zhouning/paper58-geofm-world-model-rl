@@ -1,0 +1,30 @@
+{
+  "created_at_utc": "2026-06-27T15:51:06.756460+00:00",
+  "method": "paper58_change_gate",
+  "area": "fuzhou_delta_urban_holdout",
+  "start_year": 2020,
+  "end_year": 2021,
+  "inputs": {
+    "start": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/labels/fuzhou_delta_urban_holdout_lulc_2020.npy",
+    "paper58_prediction": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/external_calibration_predictions/fuzhou_delta_urban_holdout_lulc_pred_2020_2021.npy",
+    "embedding_start": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings/fuzhou_delta_urban_holdout_emb_2020.npy",
+    "context": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings/fuzhou_delta_urban_holdout_context.npy",
+    "weights": "/Users/zhouning/paper58-geofm-world-model-rl/src/adk_world_model/weights/latent_dynamics_v1.pt",
+    "decoder": "/Users/zhouning/paper58-geofm-world-model-rl/src/adk_world_model/weights/lulc_decoder_v1.pkl"
+  },
+  "output_prediction": "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/fuzhou_delta_urban_holdout/predictions/fuzhou_delta_urban_holdout_lulc_pred_2020_2021.npy",
+  "parameters": {
+    "keep_fraction": 1.0,
+    "target_neighborhood_weight": 0.5,
+    "source_neighborhood_penalty": 0.25
+  },
+  "diagnostics": {
+    "candidate_change_pixels": 32,
+    "kept_change_pixels": 32,
+    "keep_fraction": 1.0,
+    "target_neighborhood_weight": 0.5,
+    "source_neighborhood_penalty": 0.25,
+    "score_min": -0.4541081190109253,
+    "score_max": 1.2878570556640625
+  }
+}

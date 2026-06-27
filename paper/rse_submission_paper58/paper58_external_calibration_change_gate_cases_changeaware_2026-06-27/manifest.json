@@ -1,0 +1,60 @@
+{
+  "source_model_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27",
+  "cases": [
+    {
+      "area": "dongting_lake_holdout",
+      "output_dir": "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/dongting_lake_holdout",
+      "score": "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/dongting_lake_holdout/diagnostics/dongting_lake_holdout_change_gate_score.npy"
+    },
+    {
+      "area": "erlong_lake_margin_holdout",
+      "output_dir": "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/erlong_lake_margin_holdout",
+      "score": "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/erlong_lake_margin_holdout/diagnostics/erlong_lake_margin_holdout_change_gate_score.npy"
+    },
+    {
+      "area": "fuzhou_delta_urban_holdout",
+      "output_dir": "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/fuzhou_delta_urban_holdout",
+      "score": "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/fuzhou_delta_urban_holdout/diagnostics/fuzhou_delta_urban_holdout_change_gate_score.npy"
+    },
+    {
+      "area": "haibei_plateau_holdout",
+      "output_dir": "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/haibei_plateau_holdout",
+      "score": "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/haibei_plateau_holdout/diagnostics/haibei_plateau_holdout_change_gate_score.npy"
+    },
+    {
+      "area": "sanjiang_plain_holdout",
+      "output_dir": "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/sanjiang_plain_holdout",
+      "score": "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/sanjiang_plain_holdout/diagnostics/sanjiang_plain_holdout_change_gate_score.npy"
+    },
+    {
+      "area": "suzhou_fringe_holdout",
+      "output_dir": "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/suzhou_fringe_holdout",
+      "score": "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/suzhou_fringe_holdout/diagnostics/suzhou_fringe_holdout_change_gate_score.npy"
+    },
+    {
+      "area": "tarim_oasis_holdout",
+      "output_dir": "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/tarim_oasis_holdout",
+      "score": "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/tarim_oasis_holdout/diagnostics/tarim_oasis_holdout_change_gate_score.npy"
+    },
+    {
+      "area": "tianjin_binhai_holdout",
+      "output_dir": "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/tianjin_binhai_holdout",
+      "score": "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/tianjin_binhai_holdout/diagnostics/tianjin_binhai_holdout_change_gate_score.npy"
+    },
+    {
+      "area": "weihe_irrigation_margin_holdout",
+      "output_dir": "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/weihe_irrigation_margin_holdout",
+      "score": "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/weihe_irrigation_margin_holdout/diagnostics/weihe_irrigation_margin_holdout_change_gate_score.npy"
+    },
+    {
+      "area": "wenan_lakeplain_newtown_holdout",
+      "output_dir": "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/wenan_lakeplain_newtown_holdout",
+      "score": "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/wenan_lakeplain_newtown_holdout/diagnostics/wenan_lakeplain_newtown_holdout_change_gate_score.npy"
+    },
+    {
+      "area": "wuhan_outer_ring_holdout",
+      "output_dir": "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/wuhan_outer_ring_holdout",
+      "score": "paper/rse_submission_paper58/paper58_external_calibration_change_gate_cases_changeaware_2026-06-27/wuhan_outer_ring_holdout/diagnostics/wuhan_outer_ring_holdout_change_gate_score.npy"
+    }
+  ]
+}

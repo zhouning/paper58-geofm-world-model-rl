@@ -1,0 +1,801 @@
+{
+  "created_at_utc": "2026-06-27T15:35:26.632332+00:00",
+  "method": "paper58_spatial_demand_allocation",
+  "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+  "change_gate_dirs": [
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_000191",
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_002058",
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_002815",
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_003053",
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_003882",
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_010308",
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_015068",
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_019130",
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_019254",
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_020866",
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_021584",
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_021766",
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_022880",
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_025932",
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_027267",
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_028657",
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_030462",
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_031108",
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_031426",
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_031513",
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_033687",
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_038533",
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_038743",
+    "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_042889"
+  ],
+  "calibration_label_dir": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/labels",
+  "calibration_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/external_calibration_predictions",
+  "calibration_areas": [
+    "dongting_lake_holdout",
+    "erlong_lake_margin_holdout",
+    "fuzhou_delta_urban_holdout",
+    "haibei_plateau_holdout",
+    "sanjiang_plain_holdout",
+    "suzhou_fringe_holdout",
+    "tarim_oasis_holdout",
+    "tianjin_binhai_holdout",
+    "weihe_irrigation_margin_holdout",
+    "wenan_lakeplain_newtown_holdout",
+    "wuhan_outer_ring_holdout"
+  ],
+  "usable_calibration_area_count": 11,
+  "skipped_calibration_cases": [
+    {
+      "area": "baiyangdian_new_area_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "beibu_gulf_urban_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "changbai_margin_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "dabie_forest_edge_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "ezhou_lakeside_expansion_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "hengshui_lake_urban_edge_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "hexi_irrigation_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "honghu_lake_margin_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "huaibei_irrigation_plain_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "hulun_grassland_margin_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "jiangmen_estuary_newtown_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "jiaxing_ring_urban_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "kunshan_dense_edge_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "liaohe_delta_wetland_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "nanling_forest_edge_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "nanning_fringe_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "ningbo_inner_bay_edge_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "ordos_grassland_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "qinling_mountain_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "renqiu_baiyangdian_edge_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "shenzhen_outer_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "songnen_plain_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "taihu_marsh_edge_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "west_sichuan_plateau_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "wuxi_taihu_dense_edge_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "xiaoxinganling_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "xilingol_grassland_margin_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "xinxiang_floodplain_newtown_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "xiong_an_fringe_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "xiongxian_river_corridor_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "yancheng_coastal_new_district_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    },
+    {
+      "area": "zhalong_wetland_edge_holdout",
+      "reason": "not_in_calibration_area_whitelist"
+    }
+  ],
+  "parameters": {
+    "selector_class": 5,
+    "ridge": 0.001,
+    "min_fraction": 0.05,
+    "max_fraction": 0.25,
+    "target_neighborhood_weight": 1.0,
+    "source_neighborhood_penalty": 0.5,
+    "demand_strategy": "ratio",
+    "ratio_quantile": 0.25,
+    "ratio_multiplier": 1.5
+  },
+  "demand_model": {
+    "base_ratio": 0.3481339858440856,
+    "effective_ratio": 0.5222009787661284,
+    "quantile": 0.25,
+    "multiplier": 1.5,
+    "n_rows": 11,
+    "n_usable_rows": 11
+  },
+  "calibration_target_change_fraction_mean": 0.10332531481981277,
+  "calibration_predicted_change_fraction_mean": 0.21565847098827362,
+  "n_cases": 24,
+  "cases": [
+    {
+      "area": "xiangzhen_record_000191",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_000191",
+      "features": [
+        0.16456159949302673,
+        0.06937579810619354,
+        0.011715174652636051,
+        0.6195482015609741,
+        0.6000000238418579
+      ],
+      "predicted_target_change_fraction": 0.08593422832257817,
+      "gate_diagnostics": {
+        "valid_pixels": 5463,
+        "candidate_change_pixels": 899,
+        "target_change_fraction": 0.08593422832257817,
+        "target_change_pixels": 469,
+        "kept_change_pixels": 469,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_000191_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_002058",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_002058",
+      "features": [
+        0.23043231666088104,
+        0.024955885484814644,
+        0.008917317725718021,
+        0.5376009345054626,
+        0.6000000238418579
+      ],
+      "predicted_target_change_fraction": 0.12033198129965851,
+      "gate_diagnostics": {
+        "valid_pixels": 31736,
+        "candidate_change_pixels": 7313,
+        "target_change_fraction": 0.12033198129965851,
+        "target_change_pixels": 3819,
+        "kept_change_pixels": 3819,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_002058_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_002815",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_002815",
+      "features": [
+        0.30704936385154724,
+        0.21826210618019104,
+        0.10613467544317245,
+        0.7981300950050354,
+        0.699999988079071
+      ],
+      "predicted_target_change_fraction": 0.16034147833279505,
+      "gate_diagnostics": {
+        "valid_pixels": 6341,
+        "candidate_change_pixels": 1947,
+        "target_change_fraction": 0.16034147833279505,
+        "target_change_pixels": 1017,
+        "kept_change_pixels": 1017,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_002815_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_003053",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_003053",
+      "features": [
+        0.09160637110471725,
+        0.8118668794631958,
+        0.8933429718017578,
+        0.6975497603416443,
+        0.20000000298023224
+      ],
+      "predicted_target_change_fraction": 0.05,
+      "gate_diagnostics": {
+        "valid_pixels": 6910,
+        "candidate_change_pixels": 633,
+        "target_change_fraction": 0.05,
+        "target_change_pixels": 346,
+        "kept_change_pixels": 346,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_003053_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_003882",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_003882",
+      "features": [
+        0.12290009111166,
+        0.12319481372833252,
+        0.0860963761806488,
+        0.5404652953147888,
+        0.5
+      ],
+      "predicted_target_change_fraction": 0.0641785478689552,
+      "gate_diagnostics": {
+        "valid_pixels": 27144,
+        "candidate_change_pixels": 3336,
+        "target_change_fraction": 0.0641785478689552,
+        "target_change_pixels": 1742,
+        "kept_change_pixels": 1742,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_003882_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_010308",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_010308",
+      "features": [
+        0.32562538981437683,
+        0.4031952917575836,
+        0.40992221236228943,
+        0.5185610055923462,
+        0.6000000238418579
+      ],
+      "predicted_target_change_fraction": 0.17004189727216967,
+      "gate_diagnostics": {
+        "valid_pixels": 4757,
+        "candidate_change_pixels": 1549,
+        "target_change_fraction": 0.17004189727216967,
+        "target_change_pixels": 809,
+        "kept_change_pixels": 809,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_010308_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_015068",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_015068",
+      "features": [
+        0.1877697855234146,
+        0.28956833481788635,
+        0.2712230086326599,
+        0.5326699614524841,
+        0.6000000238418579
+      ],
+      "predicted_target_change_fraction": 0.0980535657830331,
+      "gate_diagnostics": {
+        "valid_pixels": 8340,
+        "candidate_change_pixels": 1566,
+        "target_change_fraction": 0.0980535657830331,
+        "target_change_pixels": 818,
+        "kept_change_pixels": 818,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_015068_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_019130",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_019130",
+      "features": [
+        0.16540442407131195,
+        0.12662829458713531,
+        0.1635867953300476,
+        0.4178093671798706,
+        0.6000000238418579
+      ],
+      "predicted_target_change_fraction": 0.08637435214228686,
+      "gate_diagnostics": {
+        "valid_pixels": 3301,
+        "candidate_change_pixels": 546,
+        "target_change_fraction": 0.08637435214228686,
+        "target_change_pixels": 285,
+        "kept_change_pixels": 285,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_019130_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_019254",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_019254",
+      "features": [
+        0.24603062868118286,
+        0.3237541913986206,
+        0.4686257243156433,
+        0.6973597407341003,
+        0.6000000238418579
+      ],
+      "predicted_target_change_fraction": 0.12847743510375959,
+      "gate_diagnostics": {
+        "valid_pixels": 35459,
+        "candidate_change_pixels": 8724,
+        "target_change_fraction": 0.12847743510375959,
+        "target_change_pixels": 4556,
+        "kept_change_pixels": 4556,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_019254_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_020866",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_020866",
+      "features": [
+        0.21620921790599823,
+        0.2328672558069229,
+        0.19972380995750427,
+        0.47363704442977905,
+        0.699999988079071
+      ],
+      "predicted_target_change_fraction": 0.1129046652087714,
+      "gate_diagnostics": {
+        "valid_pixels": 11586,
+        "candidate_change_pixels": 2505,
+        "target_change_fraction": 0.1129046652087714,
+        "target_change_pixels": 1308,
+        "kept_change_pixels": 1308,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_020866_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_021584",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_021584",
+      "features": [
+        0.025231340900063515,
+        0.006724088452756405,
+        0.004002433270215988,
+        0.16040350496768951,
+        0.5
+      ],
+      "predicted_target_change_fraction": 0.05,
+      "gate_diagnostics": {
+        "valid_pixels": 31231,
+        "candidate_change_pixels": 788,
+        "target_change_fraction": 0.05,
+        "target_change_pixels": 788,
+        "kept_change_pixels": 788,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_021584_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_021766",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_021766",
+      "features": [
+        0.4249637722969055,
+        0.2717863917350769,
+        0.31856757402420044,
+        0.7255091071128845,
+        0.5
+      ],
+      "predicted_target_change_fraction": 0.22191649783359016,
+      "gate_diagnostics": {
+        "valid_pixels": 4831,
+        "candidate_change_pixels": 2053,
+        "target_change_fraction": 0.22191649783359016,
+        "target_change_pixels": 1072,
+        "kept_change_pixels": 1072,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_021766_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_022880",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_022880",
+      "features": [
+        0.0730200707912445,
+        0.8888095617294312,
+        0.9512247443199158,
+        0.27903664112091064,
+        0.5
+      ],
+      "predicted_target_change_fraction": 0.05,
+      "gate_diagnostics": {
+        "valid_pixels": 28006,
+        "candidate_change_pixels": 2045,
+        "target_change_fraction": 0.05,
+        "target_change_pixels": 1400,
+        "kept_change_pixels": 1400,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_022880_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_025932",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_025932",
+      "features": [
+        0.35201510787010193,
+        0.23677581548690796,
+        0.028967253863811493,
+        0.755254864692688,
+        0.6000000238418579
+      ],
+      "predicted_target_change_fraction": 0.18382263387023148,
+      "gate_diagnostics": {
+        "valid_pixels": 3176,
+        "candidate_change_pixels": 1118,
+        "target_change_fraction": 0.18382263387023148,
+        "target_change_pixels": 584,
+        "kept_change_pixels": 584,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_025932_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_027267",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_027267",
+      "features": [
+        0.08459886908531189,
+        0.03763419762253761,
+        0.04895569011569023,
+        0.2487986832857132,
+        0.5
+      ],
+      "predicted_target_change_fraction": 0.05,
+      "gate_diagnostics": {
+        "valid_pixels": 25615,
+        "candidate_change_pixels": 2167,
+        "target_change_fraction": 0.05,
+        "target_change_pixels": 1281,
+        "kept_change_pixels": 1281,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_027267_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_028657",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_028657",
+      "features": [
+        0.08094058185815811,
+        0.024160966277122498,
+        0.019716640934348106,
+        0.21601223945617676,
+        0.6000000238418579
+      ],
+      "predicted_target_change_fraction": 0.05,
+      "gate_diagnostics": {
+        "valid_pixels": 37126,
+        "candidate_change_pixels": 3005,
+        "target_change_fraction": 0.05,
+        "target_change_pixels": 1856,
+        "kept_change_pixels": 1856,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_028657_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_030462",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_030462",
+      "features": [
+        0.4714311957359314,
+        0.004960499703884125,
+        0.18439586460590363,
+        0.17481909692287445,
+        0.5
+      ],
+      "predicted_target_change_fraction": 0.24618183183418962,
+      "gate_diagnostics": {
+        "valid_pixels": 16329,
+        "candidate_change_pixels": 7698,
+        "target_change_fraction": 0.24618183183418962,
+        "target_change_pixels": 4020,
+        "kept_change_pixels": 4020,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_030462_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_031108",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_031108",
+      "features": [
+        0.32087016105651855,
+        0.18377521634101868,
+        0.18536143004894257,
+        0.5263707041740417,
+        0.699999988079071
+      ],
+      "predicted_target_change_fraction": 0.16755871216055923,
+      "gate_diagnostics": {
+        "valid_pixels": 4413,
+        "candidate_change_pixels": 1416,
+        "target_change_fraction": 0.16755871216055923,
+        "target_change_pixels": 739,
+        "kept_change_pixels": 739,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_031108_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_031426",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_031426",
+      "features": [
+        0.3169020116329193,
+        0.22013239562511444,
+        0.09969599545001984,
+        0.7263830304145813,
+        0.6000000238418579
+      ],
+      "predicted_target_change_fraction": 0.16548654064766546,
+      "gate_diagnostics": {
+        "valid_pixels": 35197,
+        "candidate_change_pixels": 11154,
+        "target_change_fraction": 0.16548654064766546,
+        "target_change_pixels": 5825,
+        "kept_change_pixels": 5825,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_031426_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_031513",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_031513",
+      "features": [
+        0.0783548504114151,
+        0.027018913999199867,
+        0.005403782706707716,
+        0.49651047587394714,
+        0.699999988079071
+      ],
+      "predicted_target_change_fraction": 0.05,
+      "gate_diagnostics": {
+        "valid_pixels": 3331,
+        "candidate_change_pixels": 261,
+        "target_change_fraction": 0.05,
+        "target_change_pixels": 167,
+        "kept_change_pixels": 167,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_031513_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_033687",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_033687",
+      "features": [
+        0.07454432547092438,
+        0.8432368636131287,
+        0.8840923309326172,
+        0.25142213702201843,
+        0.6000000238418579
+      ],
+      "predicted_target_change_fraction": 0.05,
+      "gate_diagnostics": {
+        "valid_pixels": 17721,
+        "candidate_change_pixels": 1321,
+        "target_change_fraction": 0.05,
+        "target_change_pixels": 886,
+        "kept_change_pixels": 886,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_033687_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_038533",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_038533",
+      "features": [
+        0.10720164328813553,
+        0.7626543045043945,
+        0.8479424118995667,
+        0.43512412905693054,
+        0.4000000059604645
+      ],
+      "predicted_target_change_fraction": 0.05598080305040173,
+      "gate_diagnostics": {
+        "valid_pixels": 9720,
+        "candidate_change_pixels": 1042,
+        "target_change_fraction": 0.05598080305040173,
+        "target_change_pixels": 544,
+        "kept_change_pixels": 544,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_038533_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_038743",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_038743",
+      "features": [
+        0.16942082345485687,
+        0.7299855351448059,
+        0.8793518543243408,
+        0.6081193685531616,
+        0.30000001192092896
+      ],
+      "predicted_target_change_fraction": 0.0884717198314897,
+      "gate_diagnostics": {
+        "valid_pixels": 6233,
+        "candidate_change_pixels": 1056,
+        "target_change_fraction": 0.0884717198314897,
+        "target_change_pixels": 551,
+        "kept_change_pixels": 551,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_038743_lulc_pred_2020_2021.npy"
+    },
+    {
+      "area": "xiangzhen_record_042889",
+      "start_year": 2020,
+      "end_year": 2021,
+      "source_prediction_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions",
+      "source_change_gate_dir": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/target_change_gate_cases/xiangzhen_record_042889",
+      "features": [
+        0.14411722123622894,
+        0.03881761059165001,
+        0.1416751742362976,
+        0.309539794921875,
+        0.699999988079071
+      ],
+      "predicted_target_change_fraction": 0.07525815398661341,
+      "gate_diagnostics": {
+        "valid_pixels": 27436,
+        "candidate_change_pixels": 3954,
+        "target_change_fraction": 0.07525815398661341,
+        "target_change_pixels": 2065,
+        "kept_change_pixels": 2065,
+        "target_neighborhood_weight": 1.0,
+        "source_neighborhood_penalty": 0.5
+      },
+      "output_prediction": "paper/rse_submission_paper58/paper58_spatial_demand_ratio_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions/xiangzhen_record_042889_lulc_pred_2020_2021.npy"
+    }
+  ]
+}

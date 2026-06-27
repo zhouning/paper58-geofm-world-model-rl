@@ -1,0 +1,134 @@
+{
+  "created_at_utc": "2026-06-27T16:09:26.286733+00:00",
+  "n_samples": 24,
+  "n_metric_rows": 72,
+  "notes": [
+    "Paper58 端使用 src/adk_world_model/weights/latent_dynamics_v1.pt 和 lulc_decoder_v1.pkl 生成的完整 latent-dynamics LULC 预测。",
+    "GeoSOS-FLUS 控制台在同一 ESRI/AlphaEarth 标签网格上运行；适宜性层由完整 Paper58 预测图转换为 one-hot 概率，需求量来源为 `paper58_prediction`，不使用目标结束年份真值需求。",
+    "额外方法 `paper58_spatial_demand_ratio_external_loo_transition_floor030` 从 `paper/rse_submission_paper58/paper58_spatial_demand_ratio_external_loo_transition_floor030_p25x15_min005_tw10_sp05_xiangzhen24_2026-06-27/predictions` 读取，用于评估 Paper58 优化后输出。"
+  ],
+  "metric_summary_by_method": [
+    {
+      "method": "geosos_flus_console",
+      "n": 24,
+      "mean_change_f1": 0.2662061209189035,
+      "mean_fom": 0.11975611356092046,
+      "mean_transition_accuracy": 0.27957383527681146,
+      "mean_allocation_disagreement": 0.05979393123899113
+    },
+    {
+      "method": "paper58_latent_dynamics",
+      "n": 24,
+      "mean_change_f1": 0.2767296872145589,
+      "mean_fom": 0.1140744604263405,
+      "mean_transition_accuracy": 0.3710648791708446,
+      "mean_allocation_disagreement": 0.08729377045373847
+    },
+    {
+      "method": "paper58_spatial_demand_ratio_external_loo_transition_floor030",
+      "n": 24,
+      "mean_change_f1": 0.28828074860696956,
+      "mean_fom": 0.12477431058578216,
+      "mean_transition_accuracy": 0.2862439571520737,
+      "mean_allocation_disagreement": 0.05836969099787661
+    }
+  ],
+  "spatial_figures": [
+    {
+      "area": "xiangzhen_record_000191",
+      "path": "figures/same_grid_xiangzhen_record_000191.png"
+    },
+    {
+      "area": "xiangzhen_record_002058",
+      "path": "figures/same_grid_xiangzhen_record_002058.png"
+    },
+    {
+      "area": "xiangzhen_record_002815",
+      "path": "figures/same_grid_xiangzhen_record_002815.png"
+    },
+    {
+      "area": "xiangzhen_record_003053",
+      "path": "figures/same_grid_xiangzhen_record_003053.png"
+    },
+    {
+      "area": "xiangzhen_record_003882",
+      "path": "figures/same_grid_xiangzhen_record_003882.png"
+    },
+    {
+      "area": "xiangzhen_record_010308",
+      "path": "figures/same_grid_xiangzhen_record_010308.png"
+    },
+    {
+      "area": "xiangzhen_record_015068",
+      "path": "figures/same_grid_xiangzhen_record_015068.png"
+    },
+    {
+      "area": "xiangzhen_record_019130",
+      "path": "figures/same_grid_xiangzhen_record_019130.png"
+    },
+    {
+      "area": "xiangzhen_record_019254",
+      "path": "figures/same_grid_xiangzhen_record_019254.png"
+    },
+    {
+      "area": "xiangzhen_record_020866",
+      "path": "figures/same_grid_xiangzhen_record_020866.png"
+    },
+    {
+      "area": "xiangzhen_record_021584",
+      "path": "figures/same_grid_xiangzhen_record_021584.png"
+    },
+    {
+      "area": "xiangzhen_record_021766",
+      "path": "figures/same_grid_xiangzhen_record_021766.png"
+    },
+    {
+      "area": "xiangzhen_record_022880",
+      "path": "figures/same_grid_xiangzhen_record_022880.png"
+    },
+    {
+      "area": "xiangzhen_record_025932",
+      "path": "figures/same_grid_xiangzhen_record_025932.png"
+    },
+    {
+      "area": "xiangzhen_record_027267",
+      "path": "figures/same_grid_xiangzhen_record_027267.png"
+    },
+    {
+      "area": "xiangzhen_record_028657",
+      "path": "figures/same_grid_xiangzhen_record_028657.png"
+    },
+    {
+      "area": "xiangzhen_record_030462",
+      "path": "figures/same_grid_xiangzhen_record_030462.png"
+    },
+    {
+      "area": "xiangzhen_record_031108",
+      "path": "figures/same_grid_xiangzhen_record_031108.png"
+    },
+    {
+      "area": "xiangzhen_record_031426",
+      "path": "figures/same_grid_xiangzhen_record_031426.png"
+    },
+    {
+      "area": "xiangzhen_record_031513",
+      "path": "figures/same_grid_xiangzhen_record_031513.png"
+    },
+    {
+      "area": "xiangzhen_record_033687",
+      "path": "figures/same_grid_xiangzhen_record_033687.png"
+    },
+    {
+      "area": "xiangzhen_record_038533",
+      "path": "figures/same_grid_xiangzhen_record_038533.png"
+    },
+    {
+      "area": "xiangzhen_record_038743",
+      "path": "figures/same_grid_xiangzhen_record_038743.png"
+    },
+    {
+      "area": "xiangzhen_record_042889",
+      "path": "figures/same_grid_xiangzhen_record_042889.png"
+    }
+  ]
+}

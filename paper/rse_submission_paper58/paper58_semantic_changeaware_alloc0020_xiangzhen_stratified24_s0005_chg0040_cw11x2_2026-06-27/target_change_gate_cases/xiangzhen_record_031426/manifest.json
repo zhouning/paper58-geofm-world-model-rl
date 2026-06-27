@@ -1,0 +1,13 @@
+{
+  "created_at_utc": "2026-06-27T15:04:33.194271+00:00",
+  "method": "paper58_semantic_auxiliary_latent_probe_score_case",
+  "area": "xiangzhen_record_031426",
+  "start_year": 2020,
+  "end_year": 2021,
+  "inputs": {
+    "start": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/labels/xiangzhen_record_031426_lulc_2020.npy",
+    "paper58_prediction": "paper/rse_submission_paper58/paper58_semantic_changeaware_alloc0020_xiangzhen_stratified24_s0005_chg0040_cw11x2_2026-06-27/predictions/xiangzhen_record_031426_lulc_pred_2020_2021.npy",
+    "embedding_start": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/embeddings/xiangzhen_record_031426_emb_2020.npy",
+    "context": "paper/rse_submission_paper58/flus_native_admin_same_grid_paper58_inputs_stratified24_100m_2026-06-27/context/xiangzhen_record_031426_context.npy"
+  }
+}
