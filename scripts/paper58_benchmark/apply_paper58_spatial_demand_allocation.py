@@ -181,6 +181,207 @@ def predict_ratio_change_fraction(
     return float(min(upper, max(lower, raw)))
 
 
+def fit_adaptive_ratio_cap_model(
+    predicted_change_fractions: np.ndarray,
+    target_change_fractions: np.ndarray,
+    high_candidate_threshold: float = 0.5,
+    high_candidate_quantile: float = 0.5,
+    epsilon: float = 1e-6,
+) -> dict[str, Any]:
+    predicted = np.asarray(predicted_change_fractions, dtype=np.float64).reshape(-1)
+    targets = np.asarray(target_change_fractions, dtype=np.float64).reshape(-1)
+    if predicted.shape[0] != targets.shape[0]:
+        raise ValueError(f"target length {targets.shape[0]} does not match predicted {predicted.shape[0]}")
+    if predicted.shape[0] == 0:
+        raise ValueError("at least one calibration row is required")
+    threshold = float(high_candidate_threshold)
+    quantile = float(high_candidate_quantile)
+    eps = float(epsilon)
+    if threshold < 0.0 or threshold > 1.0:
+        raise ValueError(f"high_candidate_threshold must be in [0, 1]: {threshold}")
+    if quantile < 0.0 or quantile > 1.0:
+        raise ValueError(f"high_candidate_quantile must be in [0, 1]: {quantile}")
+    usable = predicted > eps
+    if not np.any(usable):
+        raise ValueError("at least one calibration row must have positive predicted change fraction")
+    high = usable & (predicted >= threshold)
+    ratio_source = high if np.any(high) else usable
+    ratios = np.maximum(targets[ratio_source], 0.0) / np.maximum(predicted[ratio_source], eps)
+    return {
+        "high_candidate_threshold": threshold,
+        "high_candidate_ratio": float(np.quantile(ratios, quantile)),
+        "high_candidate_quantile": quantile,
+        "n_rows": int(predicted.shape[0]),
+        "n_high_candidate_rows": int(np.count_nonzero(high)),
+        "n_usable_rows": int(np.count_nonzero(usable)),
+    }
+
+
+def predict_ratio_change_fraction_v2(
+    ratio_model: dict[str, Any],
+    cap_model: dict[str, Any] | None,
+    candidate_change_fraction: float,
+    min_fraction: float = 0.0,
+    max_fraction: float = 1.0,
+) -> float:
+    candidate = max(0.0, float(candidate_change_fraction))
+    raw = candidate * float(ratio_model["effective_ratio"])
+    if cap_model is not None and candidate >= float(cap_model["high_candidate_threshold"]):
+        raw = min(raw, candidate * float(cap_model["high_candidate_ratio"]))
+    lower = float(min_fraction)
+    upper = float(max_fraction)
+    if lower < 0.0 or upper > 1.0 or lower > upper:
+        raise ValueError(f"invalid fraction bounds: min={lower}, max={upper}")
+    return float(min(upper, max(lower, raw)))
+
+
+def fit_transition_reliability_weights(
+    calibration_rows: list[tuple[np.ndarray, np.ndarray, np.ndarray]],
+    smoothing: float = 1.0,
+    min_weight: float = 0.2,
+) -> dict[str, Any]:
+    smooth = float(smoothing)
+    floor = float(min_weight)
+    if smooth < 0.0:
+        raise ValueError(f"smoothing must be non-negative: {smooth}")
+    if floor < 0.0 or floor > 1.0:
+        raise ValueError(f"min_weight must be in [0, 1]: {floor}")
+    if not calibration_rows:
+        raise ValueError("at least one calibration row is required")
+
+    predicted_by_pair: dict[tuple[int, int], int] = {}
+    hits_by_pair: dict[tuple[int, int], int] = {}
+    total_predicted = 0
+    total_hits = 0
+    for index, (start_map, prediction_map, end_map) in enumerate(calibration_rows):
+        start = np.asarray(start_map)
+        prediction = np.asarray(prediction_map)
+        end = np.asarray(end_map)
+        if start.shape != prediction.shape or start.shape != end.shape:
+            raise ValueError(
+                f"calibration row {index} shape mismatch: "
+                f"start={start.shape}, prediction={prediction.shape}, end={end.shape}"
+            )
+        valid = (start != 0) & (prediction != 0) & (end != 0)
+        candidates = valid & (prediction != start)
+        hits = candidates & (prediction == end)
+        total_predicted += int(np.count_nonzero(candidates))
+        total_hits += int(np.count_nonzero(hits))
+        for from_cls, to_cls in zip(start[candidates].ravel(), prediction[candidates].ravel(), strict=False):
+            key = (int(from_cls), int(to_cls))
+            predicted_by_pair[key] = predicted_by_pair.get(key, 0) + 1
+        for from_cls, to_cls in zip(start[hits].ravel(), prediction[hits].ravel(), strict=False):
+            key = (int(from_cls), int(to_cls))
+            hits_by_pair[key] = hits_by_pair.get(key, 0) + 1
+
+    default_precision = float(total_hits / total_predicted) if total_predicted else 0.0
+    default_weight = floor + (1.0 - floor) * default_precision
+    weights: dict[tuple[int, int], float] = {}
+    pair_stats: dict[tuple[int, int], dict[str, Any]] = {}
+    for key, predicted_count in sorted(predicted_by_pair.items()):
+        hit_count = hits_by_pair.get(key, 0)
+        precision = float((hit_count + smooth * default_precision) / (predicted_count + smooth))
+        weight = floor + (1.0 - floor) * precision
+        weights[key] = float(min(1.0, max(floor, weight)))
+        pair_stats[key] = {
+            "predicted": int(predicted_count),
+            "hits": int(hit_count),
+            "smoothed_precision": precision,
+            "weight": weights[key],
+        }
+    return {
+        "weights": weights,
+        "default_weight": float(default_weight),
+        "pair_stats": pair_stats,
+        "smoothing": smooth,
+        "min_weight": floor,
+        "total_predicted": int(total_predicted),
+        "total_hits": int(total_hits),
+    }
+
+
+def transition_reliability_score(model: dict[str, Any], from_class: int, to_class: int) -> float:
+    weights = model.get("weights", {})
+    return float(weights.get((int(from_class), int(to_class)), model["default_weight"]))
+
+
+def transition_reliability_map(
+    start_map: np.ndarray,
+    prediction_map: np.ndarray,
+    model: dict[str, Any],
+) -> np.ndarray:
+    start = np.asarray(start_map)
+    prediction = np.asarray(prediction_map)
+    if start.shape != prediction.shape:
+        raise ValueError(f"shape mismatch: start={start.shape}, prediction={prediction.shape}")
+    reliability = np.full(start.shape, float(model["default_weight"]), dtype=np.float32)
+    for from_cls, to_cls in sorted(model.get("weights", {})):
+        mask = (start == int(from_cls)) & (prediction == int(to_cls))
+        reliability[mask] = transition_reliability_score(model, int(from_cls), int(to_cls))
+    return reliability
+
+
+def _class_neighborhood_fraction_window(label_map: np.ndarray, class_values: list[int], window_size: int) -> dict[int, np.ndarray]:
+    labels = np.asarray(label_map)
+    size = int(window_size)
+    if size < 3 or size % 2 == 0:
+        raise ValueError(f"window_size must be an odd integer >= 3: {window_size}")
+    radius = size // 2
+    fractions: dict[int, np.ndarray] = {}
+    height, width = labels.shape
+    for cls in class_values:
+        mask = (labels == int(cls)).astype(np.float32)
+        support = np.zeros(labels.shape, dtype=np.float32)
+        counts = np.zeros(labels.shape, dtype=np.float32)
+        for row_offset in range(-radius, radius + 1):
+            for col_offset in range(-radius, radius + 1):
+                if row_offset == 0 and col_offset == 0:
+                    continue
+                src_row_start = max(0, -row_offset)
+                src_row_end = min(height, height - row_offset)
+                dst_row_start = max(0, row_offset)
+                dst_row_end = min(height, height + row_offset)
+                src_col_start = max(0, -col_offset)
+                src_col_end = min(width, width - col_offset)
+                dst_col_start = max(0, col_offset)
+                dst_col_end = min(width, width + col_offset)
+                support[dst_row_start:dst_row_end, dst_col_start:dst_col_end] += mask[
+                    src_row_start:src_row_end,
+                    src_col_start:src_col_end,
+                ]
+                counts[dst_row_start:dst_row_end, dst_col_start:dst_col_end] += 1.0
+        fractions[int(cls)] = np.divide(support, counts, out=np.zeros_like(support), where=counts > 0.0)
+    return fractions
+
+
+def multi_scale_class_aligned_neighborhood(
+    start_map: np.ndarray,
+    prediction_map: np.ndarray,
+    classes: list[int],
+    window_sizes: list[int] | None = None,
+) -> tuple[np.ndarray, np.ndarray]:
+    start = np.asarray(start_map)
+    prediction = np.asarray(prediction_map)
+    if start.shape != prediction.shape:
+        raise ValueError(f"shape mismatch: start={start.shape}, prediction={prediction.shape}")
+    windows = [3] if window_sizes is None else [int(size) for size in window_sizes]
+    if not windows:
+        raise ValueError("window_sizes must be non-empty")
+    target = np.zeros(start.shape, dtype=np.float32)
+    source = np.zeros(start.shape, dtype=np.float32)
+    for window in windows:
+        neighborhoods = _class_neighborhood_fraction_window(start, classes, window)
+        target_scale = np.zeros(start.shape, dtype=np.float32)
+        source_scale = np.zeros(start.shape, dtype=np.float32)
+        for cls, support in neighborhoods.items():
+            target_scale[prediction == int(cls)] = support[prediction == int(cls)]
+            source_scale[start == int(cls)] = support[start == int(cls)]
+        target += target_scale
+        source += source_scale
+    divisor = float(len(windows))
+    return target / divisor, source / divisor
+
+
 def filter_calibration_cases_by_area(
     calibration_cases: list[Any],
     calibration_areas: list[str] | None,
@@ -207,6 +408,9 @@ def apply_demand_calibrated_spatial_gate(
     valid_mask: np.ndarray | None = None,
     target_neighborhood_weight: float = 0.0,
     source_neighborhood_penalty: float = 0.0,
+    transition_reliability_model: dict[str, Any] | None = None,
+    transition_weight_strength: float = 0.0,
+    neighborhood_window_sizes: list[int] | None = None,
 ) -> tuple[np.ndarray, dict[str, Any]]:
     start = np.asarray(start_map)
     prediction = np.asarray(prediction_map)
@@ -219,11 +423,14 @@ def apply_demand_calibrated_spatial_gate(
         raise ValueError(f"target_change_fraction must be in [0, 1]: {target_fraction}")
     target_weight = float(target_neighborhood_weight)
     source_penalty = float(source_neighborhood_penalty)
+    reliability_strength = float(transition_weight_strength)
     if target_weight < 0.0 or source_penalty < 0.0:
         raise ValueError(
             "target_neighborhood_weight and source_neighborhood_penalty must be non-negative: "
             f"target={target_weight}, source={source_penalty}"
         )
+    if reliability_strength < 0.0:
+        raise ValueError(f"transition_weight_strength must be non-negative: {reliability_strength}")
 
     candidates = valid & (prediction != start)
     candidate_indices = np.flatnonzero(candidates.ravel())
@@ -235,8 +442,19 @@ def apply_demand_calibrated_spatial_gate(
         rank_score = score.copy()
         if target_weight > 0.0 or source_penalty > 0.0:
             classes = sorted({int(value) for value in np.unique(start[valid])} | {int(value) for value in np.unique(prediction[valid])})
-            target_support, source_support = class_aligned_neighborhood(start, prediction, classes)
+            if neighborhood_window_sizes is None:
+                target_support, source_support = class_aligned_neighborhood(start, prediction, classes)
+            else:
+                target_support, source_support = multi_scale_class_aligned_neighborhood(
+                    start,
+                    prediction,
+                    classes,
+                    window_sizes=neighborhood_window_sizes,
+                )
             rank_score = rank_score + target_weight * target_support - source_penalty * source_support
+        if transition_reliability_model is not None and reliability_strength > 0.0:
+            reliability = transition_reliability_map(start, prediction, transition_reliability_model)
+            rank_score = rank_score + reliability_strength * reliability
         order = candidate_indices[np.argsort(rank_score.ravel()[candidate_indices])[::-1]]
         kept_indices = order[:target_pixels]
         gated.ravel()[kept_indices] = prediction.ravel()[kept_indices]
@@ -248,6 +466,8 @@ def apply_demand_calibrated_spatial_gate(
         "kept_change_pixels": int(kept_indices.size),
         "target_neighborhood_weight": target_weight,
         "source_neighborhood_penalty": source_penalty,
+        "transition_weight_strength": reliability_strength,
+        "neighborhood_window_sizes": None if neighborhood_window_sizes is None else [int(size) for size in neighborhood_window_sizes],
     }
     return gated.astype(prediction.dtype, copy=False), diagnostics
 
@@ -286,6 +506,12 @@ def run_spatial_demand_allocation(
     demand_strategy: str = "regression",
     ratio_quantile: float = 0.25,
     ratio_multiplier: float = 1.0,
+    enable_transition_reliability: bool = False,
+    transition_reliability_strength: float = 0.0,
+    neighborhood_window_sizes: list[int] | None = None,
+    enable_adaptive_ratio_cap: bool = False,
+    high_candidate_threshold: float = 0.5,
+    high_candidate_quantile: float = 0.5,
 ) -> dict[str, Any]:
     calibration_cases, skipped_calibration = discover_calibration_cases(
         Path(calibration_label_dir),
@@ -318,6 +544,25 @@ def run_spatial_demand_allocation(
         )
     else:
         raise ValueError(f"unsupported demand_strategy: {strategy}")
+    calibration_transition_rows = [
+        (case.start_map, case.prediction_map, case.end_map)
+        for case in calibration_cases
+    ]
+    transition_reliability_model = (
+        fit_transition_reliability_weights(calibration_transition_rows)
+        if bool(enable_transition_reliability)
+        else None
+    )
+    adaptive_ratio_cap_model = (
+        fit_adaptive_ratio_cap_model(
+            calibration_features[:, 0],
+            calibration_targets,
+            high_candidate_threshold=high_candidate_threshold,
+            high_candidate_quantile=high_candidate_quantile,
+        )
+        if bool(enable_adaptive_ratio_cap) and strategy == "ratio"
+        else None
+    )
 
     output = Path(output_dir)
     predictions_dir = output / "predictions"
@@ -341,12 +586,21 @@ def run_spatial_demand_allocation(
                 max_fraction=max_fraction,
             )
         else:
-            target_fraction = predict_ratio_change_fraction(
-                model,
-                float(features[0]),
-                min_fraction=min_fraction,
-                max_fraction=max_fraction,
-            )
+            if adaptive_ratio_cap_model is None:
+                target_fraction = predict_ratio_change_fraction(
+                    model,
+                    float(features[0]),
+                    min_fraction=min_fraction,
+                    max_fraction=max_fraction,
+                )
+            else:
+                target_fraction = predict_ratio_change_fraction_v2(
+                    model,
+                    adaptive_ratio_cap_model,
+                    float(features[0]),
+                    min_fraction=min_fraction,
+                    max_fraction=max_fraction,
+                )
         valid = (case.start_map != 0) & (source_prediction != 0)
         gated, gate_diagnostics = apply_demand_calibrated_spatial_gate(
             case.start_map,
@@ -356,6 +610,9 @@ def run_spatial_demand_allocation(
             valid_mask=valid,
             target_neighborhood_weight=target_neighborhood_weight,
             source_neighborhood_penalty=source_neighborhood_penalty,
+            transition_reliability_model=transition_reliability_model,
+            transition_weight_strength=transition_reliability_strength,
+            neighborhood_window_sizes=neighborhood_window_sizes,
         )
         prediction_path = predictions_dir / f"{case.area}_lulc_pred_{case.start_year}_{case.end_year}.npy"
         np.save(prediction_path, gated)
@@ -368,6 +625,8 @@ def run_spatial_demand_allocation(
             "features": features,
             "predicted_target_change_fraction": target_fraction,
             "gate_diagnostics": gate_diagnostics,
+            "adaptive_ratio_cap_enabled": adaptive_ratio_cap_model is not None,
+            "transition_reliability_enabled": transition_reliability_model is not None,
             "output_prediction": prediction_path,
         }
         _write_json(diagnostics_dir / f"{case.area}_spatial_demand_allocation.json", diagnostic_payload)
@@ -393,8 +652,16 @@ def run_spatial_demand_allocation(
             "demand_strategy": strategy,
             "ratio_quantile": float(ratio_quantile),
             "ratio_multiplier": float(ratio_multiplier),
+            "enable_transition_reliability": bool(enable_transition_reliability),
+            "transition_reliability_strength": float(transition_reliability_strength),
+            "neighborhood_window_sizes": None if neighborhood_window_sizes is None else [int(size) for size in neighborhood_window_sizes],
+            "enable_adaptive_ratio_cap": bool(enable_adaptive_ratio_cap),
+            "high_candidate_threshold": float(high_candidate_threshold),
+            "high_candidate_quantile": float(high_candidate_quantile),
         },
         "demand_model": model,
+        "transition_reliability_model": transition_reliability_model,
+        "adaptive_ratio_cap_model": adaptive_ratio_cap_model,
         "calibration_target_change_fraction_mean": float(np.mean(calibration_targets)),
         "calibration_predicted_change_fraction_mean": float(np.mean(calibration_features[:, 0])),
         "n_cases": len(cases),
@@ -421,6 +688,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--demand-strategy", choices=["regression", "ratio"], default="regression")
     parser.add_argument("--ratio-quantile", type=float, default=0.25)
     parser.add_argument("--ratio-multiplier", type=float, default=1.0)
+    parser.add_argument("--enable-transition-reliability", action="store_true")
+    parser.add_argument("--transition-reliability-strength", type=float, default=0.0)
+    parser.add_argument("--neighborhood-window-size", action="append", type=int, default=None)
+    parser.add_argument("--enable-adaptive-ratio-cap", action="store_true")
+    parser.add_argument("--high-candidate-threshold", type=float, default=0.5)
+    parser.add_argument("--high-candidate-quantile", type=float, default=0.5)
     args = parser.parse_args(argv)
     manifest = run_spatial_demand_allocation(
         source_prediction_dir=args.source_prediction_dir,
@@ -438,6 +711,12 @@ def main(argv: list[str] | None = None) -> int:
         demand_strategy=args.demand_strategy,
         ratio_quantile=args.ratio_quantile,
         ratio_multiplier=args.ratio_multiplier,
+        enable_transition_reliability=args.enable_transition_reliability,
+        transition_reliability_strength=args.transition_reliability_strength,
+        neighborhood_window_sizes=args.neighborhood_window_size,
+        enable_adaptive_ratio_cap=args.enable_adaptive_ratio_cap,
+        high_candidate_threshold=args.high_candidate_threshold,
+        high_candidate_quantile=args.high_candidate_quantile,
     )
     print(
         "Paper58 spatial demand allocation complete: "

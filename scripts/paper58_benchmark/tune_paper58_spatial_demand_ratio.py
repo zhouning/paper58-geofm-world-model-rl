@@ -13,8 +13,11 @@ from scripts.paper58_benchmark.apply_paper58_spatial_demand_allocation import (
     _true_change_fraction,
     apply_demand_calibrated_spatial_gate,
     change_demand_features,
+    fit_adaptive_ratio_cap_model,
     fit_change_ratio_demand_model,
+    fit_transition_reliability_weights,
     predict_ratio_change_fraction,
+    predict_ratio_change_fraction_v2,
 )
 from scripts.paper58_benchmark.las_metrics import method_metric_row
 from scripts.paper58_benchmark.sweep_paper58_change_gate import GateSweepCase, load_case_from_change_gate_dir
@@ -25,6 +28,22 @@ METRIC_FIELDS = [
     "fom",
     "transition_accuracy",
     "allocation_disagreement",
+]
+BASE_PARAMETER_FIELDS = [
+    "ratio_quantile",
+    "ratio_multiplier",
+    "min_fraction",
+    "max_fraction",
+    "target_neighborhood_weight",
+    "source_neighborhood_penalty",
+]
+V2_PARAMETER_FIELDS = [
+    "enable_transition_reliability",
+    "transition_reliability_strength",
+    "neighborhood_window_sizes",
+    "enable_adaptive_ratio_cap",
+    "high_candidate_threshold",
+    "high_candidate_quantile",
 ]
 
 
@@ -58,6 +77,25 @@ def _write_csv(path: Path, rows: list[dict[str, Any]], fields: list[str]) -> Non
             writer.writerow({field: _json_ready(row.get(field, "")) for field in fields})
 
 
+def _parameter_fields(rows: list[dict[str, Any]]) -> list[str]:
+    fields = list(BASE_PARAMETER_FIELDS)
+    if any(any(field in row for field in V2_PARAMETER_FIELDS) for row in rows):
+        fields.extend(V2_PARAMETER_FIELDS)
+    return fields
+
+
+def _parameter_summary(parameters: dict[str, Any]) -> dict[str, Any]:
+    summary: dict[str, Any] = {}
+    for key, value in parameters.items():
+        if isinstance(value, bool) or value is None:
+            summary[key] = value
+        elif isinstance(value, (list, tuple)):
+            summary[key] = [int(item) for item in value]
+        else:
+            summary[key] = float(value)
+    return summary
+
+
 def ratio_parameter_grid(
     ratio_quantiles: list[float],
     ratio_multipliers: list[float],
@@ -65,24 +103,68 @@ def ratio_parameter_grid(
     max_fractions: list[float],
     target_neighborhood_weights: list[float],
     source_neighborhood_penalties: list[float],
-) -> list[dict[str, float]]:
-    rows: list[dict[str, float]] = []
+    transition_reliability_strengths: list[float] | None = None,
+    neighborhood_window_sizes_options: list[list[int] | None] | None = None,
+    enable_adaptive_ratio_cap_values: list[bool] | None = None,
+    high_candidate_thresholds: list[float] | None = None,
+    high_candidate_quantiles: list[float] | None = None,
+) -> list[dict[str, Any]]:
+    include_v2 = any(
+        value is not None
+        for value in (
+            transition_reliability_strengths,
+            neighborhood_window_sizes_options,
+            enable_adaptive_ratio_cap_values,
+            high_candidate_thresholds,
+            high_candidate_quantiles,
+        )
+    )
+    reliability_strength_values = [0.0] if transition_reliability_strengths is None else transition_reliability_strengths
+    window_options = [None] if neighborhood_window_sizes_options is None else neighborhood_window_sizes_options
+    cap_enabled_values = [False] if enable_adaptive_ratio_cap_values is None else enable_adaptive_ratio_cap_values
+    threshold_values = [0.5] if high_candidate_thresholds is None else high_candidate_thresholds
+    quantile_values = [0.5] if high_candidate_quantiles is None else high_candidate_quantiles
+
+    rows: list[dict[str, Any]] = []
     for ratio_quantile in ratio_quantiles:
         for ratio_multiplier in ratio_multipliers:
             for min_fraction in min_fractions:
                 for max_fraction in max_fractions:
                     for target_weight in target_neighborhood_weights:
                         for source_penalty in source_neighborhood_penalties:
-                            rows.append(
-                                {
-                                    "ratio_quantile": float(ratio_quantile),
-                                    "ratio_multiplier": float(ratio_multiplier),
-                                    "min_fraction": float(min_fraction),
-                                    "max_fraction": float(max_fraction),
-                                    "target_neighborhood_weight": float(target_weight),
-                                    "source_neighborhood_penalty": float(source_penalty),
-                                }
-                            )
+                            base = {
+                                "ratio_quantile": float(ratio_quantile),
+                                "ratio_multiplier": float(ratio_multiplier),
+                                "min_fraction": float(min_fraction),
+                                "max_fraction": float(max_fraction),
+                                "target_neighborhood_weight": float(target_weight),
+                                "source_neighborhood_penalty": float(source_penalty),
+                            }
+                            if not include_v2:
+                                rows.append(base)
+                                continue
+                            for reliability_strength in reliability_strength_values:
+                                for window_sizes in window_options:
+                                    for cap_enabled in cap_enabled_values:
+                                        cap_thresholds = threshold_values if bool(cap_enabled) else [threshold_values[0]]
+                                        cap_quantiles = quantile_values if bool(cap_enabled) else [quantile_values[0]]
+                                        for high_candidate_threshold in cap_thresholds:
+                                            for high_candidate_quantile in cap_quantiles:
+                                                rows.append(
+                                                    {
+                                                        **base,
+                                                        "enable_transition_reliability": float(reliability_strength) > 0.0,
+                                                        "transition_reliability_strength": float(reliability_strength),
+                                                        "neighborhood_window_sizes": (
+                                                            None
+                                                            if window_sizes is None
+                                                            else [int(size) for size in window_sizes]
+                                                        ),
+                                                        "enable_adaptive_ratio_cap": bool(cap_enabled),
+                                                        "high_candidate_threshold": float(high_candidate_threshold),
+                                                        "high_candidate_quantile": float(high_candidate_quantile),
+                                                    }
+                                                )
     return rows
 
 
@@ -131,7 +213,7 @@ def _valid_mask(case: GateSweepCase) -> np.ndarray:
 
 def evaluate_ratio_parameters_leave_one(
     cases: list[GateSweepCase],
-    parameters: dict[str, float],
+    parameters: dict[str, Any],
 ) -> dict[str, Any]:
     if len(cases) < 2:
         raise ValueError("at least two calibration cases are required for leave-one-area tuning")
@@ -147,13 +229,45 @@ def evaluate_ratio_parameters_leave_one(
             quantile=float(parameters["ratio_quantile"]),
             multiplier=float(parameters["ratio_multiplier"]),
         )
-        candidate_fraction = _case_predicted_change_fraction(holdout)
-        target_fraction = predict_ratio_change_fraction(
-            model,
-            candidate_fraction,
-            min_fraction=float(parameters["min_fraction"]),
-            max_fraction=float(parameters["max_fraction"]),
+        enable_cap = bool(parameters.get("enable_adaptive_ratio_cap", False))
+        cap_model = (
+            fit_adaptive_ratio_cap_model(
+                predicted_fractions,
+                target_change_fractions,
+                high_candidate_threshold=float(parameters.get("high_candidate_threshold", 0.5)),
+                high_candidate_quantile=float(parameters.get("high_candidate_quantile", 0.5)),
+            )
+            if enable_cap
+            else None
         )
+        transition_strength = float(parameters.get("transition_reliability_strength", 0.0))
+        enable_transition_reliability = bool(
+            parameters.get("enable_transition_reliability", False)
+        ) or transition_strength > 0.0
+        transition_reliability_model = (
+            fit_transition_reliability_weights(
+                [(case.start_map, case.prediction_map, case.end_map) for case in training_cases]
+            )
+            if enable_transition_reliability
+            else None
+        )
+        neighborhood_window_sizes = parameters.get("neighborhood_window_sizes")
+        candidate_fraction = _case_predicted_change_fraction(holdout)
+        if cap_model is None:
+            target_fraction = predict_ratio_change_fraction(
+                model,
+                candidate_fraction,
+                min_fraction=float(parameters["min_fraction"]),
+                max_fraction=float(parameters["max_fraction"]),
+            )
+        else:
+            target_fraction = predict_ratio_change_fraction_v2(
+                model,
+                cap_model,
+                candidate_fraction,
+                min_fraction=float(parameters["min_fraction"]),
+                max_fraction=float(parameters["max_fraction"]),
+            )
         valid = _valid_mask(holdout)
         gated, diagnostics = apply_demand_calibrated_spatial_gate(
             holdout.start_map,
@@ -163,6 +277,9 @@ def evaluate_ratio_parameters_leave_one(
             valid_mask=valid,
             target_neighborhood_weight=float(parameters["target_neighborhood_weight"]),
             source_neighborhood_penalty=float(parameters["source_neighborhood_penalty"]),
+            transition_reliability_model=transition_reliability_model,
+            transition_weight_strength=transition_strength,
+            neighborhood_window_sizes=neighborhood_window_sizes,
         )
         metric = method_metric_row(
             method="paper58_spatial_demand_ratio_loo",
@@ -186,7 +303,7 @@ def evaluate_ratio_parameters_leave_one(
         )
         target_fractions.append(target_fraction)
 
-    summary = {key: float(value) for key, value in parameters.items()}
+    summary = _parameter_summary(parameters)
     for metric in METRIC_FIELDS:
         summary[f"mean_{metric}"] = float(np.mean([float(row[metric]) for row in rows]))
     summary["mean_predicted_target_change_fraction"] = float(np.mean(target_fractions))
@@ -207,7 +324,7 @@ def discover_change_gate_dirs(paths: list[Path], roots: list[Path]) -> list[Path
 def run_ratio_tuning(
     change_gate_dirs: list[Path],
     output_dir: Path,
-    grid: list[dict[str, float]],
+    grid: list[dict[str, Any]],
     *,
     min_mean_transition_accuracy: float | None = None,
 ) -> dict[str, Any]:
@@ -233,17 +350,13 @@ def run_ratio_tuning(
             if float(row.get("mean_transition_accuracy", 0.0)) >= float(min_mean_transition_accuracy)
         )
     output = Path(output_dir)
+    parameter_fields = _parameter_fields(summary_rows)
     _write_csv(
         output / "ratio_tuning_summary.csv",
         summary_rows,
         [
             "parameter_index",
-            "ratio_quantile",
-            "ratio_multiplier",
-            "min_fraction",
-            "max_fraction",
-            "target_neighborhood_weight",
-            "source_neighborhood_penalty",
+            *parameter_fields,
             "n_cases",
             "mean_change_f1",
             "mean_fom",
@@ -257,12 +370,7 @@ def run_ratio_tuning(
         case_rows,
         [
             "parameter_index",
-            "ratio_quantile",
-            "ratio_multiplier",
-            "min_fraction",
-            "max_fraction",
-            "target_neighborhood_weight",
-            "source_neighborhood_penalty",
+            *parameter_fields,
             "method",
             "area",
             "start_year",
@@ -295,6 +403,8 @@ def run_ratio_tuning(
         ),
         "min_mean_transition_accuracy": min_mean_transition_accuracy,
         "transition_floor_eligible_rows": transition_floor_eligible_rows,
+        "supports_allocator_v2": True,
+        "parameter_fields": parameter_fields,
         "best_parameters": best,
     }
     _write_json(output / "manifest.json", manifest)
@@ -303,6 +413,36 @@ def run_ratio_tuning(
 
 def _float_list(value: str) -> list[float]:
     return [float(item) for item in value.split(",") if item.strip()]
+
+
+def _bool_list(value: str) -> list[bool]:
+    booleans: list[bool] = []
+    for item in value.split(","):
+        normalized = item.strip().lower()
+        if not normalized:
+            continue
+        if normalized in {"1", "true", "t", "yes", "y"}:
+            booleans.append(True)
+        elif normalized in {"0", "false", "f", "no", "n"}:
+            booleans.append(False)
+        else:
+            raise ValueError(f"invalid boolean list item: {item}")
+    return booleans
+
+
+def _window_size_options(value: str | None) -> list[list[int] | None] | None:
+    if value is None or not value.strip():
+        return None
+    options: list[list[int] | None] = []
+    for group in value.split(";"):
+        normalized = group.strip().lower()
+        if not normalized:
+            continue
+        if normalized in {"none", "null", "default"}:
+            options.append(None)
+        else:
+            options.append([int(item) for item in normalized.split(",") if item.strip()])
+    return options
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -317,6 +457,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--target-neighborhood-weights", default="0.0,0.5,1.0")
     parser.add_argument("--source-neighborhood-penalties", default="0.0,0.25,0.5")
     parser.add_argument("--min-mean-transition-accuracy", type=float, default=None)
+    parser.add_argument("--transition-reliability-strengths", default=None)
+    parser.add_argument("--neighborhood-window-sizes", default=None)
+    parser.add_argument("--enable-adaptive-ratio-cap-values", default=None)
+    parser.add_argument("--high-candidate-thresholds", default=None)
+    parser.add_argument("--high-candidate-quantiles", default=None)
     args = parser.parse_args(argv)
     change_gate_dirs = discover_change_gate_dirs(args.change_gate_dir, args.change_gate_root)
     if not change_gate_dirs:
@@ -328,6 +473,19 @@ def main(argv: list[str] | None = None) -> int:
         max_fractions=_float_list(args.max_fractions),
         target_neighborhood_weights=_float_list(args.target_neighborhood_weights),
         source_neighborhood_penalties=_float_list(args.source_neighborhood_penalties),
+        transition_reliability_strengths=(
+            None if args.transition_reliability_strengths is None else _float_list(args.transition_reliability_strengths)
+        ),
+        neighborhood_window_sizes_options=_window_size_options(args.neighborhood_window_sizes),
+        enable_adaptive_ratio_cap_values=(
+            None if args.enable_adaptive_ratio_cap_values is None else _bool_list(args.enable_adaptive_ratio_cap_values)
+        ),
+        high_candidate_thresholds=(
+            None if args.high_candidate_thresholds is None else _float_list(args.high_candidate_thresholds)
+        ),
+        high_candidate_quantiles=(
+            None if args.high_candidate_quantiles is None else _float_list(args.high_candidate_quantiles)
+        ),
     )
     manifest = run_ratio_tuning(
         change_gate_dirs,
