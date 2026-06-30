@@ -210,6 +210,28 @@ def _read_csv(path: Path) -> list[dict[str, Any]]:
         return list(csv.DictReader(f))
 
 
+def _validate_comparison_rows(
+    rows: list[dict[str, Any]],
+    *,
+    challenger: str,
+    baseline: str,
+    source_name: str,
+) -> None:
+    expected = {"challenger": challenger, "baseline": baseline}
+    for index, row in enumerate(rows, start=1):
+        for field, expected_value in expected.items():
+            if field not in row:
+                continue
+            actual_value = str(row[field]).strip()
+            if not actual_value:
+                continue
+            if actual_value != expected_value:
+                raise ValueError(
+                    f"{source_name} row {index} has mismatched {field}: "
+                    f"{actual_value!r} != {expected_value!r}"
+                )
+
+
 def _write_csv(path: Path, rows: list[dict[str, Any]], fields: list[str]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as f:
@@ -247,7 +269,7 @@ def write_markdown_report(
         "",
         "## Mean Metric Advantages",
         "",
-        "| Metric | Paper58 | GeoSOS-FLUS | Delta | Better |",
+        "| Metric | Challenger | Baseline | Delta | Better |",
         "| --- | ---: | ---: | ---: | --- |",
     ]
     for row in mean_advantages:
@@ -332,6 +354,18 @@ def run_claim_robustness_audit(
     seeded_paired_summary = _read_csv(Path(seeded_paired_summary_path))
     seeded_metric_rows = _read_csv(Path(seeded_metrics_path))
     mean_advantages = mean_metric_advantages(metric_summary_rows, challenger=challenger, baseline=baseline)
+    _validate_comparison_rows(
+        seeded_overall_summary,
+        challenger=challenger,
+        baseline=baseline,
+        source_name="seeded_overall_summary",
+    )
+    _validate_comparison_rows(
+        seeded_paired_summary,
+        challenger=challenger,
+        baseline=baseline,
+        source_name="seeded_paired_summary",
+    )
     acceptance = evaluate_acceptance_gates(
         mean_advantages,
         seeded_overall_summary,
