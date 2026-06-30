@@ -4,6 +4,7 @@ import pytest
 
 from scripts.paper58_benchmark.claim_robustness_report import (
     GateThresholds,
+    _validate_comparison_rows,
     evaluate_acceptance_gates,
     mean_metric_advantages,
     run_claim_robustness_audit,
@@ -253,22 +254,70 @@ def test_run_claim_robustness_audit_writes_outputs(tmp_path) -> None:
     _write_csv(
         seeded_overall,
         [
-            {"metric": "change_f1", "n_better": 5, "n": 5},
-            {"metric": "fom", "n_better": 5, "n": 5},
-            {"metric": "transition_accuracy", "n_better": 5, "n": 5},
-            {"metric": "allocation_disagreement", "n_better": 3, "n": 5},
+            {
+                "challenger": "paper58_v2",
+                "baseline": "geosos_flus_console",
+                "metric": "change_f1",
+                "n_better": 5,
+                "n": 5,
+            },
+            {
+                "challenger": "paper58_v2",
+                "baseline": "geosos_flus_console",
+                "metric": "fom",
+                "n_better": 5,
+                "n": 5,
+            },
+            {
+                "challenger": "paper58_v2",
+                "baseline": "geosos_flus_console",
+                "metric": "transition_accuracy",
+                "n_better": 5,
+                "n": 5,
+            },
+            {
+                "challenger": "paper58_v2",
+                "baseline": "geosos_flus_console",
+                "metric": "allocation_disagreement",
+                "n_better": 3,
+                "n": 5,
+            },
         ],
-        ["metric", "n_better", "n"],
+        ["challenger", "baseline", "metric", "n_better", "n"],
     )
     _write_csv(
         seeded_delta,
         [
-            {"metric": "change_f1", "n_better": 67, "n": 120},
-            {"metric": "fom", "n_better": 66, "n": 120},
-            {"metric": "transition_accuracy", "n_better": 58, "n": 120},
-            {"metric": "allocation_disagreement", "n_better": 81, "n": 120},
+            {
+                "challenger": "paper58_v2",
+                "baseline": "geosos_flus_console",
+                "metric": "change_f1",
+                "n_better": 67,
+                "n": 120,
+            },
+            {
+                "challenger": "paper58_v2",
+                "baseline": "geosos_flus_console",
+                "metric": "fom",
+                "n_better": 66,
+                "n": 120,
+            },
+            {
+                "challenger": "paper58_v2",
+                "baseline": "geosos_flus_console",
+                "metric": "transition_accuracy",
+                "n_better": 58,
+                "n": 120,
+            },
+            {
+                "challenger": "paper58_v2",
+                "baseline": "geosos_flus_console",
+                "metric": "allocation_disagreement",
+                "n_better": 81,
+                "n": 120,
+            },
         ],
-        ["metric", "n_better", "n"],
+        ["challenger", "baseline", "metric", "n_better", "n"],
     )
     _write_csv(
         seeded_metrics,
@@ -374,3 +423,20 @@ def test_run_claim_robustness_audit_rejects_mismatched_seeded_summary_identity(t
         )
 
     assert not output.exists()
+
+
+@pytest.mark.parametrize(
+    ("rows", "message"),
+    [
+        ([{"baseline": "geosos_flus_console", "metric": "fom"}], "seeded_overall_summary.*missing.*challenger"),
+        ([{"challenger": "paper58_v2", "baseline": " ", "metric": "fom"}], "seeded_overall_summary.*blank.*baseline"),
+    ],
+)
+def test_validate_comparison_rows_rejects_missing_or_blank_identity(rows, message) -> None:
+    with pytest.raises(ValueError, match=message):
+        _validate_comparison_rows(
+            rows,
+            challenger="paper58_v2",
+            baseline="geosos_flus_console",
+            source_name="seeded_overall_summary",
+        )

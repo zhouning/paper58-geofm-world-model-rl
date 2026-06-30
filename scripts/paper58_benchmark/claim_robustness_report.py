@@ -221,10 +221,10 @@ def _validate_comparison_rows(
     for index, row in enumerate(rows, start=1):
         for field, expected_value in expected.items():
             if field not in row:
-                continue
+                raise ValueError(f"{source_name} row {index} is missing required {field} field")
             actual_value = str(row[field]).strip()
             if not actual_value:
-                continue
+                raise ValueError(f"{source_name} row {index} has blank {field} field")
             if actual_value != expected_value:
                 raise ValueError(
                     f"{source_name} row {index} has mismatched {field}: "
