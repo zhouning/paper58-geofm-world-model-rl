@@ -154,3 +154,42 @@ def evaluate_acceptance_gates(
         "thresholds": asdict(limits),
         "gates": gates,
     }
+
+
+def failure_rows_from_seeded_metrics(
+    metric_rows: list[dict[str, Any]],
+    *,
+    challenger: str,
+    baseline: str,
+    allocation_degradation_threshold: float = 0.02,
+) -> list[dict[str, Any]]:
+    keyed: dict[tuple[int, str, str], dict[str, Any]] = {}
+    for row in metric_rows:
+        keyed[(_to_int(row["seed"]), str(row["area"]), str(row["method"]))] = row
+
+    failures: list[dict[str, Any]] = []
+    for seed, area, method in sorted(keyed):
+        if method != challenger:
+            continue
+        challenger_row = keyed[(seed, area, challenger)]
+        baseline_row = keyed.get((seed, area, baseline))
+        if baseline_row is None:
+            continue
+        fom_delta = _to_float(challenger_row["fom"]) - _to_float(baseline_row["fom"])
+        allocation_delta = _to_float(challenger_row["allocation_disagreement"]) - _to_float(
+            baseline_row["allocation_disagreement"]
+        )
+        fom_loss = fom_delta < 0.0
+        large_allocation_degradation = allocation_delta > float(allocation_degradation_threshold)
+        if fom_loss or large_allocation_degradation:
+            failures.append(
+                {
+                    "seed": int(seed),
+                    "area": area,
+                    "fom_delta": fom_delta,
+                    "allocation_disagreement_delta": allocation_delta,
+                    "fom_loss": bool(fom_loss),
+                    "large_allocation_degradation": bool(large_allocation_degradation),
+                }
+            )
+    return failures

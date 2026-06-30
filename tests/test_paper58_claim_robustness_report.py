@@ -178,3 +178,33 @@ def test_evaluate_acceptance_gates_fails_seed_gate_when_seed_count_is_extra() ->
         }
     ]
     assert result["passed"] is False
+
+
+from scripts.paper58_benchmark.claim_robustness_report import failure_rows_from_seeded_metrics
+
+
+def test_failure_rows_from_seeded_metrics_reports_fom_losses_and_allocation_degradation() -> None:
+    rows = [
+        {"seed": "1001", "method": "paper58_v2", "area": "a", "fom": "0.10", "allocation_disagreement": "0.09"},
+        {"seed": "1001", "method": "geosos_flus_console", "area": "a", "fom": "0.12", "allocation_disagreement": "0.05"},
+        {"seed": "1001", "method": "paper58_v2", "area": "b", "fom": "0.20", "allocation_disagreement": "0.04"},
+        {"seed": "1001", "method": "geosos_flus_console", "area": "b", "fom": "0.18", "allocation_disagreement": "0.05"},
+    ]
+
+    failures = failure_rows_from_seeded_metrics(
+        rows,
+        challenger="paper58_v2",
+        baseline="geosos_flus_console",
+        allocation_degradation_threshold=0.02,
+    )
+
+    assert failures == [
+        {
+            "seed": 1001,
+            "area": "a",
+            "fom_delta": -0.01999999999999999,
+            "allocation_disagreement_delta": 0.039999999999999994,
+            "fom_loss": True,
+            "large_allocation_degradation": True,
+        }
+    ]
