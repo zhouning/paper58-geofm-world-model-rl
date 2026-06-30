@@ -100,3 +100,81 @@ def test_evaluate_acceptance_gates_fails_when_fom_paired_wins_do_not_improve() -
             "description": "FoM area-by-seed paired wins must improve beyond the current 61/120 baseline.",
         }
     ]
+
+
+def test_evaluate_acceptance_gates_fails_allocation_when_seed_count_is_short() -> None:
+    mean_advantages = [
+        {"metric": "change_f1", "better": True},
+        {"metric": "fom", "better": True},
+        {"metric": "transition_accuracy", "better": True},
+        {"metric": "allocation_disagreement", "better": True},
+    ]
+    seeded_summary = [
+        {"metric": "change_f1", "n_better": "5", "n": "5"},
+        {"metric": "fom", "n_better": "5", "n": "5"},
+        {"metric": "transition_accuracy", "n_better": "5", "n": "5"},
+        {"metric": "allocation_disagreement", "n_better": "3", "n": "3"},
+    ]
+    paired_summary = [
+        {"metric": "fom", "n_better": "66", "n": "120"},
+    ]
+
+    result = evaluate_acceptance_gates(
+        mean_advantages,
+        seeded_summary,
+        paired_summary,
+        thresholds=GateThresholds(min_fom_paired_wins=66),
+    )
+
+    allocation_gate = [row for row in result["gates"] if row["gate"] == "allocation_seed_wins"]
+    assert allocation_gate == [
+        {
+            "gate": "allocation_seed_wins",
+            "metric": "allocation_disagreement",
+            "observed": 3,
+            "required": 3,
+            "passed": False,
+            "description": "Allocation disagreement must keep at least 3/5 seeded mean wins.",
+        }
+    ]
+    assert result["passed"] is False
+
+
+def test_evaluate_acceptance_gates_fails_seed_gate_when_seed_count_is_extra() -> None:
+    mean_advantages = [
+        {"metric": "change_f1", "better": True},
+        {"metric": "fom", "better": True},
+        {"metric": "transition_accuracy", "better": True},
+        {"metric": "allocation_disagreement", "better": True},
+    ]
+    seeded_summary = [
+        {"metric": "change_f1", "n_better": "5", "n": "6"},
+        {"metric": "fom", "n_better": "5", "n": "5"},
+        {"metric": "transition_accuracy", "n_better": "5", "n": "5"},
+        {"metric": "allocation_disagreement", "n_better": "3", "n": "5"},
+    ]
+    paired_summary = [
+        {"metric": "fom", "n_better": "66", "n": "120"},
+    ]
+
+    result = evaluate_acceptance_gates(
+        mean_advantages,
+        seeded_summary,
+        paired_summary,
+        thresholds=GateThresholds(min_fom_paired_wins=66),
+    )
+
+    seed_gates = [
+        row for row in result["gates"] if row["gate"] == "seed_5_of_5" and row["metric"] == "change_f1"
+    ]
+    assert seed_gates == [
+        {
+            "gate": "seed_5_of_5",
+            "metric": "change_f1",
+            "observed": 5,
+            "required": 5,
+            "passed": False,
+            "description": "change_f1 must keep 5/5 seeded mean wins.",
+        }
+    ]
+    assert result["passed"] is False

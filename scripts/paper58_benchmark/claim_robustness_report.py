@@ -108,6 +108,7 @@ def evaluate_acceptance_gates(
     for metric in ("change_f1", "fom", "transition_accuracy"):
         row = seeded.get(metric, {})
         observed = _to_int(row.get("n_better", 0))
+        seed_count = _to_int(row.get("n", 0))
         required = limits.required_seed_wins
         gates.append(
             _gate_row(
@@ -115,19 +116,21 @@ def evaluate_acceptance_gates(
                 metric,
                 observed,
                 required,
-                observed >= required and _to_int(row.get("n", 0)) >= limits.required_seed_count,
+                observed >= required and seed_count == limits.required_seed_count,
                 f"{metric} must keep 5/5 seeded mean wins.",
             )
         )
     allocation_row = seeded.get("allocation_disagreement", {})
     allocation_observed = _to_int(allocation_row.get("n_better", 0))
+    allocation_seed_count = _to_int(allocation_row.get("n", 0))
     gates.append(
         _gate_row(
             "allocation_seed_wins",
             "allocation_disagreement",
             allocation_observed,
             limits.min_allocation_seed_wins,
-            allocation_observed >= limits.min_allocation_seed_wins,
+            allocation_observed >= limits.min_allocation_seed_wins
+            and allocation_seed_count == limits.required_seed_count,
             "Allocation disagreement must keep at least 3/5 seeded mean wins.",
         )
     )
