@@ -222,8 +222,8 @@ def _validate_comparison_rows(
         for field, expected_value in expected.items():
             if field not in row:
                 raise ValueError(f"{source_name} row {index} is missing required {field} field")
-            actual_value = str(row[field]).strip()
-            if not actual_value:
+            actual_value = str(row[field])
+            if not actual_value.strip():
                 raise ValueError(f"{source_name} row {index} has blank {field} field")
             if actual_value != expected_value:
                 raise ValueError(

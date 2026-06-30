@@ -425,6 +425,85 @@ def test_run_claim_robustness_audit_rejects_mismatched_seeded_summary_identity(t
     assert not output.exists()
 
 
+def test_run_claim_robustness_audit_rejects_whitespace_padded_seeded_summary_identity(tmp_path) -> None:
+    metric_summary = tmp_path / "metric_summary_by_method.csv"
+    seeded_overall = tmp_path / "seeded_overall_delta_summary.csv"
+    seeded_delta = tmp_path / "seeded_delta_summary.csv"
+    seeded_metrics = tmp_path / "seeded_metrics_by_method.csv"
+    output = tmp_path / "audit"
+
+    _write_csv(
+        metric_summary,
+        [
+            {
+                "method": "paper58_v2",
+                "mean_change_f1": 0.30,
+                "mean_fom": 0.13,
+                "mean_transition_accuracy": 0.29,
+                "mean_allocation_disagreement": 0.055,
+            },
+            {
+                "method": "geosos_flus_console",
+                "mean_change_f1": 0.26,
+                "mean_fom": 0.12,
+                "mean_transition_accuracy": 0.28,
+                "mean_allocation_disagreement": 0.060,
+            },
+        ],
+        ["method", "mean_change_f1", "mean_fom", "mean_transition_accuracy", "mean_allocation_disagreement"],
+    )
+    _write_csv(
+        seeded_overall,
+        [
+            {
+                "challenger": " paper58_v2 ",
+                "baseline": "geosos_flus_console",
+                "metric": "change_f1",
+                "n_better": 5,
+                "n": 5,
+            },
+        ],
+        ["challenger", "baseline", "metric", "n_better", "n"],
+    )
+    _write_csv(
+        seeded_delta,
+        [
+            {
+                "challenger": "paper58_v2",
+                "baseline": "geosos_flus_console",
+                "metric": "fom",
+                "n_better": 66,
+                "n": 120,
+            },
+        ],
+        ["challenger", "baseline", "metric", "n_better", "n"],
+    )
+    _write_csv(
+        seeded_metrics,
+        [
+            {"seed": 1001, "method": "paper58_v2", "area": "a", "fom": 0.10, "allocation_disagreement": 0.09},
+            {"seed": 1001, "method": "geosos_flus_console", "area": "a", "fom": 0.12, "allocation_disagreement": 0.05},
+        ],
+        ["seed", "method", "area", "fom", "allocation_disagreement"],
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=r"seeded_overall_summary.*challenger.*' paper58_v2 '.*'paper58_v2'",
+    ):
+        run_claim_robustness_audit(
+            metric_summary_path=metric_summary,
+            seeded_overall_summary_path=seeded_overall,
+            seeded_paired_summary_path=seeded_delta,
+            seeded_metrics_path=seeded_metrics,
+            output_dir=output,
+            challenger="paper58_v2",
+            baseline="geosos_flus_console",
+        )
+
+    assert not output.exists()
+
+
 @pytest.mark.parametrize(
     ("rows", "message"),
     [
