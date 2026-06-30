@@ -193,3 +193,222 @@ def failure_rows_from_seeded_metrics(
                 }
             )
     return failures
+
+
+def _json_ready(value: Any) -> Any:
+    if isinstance(value, Path):
+        return value.as_posix()
+    if isinstance(value, dict):
+        return {str(key): _json_ready(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_ready(item) for item in value]
+    return value
+
+
+def _read_csv(path: Path) -> list[dict[str, Any]]:
+    with Path(path).open(newline="", encoding="utf-8") as f:
+        return list(csv.DictReader(f))
+
+
+def _write_csv(path: Path, rows: list[dict[str, Any]], fields: list[str]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fields)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({field: _json_ready(row.get(field, "")) for field in fields})
+
+
+def _write_json(path: Path, payload: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(_json_ready(payload), indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+def _format_bool(value: bool) -> str:
+    return "PASS" if bool(value) else "FAIL"
+
+
+def write_markdown_report(
+    output_dir: Path,
+    *,
+    challenger: str,
+    baseline: str,
+    mean_advantages: list[dict[str, Any]],
+    acceptance: dict[str, Any],
+    failure_rows: list[dict[str, Any]],
+) -> None:
+    output = Path(output_dir)
+    lines = [
+        "# Paper58 Claim-Robustness Audit",
+        "",
+        f"- Challenger: `{challenger}`",
+        f"- Baseline: `{baseline}`",
+        f"- Phase-A required gates: {_format_bool(bool(acceptance['passed']))}",
+        "",
+        "## Mean Metric Advantages",
+        "",
+        "| Metric | Paper58 | GeoSOS-FLUS | Delta | Better |",
+        "| --- | ---: | ---: | ---: | --- |",
+    ]
+    for row in mean_advantages:
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    str(row["metric"]),
+                    f"{float(row['challenger_mean']):.6f}",
+                    f"{float(row['baseline_mean']):.6f}",
+                    f"{float(row['delta']):.6f}",
+                    "yes" if bool(row["better"]) else "no",
+                ]
+            )
+            + " |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Acceptance Gates",
+            "",
+            "| Gate | Metric | Observed | Required | Result |",
+            "| --- | --- | ---: | ---: | --- |",
+        ]
+    )
+    for row in acceptance["gates"]:
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    str(row["gate"]),
+                    str(row["metric"]),
+                    str(row["observed"]),
+                    str(row["required"]),
+                    _format_bool(bool(row["passed"])),
+                ]
+            )
+            + " |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Failure Rows",
+            "",
+            "| Seed | Area | FoM Delta | Allocation Disagreement Delta | FoM Loss | Large Allocation Degradation |",
+            "| ---: | --- | ---: | ---: | --- | --- |",
+        ]
+    )
+    for row in failure_rows:
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    str(row["seed"]),
+                    f"`{row['area']}`",
+                    f"{float(row['fom_delta']):.6f}",
+                    f"{float(row['allocation_disagreement_delta']):.6f}",
+                    "yes" if bool(row["fom_loss"]) else "no",
+                    "yes" if bool(row["large_allocation_degradation"]) else "no",
+                ]
+            )
+            + " |"
+        )
+    if not failure_rows:
+        lines.append("|  | none |  |  |  |  |")
+    (output / "README.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def run_claim_robustness_audit(
+    *,
+    metric_summary_path: Path,
+    seeded_overall_summary_path: Path,
+    seeded_paired_summary_path: Path,
+    seeded_metrics_path: Path,
+    output_dir: Path,
+    challenger: str,
+    baseline: str = "geosos_flus_console",
+    thresholds: GateThresholds | None = None,
+) -> dict[str, Any]:
+    metric_summary_rows = _read_csv(Path(metric_summary_path))
+    seeded_overall_summary = _read_csv(Path(seeded_overall_summary_path))
+    seeded_paired_summary = _read_csv(Path(seeded_paired_summary_path))
+    seeded_metric_rows = _read_csv(Path(seeded_metrics_path))
+    mean_advantages = mean_metric_advantages(metric_summary_rows, challenger=challenger, baseline=baseline)
+    acceptance = evaluate_acceptance_gates(
+        mean_advantages,
+        seeded_overall_summary,
+        seeded_paired_summary,
+        thresholds=thresholds,
+    )
+    failures = failure_rows_from_seeded_metrics(
+        seeded_metric_rows,
+        challenger=challenger,
+        baseline=baseline,
+    )
+    output = Path(output_dir)
+    output.mkdir(parents=True, exist_ok=True)
+    _write_csv(
+        output / "mean_metric_advantages.csv",
+        mean_advantages,
+        ["metric", "challenger", "baseline", "challenger_mean", "baseline_mean", "delta", "higher_is_better", "better"],
+    )
+    _write_csv(
+        output / "acceptance_gates.csv",
+        acceptance["gates"],
+        ["gate", "metric", "observed", "required", "passed", "description"],
+    )
+    _write_csv(
+        output / "failure_rows.csv",
+        failures,
+        ["seed", "area", "fom_delta", "allocation_disagreement_delta", "fom_loss", "large_allocation_degradation"],
+    )
+    payload = {
+        "created_at_utc": datetime.now(timezone.utc).isoformat(),
+        "challenger": challenger,
+        "baseline": baseline,
+        "metric_summary_path": Path(metric_summary_path),
+        "seeded_overall_summary_path": Path(seeded_overall_summary_path),
+        "seeded_paired_summary_path": Path(seeded_paired_summary_path),
+        "seeded_metrics_path": Path(seeded_metrics_path),
+        "mean_advantages": mean_advantages,
+        "acceptance": acceptance,
+        "failure_rows": failures,
+    }
+    _write_json(output / "claim_robustness_summary.json", payload)
+    write_markdown_report(
+        output,
+        challenger=challenger,
+        baseline=baseline,
+        mean_advantages=mean_advantages,
+        acceptance=acceptance,
+        failure_rows=failures,
+    )
+    return payload
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Audit Paper58 claim robustness against fixed GeoSOS-FLUS outputs.")
+    parser.add_argument("--metric-summary", type=Path, required=True)
+    parser.add_argument("--seeded-overall-summary", type=Path, required=True)
+    parser.add_argument("--seeded-paired-summary", type=Path, required=True)
+    parser.add_argument("--seeded-metrics", type=Path, required=True)
+    parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--challenger", required=True)
+    parser.add_argument("--baseline", default="geosos_flus_console")
+    args = parser.parse_args(argv)
+    result = run_claim_robustness_audit(
+        metric_summary_path=args.metric_summary,
+        seeded_overall_summary_path=args.seeded_overall_summary,
+        seeded_paired_summary_path=args.seeded_paired_summary,
+        seeded_metrics_path=args.seeded_metrics,
+        output_dir=args.output_dir,
+        challenger=args.challenger,
+        baseline=args.baseline,
+    )
+    print(
+        "Paper58 claim robustness audit complete: "
+        f"passed={result['acceptance']['passed']}, output={args.output_dir}"
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
