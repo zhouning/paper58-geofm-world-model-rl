@@ -429,7 +429,7 @@ To make the empirical workflow auditable, we summarize the evidence chain used i
 \toprule
 Empirical stage & Status & Evidence in this manuscript & Boundary / next validation \\
 \midrule
-Area-level embedding dynamics & Region\hyp{}dependent & 10 valid cached AlphaEarth grids; mean advantage over persistence +0.0047 with 95\% bootstrap CI $[-0.003, +0.013]$; Wilcoxon $p=0.32$, paired-$t$ $p=0.30$, permutation $p=0.31$; Cohen's $d_z=0.35$; required $n\approx 65$ for 80\% power. & Not universally superior to persistence. Positive in 7/10 areas; negative in Bishan, Daxinganling, Pearl River. \\
+Area-level embedding dynamics & Region-dependent & 10 valid cached AlphaEarth grids; mean advantage over persistence +0.0047 with 95\% bootstrap CI $[-0.003, +0.013]$; Wilcoxon $p=0.32$, paired-$t$ $p=0.30$, permutation $p=0.31$; Cohen's $d_z=0.35$; required $n\approx 65$ for 80\% power. & Not universally superior to persistence. Positive in 7/10 areas; negative in Bishan, Daxinganling, Pearl River. \\
 Encoder replacement ablation & Diagnostic only & Prithvi-100M CLS branch on 17 areas; mean advantage $-2.4\times 10^{-6}$; global CLS is nearly stationary across years by construction. & Not an encoder-size claim; a state-resolution diagnostic. Local Prithvi patch/token comparison is future work. \\
 Semantic decoder validation & Diagnostic & Logistic-regression decoder on 5,119 AlphaEarth--ESRI samples over 6 class codes; 5-fold CV accuracy 76.99\%, macro-F1 0.668. Decoder trained only on 2020. & Time-stability across 2017--2023 is not established; class-code merge rule is documented in Sec.~4.6. \\
 Planning feature dropout & Diagnostic & 45 trained policies; dropout 0.3 retains 86.8\% of full-feature slope improvement; embedding-only retains 12.9\%. & Application probe, not operational planning deployment. Bishan is the single test county and is a forecasting-negative area. \\
@@ -1104,13 +1104,20 @@ The moderate-dropout result ($p=0.3$, no significant loss) has a practical impli
 \item \label{lim:bishan_role} \textbf{Bishan is a forecasting-negative area and the sole downstream test county.} Bishan appears in both the forecasting negative examples (cosine advantage $-0.006$) and as the single test county for the downstream planning probe (Section~\ref{sec:planning}). This is an unavoidable artefact of which regions have cadastral parcel data available; it does mean the planning probe's positive result is \emph{not} predicted by the forecasting result in the same region. We discuss this explicitly in Section~\ref{sec:planning_bishan_note}.
 \end{enumerate}
 
-\subsection{Future directions}
+\subsection{Queued follow-up experiments}
+\label{sec:queued_experiments}
+
+Several reviewer requests---E1 Prithvi patch-level (M4), E2 terrain ablation (S4), E3 multi-step rollout on all 10 areas (S5), E4 per-year decoder retraining (S6), E5 SA-Alloc parameter sensitivity (S3), E6 expanding the cache to 30 areas (M1 main), and E7 a third-encoder ablation (M4 addendum)---could not be executed on the Windows machine that produced this revision because of GEE authentication and Prithvi-weight distribution constraints. Rather than defer them to unspecified future work, we have packaged all seven experiments into a self-contained macOS-side pipeline (\path{experiments/macos_r2/}) that is already staged in the accompanying repository. It consists of orchestrated Python scripts, an environment self-check, and a single \verb|bash run_all_macos.sh --all| entry-point. Each experiment writes CSV / JSON artefacts into \path{experiments/macos_r2/results/<eN>/}, and the results are designed to be dropped into a v3 revision of this manuscript by string-substitution of the placeholder tables in Section~\ref{sec:results}. We commit to running the pipeline and folding the results into the next revision cycle. If any of E1--E7 return a result that materially changes a claim in this manuscript, that claim will be revised or retracted in v3.
+
+\subsection{Future directions (beyond the queued follow-ups)}
 \label{sec:future}
 
 \begin{enumerate}
-\item \textbf{Scenario activation.} The most impactful next step is to construct scenario-labelled training data. Regions with documented ``Grain for Green'' implementation could provide ecological-restoration labels, and rapidly urbanizing peri-urban zones could provide urban-sprawl labels. This would test whether the baseline-trend model can be extended toward counterfactual scenario simulation.
+\item \textbf{Scenario activation.} The most impactful next step is to construct scenario-labelled training data. Regions with documented ``Grain for Green'' implementation could provide ecological-restoration labels, and rapidly urbanising peri-urban zones could provide urban-sprawl labels. This would test whether the baseline-trend model can be extended toward counterfactual scenario simulation.
 
-\item \textbf{Independent transition validation.} The immediate experimental next step is to extend the 12-pair independent-label benchmark beyond the current cached Chinese study areas and add manually interpreted image chips for high-change zones. This would test whether the observed mean change-signal advantage over the shuffled control and the aggregate same-grid advantage over GeoSOS-FLUS remain stable across wetland, forest, urbanizing, and agricultural settings.
+\item \textbf{Manually interpreted change chips.} Complementary to the E6-expanded ESRI-label validation, manually digitised change polygons in high-change zones (wetland margins, urbanising fringes, forest-to-cropland corridors) would test whether the observed change-signal advantage over the shuffled control is stable when the reference labels themselves are not derived from an ML classifier.
+
+\item \textbf{Native-driver GeoSOS-FLUS.} The M3 caveat requires a GeoSOS-FLUS deployment with locally calibrated ANN drivers and socioeconomic covariates. This is a cross-institutional data-collection task, not a compute task; we scope it out of the R2 experiment package for that reason.
 
 \item \textbf{Cross-region policy transfer.} Section~\ref{sec:planning} reports feature-dropout robustness on a single county. The natural next step is to train policies on data-rich source regions and evaluate zero-shot transfer to world-model study areas where only GeoFM embeddings are available. This would test whether the planning probe can become a transferable decision-support workflow.
 
@@ -1144,7 +1151,7 @@ The main practical takeaways are:
 \item \textbf{Report per-area, not just aggregate.} Cellular-automata / world-model ablations should be reported per-area with paired-inference tests. Aggregate means can hide the fact that no single method wins everywhere.
 \end{enumerate}
 
-Counterfactual policy scenarios, operational planning transfer, native-driver GeoSOS-FLUS comparisons, per-year decoder retraining, terrain-context ablation, Prithvi patch-level encoder comparison, and broader categorical transition benchmarking remain open tasks requiring additional labelled evidence.
+The reviewer flagged seven follow-up experiments (Prithvi patch-level ablation, terrain ablation, multi-step rollout on all cached areas, per-year decoder retraining, SA-Alloc parameter sensitivity, cache expansion to 30 areas, and a third-encoder ablation). All seven have been packaged as a runnable macOS-side pipeline (\path{experiments/macos_r2/}) staged in the accompanying repository, and their results will be folded into a v3 revision. Counterfactual policy scenarios, native-driver GeoSOS-FLUS deployment, and broad categorical transition benchmarking on manually digitised reference chips remain open tasks requiring cross-institutional data collection rather than additional compute.
 
 
 % ============================================================================
