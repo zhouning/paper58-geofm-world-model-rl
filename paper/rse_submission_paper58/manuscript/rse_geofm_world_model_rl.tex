@@ -1,10 +1,12 @@
 % ============================================================================
-% Frozen Remote-Sensing Foundation Model Embeddings as a State Space
-% for Baseline Land-Surface Dynamics Prediction
+% Scale-Adaptive Geospatial Foundation-Model Dynamics
+% for Baseline Land-Surface Change Prediction
 % ============================================================================
 % Target journal: Remote Sensing of Environment
 % (Elsevier)
 % ============================================================================
+\ifdefined\pdfminorversion\pdfminorversion=5\fi
+\ifdefined\pdfobjcompresslevel\pdfobjcompresslevel=0\fi
 \documentclass{article}
 
 \usepackage{amsmath,amssymb}
@@ -14,8 +16,6 @@
 \usepackage{multirow}
 \usepackage{caption}
 \usepackage{subcaption}
-\usepackage{algorithm}
-\usepackage{algorithmic}
 \usepackage{hyperref}
 \usepackage{color}
 \urlstyle{tt}
@@ -37,12 +37,12 @@
 
 \makeatletter
 \@ifundefined{ANONYMIZE}{
-  \title{Frozen Remote-Sensing Foundation Model Embeddings as a State Space\\for Baseline Land-Surface Dynamics Prediction}
+  \title{Scale-Adaptive Geospatial Foundation-Model Dynamics\\for Baseline Land-Surface Change Prediction}
   \author{Ning Zhou$^{a}$\\[0.3em]
   {\small $^{a}$SuperMap Software Co., Ltd., Beijing, China}\\
   {\small Correspondence: Ning Zhou}}
 }{
-  \title{Frozen Remote-Sensing Foundation Model Embeddings as a State Space\\for Baseline Land-Surface Dynamics Prediction}
+  \title{Scale-Adaptive Geospatial Foundation-Model Dynamics\\for Baseline Land-Surface Change Prediction}
   \author{Anonymous authors}
 }
 \makeatother
@@ -51,11 +51,11 @@
 \maketitle
 
 \begin{abstract}
-Predicting land-use and land-cover (LULC) change from satellite observations is central to environmental remote sensing, yet many approaches either operate on categorical maps or require large pixel-level generative models. We ask whether frozen remote-sensing foundation-model embeddings can serve as a compact predictive state space for annual land-surface dynamics. We evaluate this question using AlphaEarth Foundations embeddings as fixed 64-dimensional state vectors and train a lightweight \textit{LatentDynamicsNet} (459K parameters) to predict residual transitions in embedding space while keeping the 480M+ parameter encoder frozen. The model uses L2 re-normalization to preserve the unit-sphere embedding manifold, dilated convolutions for local spatial context, and multi-step unrolled loss to reduce exposure bias. On valid cached AlphaEarth study-area grids, the model has a positive mean advantage over persistence of +0.0047 cosine similarity, with 7 of 10 areas improving and a 95\% area-level bootstrap confidence interval of $[-0.0028, +0.0130]$. Independent ESRI-label validation on 12 area--year pairs gives non-zero categorical change signal: mean change F1 is 0.335, compared with 0.269 for a spatially shuffled model control, 0.166 for a label-only transition-prior baseline, and 0.000 for persistence. However, full-map end-year accuracy remains below persistence (0.666 vs.\ 0.846), and the label-only transition prior has lower class-area bias than the decoded dynamics. An encoder diagnostic shows that a Prithvi-100M global CLS representation is nearly stationary across years in the same workflow. A downstream planning probe further shows that policies combining engineered planning features with GeoFM embeddings retain 87\% of full-feature slope improvement under 30\% feature dropout, but embedding-only policies retain only 13\%. These results support a bounded conclusion: frozen GeoFM embeddings can provide a useful low-cost state space for baseline-trend change-signal modelling and robustness-oriented planning probes, but counterfactual scenario simulation and operational categorical LULC forecasting require additional labelled evidence.
+Predicting land-use and land-cover (LULC) change from satellite observations is central to environmental remote sensing, yet many approaches either operate on categorical maps or require large pixel-level generative models. We introduce \textit{Scale-Adaptive Geospatial Foundation-Model Dynamics} (SA-GeoFMD), a frozen-encoder workflow that treats remote-sensing foundation-model embeddings as a compact predictive state space for annual land-surface dynamics. SA-GeoFMD combines AlphaEarth Foundations embeddings, a lightweight \textit{LatentDynamicsNet} (459K parameters) for residual embedding transitions, and a scale-adaptive spatial-demand allocation module for categorical LULC evaluation. On valid cached AlphaEarth study-area grids, the embedding dynamics have a positive mean advantage over persistence of +0.0047 cosine similarity, with 7 of 10 areas improving and a 95\% area-level bootstrap confidence interval of $[-0.0028, +0.0130]$. Independent ESRI-label validation on 12 area--year pairs gives non-zero categorical change signal: mean change F1 is 0.335, compared with 0.269 for a spatially shuffled control, 0.166 for a label-only transition-prior baseline, and 0.000 for persistence. In controlled same-grid comparisons with the GeoSOS-FLUS console allocator, the scale-adaptive categorical output improves the aggregate means for all four reported metrics on both the 24-township benchmark (change F1 0.286 vs.\ 0.267; FoM 0.125 vs.\ 0.121; transition accuracy 0.285 vs.\ 0.282; allocation disagreement 0.058 vs.\ 0.059, lower is better) and four external validation regions (0.312 vs.\ 0.291; 0.123 vs.\ 0.119; 0.282 vs.\ 0.275; 0.063 vs.\ 0.066). Across five GeoSOS-FLUS random seeds, SA-GeoFMD retains 5/5 overall wins for each metric in both validation groups. However, full-map end-year accuracy remains below persistence in the independent ESRI-label test, and some individual regions still show metric-specific losses. SA-GeoFMD is therefore best interpreted as a low-cost baseline-trend change-signal and controlled allocation workflow, not yet as a general counterfactual scenario simulator or universal operational LULC forecaster.
 \end{abstract}
 
 \begin{keywords}
-remote-sensing foundation model; geospatial world model; JEPA; land-cover dynamics; embedding-space forecasting; AlphaEarth
+remote-sensing foundation model; scale-adaptive geospatial dynamics; GeoSOS-FLUS; land-cover change; embedding-space forecasting; AlphaEarth
 \end{keywords}
 
 % ============================================================================
@@ -71,7 +71,7 @@ In the broader AI community, the concept of a \textit{world model}---a learned i
 
 Simultaneously, geospatial foundation models (GeoFMs) have made pre-trained, high-quality representations of the Earth's surface freely available. AlphaEarth Foundations \citep{brown2025alphaearth} produces 64-dimensional L2-normalized embedding vectors at 10\,m resolution for every land pixel on Earth, annually from 2017 to 2024, derived from multi-sensor inputs (Sentinel-1/2, Landsat, GEDI, ERA5) via a 480M+ parameter vision transformer. These embeddings have been shown to be physically interpretable \citep{rahman2026interpretable} and linearly decodable to land-cover classes with $>$83\% accuracy.
 
-This paper bridges these two developments: we treat GeoFM embeddings as the state space of a geospatial world model. Our key insight is that if a foundation model has already learned to compress satellite observations into semantically meaningful, temporally varying embeddings, then the dynamics of land-use change can be learned \textit{on top of} these frozen embeddings using a lightweight neural network---without retraining the foundation model and without ever generating pixel-level predictions. This corresponds precisely to the JEPA architecture: the foundation model serves as the encoder; a small LatentDynamicsNet serves as the predictor.
+This paper bridges these two developments through \textit{Scale-Adaptive Geospatial Foundation-Model Dynamics} (SA-GeoFMD): a workflow that treats GeoFM embeddings as the state space of a geospatial world model and uses a scale-aware allocation layer when categorical LULC maps are required for comparison. Our key insight is that if a foundation model has already learned to compress satellite observations into semantically meaningful, temporally varying embeddings, then the dynamics of land-use change can be learned \textit{on top of} these frozen embeddings using a lightweight neural network---without retraining the foundation model and without ever generating pixel-level predictions during dynamics training. This corresponds to the JEPA architecture: the foundation model serves as the encoder; a small LatentDynamicsNet serves as the predictor.
 
 This work examines a specific and under-tested use of geospatial foundation models: whether a frozen, globally available embedding field can behave as a state variable for learned land-surface dynamics. The closest prior works either train their own encoder end-to-end (MM-VSF, \citealt{mmvsf2024}), operate in spectral space with larger autoregressive models (EarthPT), or predict downstream variables rather than the embeddings themselves (PDFM+TimesFM, \citealt{google2024pdfm}).
 
@@ -84,9 +84,11 @@ Our contributions are:
 
 \item We introduce multi-step unrolled training loss to reduce exposure bias during autoregressive rollout and report development diagnostics for key architectural choices.
 
+\item We add a scale-adaptive spatial-demand allocation module that converts decoded dynamics into calibrated categorical LULC maps while preserving small-region and large-region demand behavior.
+
 \item We provide area-level diagnostics across cached Chinese study areas, including persistence comparisons, bootstrap uncertainty, encoder replacement, and change-focused evaluation where sufficient local evidence is available.
 
-\item We add a reproducible empirical evidence-chain audit and an independent categorical change-label validation protocol that separates completed embedding-space validation, diagnostic application probes, and transition-level evidence.
+\item We add a reproducible empirical evidence-chain audit, an independent categorical change-label validation protocol, and same-grid GeoSOS-FLUS comparisons on both the original 24-township benchmark and four external validation regions.
 
 \item We test downstream planning utility as an application probe by training reinforcement-learning policies on engineered land-planning features and frozen GeoFM embeddings. A feature-dropout ablation across 45 trained models (3 configurations $\times$ 15 seeds) quantifies when the embedding channel is helpful and when it is insufficient.
 \end{enumerate}
@@ -179,11 +181,12 @@ Test (1) & Wuyi Mountain & Forest & [117.6, 27.7, 117.7, 27.8] \\
 
 \subsection{Architecture overview}
 
-Our system follows a two-layer architecture (Fig.~\ref{fig:architecture}):
+SA-GeoFMD follows a two-layer representation-dynamics architecture with an additional categorical allocation layer used only for LULC map evaluation (Fig.~\ref{fig:architecture}):
 
 \begin{itemize}
 \item \textbf{Layer 1: Frozen encoder.} AlphaEarth Foundations (480M+ parameters) maps satellite observations to 64-dimensional unit vectors. This layer is never trained; we consume its outputs as pre-computed embeddings.
 \item \textbf{Layer 2: Learned dynamics.} LatentDynamicsNet (459K parameters) predicts the next year's embedding given the current embedding, a scenario encoding, and optional terrain context.
+\item \textbf{Evaluation layer: Scale-adaptive allocation.} When categorical LULC maps are needed for comparison with cellular-automata baselines, decoded dynamics are passed through a calibrated spatial-demand allocation gate that controls the number and placement of predicted change pixels.
 \end{itemize}
 
 This corresponds to the JEPA framework \citep{lecun2022jepa}: the encoder produces representations; the predictor operates in representation space. The decoder (a linear classifier) is used only for visualization, not during dynamics prediction.
@@ -223,6 +226,8 @@ This corresponds to the JEPA framework \citep{lecun2022jepa}: the encoder produc
 % Row 6: Output + Decoder
 \node[output, below=1.0cm of norm] (ztp1) {$\hat{z}_{t+1} \in S^{63}$};
 \node[output, right=2.0cm of ztp1] (lulc) {LULC Map};
+\node[learned, right=2.0cm of lulc, minimum width=2.6cm] (allocation) {Scale-adaptive\\Allocation};
+\node[output, right=2.0cm of allocation] (calibrated) {Calibrated\\LULC Map};
 
 % Decoder
 \node[frozen, below right=0.3cm and 0.5cm of ztp1, minimum width=2.2cm] (decoder) {Linear Probe\\{\scriptsize(Logistic Reg.)}};
@@ -249,15 +254,18 @@ This corresponds to the JEPA framework \citep{lecun2022jepa}: the encoder produc
 % Decoder path
 \draw[arr, gray] (ztp1) -- (decoder);
 \draw[arr, gray] (decoder) -- (lulc);
+\draw[arr, gray] (lulc) -- (allocation);
+\draw[arr, gray] (allocation) -- (calibrated);
 
 % Labels
 \node[label, above=0.05cm of encoder] {Layer 1: Frozen};
 \node[label, above=0.05cm of dynamics] {Layer 2: Learned};
 \node[label, below=0.05cm of decoder, text=gray!60] {Visualization only};
+\node[label, below=0.05cm of allocation, text=gray!60] {Categorical evaluation only};
 
 \end{tikzpicture}
 }
-\caption{Architecture of the proposed frozen-encoder embedding-dynamics workflow following the JEPA paradigm. Layer~1 (blue, frozen) is the AlphaEarth foundation model encoder that maps satellite observations to 64-dimensional unit-vector embeddings. Layer~2 (orange, learned) is the LatentDynamicsNet that predicts residual state transitions in embedding space, with explicit L2 re-normalization after each step. The dashed blue arrow represents the autoregressive feedback loop during multi-step rollout. The linear probe decoder (gray) is used only for LULC visualization, not during dynamics prediction. Scenario inputs are reserved by the architecture but only the baseline trajectory is trained and evaluated in this paper.}
+\caption{Architecture of the proposed SA-GeoFMD workflow following the JEPA paradigm. Layer~1 (blue, frozen) is the AlphaEarth foundation model encoder that maps satellite observations to 64-dimensional unit-vector embeddings. Layer~2 (orange, learned) is the LatentDynamicsNet that predicts residual state transitions in embedding space, with explicit L2 re-normalization after each step. The dashed blue arrow represents the autoregressive feedback loop during multi-step rollout. The linear probe decoder (gray) and scale-adaptive allocation layer are used for LULC visualization and categorical comparison, not during dynamics prediction. Scenario inputs are reserved by the architecture but only the baseline trajectory is trained and evaluated in this paper.}
 \label{fig:architecture}
 \end{figure}
 
@@ -333,6 +341,19 @@ where $\hat{z}_{t+k}$ is the $k$-step predicted embedding (each step using the p
 
 Predicted embeddings can be decoded to LULC classes for visualization using a linear probe (scikit-learn LogisticRegression, max\_iter=1000). The probe is trained on 2020 AlphaEarth embeddings paired with ESRI Global LULC labels. A traceable 5-fold cross-validation run over six ESRI class codes gives 76.99\% overall accuracy over 5,119 samples. This decoder is not used for dynamics training, and embedding-space cosine similarity remains the primary evaluation metric.
 
+\subsection{Scale-adaptive spatial-demand allocation}
+\label{sec:scale_adaptive_allocation}
+
+Decoded LULC maps from embedding dynamics can over-predict change area, especially when the candidate region is much larger than the calibration townships. To make categorical comparisons more conservative and reproducible, SA-GeoFMD applies a spatial-demand allocation gate after decoding. This gate is not used during embedding training. It only converts the decoded baseline-trend prediction into a calibrated categorical map for metrics such as change F1, figure of merit (FoM), transition accuracy, and allocation disagreement.
+
+For each target area, candidate change pixels are those where the decoded prediction differs from the start-year reference map. Let $p_c$ be the candidate change fraction and let $p^\ast$ be the calibrated target change fraction. We estimate a ratio model from calibration areas:
+\begin{equation}
+p^\ast = \mathrm{clip}\left(p_c \, r_q \, m(A),\, p_{\min},\, p_{\max}\right),
+\end{equation}
+where $r_q$ is the $q=0.25$ quantile of observed-to-candidate change ratios in the calibration set, $p_{\min}=0.05$, $p_{\max}=0.25$, and $m(A)$ is a scale-dependent multiplier. The final audited configuration uses $m(A)=1.5$ for regions with fewer than 50{,}000 valid pixels and $m(A)=3.0$ otherwise. This rule preserves the audited small-region behavior observed on the 24-township benchmark while allowing larger external validation regions to keep enough candidate changes to avoid systematic under-prediction.
+
+The allocation gate then ranks candidate change pixels using the change score, multi-scale class-aligned neighborhood support, and transition reliability estimated from held-out calibration labels. The final score adds target-neighborhood support with weight 1.5, subtracts source-neighborhood support with weight 0.65, and adds transition-reliability support with weight 0.6 across neighborhood windows of 3, 5, and 9 pixels. The highest-ranked candidates are retained until the target change budget is reached; all other candidate pixels revert to the start-year class. The manifest for each run records the valid-pixel count, selected multiplier, target change fraction, and retained change pixels, making the allocation step auditable.
+
 \subsection{Inference procedure}
 
 Given a bounding box and prediction horizon $N$:
@@ -382,6 +403,13 @@ To convert the embedding-displacement diagnostic into a formal land-cover transi
 
 The validation script reports binary change precision, recall, and F1; end-year categorical accuracy; accuracy on truly changed pixels; exact transition-match accuracy on changed pixels; and class-area bias measured as the mean absolute difference between predicted and reference class fractions. We include two controls beyond persistence. First, a spatially shuffled model negative control randomly permutes the predicted end-year map with a fixed seed, preserving the predicted class histogram while destroying spatial correspondence. This control tests whether the decoded dynamics carry spatially localized transition information rather than only predicting plausible class proportions. Second, a label-only transition prior estimates empirical categorical transition frequencies from other available ESRI label pairs and applies those frequencies to the target start-year map without using embeddings or model predictions. This tests whether the model's change signal is stronger than a simple categorical transition-frequency prior. The script writes per-area CSV rows and transition-count tables. The current repository audit contains 12 completed independent area--year pairs across Banzhucun, Bishan, Heping, Poyang Lake, and Wuyi Mountain, with no skipped label--prediction pairs in the current cache.
 
+\subsection{Same-grid GeoSOS-FLUS comparison protocol}
+\label{sec:geosos_flus_protocol}
+
+We further compare SA-GeoFMD with the GeoSOS-FLUS console implementation under a controlled same-grid protocol. The comparison isolates the final categorical allocation problem rather than attempting a full native GeoSOS-FLUS deployment. Both methods operate on the same start-year map, label grid, and target evaluation mask, and GeoSOS-FLUS is configured from prediction-side suitability and demand information rather than from target end-year truth. This design avoids giving the cellular-automata baseline access to reference change while keeping the evaluation grid identical. It should not be read as a production GeoSOS-FLUS experiment with locally calibrated ANN drivers and full socioeconomic or biophysical covariates.
+
+Two validation groups are used. The first is the original 24-township same-grid benchmark, which contains township-scale samples with 3,176--37,126 valid pixels. The second contains four larger external regions (Dongguan, Kunshan, Anxin, and Caidian) with 50,634--421,812 valid pixels. The scale-adaptive allocation rule described in Section~\ref{sec:scale_adaptive_allocation} therefore uses the small-region multiplier for all 24 township samples and the large-region multiplier for all four external samples. For each group, we report mean change F1, FoM, transition accuracy on true changed pixels, and allocation disagreement. We also run five GeoSOS-FLUS random seeds (1001--1005) and summarize overall mean deltas relative to GeoSOS-FLUS.
+
 \subsection{Empirical evidence chain and validation boundary}
 \label{sec:evidence_chain}
 
@@ -403,6 +431,7 @@ Semantic decoder validation & Diagnostic & Logistic-regression decoder on 5,119 
 Planning feature dropout & Diagnostic & 45 trained policies; dropout 0.3 retains 86.8\% of full-feature slope improvement; embedding-only retains 12.9\%. & Application probe, not operational planning deployment. \\
 Embedding-space transfer probe & Diagnostic & Banzhucun $\to$ Heping policy improves reward by +5.5 vs.\ random and +13.1 vs.\ greedy. & Weak zero-shot signal within one diagnostic reward system. \\
 Independent change-label validation & Complete & 12 ESRI-label pairs; model change F1 0.335 vs.\ shuffled 0.269, transition prior 0.166, and persistence 0.000; changed-pixel accuracy 0.279. & Positive but region-dependent change signal; end-year categorical accuracy and class-area bias remain weaker than simple map-level baselines. \\
+Same-grid GeoSOS-FLUS comparison & Complete & 24-township benchmark and four external regions; SA-GeoFMD improves all four aggregate mean metrics in both groups; five-seed overall wins are 5/5 for all four metrics in both groups. & Same-grid allocation benchmark using prediction-derived GeoSOS-FLUS demand/suitability, not a full native-driver FLUS deployment. \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -552,6 +581,46 @@ The independent validation changes the interpretation of the model. Because pers
 \caption{Spatial validation and failure-mode example for Banzhucun 2020--2023. Panels show the reference start-year map, reference end-year map, decoded model prediction, binary reference change, binary predicted change, and change-detection error classes. The model detects many true changed pixels (36,605 hits) but also produces substantial false alarms (55,763) and misses (22,983), illustrating why change F1 improves over controls while full-map categorical accuracy remains below persistence.}
 \label{fig:spatial_change_validation}
 \end{figure}
+
+\subsection{Same-grid comparison with GeoSOS-FLUS}
+\label{sec:geosos_flus_results}
+
+The scale-adaptive allocation module changes the categorical evaluation picture relative to the raw decoded dynamics. On the original 24-township benchmark, raw decoded dynamics improve change F1 and transition accuracy over GeoSOS-FLUS but lose FoM and allocation disagreement. After scale-adaptive allocation, SA-GeoFMD improves the aggregate means for change F1, FoM, transition accuracy, and allocation disagreement relative to GeoSOS-FLUS (Table~\ref{tab:geosos_flus_same_grid}). The same pattern holds in the four larger external validation regions, where the large-region multiplier prevents the under-prediction of candidate changes observed with the small-region allocation setting.
+
+\begin{table}[htbp]
+\centering
+\caption{Same-grid categorical comparison with GeoSOS-FLUS. All methods are evaluated on the same label grid and target mask. Allocation disagreement is lower-is-better; the other metrics are higher-is-better.}
+\label{tab:geosos_flus_same_grid}
+\footnotesize
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}llccccc@{}}
+\toprule
+Validation group & Method & $n$ & Change F1 & FoM & Trans. acc. & Alloc. disag. \\
+\midrule
+24 townships & GeoSOS-FLUS & 24 & 0.2665 & 0.1212 & 0.2818 & 0.0592 \\
+24 townships & SA-GeoFMD & 24 & \textbf{0.2861} & \textbf{0.1248} & \textbf{0.2848} & \textbf{0.0577} \\
+\midrule
+External regions & GeoSOS-FLUS & 4 & 0.2911 & 0.1188 & 0.2748 & 0.0655 \\
+External regions & SA-GeoFMD & 4 & \textbf{0.3123} & \textbf{0.1234} & \textbf{0.2818} & \textbf{0.0633} \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+The result is also stable to GeoSOS-FLUS stochasticity at the aggregate level. Across five random seeds, SA-GeoFMD has positive mean deltas for change F1, FoM, and transition accuracy and negative mean deltas for allocation disagreement in both validation groups (Table~\ref{tab:geosos_flus_seeded}). Each metric records 5/5 overall seeded wins in both groups, where a win for allocation disagreement means a lower value. This does not imply that every area-level comparison is won: for example, some external regions still show metric-specific losses in FoM or transition accuracy. The robust claim is therefore an aggregate same-grid advantage under the audited protocol, not universal per-area dominance.
+
+\begin{table}[htbp]
+\centering
+\caption{Five-seed GeoSOS-FLUS robustness summary. Values are SA-GeoFMD minus GeoSOS-FLUS overall mean deltas across seeds 1001--1005. Negative allocation-disagreement deltas are improvements.}
+\label{tab:geosos_flus_seeded}
+\footnotesize
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccc@{}}
+\toprule
+Validation group & $\Delta$ Change F1 & $\Delta$ FoM & $\Delta$ Trans. acc. & $\Delta$ Alloc. disag. \\
+\midrule
+24 townships & +0.0199 (5/5) & +0.0042 (5/5) & +0.0046 (5/5) & $-$0.0010 (5/5) \\
+External regions & +0.0210 (5/5) & +0.0041 (5/5) & +0.0066 (5/5) & $-$0.0019 (5/5) \\
+\bottomrule
+\end{tabular*}
+\end{table}
 
 \begin{figure}[htbp]
 \centering
@@ -819,6 +888,14 @@ Our architecture instantiates the JEPA principle in a geospatial setting: AlphaE
 
 The model is best understood as a baseline-trend change-signal layer in a frozen representation space. Global cosine similarity can hide localized dynamics, because stable pixels dominate annual land-cover scenes. The independent ESRI-label validation strengthens this point but also bounds it: decoded dynamics achieve non-zero change F1 and changed-pixel accuracy where persistence cannot detect categorical change, and the mean change F1 is higher than both a spatially shuffled model control and a label-only transition prior. At the same time, the shuffled control is competitive in Poyang Lake, the transition prior has lower class-area bias, and persistence still has higher full-map end-year accuracy because most pixels remain stable. This pattern suggests that embedding-space dynamics are useful for flagging likely change and studying representation-level temporal structure, not for replacing a conservative categorical map forecaster.
 
+\subsection{What the GeoSOS-FLUS comparison adds}
+
+The same-grid GeoSOS-FLUS experiment tests a different question from the independent ESRI-label validation. The ESRI-label validation asks whether decoded embedding dynamics contain categorical change signal at all; the GeoSOS-FLUS comparison asks whether the final scale-adaptive categorical allocation is competitive with a classical cellular-automata allocation workflow under identical grids and demand-controlled conditions. The aggregate result is positive: SA-GeoFMD improves the reported mean metrics in both the original 24-township benchmark and the four external validation regions, and the five-seed summaries retain 5/5 overall wins for every metric.
+
+This result also clarifies why the scale-adaptive allocation layer matters. A single small-region allocation ratio was strong on township-scale samples but under-predicted change in larger external regions, reducing recall and transition accuracy. A single large-region ratio improved the external regions but degraded FoM and allocation disagreement on the original 24-township benchmark. The valid-pixel threshold therefore acts as a pragmatic scale control: below 50{,}000 valid pixels, SA-GeoFMD preserves the small-region demand behavior; above that threshold, it keeps more candidate change pixels to avoid large-area under-allocation. The threshold should be treated as an audited empirical setting rather than a universal geographic constant.
+
+The comparison remains bounded. GeoSOS-FLUS is evaluated here as a same-grid console CA allocator using prediction-derived suitability and demand information, because native ANN suitability drivers were unavailable for these AlphaEarth/ESRI regions. The result therefore supports an aggregate advantage over the GeoSOS-FLUS console allocation baseline under this controlled same-grid protocol, not a claim that SA-GeoFMD dominates every native-driver GeoSOS-FLUS deployment or every individual region--metric pair.
+
 \subsection{Manifold drift as a general challenge}
 
 The manifold drift problem we identified and solved (Section~\ref{sec:manifold}) is not specific to our system; it will arise in any approach that applies residual dynamics to L2-normalized embeddings. As GeoFM embeddings become more widely used, we expect this to become a recognized architectural consideration for the community.
@@ -863,6 +940,8 @@ The moderate-dropout result ($p=0.3$, no significant loss) has a practical impli
 \item \textbf{Area-level uncertainty.} In the data-traceable cached-grid summary, the mean model advantage is positive but the area-level bootstrap confidence interval crosses zero. The method should therefore be presented as region-dependent rather than uniformly superior to persistence.
 
 \item \textbf{Reference change labels and map-level baselines.} As summarized in Table~\ref{tab:empirical_pipeline}, the current paper includes independent categorical change validation on 12 area--year pairs. This is sufficient to show that decoded dynamics contain non-zero and partially spatially localized change signal, but it is not sufficient for broad categorical transition claims. The label-only transition prior and persistence remain stronger than the decoded dynamics on full-map end-year accuracy or class-area bias, indicating that change-signal detection and full categorical forecasting are different tasks. The Poyang Lake and Wuyi Mountain cases show that validation outcomes depend strongly on local change prevalence and reference-label behavior. More annual label--prediction pairs, manually interpreted image chips, or higher-resolution reference data are needed before claiming robust operational LULC transition accuracy.
+
+\item \textbf{GeoSOS-FLUS comparison scope.} The same-grid GeoSOS-FLUS runs provide a strict allocation benchmark on identical grids, but they do not reproduce every data dependency of a full native GeoSOS-FLUS application. Suitability and demand are derived from the SA-GeoFMD prediction rather than from locally calibrated ANN drivers and socioeconomic covariates. The conclusion is therefore restricted to the audited same-grid protocol.
 \end{enumerate}
 
 \subsection{Future directions}
@@ -871,7 +950,7 @@ The moderate-dropout result ($p=0.3$, no significant loss) has a practical impli
 \begin{enumerate}
 \item \textbf{Scenario activation.} The most impactful next step is to construct scenario-labelled training data. Regions with documented ``Grain for Green'' implementation could provide ecological-restoration labels, and rapidly urbanizing peri-urban zones could provide urban-sprawl labels. This would test whether the baseline-trend model can be extended toward counterfactual scenario simulation.
 
-\item \textbf{Independent transition validation.} The immediate experimental next step is to extend the 12-pair independent-label benchmark beyond the current cached Chinese study areas and add manually interpreted image chips for high-change zones. This would test whether the observed mean change-signal advantage over the shuffled control remains stable across wetland, forest, urbanizing, and agricultural settings.
+\item \textbf{Independent transition validation.} The immediate experimental next step is to extend the 12-pair independent-label benchmark beyond the current cached Chinese study areas and add manually interpreted image chips for high-change zones. This would test whether the observed mean change-signal advantage over the shuffled control and the aggregate same-grid advantage over GeoSOS-FLUS remain stable across wetland, forest, urbanizing, and agricultural settings.
 
 \item \textbf{Cross-region policy transfer.} Section~\ref{sec:planning} reports feature-dropout robustness on a single county. The natural next step is to train policies on data-rich source regions and evaluate zero-shot transfer to world-model study areas where only GeoFM embeddings are available. This would test whether the planning probe can become a transferable decision-support workflow.
 
@@ -885,11 +964,11 @@ The moderate-dropout result ($p=0.3$, no significant loss) has a practical impli
 \label{sec:conclusions}
 % ============================================================================
 
-We have presented a baseline-trend geospatial dynamics workflow that predicts annual land-surface change within the embedding space of a frozen geospatial foundation model. By combining AlphaEarth's 64-dimensional embeddings with a lightweight LatentDynamicsNet, the study tests whether a pre-trained embedding field can function as a compact state space for low-cost representation-level forecasting.
+We have presented Scale-Adaptive Geospatial Foundation-Model Dynamics (SA-GeoFMD), a baseline-trend geospatial dynamics workflow that predicts annual land-surface change within the embedding space of a frozen geospatial foundation model and converts decoded outputs into calibrated categorical maps when LULC comparison is required. By combining AlphaEarth's 64-dimensional embeddings with a lightweight LatentDynamicsNet and a scale-adaptive spatial-demand allocation layer, the study tests whether a pre-trained embedding field can function as a compact state space for low-cost representation-level forecasting and same-grid categorical allocation.
 
-The data-traceable cached-grid summary shows a positive mean advantage over persistence (+0.0047 cosine similarity) in 7 of 10 valid areas, although the area-level confidence interval crosses zero. Independent categorical validation adds a second, stricter view: decoded dynamics improve mean change F1 over a spatially shuffled control and a label-only transition prior, but remain weaker than persistence for full end-year categorical maps. Together, these results support a bounded interpretation: the approach can expose and forecast some change-related signal in frozen GeoFM embeddings, but it is not uniformly superior to simple baselines and is not yet an operational LULC map forecaster. The encoder diagnostic further shows why the choice of frozen representation matters: AlphaEarth retains measurable local temporal structure, whereas the Prithvi-100M global CLS token is nearly stationary across years in the tested workflow.
+The data-traceable cached-grid summary shows a positive mean advantage over persistence (+0.0047 cosine similarity) in 7 of 10 valid areas, although the area-level confidence interval crosses zero. Independent categorical validation adds a second, stricter view: decoded dynamics improve mean change F1 over a spatially shuffled control and a label-only transition prior, but remain weaker than persistence for full end-year categorical maps. The same-grid GeoSOS-FLUS audit adds a third view: after scale-adaptive allocation, SA-GeoFMD improves all four aggregate mean metrics on both the original 24-township benchmark and four larger external validation regions, with five-seed overall wins for each metric in both groups. Together, these results support a bounded interpretation: the approach can expose and forecast some change-related signal in frozen GeoFM embeddings and can improve aggregate same-grid categorical allocation over the GeoSOS-FLUS console baseline under the audited protocol, but it is not uniformly superior to simple map-level baselines and is not yet an operational LULC map forecaster. The encoder diagnostic further shows why the choice of frozen representation matters: AlphaEarth retains measurable local temporal structure, whereas the Prithvi-100M global CLS token is nearly stationary across years in the tested workflow.
 
-The main practical implication is that ``frozen encoder + lightweight dynamics'' is a viable research pathway for low-cost geospatial change-signal modelling and representation transfer, provided that claims remain tied to baseline-trend prediction and bounded diagnostics. Counterfactual policy scenarios, operational planning transfer, and broad categorical transition benchmarking remain open tasks requiring additional labelled evidence.
+The main practical implication is that ``frozen encoder + lightweight dynamics + scale-aware allocation'' is a viable research pathway for low-cost geospatial change-signal modelling, categorical allocation benchmarking, and representation transfer, provided that claims remain tied to baseline-trend prediction and bounded diagnostics. Counterfactual policy scenarios, operational planning transfer, native-driver GeoSOS-FLUS comparisons, and broad categorical transition benchmarking remain open tasks requiring additional labelled evidence.
 
 
 % ============================================================================
@@ -899,7 +978,7 @@ The authors declare that they have no known competing financial interests or per
 
 \section*{Data and Code Availability}
 % ============================================================================
-All embedding data are derived from publicly available datasets on Google Earth Engine (AlphaEarth Foundations: \texttt{GOOGLE/SATELLITE\_EMBEDDING/V1/ANNUAL}, CC-BY-4.0; ESRI Global LULC 10m TS). The revision scripts used to generate the area-level summaries, figures, empirical evidence-chain audit, independent change-validation schema, label-fetch manifest, prediction-readiness report, and transition-level validation outputs are included in the accompanying repository. The audit outputs are provided as JSON and CSV files in the manuscript revision-results directory. A blinded or public repository URL should be inserted before final submission, depending on journal review policy.
+All embedding data are derived from publicly available datasets on Google Earth Engine (AlphaEarth Foundations: \texttt{GOOGLE/SATELLITE\_EMBEDDING/V1/ANNUAL}, CC-BY-4.0; ESRI Global LULC 10m TS). The revision scripts used to generate the area-level summaries, figures, empirical evidence-chain audit, independent change-validation schema, label-fetch manifest, prediction-readiness report, transition-level validation outputs, scale-adaptive allocation manifests, and same-grid GeoSOS-FLUS replicate summaries are included in the accompanying repository. The audit outputs are provided as JSON and CSV files in the manuscript revision-results directory. A blinded or public repository URL should be inserted before final submission, depending on journal review policy.
 
 
 % ============================================================================
