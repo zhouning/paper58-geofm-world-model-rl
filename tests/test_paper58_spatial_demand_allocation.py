@@ -254,3 +254,71 @@ def test_run_spatial_demand_allocation_writes_v2_manifest_options(tmp_path, monk
     assert manifest["transition_reliability_model"]["total_predicted"] == 2
     assert manifest["adaptive_ratio_cap_model"]["n_rows"] == 1
     assert (tmp_path / "out" / "predictions" / "target_area_lulc_pred_2020_2021.npy").exists()
+
+
+def test_run_spatial_demand_allocation_uses_large_region_ratio_multiplier(tmp_path, monkeypatch) -> None:
+    from scripts.paper58_benchmark import apply_paper58_spatial_demand_allocation as module
+
+    calibration_start = np.array([[1, 1, 1, 1]], dtype=np.int32)
+    calibration_prediction = np.array([[5, 5, 1, 1]], dtype=np.int32)
+    calibration_end = np.array([[5, 1, 1, 1]], dtype=np.int32)
+    small_prediction = np.array([[5, 5, 1, 1]], dtype=np.int32)
+    large_prediction = np.array([[5, 5, 5, 1, 1, 1]], dtype=np.int32)
+    source_prediction_dir = tmp_path / "source"
+    source_prediction_dir.mkdir()
+    np.save(source_prediction_dir / "small_area_lulc_pred_2020_2021.npy", small_prediction)
+    np.save(source_prediction_dir / "large_area_lulc_pred_2020_2021.npy", large_prediction)
+
+    change_gate_cases = {
+        tmp_path / "small_case": _ChangeGateCase(
+            "small_area",
+            calibration_start,
+            np.array([[0.9, 0.8, 0.0, 0.0]], dtype=np.float32),
+        ),
+        tmp_path / "large_case": _ChangeGateCase(
+            "large_area",
+            np.array([[1, 1, 1, 1, 1, 1]], dtype=np.int32),
+            np.array([[0.9, 0.8, 0.7, 0.0, 0.0, 0.0]], dtype=np.float32),
+        ),
+    }
+
+    monkeypatch.setattr(
+        module,
+        "discover_calibration_cases",
+        lambda _labels, _predictions: (
+            [_CalibrationCase("cal_area", calibration_start, calibration_prediction, calibration_end)],
+            [],
+        ),
+    )
+    monkeypatch.setattr(
+        module,
+        "load_case_from_change_gate_dir",
+        lambda path: change_gate_cases[path],
+    )
+
+    manifest = module.run_spatial_demand_allocation(
+        source_prediction_dir=source_prediction_dir,
+        change_gate_dirs=[tmp_path / "small_case", tmp_path / "large_case"],
+        calibration_label_dir=tmp_path / "labels",
+        calibration_prediction_dir=tmp_path / "predictions",
+        output_dir=tmp_path / "out",
+        demand_strategy="ratio",
+        ratio_quantile=0.5,
+        ratio_multiplier=1.0,
+        large_region_valid_pixel_threshold=5,
+        large_region_ratio_multiplier=2.0,
+        min_fraction=0.0,
+        max_fraction=1.0,
+    )
+
+    cases = {case["area"]: case for case in manifest["cases"]}
+    assert cases["small_area"]["ratio_multiplier_for_case"] == 1.0
+    assert cases["small_area"]["large_region_ratio_multiplier_applied"] is False
+    assert np.isclose(cases["small_area"]["predicted_target_change_fraction"], 0.25)
+    assert cases["small_area"]["gate_diagnostics"]["target_change_pixels"] == 1
+    assert cases["large_area"]["ratio_multiplier_for_case"] == 2.0
+    assert cases["large_area"]["large_region_ratio_multiplier_applied"] is True
+    assert np.isclose(cases["large_area"]["predicted_target_change_fraction"], 0.5)
+    assert cases["large_area"]["gate_diagnostics"]["target_change_pixels"] == 3
+    assert manifest["parameters"]["large_region_valid_pixel_threshold"] == 5
+    assert manifest["parameters"]["large_region_ratio_multiplier"] == 2.0

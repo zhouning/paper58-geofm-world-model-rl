@@ -235,6 +235,24 @@ def predict_ratio_change_fraction_v2(
     return float(min(upper, max(lower, raw)))
 
 
+def ratio_model_for_region_scale(
+    model: dict[str, Any],
+    valid_pixels: int,
+    large_region_valid_pixel_threshold: int | None,
+    large_region_ratio_multiplier: float | None,
+) -> tuple[dict[str, Any], float, bool]:
+    base_multiplier = float(model["multiplier"])
+    threshold = large_region_valid_pixel_threshold
+    large_multiplier = large_region_ratio_multiplier
+    if threshold is None or large_multiplier is None or int(valid_pixels) < int(threshold):
+        return model, base_multiplier, False
+    scaled_model = dict(model)
+    selected_multiplier = float(large_multiplier)
+    scaled_model["multiplier"] = selected_multiplier
+    scaled_model["effective_ratio"] = float(scaled_model["base_ratio"] * selected_multiplier)
+    return scaled_model, selected_multiplier, True
+
+
 def fit_transition_reliability_weights(
     calibration_rows: list[tuple[np.ndarray, np.ndarray, np.ndarray]],
     smoothing: float = 1.0,
@@ -512,7 +530,20 @@ def run_spatial_demand_allocation(
     enable_adaptive_ratio_cap: bool = False,
     high_candidate_threshold: float = 0.5,
     high_candidate_quantile: float = 0.5,
+    large_region_valid_pixel_threshold: int | None = None,
+    large_region_ratio_multiplier: float | None = None,
 ) -> dict[str, Any]:
+    large_threshold = None if large_region_valid_pixel_threshold is None else int(large_region_valid_pixel_threshold)
+    large_multiplier = None if large_region_ratio_multiplier is None else float(large_region_ratio_multiplier)
+    if (large_threshold is None) != (large_multiplier is None):
+        raise ValueError(
+            "large_region_valid_pixel_threshold and large_region_ratio_multiplier must be provided together"
+        )
+    if large_threshold is not None and large_threshold < 1:
+        raise ValueError(f"large_region_valid_pixel_threshold must be positive: {large_threshold}")
+    if large_multiplier is not None and large_multiplier < 0.0:
+        raise ValueError(f"large_region_ratio_multiplier must be non-negative: {large_multiplier}")
+
     calibration_cases, skipped_calibration = discover_calibration_cases(
         Path(calibration_label_dir),
         Path(calibration_prediction_dir),
@@ -544,6 +575,8 @@ def run_spatial_demand_allocation(
         )
     else:
         raise ValueError(f"unsupported demand_strategy: {strategy}")
+    if strategy != "ratio" and large_threshold is not None:
+        raise ValueError("large-region ratio multiplier is only supported with demand_strategy=ratio")
     calibration_transition_rows = [
         (case.start_map, case.prediction_map, case.end_map)
         for case in calibration_cases
@@ -577,7 +610,12 @@ def run_spatial_demand_allocation(
             raise ValueError(
                 f"shape mismatch for {case.area}: prediction={source_prediction.shape}, start={case.start_map.shape}"
             )
+        valid = (case.start_map != 0) & (source_prediction != 0)
+        valid_pixels = int(np.count_nonzero(valid))
         features = change_demand_features(case.start_map, source_prediction, selector_class=selector_class)
+        ratio_multiplier_for_case = None
+        effective_ratio_for_case = None
+        large_region_ratio_multiplier_applied = False
         if strategy == "regression":
             target_fraction = predict_change_fraction(
                 model,
@@ -586,22 +624,28 @@ def run_spatial_demand_allocation(
                 max_fraction=max_fraction,
             )
         else:
+            case_ratio_model, ratio_multiplier_for_case, large_region_ratio_multiplier_applied = ratio_model_for_region_scale(
+                model,
+                valid_pixels=valid_pixels,
+                large_region_valid_pixel_threshold=large_threshold,
+                large_region_ratio_multiplier=large_multiplier,
+            )
+            effective_ratio_for_case = float(case_ratio_model["effective_ratio"])
             if adaptive_ratio_cap_model is None:
                 target_fraction = predict_ratio_change_fraction(
-                    model,
+                    case_ratio_model,
                     float(features[0]),
                     min_fraction=min_fraction,
                     max_fraction=max_fraction,
                 )
             else:
                 target_fraction = predict_ratio_change_fraction_v2(
-                    model,
+                    case_ratio_model,
                     adaptive_ratio_cap_model,
                     float(features[0]),
                     min_fraction=min_fraction,
                     max_fraction=max_fraction,
                 )
-        valid = (case.start_map != 0) & (source_prediction != 0)
         gated, gate_diagnostics = apply_demand_calibrated_spatial_gate(
             case.start_map,
             source_prediction,
@@ -625,6 +669,10 @@ def run_spatial_demand_allocation(
             "features": features,
             "predicted_target_change_fraction": target_fraction,
             "gate_diagnostics": gate_diagnostics,
+            "ratio_multiplier_for_case": ratio_multiplier_for_case,
+            "effective_ratio_for_case": effective_ratio_for_case,
+            "large_region_valid_pixel_threshold": large_threshold,
+            "large_region_ratio_multiplier_applied": large_region_ratio_multiplier_applied,
             "adaptive_ratio_cap_enabled": adaptive_ratio_cap_model is not None,
             "transition_reliability_enabled": transition_reliability_model is not None,
             "output_prediction": prediction_path,
@@ -658,6 +706,8 @@ def run_spatial_demand_allocation(
             "enable_adaptive_ratio_cap": bool(enable_adaptive_ratio_cap),
             "high_candidate_threshold": float(high_candidate_threshold),
             "high_candidate_quantile": float(high_candidate_quantile),
+            "large_region_valid_pixel_threshold": large_threshold,
+            "large_region_ratio_multiplier": large_multiplier,
         },
         "demand_model": model,
         "transition_reliability_model": transition_reliability_model,
@@ -694,6 +744,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--enable-adaptive-ratio-cap", action="store_true")
     parser.add_argument("--high-candidate-threshold", type=float, default=0.5)
     parser.add_argument("--high-candidate-quantile", type=float, default=0.5)
+    parser.add_argument("--large-region-valid-pixel-threshold", type=int, default=None)
+    parser.add_argument("--large-region-ratio-multiplier", type=float, default=None)
     args = parser.parse_args(argv)
     manifest = run_spatial_demand_allocation(
         source_prediction_dir=args.source_prediction_dir,
@@ -717,6 +769,8 @@ def main(argv: list[str] | None = None) -> int:
         enable_adaptive_ratio_cap=args.enable_adaptive_ratio_cap,
         high_candidate_threshold=args.high_candidate_threshold,
         high_candidate_quantile=args.high_candidate_quantile,
+        large_region_valid_pixel_threshold=args.large_region_valid_pixel_threshold,
+        large_region_ratio_multiplier=args.large_region_ratio_multiplier,
     )
     print(
         "Paper58 spatial demand allocation complete: "
