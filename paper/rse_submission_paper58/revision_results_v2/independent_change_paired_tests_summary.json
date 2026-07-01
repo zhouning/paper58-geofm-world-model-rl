@@ -1,0 +1,38 @@
+{
+  "n_pairs_total": 12,
+  "n_pairs_dropped_ill_defined_f1": 1,
+  "n_pairs_effective": 11,
+  "dropped_ill_defined_pairs": [
+    "wuyi_mountain_2020-2021"
+  ],
+  "means_after_drop": {
+    "change_f1": {
+      "model": 0.3654494112426427,
+      "shuffled": 0.2939133259307975,
+      "prior": 0.18153085087585571,
+      "persistence": 0.0
+    },
+    "end_accuracy": {
+      "model": 0.6358850650843326,
+      "shuffled": 0.3420640782113504,
+      "prior": 0.7420085495253073,
+      "persistence": 0.8320555666780731
+    },
+    "changed_pixel_accuracy": {
+      "model": 0.3041220845409582,
+      "shuffled": 0.28851829915809224,
+      "prior": 0.0901018775532651,
+      "persistence": 0.0
+    },
+    "area_bias_mae": {
+      "model": 0.08214822006396989,
+      "prior": 0.026242426411637765,
+      "persistence": 0.028958830907172262
+    },
+    "transition_exact_match": {
+      "model": 0.3041220845409582,
+      "prior": 0.0901018775532651,
+      "persistence": 0.0
+    }
+  }
+}

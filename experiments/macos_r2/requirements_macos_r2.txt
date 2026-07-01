@@ -1,0 +1,9 @@
+# Paper 58 RSE R2 — macOS env top-up requirements (pip)
+# Assumes farmland-mpc-pure conda env is active with Python >=3.10, torch, numpy, pandas.
+# This list adds only what farmland-mpc-pure may be missing for the R2 experiments.
+
+scipy>=1.10
+scikit-learn>=1.3
+tqdm>=4.60
+earthengine-api>=0.1.300
+transformers>=4.30   # for E7 SatMAE, optional
