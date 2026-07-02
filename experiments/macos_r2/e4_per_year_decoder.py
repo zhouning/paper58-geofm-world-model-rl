@@ -37,13 +37,16 @@ import numpy as np
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parent.parent
 PAPER8_ROOT = REPO_ROOT / "experiments" / "paper8"
+sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(PAPER8_ROOT))
+from run_markers import mark_done  # noqa: E402
 
 RESULTS_DIR = HERE / "results" / "e4_per_year_decoder"
 INDEP_LABELS = REPO_ROOT / "data" / "independent_change_labels" / "labels"
 INDEP_PRED = REPO_ROOT / "data" / "independent_change_labels" / "predicted"
-AE_DIR = PAPER8_ROOT / "data"
+AE_DIR = REPO_ROOT / "data" / "independent_change_labels" / "embeddings"
+AE_DIRS = [AE_DIR, PAPER8_ROOT / "data"]
 
 # Same 6-class merge rule used in v2 §4.6:
 # raw ESRI: 1=water, 2=trees, 4=flooded_veg, 5=crops, 7=built, 8=bare, 9=snow, 10=clouds, 11=rangeland
@@ -70,6 +73,25 @@ def merge_labels(arr: np.ndarray) -> np.ndarray:
     return out
 
 
+def find_label_path(area: str, year: int) -> Path | None:
+    for candidate in (
+        INDEP_LABELS / f"{area}_lulc_{year}.npy",
+        INDEP_LABELS / f"{area}_{year}.npy",
+    ):
+        if candidate.exists():
+            return candidate
+    return None
+
+
+def embedding_files_for_year(year: int) -> list[tuple[str, Path]]:
+    area_to_path: dict[str, Path] = {}
+    for root in AE_DIRS:
+        for emb_file in sorted(root.glob(f"*_emb_{year}.npy")):
+            area = emb_file.stem.rsplit("_emb_", 1)[0]
+            area_to_path.setdefault(area, emb_file)
+    return sorted(area_to_path.items())
+
+
 def train_year_decoder(year: int) -> dict:
     """Sample (embedding, label) pixel pairs for every area available at this year;
     fit 5-fold LogReg; return CV mean accuracy + macro F1 + sample count."""
@@ -79,11 +101,10 @@ def train_year_decoder(year: int) -> dict:
 
     X_all, y_all = [], []
     per_area_seen = {}
-    for emb_file in sorted(AE_DIR.glob(f"*_emb_{year}.npy")):
-        area = emb_file.stem.rsplit("_emb_", 1)[0]
+    for area, emb_file in embedding_files_for_year(year):
         emb = np.load(emb_file)              # (H, W, 64)
-        label_file = INDEP_LABELS / f"{area}_{year}.npy"
-        if not label_file.exists():
+        label_file = find_label_path(area, year)
+        if label_file is None:
             continue
         lab = np.load(label_file)
         if lab.shape[:2] != emb.shape[:2]:
@@ -199,9 +220,9 @@ def main() -> None:
                 pkg = pickle.load(f)
             clf = pkg["clf"]
             pred_emb_file = INDEP_PRED / f"{r['area']}_{r['start_year']}_{end_year}_embedding.npy"
-            end_label_file = INDEP_LABELS / f"{r['area']}_{end_year}.npy"
-            start_label_file = INDEP_LABELS / f"{r['area']}_{r['start_year']}.npy"
-            if not (pred_emb_file.exists() and end_label_file.exists() and start_label_file.exists()):
+            end_label_file = find_label_path(str(r["area"]), end_year)
+            start_label_file = find_label_path(str(r["area"]), int(r["start_year"]))
+            if not (pred_emb_file.exists() and end_label_file is not None and start_label_file is not None):
                 delta_rows.append({"pair_id": f"{r['area']}_{r['start_year']}-{end_year}",
                                    "end_year": end_year,
                                    "v2_end_accuracy": float(r["model_end_accuracy"]),
@@ -226,7 +247,7 @@ def main() -> None:
         w.writeheader()
         w.writerows(delta_rows)
 
-    (RESULTS_DIR / ".done").touch()
+    mark_done(RESULTS_DIR, smoke=args.smoke)
     print(f"\n[E4 DONE] {len(rows)} decoders trained, "
           f"{len(delta_rows)} independent-change pairs re-evaluated")
 

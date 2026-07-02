@@ -39,9 +39,11 @@ from scipy import stats
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parent.parent
 PAPER8_ROOT = REPO_ROOT / "experiments" / "paper8"
+sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(PAPER8_ROOT))
 
 from paper58_runtime import _build_model, SCENARIO_DIM, SCENARIOS  # noqa: E402
+from run_markers import mark_done  # noqa: E402
 
 AE_DIR = PAPER8_ROOT / "data"
 WEIGHTS_DIR = HERE / "weights" / "e2"
@@ -316,7 +318,7 @@ def main() -> None:
                "runs": [{"mode": r["mode"], "seed": r["seed"], "ckpt": r["ckpt"]}
                         for r in all_runs]}
     (RESULTS_DIR / "train_summary.json").write_text(json.dumps(summary, indent=2))
-    (RESULTS_DIR / ".done").touch()
+    mark_done(RESULTS_DIR, smoke=args.smoke)
     print(f"\n[E2 DONE] wall={wall/60:.1f} min, "
           f"{len(rows)} per-area rows written")
 

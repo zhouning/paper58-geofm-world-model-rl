@@ -62,6 +62,14 @@ RESULTS_DIR = HERE / "results" / "e1_prithvi_patch"
 LOGS_DIR = HERE / "logs"
 
 YEARS = list(range(2017, 2025))
+SMOKE_YEARS = [2020, 2021]
+
+
+def spatial_tokens_from_prithvi_output(output):
+    """Return the token tensor from supported PrithviBackbone spatial outputs."""
+    if isinstance(output, tuple):
+        return output[0]
+    return output
 
 
 def encode_with_prithvi_spatial(stack: np.ndarray, batch_size: int = 4) -> np.ndarray:
@@ -83,7 +91,7 @@ def encode_with_prithvi_spatial(stack: np.ndarray, batch_size: int = 4) -> np.nd
             # Prithvi returns spatial tokens of shape [B, n_tokens, 768]
             # when return_spatial=True. n_tokens = (patch_side / 16)**2, i.e.
             # for PATCH_SIZE=128 -> 64 tokens per patch.
-            tok = model(batch, return_spatial=True)
+            tok = spatial_tokens_from_prithvi_output(model(batch, return_spatial=True))
             feats.append(tok.cpu().numpy())
     feat_tokens = np.concatenate(feats, axis=0)  # [n_patches, n_tokens, 768]
     grid = untile_features(feat_tokens, tile_meta)  # [H, W, 768]
@@ -148,7 +156,7 @@ def main() -> None:
 
     if args.smoke:
         args.areas = ["bishan"]
-        args.years = [2020]
+        args.years = SMOKE_YEARS
         args.force = True
 
     areas_all = all_areas()

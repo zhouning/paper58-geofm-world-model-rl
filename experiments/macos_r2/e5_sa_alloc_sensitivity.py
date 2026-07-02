@@ -39,6 +39,8 @@ import numpy as np
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parent.parent
+sys.path.insert(0, str(HERE))
+from run_markers import mark_done
 
 RESULTS_DIR = HERE / "results" / "e5_sa_alloc_sensitivity"
 INDEP_LABELS = REPO_ROOT / "data" / "independent_change_labels" / "labels"
@@ -68,9 +70,13 @@ GRID_THRESHOLD = [30_000, 50_000, 70_000, 100_000]  # 4 values
 
 def load_township_pair(area: str, start_year: int, end_year: int) -> dict | None:
     """Return dict with `start_lab`, `end_lab`, `pred_lab`, or None if any file missing."""
-    slab = INDEP_LABELS / f"{area}_{start_year}.npy"
-    elab = INDEP_LABELS / f"{area}_{end_year}.npy"
-    plab = INDEP_PRED / f"{area}_{start_year}_{end_year}_predicted_label.npy"
+    slab = INDEP_LABELS / f"{area}_lulc_{start_year}.npy"
+    elab = INDEP_LABELS / f"{area}_lulc_{end_year}.npy"
+    plab = INDEP_PRED / f"{area}_lulc_pred_{start_year}_{end_year}.npy"
+    if not (slab.exists() and elab.exists() and plab.exists()):
+        slab = INDEP_LABELS / f"{area}_{start_year}.npy"
+        elab = INDEP_LABELS / f"{area}_{end_year}.npy"
+        plab = INDEP_PRED / f"{area}_{start_year}_{end_year}_predicted_label.npy"
     if not (slab.exists() and elab.exists() and plab.exists()):
         return None
     return {"start_lab": np.load(slab), "end_lab": np.load(elab),
@@ -166,15 +172,17 @@ def apply_sa_alloc(start_lab: np.ndarray, end_lab: np.ndarray,
 def load_v2_registry() -> list[dict]:
     """Discover all 24 township pairs from the v2 predictions cache."""
     pairs = []
+    for pred_file in sorted(INDEP_PRED.glob("*_lulc_pred_*_*.npy")):
+        stem = pred_file.stem
+        prefix, years = stem.rsplit("_lulc_pred_", 1)
+        start_year_s, end_year_s = years.split("_", 1)
+        pairs.append({"area": prefix, "start_year": int(start_year_s),
+                      "end_year": int(end_year_s)})
     for pred_file in sorted(INDEP_PRED.glob("*_predicted_label.npy")):
         stem = pred_file.stem.replace("_predicted_label", "")
-        # stem like: xiangzhen_record_000191_2020_2021
         parts = stem.rsplit("_", 2)
-        area = parts[0]
-        start_year = int(parts[1])
-        end_year = int(parts[2])
-        pairs.append({"area": area, "start_year": start_year,
-                      "end_year": end_year})
+        pairs.append({"area": parts[0], "start_year": int(parts[1]),
+                      "end_year": int(parts[2])})
     return pairs
 
 
@@ -261,7 +269,7 @@ def main() -> None:
                  "threshold": grid_thr},
         "metric_sensitivity": metric_ranges,
     }, indent=2))
-    (RESULTS_DIR / ".done").touch()
+    mark_done(RESULTS_DIR, smoke=args.smoke)
     print(f"\n[E5 DONE] {len(summary_rows)} cells x {len(pairs)} pairs = "
           f"{len(rows)} rows written")
 

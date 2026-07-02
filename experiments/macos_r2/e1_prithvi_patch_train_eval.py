@@ -43,12 +43,14 @@ from scipy import stats
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parent.parent
 PAPER8_ROOT = REPO_ROOT / "experiments" / "paper8"
+sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(PAPER8_ROOT))
 
 try:
     from paper58_runtime import _build_model, SCENARIO_DIM, SCENARIOS
 except ImportError as exc:
     raise SystemExit(f"cannot import paper58_runtime: {exc}")
+from run_markers import mark_done
 
 PR_SPATIAL_DIR = HERE / "data" / "prithvi_spatial"
 WEIGHTS_DIR = HERE / "weights" / "e1"
@@ -249,6 +251,14 @@ def paired_significance(advantages: np.ndarray, seed: int = RNG_SEED_STATS) -> d
             "bootstrap_ci_lo": float(ci_lo), "bootstrap_ci_hi": float(ci_hi)}
 
 
+def format_paired_stats(tests: dict) -> str:
+    mean = tests.get("mean")
+    wilcoxon_p = tests.get("wilcoxon_p")
+    mean_text = f"{mean:.5f}" if mean is not None else "NA"
+    wilcoxon_text = f"{wilcoxon_p:.3f}" if wilcoxon_p is not None else "NA"
+    return f"n={tests.get('n')} mean={mean_text} wilcoxon_p={wilcoxon_text}"
+
+
 def main() -> None:
     p = argparse.ArgumentParser(__doc__)
     p.add_argument("--seeds", nargs="*", type=int, default=[42, 123, 456])
@@ -330,9 +340,8 @@ def main() -> None:
             w.writeheader()
             w.writerows(head_rows)
 
-    (RESULTS_DIR / ".done").touch()
-    print(f"\n[E1 DONE] Prithvi spatial paired stats: n={tests.get('n')} "
-          f"mean={tests.get('mean'):.5f} wilcoxon_p={tests.get('wilcoxon_p'):.3f}")
+    mark_done(RESULTS_DIR, smoke=args.smoke)
+    print(f"\n[E1 DONE] Prithvi spatial paired stats: {format_paired_stats(tests)}")
     print(f"  results in {RESULTS_DIR}")
 
 

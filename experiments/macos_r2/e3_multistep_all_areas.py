@@ -24,6 +24,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -35,14 +36,17 @@ import torch.nn.functional as F
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parent.parent
 PAPER8_ROOT = REPO_ROOT / "experiments" / "paper8"
+sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(PAPER8_ROOT))
 
+from run_markers import mark_done  # noqa: E402
 from paper58_runtime import _build_model, SCENARIO_DIM, SCENARIOS  # noqa: E402
 
 AE_DIR = PAPER8_ROOT / "data"
 AE_CKPT_CANDIDATES = [
     PAPER8_ROOT / "weights" / "latent_dynamics_v1.pt",
     REPO_ROOT / "weights" / "latent_dynamics_v1.pt",
+    REPO_ROOT / "src" / "adk_world_model" / "weights" / "latent_dynamics_v1.pt",
     Path.home() / "paper58-r2" / "weights" / "latent_dynamics_v1.pt",
 ]
 
@@ -59,6 +63,12 @@ def choose_device() -> torch.device:
 
 
 def resolve_ckpt() -> Path:
+    env_ckpt = os.environ.get("AE_CKPT")
+    if env_ckpt:
+        env_path = Path(env_ckpt).expanduser()
+        if env_path.exists():
+            return env_path
+        raise FileNotFoundError(f"AE_CKPT points to a missing file: {env_path}")
     for c in AE_CKPT_CANDIDATES:
         if c.exists():
             return c
@@ -189,7 +199,7 @@ def main() -> None:
                 "max_steps": args.max_steps, "n_areas": len(set(r["area"] for r in all_rows)),
                 "wall_s": time.time() - t0}
     (RESULTS_DIR / "run_manifest.json").write_text(json.dumps(manifest, indent=2))
-    (RESULTS_DIR / ".done").touch()
+    mark_done(RESULTS_DIR, smoke=args.smoke)
     print(f"\n[E3 DONE] {len(all_rows)} rows across "
           f"{len(set(r['area'] for r in all_rows))} areas")
 

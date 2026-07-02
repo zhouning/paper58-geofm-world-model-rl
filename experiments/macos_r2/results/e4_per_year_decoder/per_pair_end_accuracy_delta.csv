@@ -1,0 +1,12 @@
+pair_id,end_year,v2_end_accuracy,retrained_end_accuracy,delta,status
+banzhucun_2017-2020,2020,0.5345481642053922,,,prediction_missing
+banzhucun_2020-2023,2023,0.5576480151740957,,,prediction_missing
+bishan_2017-2018,2018,0.6605543710021322,,,prediction_missing
+bishan_2018-2019,2019,0.6906183368869936,,,prediction_missing
+bishan_2019-2020,2020,0.6844349680170576,,,prediction_missing
+bishan_2020-2021,2021,0.6680170575692964,,,prediction_missing
+bishan_2021-2022,2022,0.6179104477611941,,,prediction_missing
+bishan_2022-2023,2023,0.5716417910447761,,,prediction_missing
+bishan_2023-2024,2024,0.5904051172707889,,,decoder_missing
+heping_2017-2020,2020,0.67604629387684,,,prediction_missing
+poyang_lake_2020-2021,2021,0.7429111531190926,,,prediction_missing

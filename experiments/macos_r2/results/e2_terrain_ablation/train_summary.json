@@ -1,0 +1,63 @@
+{
+  "seeds": [
+    42,
+    123,
+    456
+  ],
+  "epochs": 50,
+  "modes": [
+    "full",
+    "no_slope",
+    "no_context"
+  ],
+  "wall_s": 788.8535499572754,
+  "smoke": false,
+  "n_runs": 9,
+  "runs": [
+    {
+      "mode": "full",
+      "seed": 42,
+      "ckpt": "/Users/zhouning/paper58-geofm-world-model-rl/experiments/macos_r2/weights/e2/terrain_full_seed42.pt"
+    },
+    {
+      "mode": "full",
+      "seed": 123,
+      "ckpt": "/Users/zhouning/paper58-geofm-world-model-rl/experiments/macos_r2/weights/e2/terrain_full_seed123.pt"
+    },
+    {
+      "mode": "full",
+      "seed": 456,
+      "ckpt": "/Users/zhouning/paper58-geofm-world-model-rl/experiments/macos_r2/weights/e2/terrain_full_seed456.pt"
+    },
+    {
+      "mode": "no_slope",
+      "seed": 42,
+      "ckpt": "/Users/zhouning/paper58-geofm-world-model-rl/experiments/macos_r2/weights/e2/terrain_no_slope_seed42.pt"
+    },
+    {
+      "mode": "no_slope",
+      "seed": 123,
+      "ckpt": "/Users/zhouning/paper58-geofm-world-model-rl/experiments/macos_r2/weights/e2/terrain_no_slope_seed123.pt"
+    },
+    {
+      "mode": "no_slope",
+      "seed": 456,
+      "ckpt": "/Users/zhouning/paper58-geofm-world-model-rl/experiments/macos_r2/weights/e2/terrain_no_slope_seed456.pt"
+    },
+    {
+      "mode": "no_context",
+      "seed": 42,
+      "ckpt": "/Users/zhouning/paper58-geofm-world-model-rl/experiments/macos_r2/weights/e2/terrain_no_context_seed42.pt"
+    },
+    {
+      "mode": "no_context",
+      "seed": 123,
+      "ckpt": "/Users/zhouning/paper58-geofm-world-model-rl/experiments/macos_r2/weights/e2/terrain_no_context_seed123.pt"
+    },
+    {
+      "mode": "no_context",
+      "seed": 456,
+      "ckpt": "/Users/zhouning/paper58-geofm-world-model-rl/experiments/macos_r2/weights/e2/terrain_no_context_seed456.pt"
+    }
+  ]
+}

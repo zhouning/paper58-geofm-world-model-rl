@@ -1,0 +1,856 @@
+{
+  "areas": [
+    "yangtze_delta",
+    "jing_jin_ji",
+    "pearl_river",
+    "chengdu_plain",
+    "northeast_plain",
+    "north_china_plain",
+    "jianghan_plain",
+    "hetao",
+    "yunnan_eco",
+    "daxinganling",
+    "qinghai_edge",
+    "wuyi_mountain",
+    "guanzhong",
+    "minnan_coast",
+    "poyang_lake",
+    "bishan",
+    "banzhucun"
+  ],
+  "years": [
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024
+  ],
+  "target_scale_m": 500,
+  "patch_size": 128,
+  "extraction_mode": "spatial_tokens",
+  "hls_collection": "NASA/HLS/HLSL30/v002",
+  "results": [
+    {
+      "area": "yangtze_delta",
+      "year": 2017,
+      "ok": true,
+      "msg": "shape=(24, 24, 768), 2.0s"
+    },
+    {
+      "area": "yangtze_delta",
+      "year": 2018,
+      "ok": true,
+      "msg": "shape=(24, 24, 768), 1.2s"
+    },
+    {
+      "area": "yangtze_delta",
+      "year": 2019,
+      "ok": true,
+      "msg": "shape=(24, 24, 768), 1.4s"
+    },
+    {
+      "area": "yangtze_delta",
+      "year": 2020,
+      "ok": true,
+      "msg": "shape=(24, 24, 768), 1.9s"
+    },
+    {
+      "area": "yangtze_delta",
+      "year": 2021,
+      "ok": true,
+      "msg": "shape=(24, 24, 768), 1.7s"
+    },
+    {
+      "area": "yangtze_delta",
+      "year": 2022,
+      "ok": true,
+      "msg": "shape=(24, 24, 768), 1.8s"
+    },
+    {
+      "area": "yangtze_delta",
+      "year": 2023,
+      "ok": true,
+      "msg": "shape=(24, 24, 768), 1.7s"
+    },
+    {
+      "area": "yangtze_delta",
+      "year": 2024,
+      "ok": true,
+      "msg": "shape=(24, 24, 768), 1.6s"
+    },
+    {
+      "area": "jing_jin_ji",
+      "year": 2017,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 1.3s"
+    },
+    {
+      "area": "jing_jin_ji",
+      "year": 2018,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 1.6s"
+    },
+    {
+      "area": "jing_jin_ji",
+      "year": 2019,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 1.3s"
+    },
+    {
+      "area": "jing_jin_ji",
+      "year": 2020,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 1.3s"
+    },
+    {
+      "area": "jing_jin_ji",
+      "year": 2021,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 1.3s"
+    },
+    {
+      "area": "jing_jin_ji",
+      "year": 2022,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 1.2s"
+    },
+    {
+      "area": "jing_jin_ji",
+      "year": 2023,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 1.4s"
+    },
+    {
+      "area": "jing_jin_ji",
+      "year": 2024,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 1.9s"
+    },
+    {
+      "area": "pearl_river",
+      "year": 2017,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.1s"
+    },
+    {
+      "area": "pearl_river",
+      "year": 2018,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.1s"
+    },
+    {
+      "area": "pearl_river",
+      "year": 2019,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.5s"
+    },
+    {
+      "area": "pearl_river",
+      "year": 2020,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.0s"
+    },
+    {
+      "area": "pearl_river",
+      "year": 2021,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.2s"
+    },
+    {
+      "area": "pearl_river",
+      "year": 2022,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.3s"
+    },
+    {
+      "area": "pearl_river",
+      "year": 2023,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.3s"
+    },
+    {
+      "area": "pearl_river",
+      "year": 2024,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.2s"
+    },
+    {
+      "area": "chengdu_plain",
+      "year": 2017,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 2.3s"
+    },
+    {
+      "area": "chengdu_plain",
+      "year": 2018,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.5s"
+    },
+    {
+      "area": "chengdu_plain",
+      "year": 2019,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.4s"
+    },
+    {
+      "area": "chengdu_plain",
+      "year": 2020,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.5s"
+    },
+    {
+      "area": "chengdu_plain",
+      "year": 2021,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.6s"
+    },
+    {
+      "area": "chengdu_plain",
+      "year": 2022,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 2.4s"
+    },
+    {
+      "area": "chengdu_plain",
+      "year": 2023,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 2.9s"
+    },
+    {
+      "area": "chengdu_plain",
+      "year": 2024,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.6s"
+    },
+    {
+      "area": "northeast_plain",
+      "year": 2017,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 1.3s"
+    },
+    {
+      "area": "northeast_plain",
+      "year": 2018,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 3.5s"
+    },
+    {
+      "area": "northeast_plain",
+      "year": 2019,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 1.8s"
+    },
+    {
+      "area": "northeast_plain",
+      "year": 2020,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 1.9s"
+    },
+    {
+      "area": "northeast_plain",
+      "year": 2021,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 1.5s"
+    },
+    {
+      "area": "northeast_plain",
+      "year": 2022,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 7.3s"
+    },
+    {
+      "area": "northeast_plain",
+      "year": 2023,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 3.9s"
+    },
+    {
+      "area": "northeast_plain",
+      "year": 2024,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 2.2s"
+    },
+    {
+      "area": "north_china_plain",
+      "year": 2017,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.3s"
+    },
+    {
+      "area": "north_china_plain",
+      "year": 2018,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.7s"
+    },
+    {
+      "area": "north_china_plain",
+      "year": 2019,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.1s"
+    },
+    {
+      "area": "north_china_plain",
+      "year": 2020,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.5s"
+    },
+    {
+      "area": "north_china_plain",
+      "year": 2021,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.9s"
+    },
+    {
+      "area": "north_china_plain",
+      "year": 2022,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.3s"
+    },
+    {
+      "area": "north_china_plain",
+      "year": 2023,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.7s"
+    },
+    {
+      "area": "north_china_plain",
+      "year": 2024,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.5s"
+    },
+    {
+      "area": "jianghan_plain",
+      "year": 2017,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.6s"
+    },
+    {
+      "area": "jianghan_plain",
+      "year": 2018,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.4s"
+    },
+    {
+      "area": "jianghan_plain",
+      "year": 2019,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.5s"
+    },
+    {
+      "area": "jianghan_plain",
+      "year": 2020,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.3s"
+    },
+    {
+      "area": "jianghan_plain",
+      "year": 2021,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.1s"
+    },
+    {
+      "area": "jianghan_plain",
+      "year": 2022,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.5s"
+    },
+    {
+      "area": "jianghan_plain",
+      "year": 2023,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.6s"
+    },
+    {
+      "area": "jianghan_plain",
+      "year": 2024,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.3s"
+    },
+    {
+      "area": "hetao",
+      "year": 2017,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.6s"
+    },
+    {
+      "area": "hetao",
+      "year": 2018,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.7s"
+    },
+    {
+      "area": "hetao",
+      "year": 2019,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.4s"
+    },
+    {
+      "area": "hetao",
+      "year": 2020,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.2s"
+    },
+    {
+      "area": "hetao",
+      "year": 2021,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.2s"
+    },
+    {
+      "area": "hetao",
+      "year": 2022,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.5s"
+    },
+    {
+      "area": "hetao",
+      "year": 2023,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.6s"
+    },
+    {
+      "area": "hetao",
+      "year": 2024,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.9s"
+    },
+    {
+      "area": "yunnan_eco",
+      "year": 2017,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.2s"
+    },
+    {
+      "area": "yunnan_eco",
+      "year": 2018,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.6s"
+    },
+    {
+      "area": "yunnan_eco",
+      "year": 2019,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.3s"
+    },
+    {
+      "area": "yunnan_eco",
+      "year": 2020,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.7s"
+    },
+    {
+      "area": "yunnan_eco",
+      "year": 2021,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.1s"
+    },
+    {
+      "area": "yunnan_eco",
+      "year": 2022,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.3s"
+    },
+    {
+      "area": "yunnan_eco",
+      "year": 2023,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.3s"
+    },
+    {
+      "area": "yunnan_eco",
+      "year": 2024,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.4s"
+    },
+    {
+      "area": "daxinganling",
+      "year": 2017,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.8s"
+    },
+    {
+      "area": "daxinganling",
+      "year": 2018,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.2s"
+    },
+    {
+      "area": "daxinganling",
+      "year": 2019,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.3s"
+    },
+    {
+      "area": "daxinganling",
+      "year": 2020,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.6s"
+    },
+    {
+      "area": "daxinganling",
+      "year": 2021,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.7s"
+    },
+    {
+      "area": "daxinganling",
+      "year": 2022,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 4.9s"
+    },
+    {
+      "area": "daxinganling",
+      "year": 2023,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 3.2s"
+    },
+    {
+      "area": "daxinganling",
+      "year": 2024,
+      "ok": true,
+      "msg": "shape=(24, 23, 768), 1.7s"
+    },
+    {
+      "area": "qinghai_edge",
+      "year": 2017,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 1.4s"
+    },
+    {
+      "area": "qinghai_edge",
+      "year": 2018,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 1.2s"
+    },
+    {
+      "area": "qinghai_edge",
+      "year": 2019,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 1.4s"
+    },
+    {
+      "area": "qinghai_edge",
+      "year": 2020,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 1.6s"
+    },
+    {
+      "area": "qinghai_edge",
+      "year": 2021,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 1.1s"
+    },
+    {
+      "area": "qinghai_edge",
+      "year": 2022,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 1.7s"
+    },
+    {
+      "area": "qinghai_edge",
+      "year": 2023,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 1.2s"
+    },
+    {
+      "area": "qinghai_edge",
+      "year": 2024,
+      "ok": true,
+      "msg": "shape=(23, 24, 768), 1.4s"
+    },
+    {
+      "area": "wuyi_mountain",
+      "year": 2017,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.3s"
+    },
+    {
+      "area": "wuyi_mountain",
+      "year": 2018,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.5s"
+    },
+    {
+      "area": "wuyi_mountain",
+      "year": 2019,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.1s"
+    },
+    {
+      "area": "wuyi_mountain",
+      "year": 2020,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.9s"
+    },
+    {
+      "area": "wuyi_mountain",
+      "year": 2021,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 2.1s"
+    },
+    {
+      "area": "wuyi_mountain",
+      "year": 2022,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 3.3s"
+    },
+    {
+      "area": "wuyi_mountain",
+      "year": 2023,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.2s"
+    },
+    {
+      "area": "wuyi_mountain",
+      "year": 2024,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.3s"
+    },
+    {
+      "area": "guanzhong",
+      "year": 2017,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.2s"
+    },
+    {
+      "area": "guanzhong",
+      "year": 2018,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.8s"
+    },
+    {
+      "area": "guanzhong",
+      "year": 2019,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.7s"
+    },
+    {
+      "area": "guanzhong",
+      "year": 2020,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.5s"
+    },
+    {
+      "area": "guanzhong",
+      "year": 2021,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.6s"
+    },
+    {
+      "area": "guanzhong",
+      "year": 2022,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.3s"
+    },
+    {
+      "area": "guanzhong",
+      "year": 2023,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.4s"
+    },
+    {
+      "area": "guanzhong",
+      "year": 2024,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.5s"
+    },
+    {
+      "area": "minnan_coast",
+      "year": 2017,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.3s"
+    },
+    {
+      "area": "minnan_coast",
+      "year": 2018,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.4s"
+    },
+    {
+      "area": "minnan_coast",
+      "year": 2019,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.5s"
+    },
+    {
+      "area": "minnan_coast",
+      "year": 2020,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.4s"
+    },
+    {
+      "area": "minnan_coast",
+      "year": 2021,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.3s"
+    },
+    {
+      "area": "minnan_coast",
+      "year": 2022,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 2.0s"
+    },
+    {
+      "area": "minnan_coast",
+      "year": 2023,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.8s"
+    },
+    {
+      "area": "minnan_coast",
+      "year": 2024,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.9s"
+    },
+    {
+      "area": "poyang_lake",
+      "year": 2017,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.4s"
+    },
+    {
+      "area": "poyang_lake",
+      "year": 2018,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.5s"
+    },
+    {
+      "area": "poyang_lake",
+      "year": 2019,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 4.5s"
+    },
+    {
+      "area": "poyang_lake",
+      "year": 2020,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.3s"
+    },
+    {
+      "area": "poyang_lake",
+      "year": 2021,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.6s"
+    },
+    {
+      "area": "poyang_lake",
+      "year": 2022,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 2.1s"
+    },
+    {
+      "area": "poyang_lake",
+      "year": 2023,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.4s"
+    },
+    {
+      "area": "poyang_lake",
+      "year": 2024,
+      "ok": true,
+      "msg": "shape=(23, 23, 768), 1.8s"
+    },
+    {
+      "area": "bishan",
+      "year": 2017,
+      "ok": true,
+      "msg": "shape=(67, 70, 768), 1.8s"
+    },
+    {
+      "area": "bishan",
+      "year": 2018,
+      "ok": true,
+      "msg": "shape=(67, 70, 768), 1.1s"
+    },
+    {
+      "area": "bishan",
+      "year": 2019,
+      "ok": true,
+      "msg": "shape=(67, 70, 768), 3.1s"
+    },
+    {
+      "area": "bishan",
+      "year": 2020,
+      "ok": true,
+      "msg": "cached"
+    },
+    {
+      "area": "bishan",
+      "year": 2021,
+      "ok": true,
+      "msg": "cached"
+    },
+    {
+      "area": "bishan",
+      "year": 2022,
+      "ok": true,
+      "msg": "shape=(67, 70, 768), 1.7s"
+    },
+    {
+      "area": "bishan",
+      "year": 2023,
+      "ok": true,
+      "msg": "shape=(67, 70, 768), 1.9s"
+    },
+    {
+      "area": "bishan",
+      "year": 2024,
+      "ok": true,
+      "msg": "shape=(67, 70, 768), 1.8s"
+    },
+    {
+      "area": "banzhucun",
+      "year": 2017,
+      "ok": false,
+      "msg": "bbox_too_small"
+    },
+    {
+      "area": "banzhucun",
+      "year": 2018,
+      "ok": false,
+      "msg": "bbox_too_small"
+    },
+    {
+      "area": "banzhucun",
+      "year": 2019,
+      "ok": false,
+      "msg": "bbox_too_small"
+    },
+    {
+      "area": "banzhucun",
+      "year": 2020,
+      "ok": false,
+      "msg": "bbox_too_small"
+    },
+    {
+      "area": "banzhucun",
+      "year": 2021,
+      "ok": false,
+      "msg": "bbox_too_small"
+    },
+    {
+      "area": "banzhucun",
+      "year": 2022,
+      "ok": false,
+      "msg": "bbox_too_small"
+    },
+    {
+      "area": "banzhucun",
+      "year": 2023,
+      "ok": false,
+      "msg": "bbox_too_small"
+    },
+    {
+      "area": "banzhucun",
+      "year": 2024,
+      "ok": false,
+      "msg": "bbox_too_small"
+    }
+  ],
+  "wall_s": 228.17201018333435,
+  "n_ok": 128,
+  "n_skip": 8
+}

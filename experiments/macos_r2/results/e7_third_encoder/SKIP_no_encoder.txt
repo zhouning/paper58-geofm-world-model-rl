@@ -1,0 +1,5 @@
+SatMAE and Clay both unavailable on this environment.
+To enable this experiment install one of:
+  pip install transformers  (for SatMAE via HuggingFace)
+  pip install clay-model-transformers  (for Clay v1)
+Then re-run: python e7_third_encoder.py
