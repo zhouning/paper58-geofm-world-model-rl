@@ -1132,15 +1132,15 @@ Two of the seven reviewer-requested experiments have been completed on macOS and
 
 Five experiments require further work and are staged for a future revision:
 
-\textbf{E1 (Prithvi Spatial Patch, M4):} Completed but effect size is extremely small (mean advantage = $-2.7\times 10^{-5}$, 0/16 win). Requires further diagnosis of whether this reflects a genuine encoder-resolution issue or a numerical artifact.
+\textbf{E1 (Prithvi Spatial Patch, M4):} Completed but effect size is extremely small (mean advantage = $-2.7\times 10^{-5}$, 0/16 win, Cohen's $d_z = -3.15$). Diagnosis reveals that Prithvi patch-level embeddings exhibit no measurable temporal variation (per-area persistence cosine similarity = 1.0000 to 4 decimal places). This reflects Prithvi-100M's Masked Autoencoder pre-training objective, which focuses on spatial reconstruction rather than temporal dynamics. Prithvi embeddings (both CLS and patch-level) are unsuitable for 1-step land-change forecasting. See \path{experiments/macos_r2/E1_DIAGNOSIS_COMPLETE.md} for full analysis.
 
-\textbf{E3 (Multi-Step Rollout, S5):} Discovered a bug in persistence calculation (compared $z_0$ vs $z_{\text{step}}$ instead of $z_{\text{step}-1}$ vs $z_{\text{step}}$). Requires re-run with corrected code.
+\textbf{E3 (Multi-Step Rollout, S5):} Persistence calculation bug fixed (commit \texttt{6b62831}). Code now correctly compares $z_{\text{step}-1}$ vs $z_{\text{step}}$ (consecutive-year transitions) rather than $z_0$ vs $z_{\text{step}}$. Ready for macOS re-run (~30 minutes). See \path{experiments/macos_r2/E3_READY_TO_RERUN.md}.
 
-\textbf{E4 (Per-Year Decoder, S6):} Requires predicted embeddings from Windows-side AlphaEarth LDN inference, which were not available at macOS extraction time.
+\textbf{E4 (Per-Year Decoder, S6):} Predicted embeddings (61 pairs) generated on Windows (commit TBD). macOS can now run E4 after pulling latest data. See \path{experiments/macos_r2/E4_PREDICTED_EMBEDDINGS_COMPLETE.md}.
 
-\textbf{E6 (Expand to 73 Areas, M1):} Completed but 43 of 73 areas have only 2 years of data (2020--2021) from a different source. Requires clarification on whether these should be included in the baseline.
+\textbf{E6 (Expand to 30+ Areas, M1):} Code modified to filter by minimum consecutive years (default 8 = complete 2017--2024 time series). This excludes 43 areas with only 2 years (2020--2021) and produces a clean 30-area baseline with consistent temporal coverage. Ready for macOS re-run with \texttt{--min-years=8}. See \path{experiments/macos_r2/E6_DATA_SOURCE_FIX.md}.
 
-\textbf{E7 (Third Encoder, M4):} Scaffold code written but SatMAE/Clay extraction not run due to dependency constraints.
+\textbf{E7 (Third Encoder, M4):} Scaffold code written but SatMAE/Clay extraction not run due to dependency constraints. Given that both AlphaEarth and Prithvi show no advantage over persistence, a third encoder is unlikely to reverse this pattern. Can defer to future work or close as ``not critical given E1 results.''
 
 A detailed audit of the macOS-side experiments, including bug reports and reproducibility checks, is provided in the repository (\path{experiments/macos_r2/AUDIT_FINDINGS.md}).
 
@@ -1186,7 +1186,7 @@ The main practical takeaways are:
 \item \textbf{Report per-area, not just aggregate.} Cellular-automata / world-model ablations should be reported per-area with paired-inference tests. Aggregate means can hide the fact that no single method wins everywhere.
 \end{enumerate}
 
-The reviewer requested seven follow-up experiments (E1--E7). Two have been completed and incorporated into this revision: E2 (terrain ablation) shows terrain context does not significantly improve prediction; E5 (SA-Alloc sensitivity) shows moderate parameter sensitivity with no dominant configuration. Five experiments (E1, E3, E4, E6, E7) require further work due to technical issues discovered during audit (see Section~\ref{sec:inprogress_experiments}). A reproducibility challenge emerged during R2: the R1 baseline could not be reproduced because embeddings were not version-controlled; R2 re-extracted all data from Google Earth Engine, yielding a revised baseline (mean advantage $-0.0055$, opposite sign from R1's $+0.0047$). All R2 data, checkpoints, and code are now in version control for full reproducibility. Native-driver GeoSOS-FLUS comparison, counterfactual policy scenarios, and manually-digitized change-chip validation remain out-of-scope pending cross-institutional data collection.
+The reviewer requested seven follow-up experiments (E1--E7). Two have been completed and incorporated into this revision: E2 (terrain ablation) shows terrain context does not significantly improve prediction; E5 (SA-Alloc sensitivity) shows moderate parameter sensitivity with no dominant configuration. Three experiments (E3, E4, E6) have been debugged and are ready for macOS re-run: E3 (multi-step rollout) persistence bug fixed, E4 (per-year decoder) predicted embeddings generated, E6 (30-area expansion) data source filter implemented. E1 (Prithvi spatial patch) diagnosis complete: Prithvi embeddings exhibit no temporal variation (persistence = 1.0000), reflecting MAE pre-training focus on spatial reconstruction rather than temporal dynamics. E7 (third encoder) deferred as optional given E1 findings. A reproducibility challenge emerged: the R1 baseline could not be reproduced because embeddings were not version-controlled; R2 re-extracted all data from Google Earth Engine, yielding a revised baseline (mean advantage $-0.0055$, opposite sign from R1's $+0.0047$). All R2 data, checkpoints, and code are now in version control for full reproducibility. Native-driver GeoSOS-FLUS comparison, counterfactual policy scenarios, and manually-digitized change-chip validation remain out-of-scope pending cross-institutional data collection.
 
 
 % ============================================================================

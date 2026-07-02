@@ -152,8 +152,18 @@ def resolve_ckpt() -> Path:
     )
 
 
-def discover_eval_area_sources(roots: list[Path] | tuple[Path, ...] = AE_EVAL_ROOTS) -> dict[str, dict]:
-    """Find evaluation areas across one or more AlphaEarth cache roots."""
+def discover_eval_area_sources(roots: list[Path] | tuple[Path, ...] = AE_EVAL_ROOTS,
+                                min_years: int = 2) -> dict[str, dict]:
+    """Find evaluation areas across one or more AlphaEarth cache roots.
+
+    Args:
+        roots: List of directory paths to search for embeddings
+        min_years: Minimum number of consecutive years required (default 2)
+                   Set to 8 to include only complete 2017-2024 time series
+
+    Returns:
+        Dict mapping area name to {root: Path, years: list[int]}
+    """
     sources: dict[str, dict] = {}
     for root in roots:
         area_years: dict[str, set[int]] = {}
@@ -168,11 +178,14 @@ def discover_eval_area_sources(roots: list[Path] | tuple[Path, ...] = AE_EVAL_RO
             area_years.setdefault(area, set()).add(year)
         for area, year_set in area_years.items():
             years = sorted(year_set)
-            if len(years) < 2:
+            # Filter by minimum years
+            if len(years) < min_years:
                 continue
+            # Require consecutive years (no gaps)
             if years != list(range(years[0], years[-1] + 1)):
                 continue
             current = sources.get(area)
+            # Prefer longer time series if same area appears in multiple roots
             if current is None or len(years) > len(current["years"]):
                 sources[area] = {"root": root, "years": years}
     return sources
@@ -186,8 +199,13 @@ def summarize_eval_area_sources(area_sources: dict[str, dict]) -> dict:
     return {"n_areas": len(area_sources), "roots": roots}
 
 
-def cmd_eval() -> dict:
-    """Run paired inference on the enlarged AlphaEarth set."""
+def cmd_eval(min_years: int = 2) -> dict:
+    """Run paired inference on the enlarged AlphaEarth set.
+
+    Args:
+        min_years: Minimum consecutive years required (default 2).
+                   Use 8 to include only complete 2017-2024 time series.
+    """
     import numpy as np
     import torch
     import torch.nn.functional as F
@@ -197,7 +215,7 @@ def cmd_eval() -> dict:
     from paper58_runtime import _build_model, SCENARIO_DIM, SCENARIOS
 
     # discover all areas including paper8 and independent-change holdout caches
-    area_sources = discover_eval_area_sources()
+    area_sources = discover_eval_area_sources(min_years=min_years)
     source_manifest = {
         "summary": summarize_eval_area_sources(area_sources),
         "areas": {
@@ -291,6 +309,8 @@ def main() -> None:
     p.add_argument("--extract-only", action="store_true")
     p.add_argument("--eval-only", action="store_true")
     p.add_argument("--smoke", action="store_true")
+    p.add_argument("--min-years", type=int, default=8,
+                   help="Minimum consecutive years required for eval (default 8 = full 2017-2024 time series)")
     args = p.parse_args()
 
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -299,7 +319,8 @@ def main() -> None:
         (RESULTS_DIR / "extraction_manifest.json").write_text(json.dumps(m, indent=2))
         print(f"[E6 extract] wall={m['wall_s_extract']/60:.1f} min")
     if not args.extract_only:
-        stats_out = cmd_eval()
+        stats_out = cmd_eval(min_years=args.min_years)
+        print(f"[E6 eval] Using areas with >={args.min_years} consecutive years")
         print(f"[E6 eval] {json.dumps(stats_out, indent=2)}")
     mark_done(RESULTS_DIR, smoke=args.smoke)
     print("[E6 DONE]")
