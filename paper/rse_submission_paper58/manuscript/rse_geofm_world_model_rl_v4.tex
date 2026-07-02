@@ -51,7 +51,7 @@
 \maketitle
 
 \begin{abstract}
-Predicting land-use and land-cover (LULC) change from satellite observations is central to environmental remote sensing, yet most approaches either operate on categorical maps or require large pixel-level generative models. We investigate whether frozen embeddings from a geospatial foundation model can serve as a compact state space for a lightweight land-surface dynamics predictor, and how such a predictor should be positioned relative to persistence, transition-prior, and cellular-automata baselines. Our workflow (GeoFM-LDN) couples AlphaEarth Foundations embeddings with a 459K-parameter \textit{LatentDynamicsNet} that learns residual annual transitions in embedding space, plus an optional scale-adaptive allocation post-processor that converts decoded outputs into categorical LULC maps for controlled comparison against the GeoSOS-FLUS console allocator. We report three views, each honestly bounded. \textit{First}, on 30 AlphaEarth study areas with complete 2017--2024 time series (2023→2024 transition, embeddings re-extracted from Google Earth Engine in R2 for reproducibility), the mean 1-step cosine advantage over persistence is $-0.0149$, with 3/30 areas showing positive advantage. The negative sign is statistically stable (Wilcoxon $p=2.55\times10^{-7}$), and 6-step autoregressive rollout further degrades from a mean advantage of $-0.0125$ at step 1 to $-0.1853$ at step 6. \textit{Second}, an independent ESRI-label validation on 11 area--year pairs (after excluding one Wuyi Mountain pair with 0\% reference change, for which F1 is ill-defined) shows that decoded dynamics detect real transitions above two controls (mean change F1 0.365 vs.\ shuffled 0.294 vs.\ transition prior 0.182), but full-map end-year accuracy is 0.20 lower than persistence (0.636 vs.\ 0.832) and class-area bias is 2.8$\times$ higher than persistence and the transition prior. Per-year decoder retraining improves end-year categorical accuracy by 0.0778 on average over nine re-evaluable pairs (8/9 improved), indicating decoder year-drift but not overturning the full-map forecasting verdict. \textit{Third}, in a controlled same-grid ablation against a stripped-down GeoSOS-FLUS console (driven by prediction-derived suitability rather than native ANN drivers), the previously headlined variant wins per-area only on binary change F1 (13/11 townships, sign-test $p=0.84$, Wilcoxon $p=0.18$) and loses on FoM (11/13) and transition accuracy (9/14); a companion variant wins transition accuracy 17/6 but loses FoM 12/12. The earlier revision's aggregate mean improvements do not survive per-area paired testing. We therefore reposition the method as a \textit{change-signal screening layer plus an optional scale-adaptive allocation post-processor}, not as a native-driver GeoSOS-FLUS replacement and not yet an operational LULC forecaster. A separate reinforcement-learning application probe on 45 policies (3 dropout regimes $\times$ 15 seeds) confirms that GeoFM embeddings function as an auxiliary channel: engineered features retain 100\% of slope improvement, moderate dropout retains 87\%, and the embedding-only condition retains only 13\%. \textbf{R2 reproducibility note}: the R1 baseline (mean advantage $+0.0047$, 7/10 positive) used AlphaEarth embeddings that predated the initial repository commit and are no longer available; the R2 results reported here use freshly re-extracted embeddings (commit \texttt{9c2ba1d}) and are fully reproducible from the repository. Five reviewer follow-up experiments (E2, E3, E4, E5, E6) are now completed, with E1 diagnosed and E7 deferred as optional. All per-area win/loss tables, paired-inference tests, embeddings, and model checkpoints are released as versioned artefacts.
+Predicting land-use and land-cover (LULC) change from satellite observations is central to environmental remote sensing, yet most approaches either operate on categorical maps or require large pixel-level generative models. We investigate whether frozen embeddings from a geospatial foundation model can serve as a compact state space for a lightweight land-surface dynamics predictor, and how such a predictor should be positioned relative to persistence, transition-prior, and cellular-automata baselines. Our workflow (GeoFM-LDN) couples AlphaEarth Foundations embeddings with a 459K-parameter \textit{LatentDynamicsNet} that learns residual annual transitions in embedding space, plus an optional scale-adaptive allocation post-processor that converts decoded outputs into categorical LULC maps for controlled comparison against the GeoSOS-FLUS console allocator. We report three views, each honestly bounded. \textit{First}, on 30 AlphaEarth study areas with complete 2017--2024 time series (2023→2024 transition, embeddings re-extracted from Google Earth Engine in R2 for reproducibility), retraining the dynamics model on the same R2 embeddings changes the mean 1-step cosine advantage over persistence to $-0.0030$, with 16/30 areas positive and no significant paired effect (Wilcoxon $p=0.57$, bootstrap 95\% CI [$-0.0121$, +0.0037]). This replaces an earlier significantly negative result produced by applying a pre-R2 checkpoint to R2 embeddings, exposing checkpoint--embedding alignment as a reproducibility constraint. The corrected 6-step rollout from the pre-R2 checkpoint remains a legacy diagnostic pending v2 rerun. \textit{Second}, an independent ESRI-label validation on 11 area--year pairs (after excluding one Wuyi Mountain pair with 0\% reference change, for which F1 is ill-defined) shows that decoded dynamics detect real transitions above two controls (mean change F1 0.365 vs.\ shuffled 0.294 vs.\ transition prior 0.182), but full-map end-year accuracy is 0.20 lower than persistence (0.636 vs.\ 0.832) and class-area bias is 2.8$\times$ higher than persistence and the transition prior. Per-year decoder retraining improves end-year categorical accuracy by 0.0778 on average over nine re-evaluable pairs (8/9 improved), indicating decoder year-drift but not overturning the full-map forecasting verdict. \textit{Third}, in a controlled same-grid ablation against a stripped-down GeoSOS-FLUS console (driven by prediction-derived suitability rather than native ANN drivers), the previously headlined variant wins per-area only on binary change F1 (13/11 townships, sign-test $p=0.84$, Wilcoxon $p=0.18$) and loses on FoM (11/13) and transition accuracy (9/14); a companion variant wins transition accuracy 17/6 but loses FoM 12/12. The earlier revision's aggregate mean improvements do not survive per-area paired testing. We therefore reposition the method as a \textit{change-signal screening layer plus an optional scale-adaptive allocation post-processor}, not as a native-driver GeoSOS-FLUS replacement and not yet an operational LULC forecaster. A separate reinforcement-learning application probe on 45 policies (3 dropout regimes $\times$ 15 seeds) confirms that GeoFM embeddings function as an auxiliary channel: engineered features retain 100\% of slope improvement, moderate dropout retains 87\%, and the embedding-only condition retains only 13\%. \textbf{R2 reproducibility note}: the R1 baseline (mean advantage $+0.0047$, 7/10 positive) used AlphaEarth embeddings that predated the initial repository commit and are no longer available; the R2 results reported here use freshly re-extracted embeddings (commit \texttt{9c2ba1d}) and R2-retrained checkpoints, all released as versioned artefacts. Five reviewer follow-up experiments (E2, E3, E4, E5, E6) are now completed, with E1 diagnosed and E7 deferred as optional. All per-area win/loss tables, paired-inference tests, embeddings, and model checkpoints are released as versioned artefacts.
 \end{abstract}
 
 \begin{keywords}
@@ -82,7 +82,7 @@ Our contributions, in reduced form:
 \begin{enumerate}
 \item \textbf{A cleanly separated frozen-encoder / light-dynamics / scale-adaptive-allocation pipeline}, with each component labelled and its scope of applicability stated. Design choices---residual learning, L2 manifold re-projection, dilated 170\,m receptive field, 3-step unrolled loss---are motivated and ablated on the development split.
 
-\item \textbf{Rigorous paired inference on the 30-area cosine advantage over persistence}: Wilcoxon signed-rank, paired $t$, sign-flip permutation, and bootstrap confidence intervals show a statistically stable negative advantage. We label the result a failure of embedding-space dynamics to beat persistence under the complete-time-series R2 cache.
+\item \textbf{Rigorous paired inference on the 30-area cosine advantage over persistence}: after retraining the dynamics network on the same R2 embeddings used for evaluation, Wilcoxon signed-rank, paired $t$, sign-flip permutation, and bootstrap confidence intervals show no significant positive or negative advantage. We therefore do not claim that embedding-space dynamics beat persistence, and we identify checkpoint--embedding mismatch as a key reproducibility failure mode.
 
 \item \textbf{An independent categorical change-validation protocol} on 11 area--year ESRI-label pairs (the twelfth pair has zero reference change, so binary F1 is ill-defined and is excluded from means). Decoded dynamics beat two controls on change F1 (Wilcoxon $p<0.01$) but lose to persistence and the transition prior on end-year accuracy and class-area bias---these gaps are reported side-by-side rather than buried in text.
 
@@ -175,7 +175,7 @@ Test (1) & Wuyi Mountain & Forest & [117.6, 27.7, 117.7, 27.8] \\
 \label{sec:data_refresh}
 
 \noindent\fbox{\begin{minipage}{0.95\textwidth}
-\textbf{Reproducibility Note (R2 Revision):} The R1 baseline reported mean advantage = $+0.0047$ on 10 areas. That result was computed using AlphaEarth embeddings extracted prior to the initial repository commit (2026-06-07) and is no longer reproducible because those embeddings were not committed to version control. For R2, we re-extracted all study-area embeddings from Google Earth Engine using the AlphaEarth Foundations API (commit \texttt{9c2ba1d}, 2026-07-02) and re-evaluated the baseline using the same checkpoint (\path{latent_dynamics_v1.pt}, commit \texttt{2455c34}) and evaluation protocol. The initial R2 10-area baseline showed mean advantage = $-0.0055$ (2/10 positive, opposite sign from R1); the completed R2 expansion over 30 areas with complete 2017--2024 time series shows mean advantage = $-0.0149$ (3/30 positive). All data, code, and checkpoints used in R2 are now fully reproducible from the repository. The sign reversal likely reflects updates to the underlying Harmonized Landsat-Sentinel (HLS) data in Google Earth Engine between the original extraction and the R2 re-extraction, combined with stochastic variation in the AlphaEarth inference pipeline.
+\textbf{Reproducibility Note (R2 Revision):} The R1 baseline reported mean advantage = $+0.0047$ on 10 areas. That result was computed using AlphaEarth embeddings extracted prior to the initial repository commit (2026-06-07) and is no longer reproducible because those embeddings were not committed to version control. For R2, we re-extracted all study-area embeddings from Google Earth Engine using the AlphaEarth Foundations API (commit \texttt{9c2ba1d}, 2026-07-02). Re-evaluating the pre-R2 checkpoint (\path{latent_dynamics_v1.pt}, commit \texttt{2455c34}) on those refreshed embeddings produced a significantly negative 30-area result, but this mixed checkpoint--embedding versions. Retraining the same architecture on the R2 embeddings yields mean advantage = $-0.0030$ over 30 complete-time-series areas (16/30 positive, Wilcoxon $p=0.57$). All data, code, and R2-retrained checkpoints are now versioned in the repository; the main reproducibility lesson is that frozen-encoder dynamics must align checkpoint and embedding extraction versions.
 \end{minipage}}
 
 
@@ -436,7 +436,7 @@ To make the empirical workflow auditable, we summarize the evidence chain used i
 \toprule
 Empirical stage & Status & Evidence in this manuscript & Boundary / next validation \\
 \midrule
-Area-level embedding dynamics & Negative & 30 complete-time-series study areas (R2 re-extracted embeddings, commit \texttt{9c2ba1d}); mean advantage $-$0.0149, 3/30 positive; Wilcoxon $p=2.55\times10^{-7}$. R1 baseline (+0.0047) used pre-commit embeddings that are no longer available. & Persistence is the stronger 2023→2024 embedding-space baseline in the R2 cache. \\
+Area-level embedding dynamics & No clear advantage & 30 complete-time-series study areas (R2 re-extracted embeddings, commit \texttt{9c2ba1d}); R2-retrained LDN mean advantage $-$0.0030, 16/30 positive; Wilcoxon $p=0.57$. The significantly negative pre-R2-checkpoint result is retained as a mismatch audit. & No evidence that GeoFM-LDN beats persistence in 2023→2024 embedding-space forecasting; checkpoint--embedding alignment is required. \\
 Encoder replacement ablation & Diagnostic only & Prithvi-100M CLS branch on 17 areas; mean advantage $-2.4\times 10^{-6}$; global CLS is nearly stationary across years by construction. & Not an encoder-size claim; a state-resolution diagnostic. Local Prithvi patch/token comparison is future work. \\
 Semantic decoder validation & Diagnostic & Logistic-regression decoder on 5,119 AlphaEarth--ESRI samples over 6 class codes; original 2020-only 5-fold CV accuracy 76.99\%, macro-F1 0.668. Per-year decoders for 2017--2024 improve end-year accuracy by 0.0778 on average over nine re-evaluable pairs. & Decoder year-drift is real; per-year retraining improves decoded accuracy but does not make the dynamics model a full-map forecaster. \\
 Planning feature dropout & Diagnostic & 45 trained policies; dropout 0.3 retains 86.8\% of full-feature slope improvement; embedding-only retains 12.9\%. & Application probe, not operational planning deployment. Bishan is the single test county and is a forecasting-negative area. \\
@@ -483,15 +483,15 @@ Linear decode accuracy & $>$50\% / $>$70\% & 76.99\% & STRONG \\
 Metric & $n$ areas & Mean & Range \\
 \midrule
 Persistence & 30 & 0.9652 & [0.9122, 0.9932] \\
-LatentDynamicsNet & 30 & 0.9502 & [0.8953, 0.9857] \\
-Model $-$ persistence & 30 & \textbf{$-$0.0149} & \textbf{[$-$0.0639, +0.0057]} \\
+LatentDynamicsNet & 30 & 0.9622 & [0.8950, 0.9856] \\
+Model $-$ persistence & 30 & \textbf{$-$0.0030} & \textbf{[$-$0.0982, +0.0266]} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{table}[htbp]
 \centering
-\caption{Rigorous paired inference on Model $-$ Persistence over 30 complete-time-series study areas (R2 data). The effect is negative and statistically significant: the dynamics network underperforms persistence on the 2023→2024 embedding-space transition.}
+\caption{Rigorous paired inference on Model $-$ Persistence over 30 complete-time-series study areas (R2 data, dynamics checkpoint retrained on R2 embeddings). The paired effect is small and not statistically significant.}
 \label{tab:paired_inference}
 \small
 \begin{tabular}{lc}
@@ -499,19 +499,19 @@ Model $-$ persistence & 30 & \textbf{$-$0.0149} & \textbf{[$-$0.0639, +0.0057]} 
 Quantity & Value \\
 \midrule
 $n$ areas & 30 \\
-Mean paired difference & $-1.493 \times 10^{-2}$ \\
-Standard deviation & $1.842 \times 10^{-2}$ \\
-Positive / negative areas & 3 / 27 \\
-Wilcoxon signed-rank $p$ (two-sided) & $2.55 \times 10^{-7}$ \\
-Paired $t$-test $p$ (two-sided) & $1.19 \times 10^{-4}$ \\
-Sign-flip permutation $p$ (two-sided) & $< 10^{-4}$ \\
-Bootstrap 95\% CI & [$-2.18\times10^{-2}$, $-8.80\times10^{-3}$] \\
-Cohen's $d_z$ & $-0.811$ \\
+Mean paired difference & $-3.004 \times 10^{-3}$ \\
+Standard deviation & $2.274 \times 10^{-2}$ \\
+Positive / negative areas & 16 / 14 \\
+Wilcoxon signed-rank $p$ (two-sided) & 0.570 \\
+Paired $t$-test $p$ (two-sided) & 0.475 \\
+Sign-flip permutation $p$ (two-sided) & 0.530 \\
+Bootstrap 95\% CI & [$-1.21\times10^{-2}$, $+3.72\times10^{-3}$] \\
+Cohen's $d_z$ & $-0.132$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\textbf{Reading of the paired inference.} The expanded baseline changes the evidence from ``underpowered and negative'' to ``negative with stable paired support.'' The mean 1-step cosine advantage is $-1.493\times10^{-2}$, with only 3/30 areas showing positive advantage. Wilcoxon signed-rank, paired $t$-test, and sign-flip permutation tests all reject a zero-centred advantage in the negative direction. We therefore \textbf{do not claim that GeoFM-LDN is better than persistence in embedding-space one-step forecasting}. The result instead shows that, under the complete-time-series R2 cache, persistence is the stronger baseline for the 2023→2024 AlphaEarth transition. The three positive areas (Qinghai Edge, Jianghan Plain, and Dongting Wetland) remain useful diagnostic cases, but they are exceptions rather than the dominant pattern. The R2 baseline uses freshly re-extracted embeddings (commit \texttt{9c2ba1d}) and is fully reproducible; the R1 baseline (mean +0.0047, 7/10 positive) used pre-commit embeddings that are no longer available (see Section~\ref{sec:data_refresh}).
+\textbf{Reading of the paired inference.} The expanded baseline and R2 retraining change the evidence from ``negative with stable paired support'' to ``near-zero and not significant.'' The mean 1-step cosine advantage is $-3.004\times10^{-3}$, with 16/30 areas showing positive advantage. Wilcoxon signed-rank, paired $t$-test, sign-flip permutation, and bootstrap inference all fail to reject a zero-centred advantage. We therefore \textbf{do not claim that GeoFM-LDN is better than persistence in embedding-space one-step forecasting}. The result also invalidates the earlier significantly negative interpretation, which came from applying a pre-R2 checkpoint to R2 embeddings. The R2 baseline uses freshly re-extracted embeddings (commit \texttt{9c2ba1d}) and R2-retrained checkpoints; the R1 baseline (mean +0.0047, 7/10 positive) used pre-commit embeddings that are no longer available (see Section~\ref{sec:data_refresh}).
 
 \subsection{Per-area results}
 
@@ -524,44 +524,44 @@ Cohen's $d_z$ & $-0.811$ \\
 \toprule
 Area & Model & Persistence & Advantage \\
 \midrule
-Qinghai Edge & 0.9403 & 0.9347 & \textbf{+0.0057} \\
-Jianghan Plain & 0.9328 & 0.9285 & \textbf{+0.0043} \\
-Dongting Wetland & 0.9149 & 0.9122 & \textbf{+0.0027} \\
-Pearl River & 0.9779 & 0.9805 & $-$0.0026 \\
-Hetao & 0.9515 & 0.9543 & $-$0.0028 \\
-Poyang Lake & 0.9406 & 0.9449 & $-$0.0043 \\
-Yangtze Delta & 0.9800 & 0.9845 & $-$0.0045 \\
-Suzhou Fringe & 0.9761 & 0.9814 & $-$0.0053 \\
-Banzhucun & 0.9656 & 0.9713 & $-$0.0057 \\
-Jing-Jin-Ji & 0.9798 & 0.9856 & $-$0.0057 \\
-North China Plain & 0.9518 & 0.9576 & $-$0.0058 \\
-Bishan & 0.9721 & 0.9781 & $-$0.0060 \\
-Wuhan Outer Ring & 0.9684 & 0.9746 & $-$0.0062 \\
-Erhai Lake Margin & 0.9738 & 0.9800 & $-$0.0063 \\
-Hainan Coastal & 0.9552 & 0.9624 & $-$0.0072 \\
-Bohai Delta & 0.9857 & 0.9932 & $-$0.0075 \\
-Wumeng Mountains & 0.9682 & 0.9760 & $-$0.0079 \\
-Yunnan Eco & 0.9262 & 0.9354 & $-$0.0092 \\
-Chengdu Plain & 0.9331 & 0.9429 & $-$0.0098 \\
-Northeast Plain & 0.9558 & 0.9667 & $-$0.0109 \\
-Minnan Coast & 0.9743 & 0.9857 & $-$0.0114 \\
-Guanzhong & 0.9688 & 0.9847 & $-$0.0159 \\
-Daxinganling & 0.9333 & 0.9494 & $-$0.0161 \\
-Ordos Desert Edge & 0.9117 & 0.9354 & $-$0.0238 \\
-Guizhou Karst & 0.9480 & 0.9786 & $-$0.0305 \\
-Changbai Lower Belt & 0.9501 & 0.9848 & $-$0.0347 \\
-Qinling South Slope & 0.9397 & 0.9846 & $-$0.0448 \\
-Wuyi Mountain & 0.9313 & 0.9850 & $-$0.0537 \\
-Tarim Oasis & 0.8953 & 0.9535 & $-$0.0582 \\
-Gobi Margin & 0.9042 & 0.9681 & $-$0.0639 \\
+Qinghai Edge & 0.9613 & 0.9347 & \textbf{+0.0266} \\
+Ordos Desert Edge & 0.9566 & 0.9354 & \textbf{+0.0212} \\
+North China Plain & 0.9735 & 0.9576 & \textbf{+0.0159} \\
+Northeast Plain & 0.9772 & 0.9667 & \textbf{+0.0105} \\
+Tarim Oasis & 0.9609 & 0.9535 & \textbf{+0.0074} \\
+Yunnan Eco & 0.9412 & 0.9354 & \textbf{+0.0058} \\
+Wuhan Outer Ring & 0.9795 & 0.9746 & \textbf{+0.0049} \\
+Hetao & 0.9591 & 0.9543 & \textbf{+0.0048} \\
+Jianghan Plain & 0.9304 & 0.9285 & \textbf{+0.0019} \\
+Chengdu Plain & 0.9448 & 0.9429 & \textbf{+0.0018} \\
+Wumeng Mountains & 0.9775 & 0.9760 & \textbf{+0.0015} \\
+Yangtze Delta & 0.9856 & 0.9845 & \textbf{+0.0012} \\
+Dongting Wetland & 0.9133 & 0.9123 & \textbf{+0.0011} \\
+Suzhou Fringe & 0.9823 & 0.9814 & \textbf{+0.0009} \\
+Pearl River & 0.9808 & 0.9805 & \textbf{+0.0004} \\
+Qinling South Slope & 0.9849 & 0.9846 & \textbf{+0.0004} \\
+Guanzhong & 0.9847 & 0.9847 & $-2.5\times10^{-5}$ \\
+Daxinganling & 0.9492 & 0.9494 & $-$0.0001 \\
+Jing-Jin-Ji & 0.9852 & 0.9856 & $-$0.0003 \\
+Wuyi Mountain & 0.9845 & 0.9850 & $-$0.0006 \\
+Erhai Lake Margin & 0.9795 & 0.9800 & $-$0.0006 \\
+Banzhucun & 0.9703 & 0.9713 & $-$0.0011 \\
+Minnan Coast & 0.9837 & 0.9857 & $-$0.0021 \\
+Bishan & 0.9760 & 0.9781 & $-$0.0022 \\
+Guizhou Karst & 0.9756 & 0.9786 & $-$0.0029 \\
+Changbai Lower Belt & 0.9790 & 0.9848 & $-$0.0059 \\
+Gobi Margin & 0.9577 & 0.9681 & $-$0.0103 \\
+Poyang Lake & 0.9334 & 0.9449 & $-$0.0116 \\
+Hainan Coastal & 0.9020 & 0.9624 & $-$0.0605 \\
+Bohai Delta & 0.8950 & 0.9932 & $-$0.0982 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The largest positive advantages occur in Qinghai Edge (+0.0057), Jianghan Plain (+0.0043), and Dongting Wetland (+0.0027). Most areas show negative advantage, with the largest degradations in Gobi Margin ($-$0.0639), Tarim Oasis ($-$0.0582), and Wuyi Mountain ($-$0.0537). This indicates that the learned residual dynamics can underperform persistence when inter-annual drift is weak, when the area differs from the model's strongest training domains, or when the 2023→2024 embedding shift is not well described by the residual network. The R2 data uses freshly re-extracted embeddings; the R1 per-area table showed opposite patterns due to pre-commit embeddings that are no longer available (see Section~\ref{sec:data_refresh}).
+The largest positive advantages occur in Qinghai Edge (+0.0266), Ordos Desert Edge (+0.0212), and North China Plain (+0.0159). The largest degradations occur in Bohai Delta ($-$0.0982), Hainan Coastal ($-$0.0605), and Poyang Lake ($-$0.0116). Retraining on the R2 embeddings removes the systematic negative shift seen with the pre-R2 checkpoint, but the resulting per-area distribution is still mixed and outlier-sensitive rather than a stable win over persistence. The R2 data uses freshly re-extracted embeddings; the R1 per-area table showed opposite patterns due to pre-commit embeddings that are no longer available (see Section~\ref{sec:data_refresh}).
 
 
-Table~\ref{tab:category_diagnostic} groups the original 10-area baseline by the study-area categories in Table~\ref{tab:areas}. This table is retained only for provenance with the earlier revision because the expanded 30-area cache contains additional named regions that do not share the original split/category ledger. It nevertheless helps explain why small-sample category summaries were unstable: the two positive original areas were Qinghai Edge and Jianghan Plain, whereas the expanded cache shows that positive advantages are sparse overall.
+Table~\ref{tab:category_diagnostic} groups the original 10-area pre-retrain baseline by the study-area categories in Table~\ref{tab:areas}. This table is retained only for provenance with the earlier revision because the expanded 30-area cache contains additional named regions that do not share the original split/category ledger. It nevertheless helps explain why small-sample category summaries were unstable and why the current manuscript relies on the 30-area paired table above rather than category means from the original split ledger.
 
 \begin{table}[htbp]
 \centering
@@ -794,13 +794,13 @@ Validation group & Method & $n$ & Change F1 & FoM & Trans. acc. & Alloc. disag. 
 
 The five-seed GeoSOS-FLUS randomisation reported in the earlier revision gave aggregate mean deltas that were positive for change F1, FoM, and transition accuracy and negative (i.e., improvement) for allocation disagreement, with 5/5 overall seed-level ``wins'' in both the 24-township and external-region groups. Given the per-area verdict in Table~\ref{tab:flus_per_area_wins} above, we now interpret this as ``the aggregate mean is stable under FLUS randomisation,'' not as ``every area is a win.'' The full per-seed metric bundle is released under the revision-artefacts directory.
 
-\subsection{Multi-step degradation (all valid cached areas)}
+\subsection{Legacy multi-step degradation diagnostic (pre-R2 checkpoint)}
 
-Table~\ref{tab:multistep} reports the corrected 6-step autoregressive rollout across all 30 complete-time-series AlphaEarth areas. The persistence bug found during the audit has been fixed: persistence at step $k$ now compares the previous true year $z_{t+k-1}$ with the target true year $z_{t+k}$, rather than comparing the initial state $z_t$ with every later target. This makes step 1 comparable with the 2023→2024 baseline and makes steps 2--6 a true consecutive-year persistence reference.
+Table~\ref{tab:multistep} reports the corrected 6-step autoregressive rollout across all 30 complete-time-series AlphaEarth areas from the pre-R2 checkpoint audit. The persistence bug found during the audit has been fixed: persistence at step $k$ now compares the previous true year $z_{t+k-1}$ with the target true year $z_{t+k}$, rather than comparing the initial state $z_t$ with every later target. However, after the R2 retraining audit above, this table should be read only as a legacy diagnostic of the mismatched checkpoint path; a full v2 multi-step rerun is required before making a long-horizon claim from the R2-retrained dynamics model.
 
 \begin{table}[htbp]
 \centering
-\caption{Corrected multi-step rollout over 30 complete-time-series AlphaEarth areas. Values are means over areas. Positive/negative counts refer to Model $-$ Persistence advantage for that step.}
+\caption{Legacy corrected multi-step rollout over 30 complete-time-series AlphaEarth areas using the pre-R2 checkpoint. Values are means over areas. Positive/negative counts refer to Model $-$ Persistence advantage for that step.}
 \label{tab:multistep}
 \small
 \begin{tabular}{lcccc}
@@ -817,7 +817,7 @@ Step & Persistence & Model & Advantage & Positive / negative \\
 \end{tabular}
 \end{table}
 
-Both persistence and model similarity degrade with longer horizons, but the model degrades much faster. The mean advantage is negative at every step and becomes increasingly negative from step 1 ($-0.0125$) to step 6 ($-0.1853$). All paired tests are negative at conventional significance levels for every step (for example, Wilcoxon $p=1.99\times10^{-6}$ at step 1 and $p=1.86\times10^{-9}$ for steps 2--6). We therefore treat E3 as a failure-mode result: the corrected autoregressive rollout does not support a long-horizon advantage over persistence in the current R2 cache.
+Both persistence and model similarity degrade with longer horizons in this legacy run, but the model degrades much faster. The mean advantage is negative at every step and becomes increasingly negative from step 1 ($-0.0125$) to step 6 ($-0.1853$). Because the same audit later found that the one-step negative result was dominated by checkpoint--embedding mismatch, we do not treat these multi-step numbers as definitive evidence about the R2-retrained model. They remain useful as a reproducibility warning: autoregressive rollout claims must be regenerated whenever the embedding cache and dynamics checkpoint are realigned.
 
 \subsection{Development scaling diagnostic: 2 vs.~12 training areas}
 \label{sec:ablation_data}
@@ -1065,7 +1065,7 @@ Read strictly, the evidence supports one claim and rules out two others.
 
 \textbf{Supported claim.} Decoded GeoFM-LDN outputs can serve as a \emph{change-detection screening layer} in an embedding space: they outperform a label-only transition prior on binary change F1 and outperform a spatially shuffled model control on change F1 (though not clearly on changed-pixel accuracy). This is the finding that survives paired inference on 11 usable ESRI-label pairs (Table~\ref{tab:independent_change_paired}).
 
-\textbf{Ruled out (v1 abstract-headline claim).} We do \emph{not} have evidence that GeoFM-LDN improves cosine similarity over persistence. The completed 30-area paired inference is significantly negative (mean $-0.0149$, 3/30 positive, Wilcoxon $p=2.55\times10^{-7}$; Table~\ref{tab:paired_inference}), and the corrected 6-step rollout becomes more negative with horizon. The cosine advantage should therefore be reported as a failure-mode diagnostic, not as a headline result.
+\textbf{Ruled out (v1 abstract-headline claim).} We do \emph{not} have evidence that GeoFM-LDN improves cosine similarity over persistence. After retraining the dynamics network on the same R2 embeddings used for evaluation, the completed 30-area paired inference is near zero and non-significant (mean $-0.0030$, 16/30 positive, Wilcoxon $p=0.57$; Table~\ref{tab:paired_inference}). The earlier significantly negative result is now treated as a checkpoint--embedding mismatch artefact, and the pre-R2-checkpoint 6-step rollout is retained only as a legacy diagnostic. The cosine advantage should therefore be reported as inconclusive relative to persistence, not as a headline improvement.
 
 \textbf{Ruled out (v1 categorical-map claim).} We do \emph{not} have evidence that GeoFM-LDN's decoded map is a better full-map categorical LULC forecaster than persistence or the transition prior: end-year accuracy is 0.20 lower than persistence, class-area bias is 2.8$\times$ higher, and the shuffled model is competitive with GeoFM-LDN on changed-pixel accuracy. This is a screening layer, not a forecaster.
 
@@ -1121,7 +1121,7 @@ The moderate-dropout result ($p=0.3$, no significant loss) has a practical impli
 \label{sec:limitations}
 
 \begin{enumerate}
-\item \label{lim:power} \textbf{Baseline sign and persistence strength.} The R2 30-area baseline shows mean advantage $-0.0149$ (3/30 positive), with paired tests significantly negative at $\alpha=0.05$. This differs in sign from the R1 baseline (+0.0047, 7/10 positive), which used AlphaEarth embeddings extracted before the initial repository commit and no longer available (Section~\ref{sec:data_refresh}). The sign reversal reflects the difficulty of maintaining reproducibility with cloud-based Earth observation platforms where data products evolve continuously. The completed R2 expansion makes the conclusion stricter rather than merely underpowered: persistence is the stronger embedding-space baseline in the current cache.
+\item \label{lim:power} \textbf{Baseline sign, checkpoint alignment, and persistence strength.} The R2 30-area baseline after retraining shows mean advantage $-0.0030$ (16/30 positive), with paired tests non-significant at $\alpha=0.05$. This differs from both the R1 positive baseline (+0.0047, 7/10 positive), which used AlphaEarth embeddings extracted before the initial repository commit and no longer available (Section~\ref{sec:data_refresh}), and the initial R2 negative result from applying a pre-R2 checkpoint to R2 embeddings. The main limitation is therefore stricter than sample size alone: checkpoint and embedding extraction versions must be aligned, and even after alignment we do not observe a stable advantage over persistence.
 
 \item \label{lim:temporal} \textbf{Temporal resolution.} AlphaEarth provides only annual embeddings, limiting prediction to year-scale changes. Sub-annual dynamics (seasonal agriculture, flooding) are not captured.
 
@@ -1149,11 +1149,11 @@ The moderate-dropout result ($p=0.3$, no significant loss) has a practical impli
 \subsection{On Reproducibility and GEE Data Updates}
 \label{sec:reproducibility_discussion}
 
-A practical challenge emerged during the R2 revision: the R1 baseline (mean advantage $+0.0047$, 7/10 positive) could not be reproduced because the original AlphaEarth embeddings were extracted locally and not committed to version control. When we re-extracted all embeddings from Google Earth Engine for R2 (commit \texttt{9c2ba1d}), the initial revised 10-area baseline showed opposite sign (mean $-0.0055$, 2/10 positive), and the completed 30-area baseline strengthened the negative verdict (mean $-0.0149$, 3/30 positive). This reversal likely reflects two factors: (1) updates to the underlying Harmonized Landsat-Sentinel (HLS) data collection in Google Earth Engine between the original extraction (pre-2026-06-07) and the R2 re-extraction (2026-07-02), and (2) stochastic variation in the AlphaEarth Foundations inference pipeline.
+A practical challenge emerged during the R2 revision: the R1 baseline (mean advantage $+0.0047$, 7/10 positive) could not be reproduced because the original AlphaEarth embeddings were extracted locally and not committed to version control. When we re-extracted all embeddings from Google Earth Engine for R2 (commit \texttt{9c2ba1d}), applying the pre-R2 dynamics checkpoint to the refreshed embeddings produced an initially negative 30-area verdict (mean $-0.0149$, 3/30 positive). Retraining the same architecture on the R2 embeddings reduced the effect to a small, non-significant mean advantage (mean $-0.0030$, 16/30 positive). This sequence suggests two coupled reproducibility risks: (1) updates to the underlying Harmonized Landsat-Sentinel (HLS) data collection in Google Earth Engine between the original extraction (pre-2026-06-07) and the R2 re-extraction (2026-07-02), and (2) distribution mismatch when a dynamics checkpoint is evaluated on an embedding cache different from the cache used for training.
 
 This experience underscores a broader reproducibility challenge for research built atop cloud-based Earth observation platforms: data products evolve continuously as new scenes are ingested, atmospheric correction algorithms improve, and cloud-masking heuristics are refined. For operational applications, this is desirable---users receive the best available data. For scientific reproducibility, it requires careful data versioning. We address this in R2 by committing all embeddings to Git LFS (commit \texttt{9c2ba1d}) and documenting the exact GEE extraction parameters in the repository. Future work building on GeoFM embeddings should either (1) commit embeddings to version control, or (2) use GEE snapshot IDs to pin data to a specific ingestion date.
 
-The R2 baseline is now fully reproducible: checkpoint (\texttt{2455c34}), embeddings (\texttt{9c2ba1d}), and evaluation code (\path{eval_prithvi_vs_alphaearth.py}) are all in version control and produce bit-identical results across machines.
+The R2 baseline is now fully reproducible: embeddings (\texttt{9c2ba1d}), R2-retrained checkpoints under \path{experiments/macos_r2/weights/retrain_v2/}, and evaluation code (\path{experiments/macos_r2/retrain_ldn_on_r2_data.py}) are all in version control and produce traceable paired-inference outputs.
 
 \subsection{Completed Follow-Up Experiments (E2, E3, E4, E5, E6)}
 \label{sec:completed_experiments}
@@ -1162,13 +1162,13 @@ Five of the seven reviewer-requested experiments have been completed on macOS an
 
 \textbf{E2 (Terrain Context Ablation, S4):} We trained the dynamics network with and without terrain context (slope, aspect) on 30 areas across 3 random seeds. Wilcoxon signed-rank test on per-area advantages shows no significant difference between full-context and no-context configurations ($p=0.08$ for slope, $p=0.23$ for full terrain). Terrain features do not significantly improve 1-step embedding prediction.
 
-\textbf{E3 (Multi-Step Rollout, S5):} The persistence calculation bug has been fixed, and the corrected 6-step autoregressive rollout was run on 30 complete-time-series areas. Mean advantage is negative at every step, moving from $-0.0125$ at step 1 to $-0.1853$ at step 6, with 0/30 positive areas from steps 2--6. The result is incorporated in Table~\ref{tab:multistep}.
+\textbf{E3 (Multi-Step Rollout, S5):} The persistence calculation bug has been fixed, and the corrected 6-step autoregressive rollout was run on 30 complete-time-series areas. This run used the pre-R2 dynamics checkpoint and is now retained as a legacy diagnostic after the checkpoint--embedding mismatch audit. Mean advantage is negative at every step, moving from $-0.0125$ at step 1 to $-0.1853$ at step 6, with 0/30 positive areas from steps 2--6. A full v2 multi-step rerun remains necessary for a long-horizon statement about the R2-retrained model.
 
 \textbf{E4 (Per-Year Decoder, S6):} Predicted embeddings generated on Windows were used for macOS per-year decoder retraining. Annual decoders for 2017--2024 improve end-year categorical accuracy by 0.0778 on average over nine re-evaluable pairs, with 8/9 pairs improved. Two Banzhucun pairs remain excluded because predicted-embedding and label-grid shapes do not match. The result is incorporated in Table~\ref{tab:decoder_by_year}.
 
 \textbf{E5 (SA-Alloc Parameter Sensitivity, S3):} We swept 36 grid configurations (3$\times$3$\times$4: small\_mul, large\_mul, threshold) across 24 townships. Change F1 ranges 0.227--0.276 (range=0.049), transition accuracy ranges 0.181--0.254 (range=0.073), allocation disagreement ranges 0.128--0.154 (range=0.026). Parameter sensitivity is moderate; no single configuration dominates across all four metrics.
 
-\textbf{E6 (Expand to 30 Areas, M1):} The area-level baseline has been expanded to 30 areas after filtering to complete 2017--2024 time series only. The expanded paired inference is negative (mean advantage $-0.0149$, 3/30 positive, Wilcoxon $p=2.55\times10^{-7}$), confirming that the model does not beat persistence under the complete R2 cache.
+\textbf{E6 (Expand to 30 Areas, M1):} The area-level baseline has been expanded to 30 areas after filtering to complete 2017--2024 time series only. The R2-retrained paired inference is near zero and non-significant (mean advantage $-0.0030$, 16/30 positive, Wilcoxon $p=0.57$), so the corrected conclusion is that the model does not show a stable advantage over persistence under the complete R2 cache.
 
 \subsection{Diagnosed or Deferred Follow-Up Experiments (E1, E7)}
 \label{sec:inprogress_experiments}
@@ -1208,7 +1208,7 @@ We have presented GeoFM-LDN, a lightweight dynamics network that operates in the
 The answer, under paired-inference statistics that we did not run in an earlier revision, is more restrained than the earlier revision's abstract:
 
 \begin{itemize}
-\item The 1-step cosine advantage over persistence is negative in the completed R2 cache (30 complete-time-series areas: mean $-0.0149$, 3/30 positive, Wilcoxon $p=2.55\times10^{-7}$). Corrected 6-step rollout is also negative at every horizon and degrades to $-0.1853$ by step 6. The R1 positive baseline (mean $+0.0047$, 7/10 positive) is not reproducible because it used pre-commit embeddings. All R2 data, checkpoints, and code are in version control for full reproducibility.
+\item The 1-step cosine advantage over persistence is not significant in the completed R2 cache after retraining the dynamics model on the same embeddings used for evaluation (30 complete-time-series areas: mean $-0.0030$, 16/30 positive, Wilcoxon $p=0.57$). The earlier negative result came from a checkpoint--embedding mismatch, and the corrected 6-step rollout remains a pre-R2-checkpoint legacy diagnostic pending v2 rerun. The R1 positive baseline (mean $+0.0047$, 7/10 positive) is not reproducible because it used pre-commit embeddings. All R2 data, checkpoints, and code are in version control for full reproducibility.
 \item Independent ESRI-label validation on 11 usable pairs shows that decoded dynamics beat a spatially shuffled model and a label-only transition prior on change F1 (Wilcoxon $p<0.01$), but lose to persistence and to the transition prior on end-year categorical accuracy and class-area bias (2.8$\times$ higher MAE). The decoded output is a change-detection screening layer, not a full-map forecaster.
 \item In the same-grid GeoSOS-FLUS ablation, per-area sign tests show that no GeoFM-LDN or SA-Alloc variant dominates GeoSOS-FLUS on all four metrics: raw GeoFM-LDN wins transition accuracy 22/0 but loses allocation disagreement 2/22; SA-Alloc variants win allocation disagreement 16/8 but lose transition accuracy 8--9/14--15. The prior revision's aggregate-mean advantage was driven by a small number of larger townships and does not survive per-area paired testing.
 \end{itemize}
@@ -1223,7 +1223,7 @@ The main practical takeaways are:
 \item \textbf{Report per-area, not just aggregate.} Cellular-automata / world-model ablations should be reported per-area with paired-inference tests. Aggregate means can hide the fact that no single method wins everywhere.
 \end{enumerate}
 
-The reviewer requested seven follow-up experiments (E1--E7). Five have been completed and incorporated into this revision: E2 (terrain ablation) shows terrain context does not significantly improve prediction; E3 (multi-step rollout) shows corrected autoregressive performance is negative at every horizon; E4 (per-year decoder retraining) improves end-year decoded accuracy by 0.0778 on average over nine re-evaluable pairs; E5 (SA-Alloc sensitivity) shows moderate parameter sensitivity with no dominant configuration; and E6 (30-area expansion) confirms that the R2 embedding-space baseline is negative under complete 2017--2024 temporal coverage. E1 (Prithvi spatial patch) diagnosis complete: Prithvi embeddings exhibit no temporal variation (persistence = 1.0000), reflecting MAE pre-training focus on spatial reconstruction rather than temporal dynamics. E7 (third encoder) is deferred as optional given the E1 and E6 findings. A reproducibility challenge emerged: the R1 baseline could not be reproduced because embeddings were not version-controlled; R2 re-extracted all data from Google Earth Engine and now stores the embeddings, checkpoints, and evaluation outputs in version control. Native-driver GeoSOS-FLUS comparison, counterfactual policy scenarios, and manually-digitized change-chip validation remain out-of-scope pending cross-institutional data collection.
+The reviewer requested seven follow-up experiments (E1--E7). Five have been completed and incorporated into this revision: E2 (terrain ablation) shows terrain context does not significantly improve prediction; E3 (multi-step rollout) fixes the persistence calculation but is retained as a pre-R2-checkpoint legacy diagnostic pending v2 rerun; E4 (per-year decoder retraining) improves end-year decoded accuracy by 0.0778 on average over nine re-evaluable pairs; E5 (SA-Alloc sensitivity) shows moderate parameter sensitivity with no dominant configuration; and E6 (30-area expansion plus R2 retraining) shows no significant 1-step advantage over persistence under complete 2017--2024 temporal coverage. E1 (Prithvi spatial patch) diagnosis complete: Prithvi embeddings exhibit no temporal variation (persistence = 1.0000), reflecting MAE pre-training focus on spatial reconstruction rather than temporal dynamics. E7 (third encoder) is deferred as optional given the E1 and E6 findings. A reproducibility challenge emerged: the R1 baseline could not be reproduced because embeddings were not version-controlled; R2 re-extracted all data from Google Earth Engine and now stores the embeddings, checkpoints, and evaluation outputs in version control. Native-driver GeoSOS-FLUS comparison, counterfactual policy scenarios, and manually-digitized change-chip validation remain out-of-scope pending cross-institutional data collection.
 
 
 % ============================================================================
@@ -1246,7 +1246,7 @@ For the prior v3 revision package, we additionally released an artefact bundle u
 \item \path{m1_power_analysis.json} --- the earlier post-hoc power calculation for the v3 10-area diagnostic.
 \end{itemize}
 
-For the v4 integration, we additionally release the macOS R2 follow-up outputs under \path{experiments/macos_r2/results/}: \path{e3_multistep/multistep_all_areas.csv}, \path{e3_multistep/multistep_summary.json}, \path{e3_multistep/multistep_paired_tests.json}, \path{e4_per_year_decoder/decoder_by_year.csv}, \path{e4_per_year_decoder/per_pair_end_accuracy_delta.csv}, \path{e6_expanded_areas/expanded_per_area.csv}, \path{e6_expanded_areas/expanded_paired_tests.json}, and the consolidated extraction file \path{experiments/macos_r2/v4_manuscript_numbers.json}. These files regenerate the v4 E3, E4, and E6 numbers reported in Tables~\ref{tab:paired_inference}, \ref{tab:perarea}, \ref{tab:decoder_by_year}, and \ref{tab:multistep}.
+For the v4 integration, we additionally release the macOS R2 follow-up outputs under \path{experiments/macos_r2/results/}: \path{e3_multistep/multistep_all_areas.csv}, \path{e3_multistep/multistep_summary.json}, \path{e3_multistep/multistep_paired_tests.json}, \path{e4_per_year_decoder/decoder_by_year.csv}, \path{e4_per_year_decoder/per_pair_end_accuracy_delta.csv}, \path{e6_expanded_areas/expanded_per_area.csv}, \path{e6_expanded_areas/expanded_paired_tests.json}, \path{retrain_v2/eval_per_area.csv}, \path{retrain_v2/eval_paired_tests.json}, \path{retrain_v2/train_summary.json}, and the consolidated extraction file \path{experiments/macos_r2/v4_manuscript_numbers.json}. The R2-retrained checkpoints are released under \path{experiments/macos_r2/weights/retrain_v2/}. These files regenerate the v4 E3, E4, and E6 numbers reported in Tables~\ref{tab:paired_inference}, \ref{tab:perarea}, \ref{tab:decoder_by_year}, and \ref{tab:multistep}.
 
 The repository will be made public at \path{https://github.com/anonymized-for-review/paper58-rse-r2} (double-blind for review; the reviewer link and DOI will be attached at revision-return time).
 

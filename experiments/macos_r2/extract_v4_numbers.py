@@ -127,6 +127,23 @@ def extract_e4() -> dict:
     }
 
 
+def summarize_per_area_csv(csv_path: Path) -> dict:
+    if not csv_path.exists():
+        return {}
+    df = pd.read_csv(csv_path)
+    n_pos = int((df["advantage"] > 0).sum())
+    n_neg = int((df["advantage"] < 0).sum())
+    return {
+        "n_total": int(len(df)),
+        "n_pos": n_pos,
+        "n_neg": n_neg,
+        "min_adv": float(df["advantage"].min()),
+        "max_adv": float(df["advantage"].max()),
+        "areas_pos": df[df["advantage"] > 0].sort_values("advantage", ascending=False)[["area", "advantage"]].head(10).to_dict("records"),
+        "areas_neg_worst": df[df["advantage"] < 0].sort_values("advantage")[["area", "advantage"]].head(10).to_dict("records"),
+    }
+
+
 def extract_e6() -> dict:
     """E6 30-area baseline summary."""
     paired_json = RESULTS_DIR / "e6_expanded_areas" / "expanded_paired_tests.json"
@@ -138,19 +155,17 @@ def extract_e6() -> dict:
     with paired_json.open() as f:
         stats = json.load(f)
 
-    per_area = {}
-    if per_area_csv.exists():
-        df = pd.read_csv(per_area_csv)
-        n_pos = int((df["advantage"] > 0).sum())
-        n_neg = int((df["advantage"] < 0).sum())
-        per_area = {
-            "n_total": int(len(df)),
-            "n_pos": n_pos,
-            "n_neg": n_neg,
-            "min_adv": float(df["advantage"].min()),
-            "max_adv": float(df["advantage"].max()),
-            "areas_pos": df[df["advantage"] > 0].sort_values("advantage", ascending=False)[["area", "advantage"]].head(10).to_dict("records"),
-            "areas_neg_worst": df[df["advantage"] < 0].sort_values("advantage")[["area", "advantage"]].head(10).to_dict("records"),
+    per_area = summarize_per_area_csv(per_area_csv)
+
+    retrain_paired_json = RESULTS_DIR / "retrain_v2" / "eval_paired_tests.json"
+    retrained_baseline = {"status": "not_run", "path": str(retrain_paired_json)}
+    if retrain_paired_json.exists():
+        with retrain_paired_json.open() as f:
+            retrain_stats = json.load(f)
+        retrained_baseline = {
+            "status": "complete",
+            "paired_tests": retrain_stats,
+            "per_area": summarize_per_area_csv(RESULTS_DIR / "retrain_v2" / "eval_per_area.csv"),
         }
 
     # Check that min_years filter worked
@@ -178,6 +193,7 @@ def extract_e6() -> dict:
         "paired_tests": stats,
         "per_area": per_area,
         "filter_check": filter_check,
+        "retrained_baseline": retrained_baseline,
     }
 
 
@@ -227,6 +243,10 @@ def main():
         if e6.get("filter_check"):
             fc = e6["filter_check"]
             print(f"  Filter check: paper8={fc.get('n_paper8')}, indep={fc.get('n_independent_change')}, correct={fc.get('filter_correct')}")
+        if e6.get("retrained_baseline", {}).get("status") == "complete":
+            r = e6["retrained_baseline"]["paired_tests"]
+            rpa = e6["retrained_baseline"]["per_area"]
+            print(f"  Retrained v2: mean={r['mean']:.6f}, n_pos/n_neg={rpa.get('n_pos', '?')}/{rpa.get('n_neg', '?')}, wilcoxon_p={r.get('wilcoxon_p')}")
     else:
         print(f"  Status: {e6['status']}")
 

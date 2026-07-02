@@ -5,12 +5,13 @@ Base manuscript: `rse_geofm_world_model_rl_v3.tex`
 Updated manuscript: `rse_geofm_world_model_rl_v4.tex`
 Compiled PDF: `rse_geofm_world_model_rl_v4.pdf`
 Integration commit: `bc0c64e Integrate macOS R2 results into v4 manuscript`
+Post-v4 critical-fix task: `23f1111 CRITICAL FIX: retrain LDN on R2 embeddings (train/test mismatch found)`
 
 `latexdiff` is not installed on this macOS machine, so this report records the manual v3-to-v4 content diff and the exact result files used for the integration.
 
 ## Summary
 
-v4 incorporates the completed macOS R2 E3, E4, and E6 results. The revision strengthens the manuscript boundary: GeoFM-LDN is not presented as outperforming persistence in embedding-space forecasting. Instead, v4 reports a statistically stable negative 30-area baseline, a negative corrected 6-step rollout, and a per-year decoder follow-up that improves decoded end-year accuracy but does not overturn the full-map forecasting verdict.
+v4 incorporates the completed macOS R2 E3, E4, and E6 results. A later critical-fix task found that the initially negative 30-area E6 result used a pre-R2 dynamics checkpoint on R2 embeddings. The corrected manuscript now reports the R2-retrained 30-area baseline as near zero and non-significant, while retaining the earlier negative result only as a checkpoint--embedding mismatch audit. GeoFM-LDN is still not presented as outperforming persistence in embedding-space forecasting.
 
 ## Main Text Changes
 
@@ -26,7 +27,7 @@ v4 incorporates the completed macOS R2 E3, E4, and E6 results. The revision stre
 
 3. Results: area-level embedding dynamics
    - Expanded Table `tab:aggregate` from 10 to 30 areas.
-   - Updated Table `tab:paired_inference` with the 30-area negative paired tests.
+   - Updated Table `tab:paired_inference` with the R2-retrained 30-area paired tests.
    - Expanded Table `tab:perarea` to all 30 complete-time-series areas.
    - Removed the legacy 10-area area-performance figure from v4 to avoid conflicting with the 30-area table.
 
@@ -37,10 +38,10 @@ v4 incorporates the completed macOS R2 E3, E4, and E6 results. The revision stre
 
 5. Results: E3 multi-step rollout
    - Replaced the v3 "only three areas have full rollout" disclosure with the corrected 30-area 6-step rollout table.
-   - Reframed E3 as a failure-mode result rather than a long-horizon advantage.
+   - After the retrain audit, reframed E3 as a pre-R2-checkpoint legacy diagnostic pending v2 multi-step rerun.
 
 6. Discussion and limitations
-   - Replaced the v3 "10-area underpowered/non-significant" interpretation with the v4 30-area negative interpretation.
+   - Replaced the v3 "10-area underpowered/non-significant" interpretation with the v4 R2-retrained "near-zero/non-significant" interpretation.
    - Updated the decoder limitation from "not established" to "partially addressed, not eliminated".
    - Updated the terrain/receptive-field limitation to reflect the completed terrain-context ablation.
 
@@ -57,12 +58,12 @@ v4 incorporates the completed macOS R2 E3, E4, and E6 results. The revision stre
 | Item | v3 | v4 |
 |---|---:|---:|
 | Area-level baseline sample | 10 areas | 30 complete-time-series areas |
-| Mean Model - Persistence | -0.0055 | -0.014934 |
-| Positive / negative areas | 2 / 8 | 3 / 27 |
-| Wilcoxon p | >0.05 | 2.55e-7 |
-| Paired t-test p | >0.05 | 1.19e-4 |
-| E3 step-1 advantage | incomplete disclosure | -0.0125 over 30 areas |
-| E3 step-6 advantage | incomplete disclosure | -0.1853 over 30 areas |
+| Mean Model - Persistence | -0.0055 | -0.003004 (R2-retrained; pre-R2 checkpoint audit was -0.014934) |
+| Positive / negative areas | 2 / 8 | 16 / 14 |
+| Wilcoxon p | >0.05 | 0.5699 |
+| Paired t-test p | >0.05 | 0.4751 |
+| E3 step-1 advantage | incomplete disclosure | -0.0125 over 30 areas (legacy pre-R2 checkpoint) |
+| E3 step-6 advantage | incomplete disclosure | -0.1853 over 30 areas (legacy pre-R2 checkpoint) |
 | E4 per-year decoder delta | not run | +0.0778 mean over 9 re-evaluable pairs |
 | E4 improved pairs | not run | 8 / 9 |
 
@@ -75,6 +76,12 @@ v4 incorporates the completed macOS R2 E3, E4, and E6 results. The revision stre
 - `experiments/macos_r2/results/e4_per_year_decoder/per_pair_end_accuracy_delta.csv`
 - `experiments/macos_r2/results/e6_expanded_areas/expanded_per_area.csv`
 - `experiments/macos_r2/results/e6_expanded_areas/expanded_paired_tests.json`
+- `experiments/macos_r2/results/retrain_v2/eval_per_area.csv`
+- `experiments/macos_r2/results/retrain_v2/eval_paired_tests.json`
+- `experiments/macos_r2/results/retrain_v2/train_summary.json`
+- `experiments/macos_r2/weights/retrain_v2/latent_dynamics_v2_seed42.pt`
+- `experiments/macos_r2/weights/retrain_v2/latent_dynamics_v2_seed123.pt`
+- `experiments/macos_r2/weights/retrain_v2/latent_dynamics_v2_seed456.pt`
 - `experiments/macos_r2/v4_manuscript_numbers.json`
 
 ## Verification
@@ -83,6 +90,10 @@ v4 incorporates the completed macOS R2 E3, E4, and E6 results. The revision stre
   - Result: 27 passed.
 - `python experiments/macos_r2/extract_v4_numbers.py`
   - Result: regenerated `v4_manuscript_numbers.json`.
+- `python retrain_ldn_on_r2_data.py --epochs 100 --seeds 42 123 456`
+  - Result: trained three R2 checkpoints; best checkpoint `latent_dynamics_v2_seed456.pt`.
+- `python retrain_ldn_on_r2_data.py --eval-only`
+  - Result: regenerated retrain_v2 paired tests with mean -0.003004, 16/30 positive, Wilcoxon p=0.5699.
 - `git diff --check`
   - Result: clean.
 - `pdflatex -interaction=nonstopmode -halt-on-error -output-directory=paper/rse_submission_paper58/manuscript paper/rse_submission_paper58/manuscript/rse_geofm_world_model_rl_v4.tex`

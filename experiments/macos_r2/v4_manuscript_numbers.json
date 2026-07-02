@@ -215,6 +215,114 @@
       "n_paper8": 30,
       "n_independent_change": 0,
       "filter_correct": true
+    },
+    "retrained_baseline": {
+      "status": "complete",
+      "paired_tests": {
+        "n": 30,
+        "n_pos": 16,
+        "n_neg": 14,
+        "best_ckpt": "latent_dynamics_v2_seed456.pt",
+        "mean": -0.003003974755605062,
+        "sd": 0.022735618686393254,
+        "wilcoxon_p": 0.5698575973510742,
+        "t_p": 0.47505612415884635,
+        "permutation_p": 0.52955,
+        "bootstrap_ci_lo": -0.01206544389327367,
+        "bootstrap_ci_hi": 0.0037173095842202475,
+        "cohen_dz": -0.13212636951036094
+      },
+      "per_area": {
+        "n_total": 30,
+        "n_pos": 16,
+        "n_neg": 14,
+        "min_adv": -0.0981847643852233,
+        "max_adv": 0.0266291499137878,
+        "areas_pos": [
+          {
+            "area": "qinghai_edge",
+            "advantage": 0.0266291499137878
+          },
+          {
+            "area": "ordos_desert_edge",
+            "advantage": 0.0211943387985229
+          },
+          {
+            "area": "north_china_plain",
+            "advantage": 0.0159335732460021
+          },
+          {
+            "area": "northeast_plain",
+            "advantage": 0.0104600191116333
+          },
+          {
+            "area": "tarim_oasis",
+            "advantage": 0.0073744058609008
+          },
+          {
+            "area": "yunnan_eco",
+            "advantage": 0.0058079361915588
+          },
+          {
+            "area": "wuhan_outer_ring",
+            "advantage": 0.0049109458923339
+          },
+          {
+            "area": "hetao",
+            "advantage": 0.0047774314880371
+          },
+          {
+            "area": "jianghan_plain",
+            "advantage": 0.0019025802612304
+          },
+          {
+            "area": "chengdu_plain",
+            "advantage": 0.0018398761749267
+          }
+        ],
+        "areas_neg_worst": [
+          {
+            "area": "bohai_delta",
+            "advantage": -0.0981847643852233
+          },
+          {
+            "area": "hainan_coastal",
+            "advantage": -0.0604752302169799
+          },
+          {
+            "area": "poyang_lake",
+            "advantage": -0.0115608572959899
+          },
+          {
+            "area": "gobi_margin",
+            "advantage": -0.0103399157524108
+          },
+          {
+            "area": "changbai_lower_belt",
+            "advantage": -0.0058540701866149
+          },
+          {
+            "area": "guizhou_karst",
+            "advantage": -0.0029091238975524
+          },
+          {
+            "area": "bishan",
+            "advantage": -0.0021640658378601
+          },
+          {
+            "area": "minnan_coast",
+            "advantage": -0.0020707249641418
+          },
+          {
+            "area": "banzhucun",
+            "advantage": -0.0010607242584228
+          },
+          {
+            "area": "erhai_lake_margin",
+            "advantage": -0.0005870461463928
+          }
+        ]
+      }
     }
   }
 }

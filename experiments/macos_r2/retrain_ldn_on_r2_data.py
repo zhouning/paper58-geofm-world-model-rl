@@ -21,6 +21,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import sys
 import time
@@ -53,6 +54,14 @@ SPLIT_TRAIN = {"yangtze_delta", "jing_jin_ji", "pearl_river", "chengdu_plain",
 SPLIT_VAL = {"guanzhong", "minnan_coast"}
 SPLIT_TEST = {"poyang_lake"}
 SPLIT_OOD = {"bishan", "banzhucun"}
+
+
+def repo_rel(path: Path) -> str:
+    return str(path.resolve().relative_to(REPO_ROOT))
+
+
+def make_csv_writer(handle, fieldnames):
+    return csv.DictWriter(handle, fieldnames=fieldnames, lineterminator="\n")
 
 
 def choose_device():
@@ -102,6 +111,43 @@ def cossim_grid(a_np, b_np):
     an = a_np / (np.linalg.norm(a_np, axis=-1, keepdims=True) + 1e-9)
     bn = b_np / (np.linalg.norm(b_np, axis=-1, keepdims=True) + 1e-9)
     return np.sum(an * bn, axis=-1)
+
+
+def paired_stats_from_advantages(advs, best_ckpt: str, n_perm: int = 100_000,
+                                 n_boot: int = 20_000, seed: int = 20260702):
+    advs = np.asarray(advs, dtype=np.float64)
+    n_pos = int((advs > 0).sum())
+    n_neg = int((advs < 0).sum())
+    results = {
+        "n": int(len(advs)),
+        "n_pos": n_pos,
+        "n_neg": n_neg,
+        "best_ckpt": best_ckpt,
+    }
+    if len(advs) < 2:
+        return results
+
+    rng = np.random.default_rng(seed)
+    mean = float(advs.mean())
+    sd = float(advs.std(ddof=1))
+    wil = stats.wilcoxon(advs, zero_method="wilcox", alternative="two-sided")
+    _, t_p = stats.ttest_1samp(advs, 0.0)
+    signs = rng.choice([-1, 1], size=(n_perm, len(advs)))
+    perm_p = float(np.mean(np.abs((signs * advs[None, :]).mean(axis=1)) >= abs(mean)))
+    idx = rng.integers(0, len(advs), size=(n_boot, len(advs)))
+    boot = advs[idx].mean(axis=1)
+    ci_lo, ci_hi = np.quantile(boot, [0.025, 0.975])
+    results.update({
+        "mean": mean,
+        "sd": sd,
+        "wilcoxon_p": float(wil.pvalue),
+        "t_p": float(t_p),
+        "permutation_p": perm_p,
+        "bootstrap_ci_lo": float(ci_lo),
+        "bootstrap_ci_hi": float(ci_hi),
+        "cohen_dz": mean / sd if sd else float("inf"),
+    })
+    return results
 
 
 def train_one_seed(seed, epochs, lr):
@@ -188,7 +234,7 @@ def train_one_seed(seed, epochs, lr):
     }
     out = WEIGHTS_DIR / f"latent_dynamics_v2_seed{seed}.pt"
     torch.save(ckpt, out)
-    return {"seed": seed, "best_val": best_val, "final_loss": history["train_loss"][-1], "ckpt": str(out), "history": history}
+    return {"seed": seed, "best_val": best_val, "final_loss": history["train_loss"][-1], "ckpt": repo_rel(out), "history": history}
 
 
 def eval_best_checkpoint():
@@ -233,29 +279,17 @@ def eval_best_checkpoint():
 
     # Write results
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    import csv
     with (RESULTS_DIR / "eval_per_area.csv").open("w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=["area", "persistence", "model", "advantage"])
+        w = make_csv_writer(f, fieldnames=["area", "persistence", "model", "advantage"])
         w.writeheader()
         for area in sorted(per_area):
             w.writerow({"area": area, **per_area[area]})
 
     advs = np.array([v["advantage"] for v in per_area.values()])
-    n_pos = int((advs > 0).sum())
-    mean = float(advs.mean())
-    sd = float(advs.std(ddof=1))
-    wil = stats.wilcoxon(advs, zero_method="wilcox", alternative="two-sided") if len(advs) >= 6 else None
-    t_stat, t_p = stats.ttest_1samp(advs, 0.0) if len(advs) >= 2 else (0, 1)
-
-    results = {
-        "n": len(advs), "mean": mean, "sd": sd,
-        "n_pos": n_pos, "n_neg": int((advs < 0).sum()),
-        "wilcoxon_p": float(wil.pvalue) if wil else None,
-        "t_p": float(t_p),
-        "best_ckpt": best_ck.name,
-    }
+    results = paired_stats_from_advantages(advs, best_ckpt=best_ck.name)
     (RESULTS_DIR / "eval_paired_tests.json").write_text(json.dumps(results, indent=2))
-    print(f"Eval: n={len(advs)} mean={mean:.6f} n_pos={n_pos} wilcoxon_p={results['wilcoxon_p']}")
+    print(f"Eval: n={len(advs)} mean={results.get('mean', float('nan')):.6f} "
+          f"n_pos={results['n_pos']} wilcoxon_p={results.get('wilcoxon_p')}")
     return results
 
 

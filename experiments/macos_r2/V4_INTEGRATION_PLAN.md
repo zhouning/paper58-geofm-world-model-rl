@@ -1,8 +1,9 @@
 # v4 Manuscript Integration Plan — E3/E4/E6 Results
 
 **Date**: 2026-07-02  
-**Status**: ✅ **Completed and integrated into v4**
+**Status**: ✅ **Completed and integrated into v4; retrain_v2 critical fix applied**
 **Integration commit**: `bc0c64e Integrate macOS R2 results into v4 manuscript`
+**Critical fix source commit**: `23f1111 CRITICAL FIX: retrain LDN on R2 embeddings (train/test mismatch found)`
 **Diff report**: `paper/rse_submission_paper58/manuscript/V3_TO_V4_DIFF_REPORT.md`
 
 ---
@@ -15,7 +16,7 @@
 > We report three views, each honestly bounded. \textit{First}, on 10 AlphaEarth study areas (2023→2024 transition, embeddings re-extracted from Google Earth Engine in R2 for reproducibility) the mean 1-step cosine advantage over persistence is $-0.0055$ (negative)...
 
 **New (v4)**:
-> We report three views, each honestly bounded. \textit{First}, on **30** AlphaEarth study areas (complete 2017--2024 time series, embeddings re-extracted from Google Earth Engine in R2 for reproducibility) the mean 1-step cosine advantage over persistence is **[E6_MEAN]** (negative), with [E6_POS]/30 areas showing positive advantage. Multi-step rollout (2--6 years) shows **[E3_FINDING]**. Per-year decoder retraining improves end-year categorical accuracy by **[E4_MEAN_DELTA]** on average...
+> We report three views, each honestly bounded. \textit{First}, on **30** AlphaEarth study areas (complete 2017--2024 time series, embeddings re-extracted from Google Earth Engine in R2 for reproducibility), retraining the dynamics model on the same R2 embeddings changes the mean 1-step cosine advantage over persistence to **-0.0030**, with **16/30** areas showing positive advantage and Wilcoxon **p=0.57**. The pre-R2 checkpoint result is retained only as a mismatch audit. Per-year decoder retraining improves end-year categorical accuracy by **[E4_MEAN_DELTA]** on average...
 
 ### 2. §5 Results — Add E3/E4/E6 Subsections
 
@@ -213,6 +214,11 @@ Save as `experiments/macos_r2/extract_v4_numbers.py`
 - [x] Compile v4 PDF
 - [x] Generate v3→v4 diff report (manual report; `latexdiff` not installed locally)
 - [x] Commit and push v4
+- [x] Pull critical fix commit `23f1111`
+- [x] Run `python retrain_ldn_on_r2_data.py --epochs 100 --seeds 42 123 456`
+- [x] Regenerate retrain_v2 paired tests with `--eval-only`
+- [x] Update extractor/tests to include retrain_v2 results
+- [x] Update v4 manuscript interpretation from "significantly negative" to "near-zero/non-significant after R2 retraining"
 
 ---
 
@@ -222,3 +228,5 @@ Save as `experiments/macos_r2/extract_v4_numbers.py`
 - **2026-07-02**: v4 manuscript source and PDF compiled.
 - **2026-07-02**: v4 integration pushed in `bc0c64e`.
 - **2026-07-02**: manual v3-to-v4 diff report prepared because `latexdiff` is not installed locally.
+- **2026-07-02**: critical fix `23f1111` pulled; LDN retrained on R2 embeddings (3 seeds, 100 epochs); best checkpoint `latent_dynamics_v2_seed456.pt`.
+- **2026-07-02**: R2-retrained E6 result: mean advantage -0.003004, 16/30 positive, Wilcoxon p=0.5699, bootstrap 95% CI [-0.0121, +0.0037].
