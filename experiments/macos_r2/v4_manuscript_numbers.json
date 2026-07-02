@@ -1,0 +1,220 @@
+{
+  "e3": {
+    "status": "complete",
+    "n_areas": 30,
+    "n_steps": 6,
+    "per_step": {
+      "1": {
+        "persistence_mean": 0.9680518706639608,
+        "persistence_std": 0.017607911052386457,
+        "model_mean": 0.9555717249711354,
+        "model_std": 0.020093827387447662,
+        "advantage_mean": -0.01248014569282528,
+        "advantage_std": 0.017361306177019788,
+        "n_areas": 30,
+        "n_pos": 3,
+        "n_neg": 27
+      },
+      "2": {
+        "persistence_mean": 0.9676227927207947,
+        "persistence_std": 0.020189986907912554,
+        "model_mean": 0.9316321154435475,
+        "model_std": 0.025819517313354138,
+        "advantage_mean": -0.035990677277247064,
+        "advantage_std": 0.02555893724846484,
+        "n_areas": 30,
+        "n_pos": 0,
+        "n_neg": 30
+      },
+      "3": {
+        "persistence_mean": 0.9647318482398987,
+        "persistence_std": 0.023029809765310324,
+        "model_mean": 0.8961281855901082,
+        "model_std": 0.04954150460422274,
+        "advantage_mean": -0.0686036626497904,
+        "advantage_std": 0.04587031705978728,
+        "n_areas": 30,
+        "n_pos": 0,
+        "n_neg": 30
+      },
+      "4": {
+        "persistence_mean": 0.9625167469183604,
+        "persistence_std": 0.02278325106456773,
+        "model_mean": 0.8593180278937022,
+        "model_std": 0.062408131463371985,
+        "advantage_mean": -0.10319871902465817,
+        "advantage_std": 0.06693788700823121,
+        "n_areas": 30,
+        "n_pos": 0,
+        "n_neg": 30
+      },
+      "5": {
+        "persistence_mean": 0.9616368571917217,
+        "persistence_std": 0.022248574913689936,
+        "model_mean": 0.814786970615387,
+        "model_std": 0.08903241250796631,
+        "advantage_mean": -0.1468498865763346,
+        "advantage_std": 0.09753791779117213,
+        "n_areas": 30,
+        "n_pos": 0,
+        "n_neg": 30
+      },
+      "6": {
+        "persistence_mean": 0.965708331267039,
+        "persistence_std": 0.021173164980515215,
+        "model_mean": 0.7803633391857148,
+        "model_std": 0.10843463980509324,
+        "advantage_mean": -0.18534499208132424,
+        "advantage_std": 0.1102293037444639,
+        "n_areas": 30,
+        "n_pos": 0,
+        "n_neg": 30
+      }
+    },
+    "bug_fixed": true,
+    "max_persist_step1": 0.989402711391449
+  },
+  "e4": {
+    "status": "complete",
+    "per_year": {
+      "2017": {
+        "n_samples": 800,
+        "cv_accuracy": 0.6675000000000001,
+        "macro_f1": 0.4935390962416045
+      },
+      "2018": {
+        "n_samples": 800,
+        "cv_accuracy": 0.74875,
+        "macro_f1": 0.5138946501914055
+      },
+      "2019": {
+        "n_samples": 800,
+        "cv_accuracy": 0.7224999999999999,
+        "macro_f1": 0.4880886589697685
+      },
+      "2020": {
+        "n_samples": 24967,
+        "cv_accuracy": 0.8348623114410636,
+        "macro_f1": 0.7351714097345694
+      },
+      "2021": {
+        "n_samples": 24969,
+        "cv_accuracy": 0.8287478320670164,
+        "macro_f1": 0.7055939979543051
+      },
+      "2022": {
+        "n_samples": 800,
+        "cv_accuracy": 0.7300000000000001,
+        "macro_f1": 0.3856303495182031
+      },
+      "2023": {
+        "n_samples": 800,
+        "cv_accuracy": 0.7424999999999999,
+        "macro_f1": 0.3999132865129409
+      },
+      "2024": {
+        "n_samples": 800,
+        "cv_accuracy": 0.7474999999999999,
+        "macro_f1": 0.4617103266790273
+      }
+    },
+    "delta_summary": {
+      "n_total": 9,
+      "n_improved": 8,
+      "n_degraded": 1,
+      "mean_delta": 0.07783353688512584,
+      "median_delta": 0.0703624733475479,
+      "min_delta": -0.0260127931769722,
+      "max_delta": 0.1646055437100213,
+      "std_delta": 0.062317372083726036
+    }
+  },
+  "e6": {
+    "status": "complete",
+    "paired_tests": {
+      "n": 30,
+      "mean": -0.014933959643046061,
+      "sd": 0.018417068116295534,
+      "wilcoxon_p": 2.551823854446411e-07,
+      "t_p": 0.00011938666833276737,
+      "permutation_p": 0.0,
+      "bootstrap_ci_lo": -0.021834126661221184,
+      "bootstrap_ci_hi": -0.008796736995379131,
+      "cohen_dz": -0.8108760606598616,
+      "eval_sources": {
+        "n_areas": 30,
+        "roots": {
+          "/Users/zhouning/paper58-geofm-world-model-rl/experiments/paper8/data": 30
+        }
+      }
+    },
+    "per_area": {
+      "n_total": 30,
+      "n_pos": 3,
+      "n_neg": 27,
+      "min_adv": -0.0638539791107177,
+      "max_adv": 0.0056908726692199,
+      "areas_pos": [
+        {
+          "area": "qinghai_edge",
+          "advantage": 0.0056908726692199
+        },
+        {
+          "area": "jianghan_plain",
+          "advantage": 0.0043419003486633
+        },
+        {
+          "area": "dongting_wetland",
+          "advantage": 0.0026749968528747
+        }
+      ],
+      "areas_neg_worst": [
+        {
+          "area": "gobi_margin",
+          "advantage": -0.0638539791107177
+        },
+        {
+          "area": "tarim_oasis",
+          "advantage": -0.0581693649291992
+        },
+        {
+          "area": "wuyi_mountain",
+          "advantage": -0.0537437796592712
+        },
+        {
+          "area": "qinling_south_slope",
+          "advantage": -0.0448473095893859
+        },
+        {
+          "area": "changbai_lower_belt",
+          "advantage": -0.0347073674201965
+        },
+        {
+          "area": "guizhou_karst",
+          "advantage": -0.0305037498474121
+        },
+        {
+          "area": "ordos_desert_edge",
+          "advantage": -0.0237838625907897
+        },
+        {
+          "area": "daxinganling",
+          "advantage": -0.01609468460083
+        },
+        {
+          "area": "guanzhong",
+          "advantage": -0.0159178376197814
+        },
+        {
+          "area": "minnan_coast",
+          "advantage": -0.0114428997039794
+        }
+      ]
+    },
+    "filter_check": {
+      "n_paper8": 30,
+      "n_independent_change": 0,
+      "filter_correct": true
+    }
+  }
+}

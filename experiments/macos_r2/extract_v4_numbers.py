@@ -21,6 +21,26 @@ RESULTS_DIR = HERE / "results"
 OUTPUT_FILE = HERE / "v4_manuscript_numbers.json"
 
 
+def json_ready(value):
+    """Convert pandas/numpy scalar containers into stdlib JSON values."""
+    if isinstance(value, dict):
+        return {str(k): json_ready(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [json_ready(v) for v in value]
+    if isinstance(value, tuple):
+        return [json_ready(v) for v in value]
+    if isinstance(value, np.generic):
+        return value.item()
+    return value
+
+
+def first_present(row, names: tuple[str, ...], default=0.0):
+    for name in names:
+        if name in row and not pd.isna(row[name]):
+            return row[name]
+    return default
+
+
 def extract_e3() -> dict:
     """E3 multi-step rollout summary."""
     csv_path = RESULTS_DIR / "e3_multistep" / "multistep_all_areas.csv"
@@ -50,7 +70,7 @@ def extract_e3() -> dict:
 
     # Check if bug is fixed (persistence should be < 1.0)
     max_persist_step1 = df[df["step"] == 1]["persistence"].max()
-    bug_fixed = max_persist_step1 < 1.0
+    bug_fixed = bool(max_persist_step1 < 1.0)
 
     return {
         "status": "complete",
@@ -82,7 +102,7 @@ def extract_e4() -> dict:
         year = int(row["year"])
         per_year[year] = {
             "n_samples": int(row.get("n_samples", 0)),
-            "cv_accuracy": float(row.get("cv_accuracy_mean", row.get("cv_accuracy", 0.0))),
+            "cv_accuracy": float(first_present(row, ("cv_acc_mean", "cv_accuracy_mean", "cv_accuracy"))),
             "macro_f1": float(row.get("cv_macro_f1_mean", row.get("macro_f1", 0.0))),
         }
 
@@ -211,7 +231,7 @@ def main():
         print(f"  Status: {e6['status']}")
 
     # Save to JSON
-    OUTPUT_FILE.write_text(json.dumps(result, indent=2))
+    OUTPUT_FILE.write_text(json.dumps(json_ready(result), indent=2))
     print(f"\n✅ Saved to: {OUTPUT_FILE}")
 
 
