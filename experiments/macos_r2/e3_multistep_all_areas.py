@@ -140,14 +140,21 @@ def rollout_for_area(model, device, seq: list[np.ndarray],
         for step in range(1, max_steps + 1):
             if step >= len(seq):
                 break
+            # Load true embedding for this step
+            z_true = F.normalize(torch.tensor(seq[step]).unsqueeze(0).to(device),
+                                 p=2, dim=1)
+            # Persistence: compare previous step to current (not z0 to current!)
+            z_prev = F.normalize(torch.tensor(seq[step - 1]).unsqueeze(0).to(device),
+                                 p=2, dim=1)
+            persist = cosine(z_prev, z_true).item()
+
+            # Model prediction for this step
             if ctx_t is not None:
                 z_pred = F.normalize(model(z_pred, scenario, context=ctx_t), p=2, dim=1)
             else:
                 z_pred = F.normalize(model(z_pred, scenario), p=2, dim=1)
-            z_true = F.normalize(torch.tensor(seq[step]).unsqueeze(0).to(device),
-                                 p=2, dim=1)
-            persist = cosine(F.normalize(z0, p=2, dim=1), z_true).item()
             model_c = cosine(z_pred, z_true).item()
+
             rows.append({"step": step, "persistence": persist,
                          "model": model_c, "advantage": model_c - persist})
     return rows
