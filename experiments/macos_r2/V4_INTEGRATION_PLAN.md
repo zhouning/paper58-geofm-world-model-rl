@@ -1,8 +1,9 @@
 # v4 Manuscript Integration Plan — E3/E4/E6 Results
 
 **Date**: 2026-07-02  
-**Status**: ⏳ **Waiting for macOS E3/E4/E6 results**  
-**When ready**: Pull results, run this integration script
+**Status**: ✅ **Completed and integrated into v4**
+**Integration commit**: `bc0c64e Integrate macOS R2 results into v4 manuscript`
+**Diff report**: `paper/rse_submission_paper58/manuscript/V3_TO_V4_DIFF_REPORT.md`
 
 ---
 
@@ -203,22 +204,21 @@ Save as `experiments/macos_r2/extract_v4_numbers.py`
 
 ## Integration Checklist
 
-- [ ] Pull macOS results from GitHub
-- [ ] Run `python extract_v4_numbers.py` to get all placeholders
-- [ ] Update §5 Results (add E3 section, add E4 section, expand E6 to 30 areas)
-- [ ] Update §7.9 (move E3/E4/E6 to "Completed")
-- [ ] Update §8 Conclusions (five experiments complete)
-- [ ] Update Abstract (30 areas, E3/E4 findings)
-- [ ] Compile v4 PDF
-- [ ] Generate v3→v4 diff report (latexdiff or manual)
-- [ ] Commit and push v4
+- [x] Pull macOS results from GitHub
+- [x] Run `python extract_v4_numbers.py` to get all placeholders
+- [x] Update §5 Results (add E3 section, add E4 section, expand E6 to 30 areas)
+- [x] Update §7.9 (move E3/E4/E6 to "Completed")
+- [x] Update §8 Conclusions (five experiments complete)
+- [x] Update Abstract (30 areas, E3/E4 findings)
+- [x] Compile v4 PDF
+- [x] Generate v3→v4 diff report (manual report; `latexdiff` not installed locally)
+- [x] Commit and push v4
 
 ---
 
 ## Timeline
 
-- **Now**: Waiting for macOS (~1 hour)
-- **After macOS push**: Windows integration (~2 hours)
-- **v4 ready**: ~3 hours from now
-
-Ready to go as soon as macOS results arrive.
+- **2026-07-02**: macOS E3/E4/E6 results pulled and extracted.
+- **2026-07-02**: v4 manuscript source and PDF compiled.
+- **2026-07-02**: v4 integration pushed in `bc0c64e`.
+- **2026-07-02**: manual v3-to-v4 diff report prepared because `latexdiff` is not installed locally.
