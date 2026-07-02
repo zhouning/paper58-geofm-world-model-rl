@@ -1,0 +1,411 @@
+{
+  "n_pairs": 66,
+  "results": [
+    {
+      "area": "baiyangdian_new_area_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "banzhucun",
+      "start_year": 2017,
+      "end_year": 2018,
+      "status": "cached"
+    },
+    {
+      "area": "banzhucun",
+      "start_year": 2018,
+      "end_year": 2019,
+      "status": "cached"
+    },
+    {
+      "area": "banzhucun",
+      "start_year": 2019,
+      "end_year": 2020,
+      "status": "cached"
+    },
+    {
+      "area": "banzhucun",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "banzhucun",
+      "start_year": 2021,
+      "end_year": 2022,
+      "status": "cached"
+    },
+    {
+      "area": "banzhucun",
+      "start_year": 2022,
+      "end_year": 2023,
+      "status": "cached"
+    },
+    {
+      "area": "banzhucun",
+      "start_year": 2023,
+      "end_year": 2024,
+      "status": "cached"
+    },
+    {
+      "area": "beibu_gulf_urban_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "bishan",
+      "start_year": 2017,
+      "end_year": 2018,
+      "status": "cached"
+    },
+    {
+      "area": "bishan",
+      "start_year": 2018,
+      "end_year": 2019,
+      "status": "cached"
+    },
+    {
+      "area": "bishan",
+      "start_year": 2019,
+      "end_year": 2020,
+      "status": "cached"
+    },
+    {
+      "area": "bishan",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "bishan",
+      "start_year": 2021,
+      "end_year": 2022,
+      "status": "cached"
+    },
+    {
+      "area": "bishan",
+      "start_year": 2022,
+      "end_year": 2023,
+      "status": "cached"
+    },
+    {
+      "area": "bishan",
+      "start_year": 2023,
+      "end_year": 2024,
+      "status": "cached"
+    },
+    {
+      "area": "changbai_margin_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "dabie_forest_edge_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "dongting_lake_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "erlong_lake_margin_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "ezhou_lakeside_expansion_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "fuzhou_delta_urban_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "haibei_plateau_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "hengshui_lake_urban_edge_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "heping",
+      "start_year": 2017,
+      "end_year": 2018,
+      "status": "generated",
+      "shape": [
+        516,
+        356,
+        64
+      ]
+    },
+    {
+      "area": "heping",
+      "start_year": 2018,
+      "end_year": 2019,
+      "status": "missing_start_embedding"
+    },
+    {
+      "area": "heping",
+      "start_year": 2019,
+      "end_year": 2020,
+      "status": "missing_start_embedding"
+    },
+    {
+      "area": "heping",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "generated",
+      "shape": [
+        516,
+        356,
+        64
+      ]
+    },
+    {
+      "area": "heping",
+      "start_year": 2021,
+      "end_year": 2022,
+      "status": "missing_start_embedding"
+    },
+    {
+      "area": "heping",
+      "start_year": 2022,
+      "end_year": 2023,
+      "status": "missing_start_embedding"
+    },
+    {
+      "area": "heping",
+      "start_year": 2023,
+      "end_year": 2024,
+      "status": "missing_start_embedding"
+    },
+    {
+      "area": "hexi_irrigation_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "honghu_lake_margin_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "huaibei_irrigation_plain_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "hulun_grassland_margin_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "jiangmen_estuary_newtown_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "jiaxing_ring_urban_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "kunshan_dense_edge_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "liaohe_delta_wetland_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "nanling_forest_edge_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "nanning_fringe_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "ningbo_inner_bay_edge_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "ordos_grassland_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "poyang_lake",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "qinling_mountain_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "renqiu_baiyangdian_edge_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "sanjiang_plain_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "shenzhen_outer_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "songnen_plain_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "suzhou_fringe_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "taihu_marsh_edge_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "tarim_oasis_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "tianjin_binhai_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "weihe_irrigation_margin_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "wenan_lakeplain_newtown_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "west_sichuan_plateau_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "wuhan_outer_ring_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "wuxi_taihu_dense_edge_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "wuyi_mountain",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "xiaoxinganling_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "xilingol_grassland_margin_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "xinxiang_floodplain_newtown_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "xiong_an_fringe_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "xiongxian_river_corridor_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "yancheng_coastal_new_district_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    },
+    {
+      "area": "zhalong_wetland_edge_holdout",
+      "start_year": 2020,
+      "end_year": 2021,
+      "status": "cached"
+    }
+  ]
+}
