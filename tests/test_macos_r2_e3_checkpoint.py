@@ -1,5 +1,6 @@
 from pathlib import Path
 import importlib.util
+import math
 
 
 def _load_e3_module():
@@ -33,3 +34,22 @@ def test_checkpoint_candidates_include_repo_adk_weight():
     )
 
     assert expected in module.AE_CKPT_CANDIDATES
+
+
+def test_e3_summarizes_rows_by_step():
+    module = _load_e3_module()
+    rows = [
+        {"area": "a", "step": 1, "persistence": 0.9, "model": 0.8, "advantage": -0.1},
+        {"area": "b", "step": 1, "persistence": 0.8, "model": 0.9, "advantage": 0.1},
+        {"area": "a", "step": 2, "persistence": 0.7, "model": 0.6, "advantage": -0.1},
+    ]
+
+    summary, tests = module.summarize_multistep_rows(rows)
+
+    assert summary["steps"]["1"]["n"] == 2
+    assert math.isclose(summary["steps"]["1"]["mean_advantage"], 0.0, abs_tol=1e-12)
+    assert summary["steps"]["1"]["n_pos"] == 1
+    assert summary["steps"]["1"]["n_neg"] == 1
+    assert tests["steps"]["1"]["n"] == 2
+    assert "wilcoxon_p" in tests["steps"]["1"]
+    assert summary["steps"]["2"]["n"] == 1

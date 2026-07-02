@@ -1,18 +1,17 @@
 {
-  "n": 73,
-  "mean": -0.012674578248637996,
-  "sd": 0.016556486644921337,
-  "wilcoxon_p": 6.785657511731993e-10,
-  "t_p": 7.679022451853126e-09,
+  "n": 30,
+  "mean": -0.014933959643046061,
+  "sd": 0.018417068116295534,
+  "wilcoxon_p": 2.551823854446411e-07,
+  "t_p": 0.00011938666833276737,
   "permutation_p": 0.0,
-  "bootstrap_ci_lo": -0.01662133997433806,
-  "bootstrap_ci_hi": -0.00899421129732916,
-  "cohen_dz": -0.7655354979871827,
+  "bootstrap_ci_lo": -0.021834126661221184,
+  "bootstrap_ci_hi": -0.008796736995379131,
+  "cohen_dz": -0.8108760606598616,
   "eval_sources": {
-    "n_areas": 73,
+    "n_areas": 30,
     "roots": {
-      "/Users/zhouning/paper58-geofm-world-model-rl/experiments/paper8/data": 30,
-      "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings": 43
+      "/Users/zhouning/paper58-geofm-world-model-rl/experiments/paper8/data": 30
     }
   }
 }

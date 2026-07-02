@@ -33,6 +33,8 @@ import time
 from pathlib import Path
 
 import numpy as np
+import torch
+import torch.nn.functional as F
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parent.parent
@@ -41,12 +43,14 @@ sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(PAPER8_ROOT))
 from run_markers import mark_done  # noqa: E402
+from paper58_runtime import _build_model, SCENARIO_DIM, SCENARIOS  # noqa: E402
 
 RESULTS_DIR = HERE / "results" / "e4_per_year_decoder"
 INDEP_LABELS = REPO_ROOT / "data" / "independent_change_labels" / "labels"
 INDEP_PRED = REPO_ROOT / "data" / "independent_change_labels" / "predicted"
 AE_DIR = REPO_ROOT / "data" / "independent_change_labels" / "embeddings"
 AE_DIRS = [AE_DIR, PAPER8_ROOT / "data"]
+DEFAULT_DECODER_YEARS = list(range(2017, 2025))
 
 # Same 6-class merge rule used in v2 §4.6:
 # raw ESRI: 1=water, 2=trees, 4=flooded_veg, 5=crops, 7=built, 8=bare, 9=snow, 10=clouds, 11=rangeland
@@ -90,6 +94,96 @@ def embedding_files_for_year(year: int) -> list[tuple[str, Path]]:
             area = emb_file.stem.rsplit("_emb_", 1)[0]
             area_to_path.setdefault(area, emb_file)
     return sorted(area_to_path.items())
+
+
+def find_embedding_path(area: str, year: int) -> Path | None:
+    for root in AE_DIRS:
+        for candidate in (
+            root / f"{area}_emb_{year}.npy",
+            root / area / f"{area}_emb_{year}.npy",
+        ):
+            if candidate.exists():
+                return candidate
+    return None
+
+
+def resolve_ckpt() -> Path:
+    candidates = [
+        PAPER8_ROOT / "weights" / "latent_dynamics_v1.pt",
+        REPO_ROOT / "weights" / "latent_dynamics_v1.pt",
+        REPO_ROOT / "src" / "adk_world_model" / "weights" / "latent_dynamics_v1.pt",
+        Path.home() / "paper58-r2" / "weights" / "latent_dynamics_v1.pt",
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    raise FileNotFoundError(
+        "AlphaEarth LDN checkpoint not found; expected one of:\n  "
+        + "\n  ".join(str(c) for c in candidates)
+    )
+
+
+def build_predictor() -> dict:
+    device = torch.device("mps" if torch.backends.mps.is_available()
+                          else "cuda" if torch.cuda.is_available() else "cpu")
+    ckpt_path = resolve_ckpt()
+    ckpt = torch.load(ckpt_path, map_location=device, weights_only=False)
+    n_ctx = int(ckpt.get("n_context", 2))
+    z_dim = int(ckpt.get("z_dim", 64))
+    model = _build_model(z_dim=z_dim, n_context=n_ctx).to(device)
+    model.load_state_dict(ckpt["model_state_dict"] if "model_state_dict" in ckpt else ckpt)
+    model.eval()
+    scenario_np = np.zeros(SCENARIO_DIM, dtype=np.float32)
+    scenario_np[SCENARIOS["baseline"].id] = 1.0
+    scenario = torch.tensor(scenario_np).unsqueeze(0).to(device)
+    return {"model": model, "scenario": scenario, "device": device, "z_dim": z_dim}
+
+
+def ensure_predicted_embedding(area: str, start_year: int, end_year: int,
+                               predictor: dict | None,
+                               expected_shape: tuple[int, int] | None = None) -> tuple[Path | None, str]:
+    out_file = INDEP_PRED / f"{area}_{start_year}_{end_year}_embedding.npy"
+    if out_file.exists():
+        return out_file, "cached"
+    if predictor is None:
+        return None, "predictor_missing"
+    start_emb_path = find_embedding_path(area, start_year)
+    if start_emb_path is None:
+        return None, "start_embedding_missing"
+
+    z_start = np.load(start_emb_path).astype(np.float32)
+    if expected_shape is not None and z_start.shape[:2] != expected_shape:
+        return (
+            None,
+            f"shape_mismatch:{z_start.shape[0]}x{z_start.shape[1]}"
+            f"_vs_{expected_shape[0]}x{expected_shape[1]}",
+        )
+    z_dim = int(predictor.get("z_dim", z_start.shape[-1]))
+    if z_start.shape[-1] != z_dim:
+        return None, "z_dim_mismatch"
+
+    device = predictor["device"]
+    z_pred = torch.tensor(z_start.transpose(2, 0, 1)).unsqueeze(0).float().to(device)
+    model = predictor["model"]
+    scenario = predictor["scenario"]
+    with torch.no_grad():
+        for _ in range(start_year, end_year):
+            z_pred = F.normalize(model(z_pred, scenario), p=2, dim=1)
+    pred_np = z_pred.squeeze(0).cpu().numpy().transpose(1, 2, 0)
+    out_file.parent.mkdir(parents=True, exist_ok=True)
+    np.save(out_file, pred_np)
+    return out_file, "generated"
+
+
+def prediction_label_shape_status(pred_emb_file: Path, end_label_file: Path) -> str:
+    pred_shape = np.load(pred_emb_file, mmap_mode="r").shape[:2]
+    label_shape = np.load(end_label_file, mmap_mode="r").shape[:2]
+    if pred_shape == label_shape:
+        return "ok"
+    return (
+        f"shape_mismatch:{pred_shape[0]}x{pred_shape[1]}"
+        f"_vs_{label_shape[0]}x{label_shape[1]}"
+    )
 
 
 def train_year_decoder(year: int) -> dict:
@@ -164,7 +258,7 @@ def train_year_decoder(year: int) -> dict:
 def main() -> None:
     p = argparse.ArgumentParser(__doc__)
     p.add_argument("--years", nargs="*", type=int,
-                   default=[2017, 2018, 2019, 2020, 2021, 2022, 2023])
+                   default=DEFAULT_DECODER_YEARS)
     p.add_argument("--smoke", action="store_true")
     args = p.parse_args()
     if args.smoke:
@@ -201,6 +295,7 @@ def main() -> None:
     if v2_csv.exists():
         import pandas as pd
         v2 = pd.read_csv(v2_csv)
+        predictor = None
         for _, r in v2.iterrows():
             end_year = int(r["end_year"])
             if r["true_change_pixels"] == 0:
@@ -219,16 +314,40 @@ def main() -> None:
             with ck.open("rb") as f:
                 pkg = pickle.load(f)
             clf = pkg["clf"]
-            pred_emb_file = INDEP_PRED / f"{r['area']}_{r['start_year']}_{end_year}_embedding.npy"
             end_label_file = find_label_path(str(r["area"]), end_year)
             start_label_file = find_label_path(str(r["area"]), int(r["start_year"]))
-            if not (pred_emb_file.exists() and end_label_file is not None and start_label_file is not None):
+            pred_emb_file = INDEP_PRED / f"{r['area']}_{r['start_year']}_{end_year}_embedding.npy"
+            pred_status = "cached"
+            if not pred_emb_file.exists():
+                if predictor is None:
+                    predictor = build_predictor()
+                expected_shape = None
+                if end_label_file is not None:
+                    expected_shape = np.load(end_label_file, mmap_mode="r").shape[:2]
+                pred_emb_file, pred_status = ensure_predicted_embedding(
+                    str(r["area"]), int(r["start_year"]), end_year, predictor,
+                    expected_shape=expected_shape,
+                )
+            if not (pred_emb_file is not None and pred_emb_file.exists()
+                    and end_label_file is not None and start_label_file is not None):
+                missing_status = pred_status
+                if not pred_status.startswith("shape_mismatch"):
+                    missing_status = f"prediction_missing:{pred_status}"
                 delta_rows.append({"pair_id": f"{r['area']}_{r['start_year']}-{end_year}",
                                    "end_year": end_year,
                                    "v2_end_accuracy": float(r["model_end_accuracy"]),
                                    "retrained_end_accuracy": None,
                                    "delta": None,
-                                   "status": "prediction_missing"})
+                                   "status": missing_status})
+                continue
+            shape_status = prediction_label_shape_status(pred_emb_file, end_label_file)
+            if shape_status != "ok":
+                delta_rows.append({"pair_id": f"{r['area']}_{r['start_year']}-{end_year}",
+                                   "end_year": end_year,
+                                   "v2_end_accuracy": float(r["model_end_accuracy"]),
+                                   "retrained_end_accuracy": None,
+                                   "delta": None,
+                                   "status": shape_status})
                 continue
             emb = np.load(pred_emb_file)  # (H, W, 64)
             end_lab = merge_labels(np.load(end_label_file))
@@ -240,7 +359,7 @@ def main() -> None:
                                "v2_end_accuracy": float(r["model_end_accuracy"]),
                                "retrained_end_accuracy": acc,
                                "delta": acc - float(r["model_end_accuracy"]),
-                               "status": "ok"})
+                               "status": "ok" if pred_status == "cached" else f"ok:{pred_status}"})
     with (RESULTS_DIR / "per_pair_end_accuracy_delta.csv").open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(delta_rows[0].keys()) if delta_rows
                           else ["pair_id"])

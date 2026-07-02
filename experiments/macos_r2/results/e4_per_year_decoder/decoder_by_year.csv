@@ -6,3 +6,4 @@ year,n_samples,n_areas,cv_acc_mean,cv_acc_std,cv_macro_f1_mean,cv_macro_f1_std,c
 2021,24969,46,0.8287478320670164,0.002790591690212749,0.7055939979543051,0.009224416297695081,/Users/zhouning/paper58-geofm-world-model-rl/experiments/macos_r2/weights/e4/decoder_year_2021.pkl
 2022,800,1,0.7300000000000001,0.018708286933869677,0.3856303495182031,0.05559996492417035,/Users/zhouning/paper58-geofm-world-model-rl/experiments/macos_r2/weights/e4/decoder_year_2022.pkl
 2023,800,1,0.7424999999999999,0.029421505739849554,0.39991328651294095,0.06600225595245952,/Users/zhouning/paper58-geofm-world-model-rl/experiments/macos_r2/weights/e4/decoder_year_2023.pkl
+2024,800,1,0.7474999999999999,0.026983791431153602,0.4617103266790273,0.080590786525284,/Users/zhouning/paper58-geofm-world-model-rl/experiments/macos_r2/weights/e4/decoder_year_2024.pkl

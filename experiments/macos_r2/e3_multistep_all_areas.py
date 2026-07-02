@@ -32,6 +32,7 @@ from pathlib import Path
 import numpy as np
 import torch
 import torch.nn.functional as F
+from scipy import stats
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parent.parent
@@ -112,6 +113,49 @@ def cosine(a: torch.Tensor, b: torch.Tensor) -> torch.Tensor:
 
 def list_areas() -> list[str]:
     return sorted({p.stem.rsplit("_emb_", 1)[0] for p in AE_DIR.glob("*_emb_*.npy")})
+
+
+def summarize_multistep_rows(rows: list[dict]) -> tuple[dict, dict]:
+    summary_steps: dict[str, dict] = {}
+    test_steps: dict[str, dict] = {}
+    for step in sorted({int(r["step"]) for r in rows}):
+        step_rows = [r for r in rows if int(r["step"]) == step]
+        advs = np.array([float(r["advantage"]) for r in step_rows], dtype=np.float64)
+        persists = np.array([float(r["persistence"]) for r in step_rows], dtype=np.float64)
+        models = np.array([float(r["model"]) for r in step_rows], dtype=np.float64)
+        step_key = str(step)
+        summary_steps[step_key] = {
+            "n": int(len(advs)),
+            "mean_persistence": float(persists.mean()),
+            "mean_model": float(models.mean()),
+            "mean_advantage": float(advs.mean()),
+            "sd_advantage": float(advs.std(ddof=1)) if len(advs) > 1 else None,
+            "n_pos": int((advs > 0).sum()),
+            "n_neg": int((advs < 0).sum()),
+            "min_advantage": float(advs.min()),
+            "max_advantage": float(advs.max()),
+        }
+        test_out = {"n": int(len(advs)), "mean": float(advs.mean())}
+        if len(advs) >= 2:
+            rng = np.random.default_rng(20260702 + step)
+            wil = stats.wilcoxon(advs, zero_method="wilcox", alternative="two-sided")
+            t_stat, t_p = stats.ttest_1samp(advs, popmean=0.0)
+            signs = rng.choice([-1, 1], size=(100_000, len(advs)))
+            perm_p = float(np.mean(np.abs((signs * advs[None, :]).mean(axis=1)) >= abs(advs.mean())))
+            idx = rng.integers(0, len(advs), size=(20_000, len(advs)))
+            boot = advs[idx].mean(axis=1)
+            ci_lo, ci_hi = np.quantile(boot, [0.025, 0.975])
+            sd = float(advs.std(ddof=1))
+            test_out.update({
+                "wilcoxon_p": float(wil.pvalue),
+                "t_p": float(t_p),
+                "permutation_p": perm_p,
+                "bootstrap_ci_lo": float(ci_lo),
+                "bootstrap_ci_hi": float(ci_hi),
+                "cohen_dz": float(advs.mean() / sd) if sd else float("inf"),
+            })
+        test_steps[step_key] = test_out
+    return {"steps": summary_steps}, {"steps": test_steps}
 
 
 def rollout_for_area(model, device, seq: list[np.ndarray],
@@ -201,6 +245,10 @@ def main() -> None:
         w = csv.DictWriter(f, fieldnames=["area", "step", "persistence", "model", "advantage"])
         w.writeheader()
         w.writerows(all_rows)
+
+    summary, paired_tests = summarize_multistep_rows(all_rows)
+    (RESULTS_DIR / "multistep_summary.json").write_text(json.dumps(summary, indent=2))
+    (RESULTS_DIR / "multistep_paired_tests.json").write_text(json.dumps(paired_tests, indent=2))
 
     manifest = {"ckpt": str(ckpt_path), "n_context": n_ctx, "z_dim": z_dim,
                 "max_steps": args.max_steps, "n_areas": len(set(r["area"] for r in all_rows)),

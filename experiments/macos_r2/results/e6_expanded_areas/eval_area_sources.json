@@ -1,19 +1,11 @@
 {
   "summary": {
-    "n_areas": 73,
+    "n_areas": 30,
     "roots": {
-      "/Users/zhouning/paper58-geofm-world-model-rl/experiments/paper8/data": 30,
-      "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings": 43
+      "/Users/zhouning/paper58-geofm-world-model-rl/experiments/paper8/data": 30
     }
   },
   "areas": {
-    "baiyangdian_new_area_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
     "banzhucun": {
       "root": "/Users/zhouning/paper58-geofm-world-model-rl/experiments/paper8/data",
       "years": [
@@ -25,13 +17,6 @@
         2022,
         2023,
         2024
-      ]
-    },
-    "beibu_gulf_urban_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
       ]
     },
     "bishan": {
@@ -73,13 +58,6 @@
         2024
       ]
     },
-    "changbai_margin_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
     "chengdu_plain": {
       "root": "/Users/zhouning/paper58-geofm-world-model-rl/experiments/paper8/data",
       "years": [
@@ -93,13 +71,6 @@
         2024
       ]
     },
-    "dabie_forest_edge_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
     "daxinganling": {
       "root": "/Users/zhouning/paper58-geofm-world-model-rl/experiments/paper8/data",
       "years": [
@@ -111,13 +82,6 @@
         2022,
         2023,
         2024
-      ]
-    },
-    "dongting_lake_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
       ]
     },
     "dongting_wetland": {
@@ -144,27 +108,6 @@
         2022,
         2023,
         2024
-      ]
-    },
-    "erlong_lake_margin_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
-    "ezhou_lakeside_expansion_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
-    "fuzhou_delta_urban_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
       ]
     },
     "gobi_margin": {
@@ -206,13 +149,6 @@
         2024
       ]
     },
-    "haibei_plateau_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
     "hainan_coastal": {
       "root": "/Users/zhouning/paper58-geofm-world-model-rl/experiments/paper8/data",
       "years": [
@@ -224,13 +160,6 @@
         2022,
         2023,
         2024
-      ]
-    },
-    "hengshui_lake_urban_edge_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
       ]
     },
     "hetao": {
@@ -246,34 +175,6 @@
         2024
       ]
     },
-    "hexi_irrigation_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
-    "honghu_lake_margin_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
-    "huaibei_irrigation_plain_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
-    "hulun_grassland_margin_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
     "jianghan_plain": {
       "root": "/Users/zhouning/paper58-geofm-world-model-rl/experiments/paper8/data",
       "years": [
@@ -285,20 +186,6 @@
         2022,
         2023,
         2024
-      ]
-    },
-    "jiangmen_estuary_newtown_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
-    "jiaxing_ring_urban_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
       ]
     },
     "jing_jin_ji": {
@@ -314,20 +201,6 @@
         2024
       ]
     },
-    "kunshan_dense_edge_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
-    "liaohe_delta_wetland_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
     "minnan_coast": {
       "root": "/Users/zhouning/paper58-geofm-world-model-rl/experiments/paper8/data",
       "years": [
@@ -339,27 +212,6 @@
         2022,
         2023,
         2024
-      ]
-    },
-    "nanling_forest_edge_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
-    "nanning_fringe_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
-    "ningbo_inner_bay_edge_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
       ]
     },
     "north_china_plain": {
@@ -401,13 +253,6 @@
         2024
       ]
     },
-    "ordos_grassland_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
     "pearl_river": {
       "root": "/Users/zhouning/paper58-geofm-world-model-rl/experiments/paper8/data",
       "years": [
@@ -447,13 +292,6 @@
         2024
       ]
     },
-    "qinling_mountain_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
     "qinling_south_slope": {
       "root": "/Users/zhouning/paper58-geofm-world-model-rl/experiments/paper8/data",
       "years": [
@@ -465,34 +303,6 @@
         2022,
         2023,
         2024
-      ]
-    },
-    "renqiu_baiyangdian_edge_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
-    "sanjiang_plain_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
-    "shenzhen_outer_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
-    "songnen_plain_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
       ]
     },
     "suzhou_fringe": {
@@ -508,20 +318,6 @@
         2024
       ]
     },
-    "suzhou_fringe_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
-    "taihu_marsh_edge_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
     "tarim_oasis": {
       "root": "/Users/zhouning/paper58-geofm-world-model-rl/experiments/paper8/data",
       "years": [
@@ -533,41 +329,6 @@
         2022,
         2023,
         2024
-      ]
-    },
-    "tarim_oasis_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
-    "tianjin_binhai_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
-    "weihe_irrigation_margin_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
-    "wenan_lakeplain_newtown_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
-    "west_sichuan_plateau_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
       ]
     },
     "wuhan_outer_ring": {
@@ -583,13 +344,6 @@
         2024
       ]
     },
-    "wuhan_outer_ring_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
     "wumeng_mountains": {
       "root": "/Users/zhouning/paper58-geofm-world-model-rl/experiments/paper8/data",
       "years": [
@@ -603,13 +357,6 @@
         2024
       ]
     },
-    "wuxi_taihu_dense_edge_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
     "wuyi_mountain": {
       "root": "/Users/zhouning/paper58-geofm-world-model-rl/experiments/paper8/data",
       "years": [
@@ -621,48 +368,6 @@
         2022,
         2023,
         2024
-      ]
-    },
-    "xiaoxinganling_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
-    "xilingol_grassland_margin_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
-    "xinxiang_floodplain_newtown_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
-    "xiong_an_fringe_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
-    "xiongxian_river_corridor_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
-      ]
-    },
-    "yancheng_coastal_new_district_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
       ]
     },
     "yangtze_delta": {
@@ -689,13 +394,6 @@
         2022,
         2023,
         2024
-      ]
-    },
-    "zhalong_wetland_edge_holdout": {
-      "root": "/Users/zhouning/paper58-geofm-world-model-rl/data/independent_change_labels/embeddings",
-      "years": [
-        2020,
-        2021
       ]
     }
   }
