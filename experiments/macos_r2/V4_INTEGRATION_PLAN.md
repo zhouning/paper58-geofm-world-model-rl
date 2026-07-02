@@ -1,7 +1,7 @@
 # v4 Manuscript Integration Plan — E3/E4/E6 Results
 
 **Date**: 2026-07-02  
-**Status**: ✅ **Completed and integrated into v4; retrain_v2 critical fix applied**
+**Status**: ✅ **Completed and integrated into v4; retrain_v2 critical fix and E3 v2 rerun applied**
 **Integration commit**: `bc0c64e Integrate macOS R2 results into v4 manuscript`
 **Critical fix source commit**: `23f1111 CRITICAL FIX: retrain LDN on R2 embeddings (train/test mismatch found)`
 **Diff report**: `paper/rse_submission_paper58/manuscript/V3_TO_V4_DIFF_REPORT.md`
@@ -16,7 +16,7 @@
 > We report three views, each honestly bounded. \textit{First}, on 10 AlphaEarth study areas (2023→2024 transition, embeddings re-extracted from Google Earth Engine in R2 for reproducibility) the mean 1-step cosine advantage over persistence is $-0.0055$ (negative)...
 
 **New (v4)**:
-> We report three views, each honestly bounded. \textit{First}, on **30** AlphaEarth study areas (complete 2017--2024 time series, embeddings re-extracted from Google Earth Engine in R2 for reproducibility), retraining the dynamics model on the same R2 embeddings changes the mean 1-step cosine advantage over persistence to **-0.0030**, with **16/30** areas showing positive advantage and Wilcoxon **p=0.57**. The pre-R2 checkpoint result is retained only as a mismatch audit. Per-year decoder retraining improves end-year categorical accuracy by **[E4_MEAN_DELTA]** on average...
+> We report three views, each honestly bounded. \textit{First}, on **30** AlphaEarth study areas (complete 2017--2024 time series, embeddings re-extracted from Google Earth Engine in R2 for reproducibility), retraining the dynamics model on the same R2 embeddings changes the mean 1-step cosine advantage over persistence to **-0.0030**, with **16/30** areas showing positive advantage and Wilcoxon **p=0.57**. The pre-R2 checkpoint result is retained only as a mismatch audit. The R2-retrained multi-step rollout is near zero at step 1 (**-0.0039**, p=0.49) but negative from step 2 onward, reaching **-0.0629** at step 6. Per-year decoder retraining improves end-year categorical accuracy by **0.0778** on average...
 
 ### 2. §5 Results — Add E3/E4/E6 Subsections
 
@@ -24,30 +24,30 @@
 
 **New subsection**:
 ```latex
-\subsection{Multi-Step Rollout}
+\subsection{R2-retrained multi-step degradation diagnostic}
 \label{sec:multistep}
 
-We extend the 1-step evaluation to multi-step autoregressive rollout (2--6 years). At each step $k$, the model predicts $z_{t+k}$ from $z_{t+k-1}$, and persistence is computed as $\text{cosine}(z_{t+k-1}, z_{t+k}^{\text{true}})$.
+We extend the 1-step evaluation to multi-step autoregressive rollout (1--6 annual steps). At each step $k$, the model predicts $z_{t+k}$ from $z_{t+k-1}$, and persistence is computed as $\text{cosine}(z_{t+k-1}, z_{t+k}^{\text{true}})$. The final run uses the R2-retrained `latent_dynamics_v2_seed456.pt` checkpoint.
 
 \begin{table}[htbp]
 \centering
-\caption{Multi-step rollout on 10 areas (mean cosine similarity over areas).}
+\caption{R2-retrained corrected multi-step rollout on 30 complete-time-series areas (mean cosine similarity over areas).}
 \label{tab:multistep}
-\begin{tabular}{lccc}
+\begin{tabular}{lcccc}
 \toprule
-Step & Persistence & Model & Advantage \\
+Step & Persistence & Model & Advantage & Positive / negative \\
 \midrule
-1 & [E3_PERSIST_1] & [E3_MODEL_1] & [E3_ADV_1] \\
-2 & [E3_PERSIST_2] & [E3_MODEL_2] & [E3_ADV_2] \\
-3 & [E3_PERSIST_3] & [E3_MODEL_3] & [E3_ADV_3] \\
-4 & [E3_PERSIST_4] & [E3_MODEL_4] & [E3_ADV_4] \\
-5 & [E3_PERSIST_5] & [E3_MODEL_5] & [E3_ADV_5] \\
-6 & [E3_PERSIST_6] & [E3_MODEL_6] & [E3_ADV_6] \\
+1 & 0.9681 & 0.9642 & $-$0.0039 & 13 / 17 \\
+2 & 0.9676 & 0.9509 & $-$0.0167 & 8 / 22 \\
+3 & 0.9647 & 0.9322 & $-$0.0326 & 2 / 28 \\
+4 & 0.9625 & 0.9190 & $-$0.0436 & 2 / 28 \\
+5 & 0.9616 & 0.9089 & $-$0.0527 & 0 / 30 \\
+6 & 0.9657 & 0.9028 & $-$0.0629 & 1 / 29 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Both persistence and model degrade with step count, as expected for autoregressive drift. At step 6, persistence = [E3_PERSIST_6] and model = [E3_MODEL_6]. The advantage remains [E3_SIGN] across all steps, indicating that [E3_INTERPRETATION].
+Step 1 is near zero and non-significant (Wilcoxon p=0.49). From step 2 onward, the rollout advantage is significantly negative and worsens gradually, reaching -0.0629 at step 6.
 ```
 
 #### §5.X (new) — E4 Per-Year Decoder
@@ -61,25 +61,25 @@ The reviewer flagged (S6) that the v2 decoder was trained on 2020 embeddings but
 
 \begin{table}[htbp]
 \centering
-\caption{Per-year decoder cross-validation accuracy on ESRI labels.}
+\caption{Per-year decoder cross-validation on ESRI labels.}
 \label{tab:decoder_by_year}
-\begin{tabular}{lcc}
+\begin{tabular}{lccc}
 \toprule
-Year & n samples & CV accuracy (macro F1) \\
+Year & $n$ samples & CV accuracy & Macro-F1 \\
 \midrule
-2017 & [E4_N_2017] & [E4_ACC_2017] \\
-2018 & [E4_N_2018] & [E4_ACC_2018] \\
-2019 & [E4_N_2019] & [E4_ACC_2019] \\
-2020 & [E4_N_2020] & [E4_ACC_2020] \\
-2021 & [E4_N_2021] & [E4_ACC_2021] \\
-2022 & [E4_N_2022] & [E4_ACC_2022] \\
-2023 & [E4_N_2023] & [E4_ACC_2023] \\
-2024 & [E4_N_2024] & [E4_ACC_2024] \\
+2017 & 800 & 0.6675 & 0.4935 \\
+2018 & 800 & 0.7488 & 0.5139 \\
+2019 & 800 & 0.7225 & 0.4881 \\
+2020 & 24,967 & 0.8349 & 0.7352 \\
+2021 & 24,969 & 0.8287 & 0.7056 \\
+2022 & 800 & 0.7300 & 0.3856 \\
+2023 & 800 & 0.7425 & 0.3999 \\
+2024 & 800 & 0.7475 & 0.4617 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Per-year retraining improves end-year categorical accuracy by [E4_MEAN_DELTA] on average (range: [E4_MIN_DELTA] to [E4_MAX_DELTA]), with [E4_N_IMPROVED]/[E4_N_TOTAL] pairs showing improvement. This suggests [E4_INTERPRETATION].
+Per-year retraining improves end-year categorical accuracy by 0.0778 on average (range: -0.0260 to +0.1646), with 8/9 pairs showing improvement. This confirms decoder year-drift, but does not overturn the full-map forecasting verdict.
 ```
 
 #### §5.2 — Update to 30-Area Baseline (E6)
@@ -101,11 +101,11 @@ Positive / negative areas & 2 / 8 \\
 \centering
 \caption{Data-traceable area-level prediction quality from **30** study areas (complete 2017--2024 time series, 2023→2024 transition, R2 re-extracted embeddings).}
 ...
-Mean paired difference & [E6_MEAN] \\
-Standard deviation & [E6_SD] \\
-Positive / negative areas & [E6_N_POS] / [E6_N_NEG] \\
-Wilcoxon signed-rank $p$ (two-sided) & [E6_WILCOXON_P] \\
-Paired $t$-test $p$ (two-sided) & [E6_T_P] \\
+Mean paired difference & $-0.003004$ \\
+Standard deviation & 0.022736 \\
+Positive / negative areas & 16 / 14 \\
+Wilcoxon signed-rank $p$ (two-sided) & 0.5699 \\
+Paired $t$-test $p$ (two-sided) & 0.4751 \\
 ...
 ```
 
@@ -128,13 +128,13 @@ Five of the seven reviewer-requested experiments have been completed:
 
 \textbf{E2 (Terrain Context Ablation, S4):} ... (same as v3)
 
-\textbf{E3 (Multi-Step Rollout, S5):} Persistence calculation bug fixed. Multi-step rollout (2--6 years) on 10 areas shows [E3_SUMMARY]. Both persistence and model degrade with step count; the advantage remains [E3_SIGN] across all steps.
+\textbf{E3 (Multi-Step Rollout, S5):} Persistence calculation bug fixed. Multi-step rollout on 30 complete-time-series areas was rerun with the R2-retrained checkpoint. Step 1 is near zero/non-significant (mean -0.0039, 13/30 positive, Wilcoxon p=0.49); steps 2--6 are significantly negative and reach -0.0629 at step 6 (1/30 positive).
 
-\textbf{E4 (Per-Year Decoder, S6):} Predicted embeddings generated on Windows; per-year decoder retraining completed on macOS. Retraining improves end-year categorical accuracy by [E4_MEAN_DELTA] on average ([E4_N_IMPROVED]/[E4_N_TOTAL] pairs improved).
+\textbf{E4 (Per-Year Decoder, S6):} Predicted embeddings generated on Windows; per-year decoder retraining completed on macOS. Retraining improves end-year categorical accuracy by 0.0778 on average (8/9 pairs improved).
 
 \textbf{E5 (SA-Alloc Parameter Sensitivity, S3):} ... (same as v3)
 
-\textbf{E6 (Expand to 30 Areas, M1):} Baseline expanded from 10 to **30 areas** (complete 2017--2024 time series only). Mean advantage = [E6_MEAN], [E6_N_POS]/30 positive. The sign and statistical significance verdict are consistent with the 10-area baseline.
+\textbf{E6 (Expand to 30 Areas, M1):} Baseline expanded from 10 to **30 areas** (complete 2017--2024 time series only). After R2 retraining, mean advantage = -0.003004, 16/30 positive, Wilcoxon p=0.5699. The corrected verdict is near-zero/non-significant rather than significantly negative.
 
 \subsection{In-Progress Follow-Up Experiments (E1, E7)}
 
@@ -151,7 +151,7 @@ Two experiments remain:
 > Two have been completed and incorporated into this revision: E2 (terrain ablation)... Three experiments (E3, E4, E6) have been debugged and are ready for macOS re-run...
 
 **New (v4)**:
-> **Five** have been completed and incorporated into this revision: E2 (terrain ablation) shows terrain context does not significantly improve prediction; E3 (multi-step rollout) shows [E3_SUMMARY]; E4 (per-year decoder retraining) improves end-year accuracy by [E4_MEAN_DELTA] on average; E5 (SA-Alloc sensitivity) shows moderate parameter sensitivity; E6 (expanded baseline) confirms mean advantage = [E6_MEAN] on 30 areas (consistent with 10-area finding). E1 (Prithvi spatial patch) diagnosis complete: Prithvi embeddings exhibit no temporal variation. E7 (third encoder) deferred as optional.
+> **Five** have been completed and incorporated into this revision: E2 (terrain ablation) shows terrain context does not significantly improve prediction; E3 (multi-step rollout) shows near-zero/non-significant step-1 performance but negative autoregressive rollout from steps 2--6; E4 (per-year decoder retraining) improves end-year accuracy by 0.0778 on average; E5 (SA-Alloc sensitivity) shows moderate parameter sensitivity; E6 (expanded baseline plus R2 retraining) reports mean advantage = -0.003004 on 30 areas with no significant paired effect. E1 (Prithvi spatial patch) diagnosis complete: Prithvi embeddings exhibit no temporal variation. E7 (third encoder) deferred as optional.
 
 ### 5. Abstract — Update Experiment Count
 
@@ -219,6 +219,8 @@ Save as `experiments/macos_r2/extract_v4_numbers.py`
 - [x] Regenerate retrain_v2 paired tests with `--eval-only`
 - [x] Update extractor/tests to include retrain_v2 results
 - [x] Update v4 manuscript interpretation from "significantly negative" to "near-zero/non-significant after R2 retraining"
+- [x] Rerun E3 multi-step rollout with `experiments/macos_r2/weights/retrain_v2/latent_dynamics_v2_seed456.pt`
+- [x] Update v4 manuscript E3 text/table from legacy pre-R2 diagnostic to R2-retrained results
 
 ---
 
@@ -230,3 +232,4 @@ Save as `experiments/macos_r2/extract_v4_numbers.py`
 - **2026-07-02**: manual v3-to-v4 diff report prepared because `latexdiff` is not installed locally.
 - **2026-07-02**: critical fix `23f1111` pulled; LDN retrained on R2 embeddings (3 seeds, 100 epochs); best checkpoint `latent_dynamics_v2_seed456.pt`.
 - **2026-07-02**: R2-retrained E6 result: mean advantage -0.003004, 16/30 positive, Wilcoxon p=0.5699, bootstrap 95% CI [-0.0121, +0.0037].
+- **2026-07-02**: E3 multi-step rerun completed with the R2-retrained checkpoint; step 1 mean advantage -0.0039 (Wilcoxon p=0.49), step 6 mean advantage -0.0629 (1/30 positive).

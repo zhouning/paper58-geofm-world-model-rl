@@ -11,7 +11,7 @@ Post-v4 critical-fix task: `23f1111 CRITICAL FIX: retrain LDN on R2 embeddings (
 
 ## Summary
 
-v4 incorporates the completed macOS R2 E3, E4, and E6 results. A later critical-fix task found that the initially negative 30-area E6 result used a pre-R2 dynamics checkpoint on R2 embeddings. The corrected manuscript now reports the R2-retrained 30-area baseline as near zero and non-significant, while retaining the earlier negative result only as a checkpoint--embedding mismatch audit. GeoFM-LDN is still not presented as outperforming persistence in embedding-space forecasting.
+v4 incorporates the completed macOS R2 E3, E4, and E6 results. A later critical-fix task found that the initially negative 30-area E6 result used a pre-R2 dynamics checkpoint on R2 embeddings. The corrected manuscript now reports the R2-retrained 30-area baseline as near zero and non-significant, retains the earlier negative result only as a checkpoint--embedding mismatch audit, and reports the R2-retrained 6-step rollout as near zero at step 1 but negative from step 2 onward. GeoFM-LDN is still not presented as outperforming persistence in embedding-space forecasting.
 
 ## Main Text Changes
 
@@ -38,7 +38,8 @@ v4 incorporates the completed macOS R2 E3, E4, and E6 results. A later critical-
 
 5. Results: E3 multi-step rollout
    - Replaced the v3 "only three areas have full rollout" disclosure with the corrected 30-area 6-step rollout table.
-   - After the retrain audit, reframed E3 as a pre-R2-checkpoint legacy diagnostic pending v2 multi-step rerun.
+   - After the retrain audit, updated E3 to use the R2-retrained `latent_dynamics_v2_seed456.pt` checkpoint.
+   - Reported step 1 as near zero/non-significant and steps 2--6 as increasingly negative.
 
 6. Discussion and limitations
    - Replaced the v3 "10-area underpowered/non-significant" interpretation with the v4 R2-retrained "near-zero/non-significant" interpretation.
@@ -62,8 +63,8 @@ v4 incorporates the completed macOS R2 E3, E4, and E6 results. A later critical-
 | Positive / negative areas | 2 / 8 | 16 / 14 |
 | Wilcoxon p | >0.05 | 0.5699 |
 | Paired t-test p | >0.05 | 0.4751 |
-| E3 step-1 advantage | incomplete disclosure | -0.0125 over 30 areas (legacy pre-R2 checkpoint) |
-| E3 step-6 advantage | incomplete disclosure | -0.1853 over 30 areas (legacy pre-R2 checkpoint) |
+| E3 step-1 advantage | incomplete disclosure | -0.0039 over 30 areas (R2-retrained; Wilcoxon p=0.49) |
+| E3 step-6 advantage | incomplete disclosure | -0.0629 over 30 areas (R2-retrained; 1/30 positive) |
 | E4 per-year decoder delta | not run | +0.0778 mean over 9 re-evaluable pairs |
 | E4 improved pairs | not run | 8 / 9 |
 
@@ -86,14 +87,16 @@ v4 incorporates the completed macOS R2 E3, E4, and E6 results. A later critical-
 
 ## Verification
 
-- `python -m pytest tests/test_macos_r2_extract_v4_numbers.py tests/test_macos_r2_label_prediction_paths.py tests/test_macos_r2_orchestrator.py tests/test_macos_r2_e3_checkpoint.py tests/test_macos_r2_e1_e6.py -q`
-  - Result: 27 passed.
+- `python -m pytest tests/test_macos_r2_extract_v4_numbers.py tests/test_macos_r2_retrain_ldn.py tests/test_macos_r2_label_prediction_paths.py tests/test_macos_r2_orchestrator.py tests/test_macos_r2_e3_checkpoint.py tests/test_macos_r2_e1_e6.py -q`
+  - Result: 33 passed.
 - `python experiments/macos_r2/extract_v4_numbers.py`
   - Result: regenerated `v4_manuscript_numbers.json`.
 - `python retrain_ldn_on_r2_data.py --epochs 100 --seeds 42 123 456`
   - Result: trained three R2 checkpoints; best checkpoint `latent_dynamics_v2_seed456.pt`.
 - `python retrain_ldn_on_r2_data.py --eval-only`
   - Result: regenerated retrain_v2 paired tests with mean -0.003004, 16/30 positive, Wilcoxon p=0.5699.
+- `AE_CKPT=experiments/macos_r2/weights/retrain_v2/latent_dynamics_v2_seed456.pt python experiments/macos_r2/e3_multistep_all_areas.py`
+  - Result: regenerated E3 multi-step results with step-1 mean advantage -0.0039 and step-6 mean advantage -0.0629.
 - `git diff --check`
   - Result: clean.
 - `pdflatex -interaction=nonstopmode -halt-on-error -output-directory=paper/rse_submission_paper58/manuscript paper/rse_submission_paper58/manuscript/rse_geofm_world_model_rl_v4.tex`

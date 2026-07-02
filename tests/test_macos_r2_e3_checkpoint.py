@@ -1,5 +1,6 @@
 from pathlib import Path
 import importlib.util
+import io
 import math
 
 
@@ -53,3 +54,22 @@ def test_e3_summarizes_rows_by_step():
     assert tests["steps"]["1"]["n"] == 2
     assert "wilcoxon_p" in tests["steps"]["1"]
     assert summary["steps"]["2"]["n"] == 1
+
+
+def test_e3_csv_writer_uses_lf_line_endings():
+    module = _load_e3_module()
+    out = io.StringIO()
+    writer = module.make_csv_writer(out, fieldnames=["area", "step"])
+
+    writer.writeheader()
+    writer.writerow({"area": "a", "step": 1})
+
+    assert "\r" not in out.getvalue()
+    assert out.getvalue().splitlines() == ["area,step", "a,1"]
+
+
+def test_e3_repo_rel_records_paths_relative_to_repository():
+    module = _load_e3_module()
+    path = module.REPO_ROOT / "experiments" / "macos_r2" / "weights" / "retrain_v2" / "latent_dynamics_v2_seed456.pt"
+
+    assert module.repo_rel(path) == "experiments/macos_r2/weights/retrain_v2/latent_dynamics_v2_seed456.pt"

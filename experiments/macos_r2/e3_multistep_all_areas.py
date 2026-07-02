@@ -55,6 +55,14 @@ RESULTS_DIR = HERE / "results" / "e3_multistep"
 Z_DIM = 64
 
 
+def repo_rel(path: Path) -> str:
+    return str(path.resolve().relative_to(REPO_ROOT))
+
+
+def make_csv_writer(handle, fieldnames):
+    return csv.DictWriter(handle, fieldnames=fieldnames, lineterminator="\n")
+
+
 def choose_device() -> torch.device:
     if torch.backends.mps.is_available():
         return torch.device("mps")
@@ -242,7 +250,7 @@ def main() -> None:
         print(f"  {area}: {adv_str}")
 
     with (RESULTS_DIR / "multistep_all_areas.csv").open("w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=["area", "step", "persistence", "model", "advantage"])
+        w = make_csv_writer(f, fieldnames=["area", "step", "persistence", "model", "advantage"])
         w.writeheader()
         w.writerows(all_rows)
 
@@ -250,7 +258,7 @@ def main() -> None:
     (RESULTS_DIR / "multistep_summary.json").write_text(json.dumps(summary, indent=2))
     (RESULTS_DIR / "multistep_paired_tests.json").write_text(json.dumps(paired_tests, indent=2))
 
-    manifest = {"ckpt": str(ckpt_path), "n_context": n_ctx, "z_dim": z_dim,
+    manifest = {"ckpt": repo_rel(ckpt_path), "n_context": n_ctx, "z_dim": z_dim,
                 "max_steps": args.max_steps, "n_areas": len(set(r["area"] for r in all_rows)),
                 "wall_s": time.time() - t0}
     (RESULTS_DIR / "run_manifest.json").write_text(json.dumps(manifest, indent=2))

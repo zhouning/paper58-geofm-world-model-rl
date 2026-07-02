@@ -1,8 +1,8 @@
 {
-  "ckpt": "/Users/zhouning/paper58-geofm-world-model-rl/src/adk_world_model/weights/latent_dynamics_v1.pt",
-  "n_context": 2,
+  "ckpt": "experiments/macos_r2/weights/retrain_v2/latent_dynamics_v2_seed456.pt",
+  "n_context": 0,
   "z_dim": 64,
   "max_steps": 6,
   "n_areas": 30,
-  "wall_s": 0.6815149784088135
+  "wall_s": 0.6661131381988525
 }
