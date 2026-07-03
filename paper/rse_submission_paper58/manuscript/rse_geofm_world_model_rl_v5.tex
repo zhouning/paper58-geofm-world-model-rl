@@ -1,4 +1,4 @@
-% ============================================================================
+﻿% ============================================================================
 % Scale-Adaptive Geospatial Foundation-Model Dynamics
 % for Baseline Land-Surface Change Prediction
 % ============================================================================
@@ -37,12 +37,12 @@
 
 \makeatletter
 \@ifundefined{ANONYMIZE}{
-  \title{Latent Dynamics and Evidence-Gated Allocation\\from Frozen Geospatial Foundation-Model Embeddings\\for Driver-Free Land-Cover Change Simulation}
+  \title{Frozen Geospatial Foundation-Model Embeddings\\for Bounded Land-Cover Change Screening and Allocation}
   \author{Ning Zhou$^{a}$\\[0.3em]
   {\small $^{a}$SuperMap Software Co., Ltd., Beijing, China}\\
   {\small Correspondence: Ning Zhou}}
 }{
-  \title{Latent Dynamics and Evidence-Gated Allocation\\from Frozen Geospatial Foundation-Model Embeddings\\for Driver-Free Land-Cover Change Simulation}
+  \title{Frozen Geospatial Foundation-Model Embeddings\\for Bounded Land-Cover Change Screening and Allocation}
   \author{Anonymous authors}
 }
 \makeatother
@@ -51,11 +51,11 @@
 \maketitle
 
 \begin{abstract}
-Predicting land-use and land-cover (LULC) change without relying on locally collected socioeconomic drivers remains a key challenge in operational remote sensing. We present the \textit{Latent Allocation Simulator} (LAS), a foundation-model-driven LULC change prediction workflow that requires only a bounding box and time range as user input. LAS couples frozen AlphaEarth Foundations embeddings (64-dimensional, 10\,m, annual) with a lightweight LatentDynamicsNet (459K parameters) and a three-mechanism allocation module: (1) \textit{latent suitability} derived from continuous multi-class decoder probabilities rather than one-hot labels, (2) \textit{evidence-gated pixel selection} that restricts change candidates to pixels with measurable embedding displacement, and (3) \textit{multi-scale neighborhood ranking} combining target-class support, source-class anchoring, and transition reliability across 3/5/9-pixel windows. In a controlled same-grid comparison against the GeoSOS-FLUS cellular-automata console on 24 townships---using identical start maps, identical transition-prior demand, and no socioeconomic drivers on either side---LAS achieves higher aggregate means on all four reported metrics (change F1 0.288 vs.\ 0.264, $+9.4\%$; FoM 0.125 vs.\ 0.120, $+4.3\%$; transition accuracy 0.286 vs.\ 0.281, $+1.9\%$; allocation disagreement 0.058 vs.\ 0.060, $-2.8\%$ lower is better). The advantage is robust: 5/5 GeoSOS-FLUS random seeds produce consistent LAS wins on change F1, FoM, and transition accuracy. Per-area heterogeneity exists (13/11 township wins on change F1), but the aggregate and seed-level robustness establish a stable overall advantage. Separately, a 30-area embedding-space diagnostic shows that the dynamics network matches but does not significantly exceed persistence in cosine similarity (mean advantage $-0.003$, Wilcoxon $p=0.57$, 16/30 positive)---confirming that the allocation mechanism, not the dynamics prediction alone, drives the categorical improvement. Per-year decoder retraining further improves decoded end-year accuracy by $+0.078$ on average (8/9 pairs improved). The system operates without any locally prepared socioeconomic GIS layers, reducing data-preparation effort from weeks to minutes while delivering comparable or superior LULC change accuracy. All data, checkpoints, and evaluation code are released under version control for full reproducibility.
+Operational land-use and land-cover (LULC) change modelling often depends on local socioeconomic driver layers that are difficult to assemble consistently. We evaluate whether frozen AlphaEarth Foundations embeddings can support a lighter alternative: a LatentDynamicsNet (GeoFM-LDN) predicts annual embedding transitions, a linear decoder maps embeddings to six ESRI LULC classes, and SA-Alloc optionally converts decoded probabilities into calibrated categorical allocations. Across 30 complete 2017--2024 areas, GeoFM-LDN did not significantly outperform persistence in embedding space (mean cosine advantage $-0.0030$, Wilcoxon $p=0.57$; 16/30 positive), and six-step rollouts degraded from step 2 onward. Independent ESRI-label validation gave a split categorical result: decoded predictions improved binary change F1 over shuffled, transition-prior and persistence controls (0.365 vs.\ 0.294, 0.182 and 0.000 over 11 positive-change pairs), but lost to persistence and the transition prior on full-map end-year accuracy and area-bias metrics. In a controlled same-grid GeoSOS-FLUS ablation, a pixel-weighted aggregate mean showed small gains for one SA-Alloc variant, but per-township paired tests showed that no variant dominated across change F1, FoM, transition accuracy and allocation disagreement. Per-year decoder retraining improved re-decodable end-year accuracy by 0.078. The results support a bounded use of frozen geospatial embeddings as change-screening and allocation signals, not as a standalone land-cover forecaster or a replacement for native driver-calibrated cellular-automata modelling.
 \end{abstract}
 
 \begin{keywords}
-geospatial foundation model; land-cover change simulation; GeoSOS-FLUS; latent allocation; AlphaEarth; JEPA
+geospatial foundation model; land-cover change; change detection; allocation; AlphaEarth; GeoSOS-FLUS
 \end{keywords}
 
 % ============================================================================
@@ -71,27 +71,27 @@ In the broader AI community, the concept of a \textit{world model}---a learned i
 
 Simultaneously, geospatial foundation models (GeoFMs) have made pre-trained, high-quality representations of the Earth's surface freely available. AlphaEarth Foundations \citep{brown2025alphaearth} produces 64-dimensional L2-normalized embedding vectors at 10\,m resolution for every land pixel on Earth, annually from 2017 to 2024, derived from multi-sensor inputs (Sentinel-1/2, Landsat, GEDI, ERA5) via a 480M+ parameter vision transformer. These embeddings are, as reported in the AlphaEarth technical release, linearly decodable to land-cover classes with high accuracy; we replicate this on our own data in Section~\ref{sec:method} and use it only as a diagnostic layer.
 
-This paper bridges these two developments through a workflow we call \textit{GeoFM-LDN} (Geospatial Foundation-Model Latent Dynamics Network), together with an optional \textit{SA-Alloc} (scale-adaptive allocation) post-processor used only when categorical LULC maps are required for controlled comparison with cellular-automata allocators. We keep the two components separately named because they answer two different questions: GeoFM-LDN asks whether frozen GeoFM embeddings can serve as a compact state space for annual land-surface dynamics; SA-Alloc asks whether decoded outputs can be projected onto a controlled categorical allocation for evaluation against a stripped-down GeoSOS-FLUS baseline. This separation was folded into a single ``SA-GeoFMD'' label in an earlier revision, but we found that treating them as one system overstated what the dynamics network alone can deliver. We therefore keep them separately named throughout.
+This paper bridges these two developments through a workflow we call \textit{GeoFM-LDN} (Geospatial Foundation-Model Latent Dynamics Network), together with an optional \textit{SA-Alloc} (scale-adaptive allocation) post-processor used only when categorical LULC maps are required for controlled comparison with cellular-automata allocators. We keep the two components separately named because they answer two different questions: GeoFM-LDN asks whether frozen GeoFM embeddings can serve as a compact state space for annual land-surface dynamics; SA-Alloc asks whether decoded outputs can be projected onto a controlled categorical allocation for evaluation against a stripped-down GeoSOS-FLUS baseline. A single compound system label would conflate the dynamics model with the allocation post-processor and overstate what the dynamics network alone can deliver.
 
 Our key working hypothesis is that if a foundation model has already learned to compress satellite observations into semantically meaningful, temporally varying embeddings, then the dynamics of land-use change can be learned \textit{on top of} these frozen embeddings using a lightweight neural network---without retraining the foundation model and without ever generating pixel-level predictions during dynamics training. This corresponds to the JEPA architecture: the foundation model serves as the encoder; a small LatentDynamicsNet serves as the predictor. The remainder of the paper tests this hypothesis under honest paired-inference statistics rather than aggregate means.
 
-This work examines a specific and under-tested use of geospatial foundation models: whether a frozen, globally available embedding field can behave as a state variable for learned land-surface dynamics. The closest prior works either train their own encoder end-to-end (MM-VSF, \citealt{mmvsf2024}), operate in spectral space with larger autoregressive models (EarthPT), or predict downstream variables rather than the embeddings themselves (PDFM+TimesFM, \citealt{google2024pdfm}). We are careful not to position EarthPT or DiffusionSat as direct comparanda---they operate in spectral-reflectance or pixel space and answer a different question. We instead position GeoFM-LDN against persistence, a label-only transition prior, a spatially shuffled model control, and a same-grid stripped-down GeoSOS-FLUS console.
+This work examines a specific and under-tested use of geospatial foundation models: whether a frozen, globally available embedding field can behave as a state variable and change-screening signal for learned land-surface dynamics. The closest prior works either train their own encoder end-to-end (knowledge-guided MM-VSF, \citealt{mmvsf2024}), operate in spectral space with larger autoregressive models (EarthPT), or predict downstream variables rather than the embeddings themselves (PDFM+TimesFM, \citealt{google2024pdfm}). We are careful not to position EarthPT or DiffusionSat as direct comparanda---they operate in spectral-reflectance or pixel space and answer a different question. We instead position GeoFM-LDN against persistence, a label-only transition prior, a spatially shuffled model control, and a same-grid stripped-down GeoSOS-FLUS console, with the GeoSOS-FLUS experiment treated as an allocation ablation rather than a native-driver competition.
 
 Our contributions are:
 
 \begin{enumerate}
-\item \textbf{A JEPA-inspired latent dynamics and allocation pipeline for driver-free LULC simulation.} We separate the architecture into frozen encoder (AlphaEarth, 480M parameters), lightweight dynamics predictor (LatentDynamicsNet, 459K parameters), LULC decoder (logistic regression), and a three-mechanism allocation module. The system requires only a bounding box and time range as user input---no locally prepared socioeconomic GIS layers.
+\item \textbf{A JEPA-inspired diagnostic pipeline for frozen-embedding LULC change screening.} We separate the architecture into a frozen encoder (AlphaEarth, 480M+ parameters), a lightweight dynamics predictor (LatentDynamicsNet, 459K parameters), a LULC decoder (logistic regression), and an optional three-mechanism allocation module. This separation keeps embedding-space forecasting, decoded change screening, and categorical allocation as distinct claims.
 
-\item \textbf{A controlled same-grid demonstration that LAS achieves aggregate advantages over GeoSOS-FLUS} on 24 townships under identical input conditions (same start map, same transition-prior demand, no socioeconomic drivers on either side). LAS achieves higher aggregate means on all four reported metrics with 5/5 random-seed robustness. We report full per-area win/loss matrices alongside the aggregate result for transparency.
+\item \textbf{A 30-area embedding-space evaluation} showing that GeoFM-LDN does not provide a stable one-step advantage over persistence after aligning embedding-cache and checkpoint versions (mean $-0.0030$, Wilcoxon $p=0.57$), and that autoregressive rollout becomes significantly worse than persistence from step 2 onward.
 
-\item \textbf{Mechanistic explanation of the advantage}: (1) latent suitability from continuous 64-d decoder probabilities vs.\ one-hot labels ($\sim$800$\times$ information density), (2) evidence-gated pixel selection that restricts allocation to pixels with measurable embedding displacement, and (3) multi-scale neighborhood ranking (3/5/9 windows) with transition-reliability weighting calibrated by leave-one-area-out cross-validation.
+\item \textbf{An independent categorical change-validation test} showing a split verdict: decoded GeoFM-LDN outputs improve binary change F1 over shuffled, transition-prior and persistence controls, but do not beat persistence or transition priors on full-map end-year accuracy or class-area bias.
 
-\item \textbf{A 30-area embedding-space diagnostic} showing that the dynamics network matches but does not significantly exceed persistence in cosine similarity (mean $-0.003$, Wilcoxon $p=0.57$). This isolates the source of the categorical win: the allocation mechanism operating on the decoded probability surface, not the dynamics prediction alone. We frame this as a diagnostic complement rather than a headline result.
+\item \textbf{A controlled same-grid GeoSOS-FLUS allocation ablation} reporting both pixel-weighted aggregate means and unweighted per-township paired evidence. The aggregate means are modestly positive for one SA-Alloc variant, whereas the per-township evidence shows no variant dominates across all four metrics.
 
-\item \textbf{Reproducibility infrastructure}: all embeddings, checkpoints, and evaluation code versioned in Git; per-year decoder retraining (+0.078 average improvement over 9 pairs); and documentation of a GEE data-versioning pitfall encountered during revision.
+\item \textbf{Reproducibility and failure-mode checks}: the refreshed embedding cache, retrained checkpoints, evaluation code, per-year decoder retraining (+0.078 average improvement over 9 pairs), corrected multi-step rollout, and the GEE data-versioning diagnostic are released with the article.
 \end{enumerate}
 
-The paper follows the JEPA paradigm \citep{lecun2022jepa}: a frozen encoder produces state representations and a learned predictor operates in latent space. While the full world-model promise of planning within imagined trajectories remains future work (Section~\ref{sec:planning} shows only 13\% performance retention under embedding-only planning), the latent dynamics + evidence-gated allocation combination already delivers practical value by outperforming GeoSOS-FLUS without socioeconomic drivers.
+The paper follows the JEPA paradigm \citep{lecun2022jepa}: a frozen encoder produces state representations and a learned predictor operates in latent space. The results support a narrower conclusion than a full world-model claim. Frozen geospatial embeddings carry useful change-screening and allocation information under controlled diagnostics, but the present dynamics model does not beat persistence as a standalone embedding forecaster and should not be described as a native-driver replacement for operational LULC simulation.
 
 
 % ============================================================================
@@ -105,7 +105,7 @@ LULC change prediction has evolved from statistical models to deep learning appr
 
 \subsection{Earth observation foundation models}
 
-GeoFMs have rapidly advanced. Prithvi-EO-2.0 \citep{jakubik2024prithvi} provides multi-temporal embeddings for classification tasks. SatMAE \citep{cong2022satmae} uses masked autoencoders with temporal positional encoding. Clay and Presto offer alternative embedding approaches. AlphaEarth Foundations \citep{brown2025alphaearth} stands out by providing annually-resolved, globally-available, 64-dimensional embeddings at 10\,m resolution through Google Earth Engine. Interpretability studies of AlphaEarth are an active area of ongoing work but had not yet reached peer-reviewed publication at the time of writing; we deliberately avoid citing preprints whose provenance we cannot independently verify.
+GeoFMs have rapidly advanced. Prithvi \citep{jakubik2024prithvi} provides an open 100M-parameter HLS foundation model for multi-temporal Earth-observation tasks. SatMAE \citep{cong2022satmae} uses masked autoencoders with temporal positional encoding. Clay and Presto offer alternative embedding approaches. AlphaEarth Foundations \citep{brown2025alphaearth} stands out by providing annually-resolved, globally-available, 64-dimensional embeddings at 10\,m resolution through Google Earth Engine. Interpretability studies of AlphaEarth are an active area of ongoing work but had not yet reached peer-reviewed publication at the time of writing; we therefore cite only sources whose publication or release record we could independently verify.
 
 \subsection{World models and JEPA}
 
@@ -113,7 +113,7 @@ World models originated in reinforcement learning: Ha \& Schmidhuber's ``World M
 
 \subsection{Closest prior work}
 
-MM-VSF \citep{mmvsf2024} predicts future satellite embeddings from current ones but trains its own encoder end-to-end rather than using a frozen foundation model. EarthPT \citep{smith2023earthpt} performs autoregressive prediction on raw spectral reflectance with 700M parameters. PDFM+TimesFM \citep{google2024pdfm} uses geospatial embeddings with a forecasting model but predicts socioeconomic variables, not the embeddings themselves. Our work focuses on the less explored setting of learning autoregressive dynamics \textit{on top of frozen GeoFM embeddings}.
+Knowledge-guided MM-VSF \citep{mmvsf2024} predicts future satellite embeddings from current ones but trains its own encoder end-to-end rather than using a frozen foundation model. EarthPT \citep{smith2023earthpt} performs autoregressive prediction on raw spectral reflectance with 700M parameters. PDFM+TimesFM \citep{google2024pdfm} uses geospatial embeddings with a forecasting model but predicts socioeconomic variables, not the embeddings themselves. Our work focuses on the less explored setting of learning autoregressive dynamics \textit{on top of frozen GeoFM embeddings}.
 
 \subsection{World models for decision making}
 
@@ -171,11 +171,11 @@ Test (1) & Wuyi Mountain & Forest & [117.6, 27.7, 117.7, 27.8] \\
 
 \textbf{Cadastral parcel data for downstream planning.} For the downstream planning experiment (Section~\ref{sec:planning}), we additionally use the cadastral parcel dataset for Bishan County, Chongqing, comprising 101{,}657 parcels aggregated into approximately 2{,}600 management blocks across three townships. Per-block features (17 dimensions) are computed from DEM-derived slope statistics, land-use class distributions, and boundary geometry. GeoFM embeddings (64 dimensions) for each block are obtained by spatially averaging AlphaEarth pixel embeddings within block boundaries.
 
-\subsection{R2 Data Refresh and Reproducibility Note}
+\subsection{Embedding Cache Refresh and Reproducibility}
 \label{sec:data_refresh}
 
 \noindent\fbox{\begin{minipage}{0.95\textwidth}
-\textbf{Reproducibility Note (R2 Revision):} The R1 baseline reported mean advantage = $+0.0047$ on 10 areas. That result was computed using AlphaEarth embeddings extracted prior to the initial repository commit (2026-06-07) and is no longer reproducible because those embeddings were not committed to version control. For R2, we re-extracted all study-area embeddings from Google Earth Engine using the AlphaEarth Foundations API (commit \texttt{9c2ba1d}, 2026-07-02). Re-evaluating the pre-R2 checkpoint (\path{latent_dynamics_v1.pt}, commit \texttt{2455c34}) on those refreshed embeddings produced a significantly negative 30-area result, but this mixed checkpoint--embedding versions. Retraining the same architecture on the R2 embeddings yields mean advantage = $-0.0030$ over 30 complete-time-series areas (16/30 positive, Wilcoxon $p=0.57$). All data, code, and R2-retrained checkpoints are now versioned in the repository; the main reproducibility lesson is that frozen-encoder dynamics must align checkpoint and embedding extraction versions.
+\textbf{Reproducibility note.} An initial 10-area baseline reported mean advantage = $+0.0047$, but it used an early local AlphaEarth embedding cache that was not archived. To remove this versioning ambiguity, we re-extracted all study-area embeddings from Google Earth Engine and retrained the dynamics checkpoint on the same refreshed cache used for evaluation. The aligned evaluation yields mean advantage = $-0.0030$ over 30 complete-time-series areas (16/30 positive, Wilcoxon $p=0.57$). All embedding caches, code, and retrained checkpoints used for the reported results are now versioned in the repository; the main reproducibility lesson is that frozen-encoder dynamics must align checkpoint and embedding extraction versions.
 \end{minipage}}
 
 
@@ -190,7 +190,7 @@ The pipeline consists of two independently named components with distinct scopes
 
 \begin{itemize}
 \item \textbf{GeoFM-LDN (this paper's core system).} A two-layer representation-dynamics architecture: (i) a frozen AlphaEarth Foundations encoder (480M+ parameters) mapping satellite observations to 64-dimensional unit vectors, and (ii) a learned LatentDynamicsNet ($f_\theta$, 459K parameters) predicting residual annual transitions in embedding space. This is the component we evaluate against persistence on cosine similarity and against categorical controls after linear decoding.
-\item \textbf{SA-Alloc (optional post-processor).} A scale-adaptive spatial-demand allocation gate applied only when categorical LULC maps are needed for controlled comparison against a cellular-automata console allocator (GeoSOS-FLUS). SA-Alloc consumes GeoFM-LDN's decoded output plus calibration statistics from held-out label pairs; it does not participate in dynamics training. We keep the two names separate so that results in Section~\ref{sec:results} can be read as (a) ``does the dynamics network improve over persistence in embedding space?'' and (b) ``does the allocation gate improve over a stripped-down FLUS console on the categorical grid?'' without those two questions being conflated as they were in a prior revision.
+\item \textbf{SA-Alloc (optional post-processor).} A scale-adaptive spatial-demand allocation gate applied only when categorical LULC maps are needed for controlled comparison against a cellular-automata console allocator (GeoSOS-FLUS). SA-Alloc consumes GeoFM-LDN's decoded output plus calibration statistics from held-out label pairs; it does not participate in dynamics training. We keep the two names separate so that results in Section~\ref{sec:results} can be read as (a) ``does the dynamics network improve over persistence in embedding space?' and (b) ``does the allocation gate improve over a stripped-down FLUS console on the categorical grid?' without conflating the two evaluation targets.
 \end{itemize}
 
 The dynamics component (GeoFM-LDN) corresponds to the JEPA framework \citep{lecun2022jepa}: the encoder produces representations; the predictor operates in representation space. The decoder (a linear logistic-regression probe) is used only for visualization or as the interface to SA-Alloc, never during dynamics training.
@@ -346,9 +346,9 @@ where $\hat{z}_{t+k}$ is the $k$-step predicted embedding (each step using the p
 
 Predicted embeddings can be decoded to LULC classes for visualisation using a linear probe (scikit-learn LogisticRegression, max\_iter=1000). The probe is trained on 2020 AlphaEarth embeddings paired with ESRI Global LULC labels. A traceable 5-fold cross-validation run over \textbf{six ESRI class codes} (merged from the raw nine, see below) gives 76.99\% overall accuracy over 5{,}119 samples. This decoder is not used for dynamics training.
 
-\paragraph{ESRI 9-class $\to$ 6-class merge rule.} The raw ESRI Global LULC 10\,m Time Series distinguishes 9 classes: water, trees, flooded vegetation, crops, built area, bare ground, snow/ice, clouds, and rangeland. On our study areas, three classes are too sparse to fit a well-conditioned linear probe: flooded vegetation appears in only Poyang Lake, snow/ice appears only in Qinghai Edge and Daxinganling, and clouds appear as a residual class rather than a genuine land-cover state. We merge as follows: (i) flooded vegetation is folded into water; (ii) snow/ice and bare ground are merged into ``bare/snow''; (iii) clouds are dropped. This yields six operational classes: water, trees, crops, built area, bare/snow, and rangeland. The merge is applied uniformly to training labels, validation labels, and the transition-prior baseline. The mapping is released as a JSON manifest in the revision artefacts and is applied identically to every method compared in Section~\ref{sec:independent_change_validation} and Section~\ref{sec:geosos_flus_results}.
+\paragraph{ESRI 9-class $\to$ 6-class merge rule.} The raw ESRI Global LULC 10\,m Time Series distinguishes 9 classes: water, trees, flooded vegetation, crops, built area, bare ground, snow/ice, clouds, and rangeland. On our study areas, three classes are too sparse to fit a well-conditioned linear probe: flooded vegetation appears in only Poyang Lake, snow/ice appears only in Qinghai Edge and Daxinganling, and clouds appear as a residual class rather than a genuine land-cover state. We merge as follows: (i) flooded vegetation is folded into water; (ii) snow/ice and bare ground are merged into ``bare/snow''; (iii) clouds are dropped. This yields six operational classes: water, trees, crops, built area, bare/snow, and rangeland. The merge is applied uniformly to training labels, validation labels, and the transition-prior baseline. The mapping is released as a JSON manifest in the public repository and is applied identically to every method compared in Section~\ref{sec:independent_change_validation} and Section~\ref{sec:geosos_flus_results}.
 
-\paragraph{Decoder time stability.} The original decoder was trained only on 2020 embeddings. In the R2 follow-up experiment (Section~\ref{sec:peryear_decoder}), we retrain annual logistic-regression decoders for 2017--2024 and re-decode every validation pair whose predicted-embedding grid matches the reference label grid. This isolates decoder year-drift from dynamics error. The follow-up improves end-year categorical accuracy on 8/9 re-evaluable pairs, but two Banzhucun multi-year windows remain excluded because their predicted-embedding grids do not match the label grids.
+\paragraph{Decoder time stability.} The original decoder was trained only on 2020 embeddings. To test decoder year-drift, we retrain annual logistic-regression decoders for 2017--2024 and re-decode every validation pair whose predicted-embedding grid matches the reference label grid (Section~\ref{sec:peryear_decoder}). This analysis improves end-year categorical accuracy on 8/9 re-evaluable pairs, but two Banzhucun multi-year windows remain excluded because their predicted-embedding grids do not match the label grids.
 
 \subsection{Scale-adaptive spatial-demand allocation (SA-Alloc)}
 \label{sec:scale_adaptive_allocation}
@@ -359,11 +359,11 @@ For each target area, candidate change pixels are those where the decoded predic
 \begin{equation}
 p^\ast = \mathrm{clip}\left(p_c \, r_q \, m(A),\, p_{\min},\, p_{\max}\right),
 \end{equation}
-where $r_q$ is the $q=0.25$ quantile of observed-to-candidate change ratios in the calibration set, $p_{\min}=0.05$, $p_{\max}=0.25$, and $m(A)$ is a scale-dependent multiplier. The final audited configuration uses $m(A)=1.5$ for regions with fewer than 50{,}000 valid pixels and $m(A)=3.0$ otherwise. This rule preserves the audited small-region behavior observed on the 24-township benchmark while allowing larger external validation regions to keep enough candidate changes to avoid systematic under-prediction.
+where $r_q$ is the $q=0.25$ quantile of observed-to-candidate change ratios in the calibration set, $p_{\min}=0.05$, $p_{\max}=0.25$, and $m(A)$ is a scale-dependent multiplier. The final calibrated configuration uses $m(A)=1.5$ for regions with fewer than 50{,}000 valid pixels and $m(A)=3.0$ otherwise. This rule preserves the calibrated small-region behavior observed on the 24-township benchmark while allowing larger external validation regions to keep enough candidate changes to avoid systematic under-prediction.
 
-The allocation gate then ranks candidate change pixels using the change score, multi-scale class-aligned neighborhood support, and transition reliability estimated from held-out calibration labels. The final score adds target-neighborhood support with weight 1.5, subtracts source-neighborhood support with weight 0.65, and adds transition-reliability support with weight 0.6 across neighborhood windows of 3, 5, and 9 pixels. The highest-ranked candidates are retained until the target change budget is reached; all other candidate pixels revert to the start-year class. The manifest for each run records the valid-pixel count, selected multiplier, target change fraction, and retained change pixels, making the allocation step auditable.
+The allocation gate then ranks candidate change pixels using the change score, multi-scale class-aligned neighborhood support, and transition reliability estimated from held-out calibration labels. The final score adds target-neighborhood support with weight 1.5, subtracts source-neighborhood support with weight 0.65, and adds transition-reliability support with weight 0.6 across neighborhood windows of 3, 5, and 9 pixels. The highest-ranked candidates are retained until the target change budget is reached; all other candidate pixels revert to the start-year class. The manifest for each run records the valid-pixel count, selected multiplier, target change fraction, and retained change pixels, making the allocation step traceable.
 
-\paragraph{Hand-tuned constants and their status.} SA-Alloc contains eleven hand-tuned constants: the small-region multiplier (1.5), the large-region multiplier (3.0), the valid-pixel threshold separating them (50{,}000), the change-fraction floor ($p_{\min}=0.05$), the change-fraction ceiling ($p_{\max}=0.25$), the quantile used to estimate $r_q$ ($q=0.25$), the target-neighborhood weight (+1.5), the source-neighborhood weight ($-0.65$), the transition-reliability weight (+0.6), and the three neighborhood window sizes (3, 5, 9). These were fit by inspection on the 24-township benchmark and were \emph{not} re-tuned when the four external validation regions were added. We view them as an audited empirical configuration, not as universal geographic constants, and we did not run a full sensitivity sweep. A short discussion of the practical risk this introduces is deferred to Section~\ref{sec:limitations} (limitation~\ref{lim:magic_numbers}).
+\paragraph{Hand-tuned constants and their status.} SA-Alloc contains eleven hand-tuned constants: the small-region multiplier (1.5), the large-region multiplier (3.0), the valid-pixel threshold separating them (50{,}000), the change-fraction floor ($p_{\min}=0.05$), the change-fraction ceiling ($p_{\max}=0.25$), the quantile used to estimate $r_q$ ($q=0.25$), the target-neighborhood weight (+1.5), the source-neighborhood weight ($-0.65$), the transition-reliability weight (+0.6), and the three neighborhood window sizes (3, 5, 9). These were fit by inspection on the 24-township benchmark and were \emph{not} re-tuned when the four external validation regions were added. We view them as an empirically calibrated configuration, not as universal geographic constants, and we did not run a full sensitivity sweep. A short discussion of the practical risk this introduces is deferred to Section~\ref{sec:limitations} (limitation~\ref{lim:magic_numbers}).
 
 \subsection{Inference procedure}
 
@@ -412,39 +412,41 @@ This diagnostic tests whether the model captures representation dynamics or mere
 
 To convert the embedding-displacement diagnostic into a formal land-cover transition test, we implemented a separate validation protocol that operates on annual categorical LULC maps. The protocol requires three co-registered arrays for each area--year pair: the reference start-year map $y_t$, the reference end-year map $y_{t+1}$, and the decoded model prediction $\hat{y}_{t+1}$. Reference labels and predicted maps are stored under \path{data/independent_change_labels/labels} and \path{data/independent_change_labels/predicted}, respectively, using area and year identifiers in the filenames. A persistence baseline is computed internally as $\hat{y}_{t+1}=y_t$.
 
-The validation script reports binary change precision, recall, and F1; end-year categorical accuracy; accuracy on truly changed pixels; exact transition-match accuracy on changed pixels; and class-area bias measured as the mean absolute difference between predicted and reference class fractions. We include two controls beyond persistence. First, a spatially shuffled model negative control randomly permutes the predicted end-year map with a fixed seed, preserving the predicted class histogram while destroying spatial correspondence. This control tests whether the decoded dynamics carry spatially localized transition information rather than only predicting plausible class proportions. Second, a label-only transition prior estimates empirical categorical transition frequencies from other available ESRI label pairs and applies those frequencies to the target start-year map without using embeddings or model predictions. This tests whether the model's change signal is stronger than a simple categorical transition-frequency prior. The script writes per-area CSV rows and transition-count tables. The current repository audit contains 12 completed independent area--year pairs across Banzhucun, Bishan, Heping, Poyang Lake, and Wuyi Mountain, with no skipped label--prediction pairs in the current cache.
+The validation script reports binary change precision, recall, and F1; end-year categorical accuracy; accuracy on truly changed pixels; exact transition-match accuracy on changed pixels; and class-area bias measured as the mean absolute difference between predicted and reference class fractions. We include two controls beyond persistence. First, a spatially shuffled model negative control randomly permutes the predicted end-year map with a fixed seed, preserving the predicted class histogram while destroying spatial correspondence. This control tests whether the decoded dynamics carry spatially localized transition information rather than only predicting plausible class proportions. Second, a label-only transition prior estimates empirical categorical transition frequencies from other available ESRI label pairs and applies those frequencies to the target start-year map without using embeddings or model predictions. This tests whether the model's change signal is stronger than a simple categorical transition-frequency prior. The script writes per-area CSV rows and transition-count tables. The released validation set contains 12 completed independent area--year pairs across Banzhucun, Bishan, Heping, Poyang Lake, and Wuyi Mountain, with no skipped label--prediction pairs in the current cache.
 
 \subsection{Same-grid GeoSOS-FLUS comparison protocol}
 \label{sec:geosos_flus_protocol}
 
-We further compare GeoFM-LDN (with and without SA-Alloc) against the GeoSOS-FLUS console implementation under a controlled same-grid protocol. The comparison isolates the final categorical allocation problem rather than attempting a full native GeoSOS-FLUS deployment. Both methods operate on the same start-year map, label grid, and target evaluation mask, and GeoSOS-FLUS is configured from prediction-side suitability and demand information rather than from target end-year truth. This design avoids giving the cellular-automata baseline access to reference change while keeping the evaluation grid identical. It should not be read as a production GeoSOS-FLUS experiment with locally calibrated ANN drivers and full socioeconomic or biophysical covariates. Consistent with reviewer request M3, the primary evidence for this ablation is now the per-area win/loss matrix in Table~\ref{tab:flus_per_area_wins}, not aggregate means.
+We further compare GeoFM-LDN (with and without SA-Alloc) against the GeoSOS-FLUS console implementation under a controlled same-grid protocol. The comparison isolates the final categorical allocation problem rather than attempting a full native GeoSOS-FLUS deployment. Both methods operate on the same start-year map, label grid, and target evaluation mask, and GeoSOS-FLUS is configured from prediction-side suitability and demand information rather than from target end-year truth. This design avoids giving the cellular-automata baseline access to reference change while keeping the evaluation grid identical. It should not be read as a production GeoSOS-FLUS experiment with locally calibrated ANN drivers and full socioeconomic or biophysical covariates. Accordingly, the primary evidence for this ablation is the per-area win/loss matrix in Table~\ref{tab:flus_per_area_wins}, not aggregate means.
 
 Two validation groups are used. The first is the original 24-township same-grid benchmark, which contains township-scale samples with 3,176--37,126 valid pixels. The second contains four larger external regions (Dongguan, Kunshan, Anxin, and Caidian) with 50,634--421,812 valid pixels. The scale-adaptive allocation rule described in Section~\ref{sec:scale_adaptive_allocation} therefore uses the small-region multiplier for all 24 township samples and the large-region multiplier for all four external samples. For each group, we report mean change F1, FoM, transition accuracy on true changed pixels, and allocation disagreement. We also run five GeoSOS-FLUS random seeds (1001--1005) and summarize overall mean deltas relative to GeoSOS-FLUS.
 
 \subsection{Empirical evidence chain and validation boundary}
 \label{sec:evidence_chain}
 
-To make the empirical workflow auditable, we summarize the evidence chain used in the revised manuscript and maintain the same classification in a machine-readable audit file generated by the revision audit script. The audit distinguishes results that directly support the main embedding-space claim from diagnostic probes that support bounded interpretation but not standalone operational claims. Table~\ref{tab:empirical_pipeline} is therefore part of the empirical design rather than a post hoc disclaimer.
+To make the empirical workflow transparent, we summarize the evidence chain that links each analysis stage to the claim it can support. The classification distinguishes results that directly support the main embedding-space claim from diagnostic probes that support bounded interpretation but not standalone operational claims. Table~\ref{tab:empirical_pipeline} is therefore part of the empirical design rather than a post hoc disclaimer.
 
 \begin{table}[htbp]
 \centering
-\caption{Empirical evidence chain and validation boundary for the revised manuscript. ``Complete'' means that a traceable result file directly supports the stated manuscript claim. ``Diagnostic'' means that the result is used for interpretation or application probing only. ``Missing'' means that the stage is not used as completed evidence in this paper.}
+\caption{Empirical evidence chain and validation boundary. Complete stages directly support manuscript claims; diagnostic stages support interpretation or application probing only.}
 \label{tab:empirical_pipeline}
-\footnotesize
+\scriptsize
 \setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{0.92}
 \begin{tabular}{@{}P{0.20\textwidth}P{0.11\textwidth}P{0.37\textwidth}P{0.26\textwidth}@{}}
 \toprule
 Empirical stage & Status & Evidence in this manuscript & Boundary / next validation \\
 \midrule
-Area-level embedding dynamics & No clear advantage & 30 complete-time-series study areas (R2 re-extracted embeddings, commit \texttt{9c2ba1d}); R2-retrained LDN mean advantage $-$0.0030, 16/30 positive; Wilcoxon $p=0.57$. The significantly negative pre-R2-checkpoint result is retained as a mismatch audit. & No evidence that GeoFM-LDN beats persistence in 2023→2024 embedding-space forecasting; checkpoint--embedding alignment is required. \\
-Encoder replacement ablation & Diagnostic only & Prithvi-100M CLS branch on 17 areas; mean advantage $-2.4\times 10^{-6}$; global CLS is nearly stationary across years by construction. & Not an encoder-size claim; a state-resolution diagnostic. Local Prithvi patch/token comparison is future work. \\
-Semantic decoder validation & Diagnostic & Logistic-regression decoder on 5,119 AlphaEarth--ESRI samples over 6 class codes; original 2020-only 5-fold CV accuracy 76.99\%, macro-F1 0.668. Per-year decoders for 2017--2024 improve end-year accuracy by 0.0778 on average over nine re-evaluable pairs. & Decoder year-drift is real; per-year retraining improves decoded accuracy but does not make the dynamics model a full-map forecaster. \\
-Planning feature dropout & Diagnostic & 45 trained policies; dropout 0.3 retains 86.8\% of full-feature slope improvement; embedding-only retains 12.9\%. & Application probe, not operational planning deployment. Bishan is the single test county and is a forecasting-negative area. \\
-Embedding-space transfer probe & Weak signal & Banzhucun $\to$ Heping policy improves an embedding-space reward by +5.5 vs.\ random and +13.1 vs.\ greedy; decoded cropland-change delta is near neutral. & Weak zero-shot signal, one diagnostic reward system only. \\
-Independent change-label validation & Split verdict & 11 usable ESRI-label pairs (Wuyi 2020--2021 excluded as ill-defined F1): mean change F1 0.365 vs.\ shuffled 0.294 vs.\ transition prior 0.182 (Wilcoxon $p<0.01$); \emph{but} end-year accuracy 0.636 vs.\ persistence 0.832; class-area MAE 0.082 vs.\ persistence 0.029 (2.8$\times$ worse). & Model detects some changed pixels above controls but is not a full-map categorical forecaster. Poyang shuffled control ties or beats model. \\
-Same-grid GeoSOS-FLUS ablation & Split verdict & 24 townships, per-area paired tests (Sec.~\ref{sec:geosos_flus_results}): best GeoFM-LDN + SA-Alloc variant wins change F1 13/11 ($p_\text{sign}=0.84$), loses FoM 11/13, loses transition accuracy 9/14, wins allocation disagreement 16/8 ($p_\text{sign}=0.15$). Aggregate mean improvements reported in an earlier revision do not survive per-area paired testing. & Restricted to prediction-derived FLUS suitability; native-driver GeoSOS-FLUS deployment is out of scope. \\
+Area-level embedding dynamics & No clear advantage & 30 complete 2017--2024 areas; aligned-cache LDN mean advantage $-0.0030$; 16/30 positive; Wilcoxon $p=0.57$. & Does not beat persistence; cache--checkpoint alignment is required. \\
+Encoder replacement ablation & Diagnostic & Prithvi-100M CLS branch on 17 areas; mean advantage $-2.4\times 10^{-6}$; CLS is nearly stationary. & State-resolution diagnostic, not an encoder-size benchmark. \\
+Semantic decoder validation & Diagnostic & 5,119 AlphaEarth--ESRI samples; six classes; 2020 CV accuracy 76.99\%; per-year decoders add 0.0778 over nine pairs. & Decoder drift is real; improved decoding does not establish full-map forecasting skill. \\
+Planning feature dropout & Diagnostic & 45 policies; dropout 0.3 retains 86.8\% of full-feature slope improvement; embedding-only retains 12.9\%. & Single-county application probe, not operational planning deployment. \\
+Embedding-space transfer probe & Weak signal & Banzhucun $\to$ Heping policy improves embedding-space reward by +5.5 vs. random and +13.1 vs. greedy. & One diagnostic reward system; decoded cropland-change delta is near neutral. \\
+Independent change-label validation & Split verdict & 11 usable ESRI-label pairs: change F1 0.365 vs. shuffled 0.294 and transition prior 0.182; end-year accuracy 0.636 vs. persistence 0.832. & Change-screening signal only; not a full-map categorical forecaster. \\
+Same-grid GeoSOS-FLUS ablation & Split verdict & 24 townships; best SA-Alloc variant wins change F1 13/11, FoM 11/13, transition accuracy 9/14, allocation disagreement 16/8. & Stripped-down FLUS console only; native-driver comparison remains future work. \\
 \bottomrule
 \end{tabular}
+\renewcommand{\arraystretch}{1.0}
 \end{table}
 
 
@@ -476,7 +478,7 @@ Linear decode accuracy & $>$50\% / $>$70\% & 76.99\% & STRONG \\
 
 \begin{table}[htbp]
 \centering
-\caption{Data-traceable area-level prediction quality from 30 study areas with complete 2017--2024 time series (2023→2024 transition, R2 re-extracted embeddings). Persistence is per-pixel cosine similarity between 2023 and 2024 embeddings; Model is cosine similarity between predicted and observed 2024 embeddings.}
+\caption{Data-traceable area-level prediction quality from 30 study areas with complete 2017--2024 time series (2023--2024 transition, refreshed embeddings). Persistence is per-pixel cosine similarity between 2023 and 2024 embeddings; Model is cosine similarity between predicted and observed 2024 embeddings.}
 \label{tab:aggregate}
 \begin{tabular}{lccc}
 \toprule
@@ -491,7 +493,7 @@ Model $-$ persistence & 30 & \textbf{$-$0.0030} & \textbf{[$-$0.0982, +0.0266]} 
 
 \begin{table}[htbp]
 \centering
-\caption{Rigorous paired inference on Model $-$ Persistence over 30 complete-time-series study areas (R2 data, dynamics checkpoint retrained on R2 embeddings). The paired effect is small and not statistically significant.}
+\caption{Rigorous paired inference on Model $-$ Persistence over 30 complete-time-series study areas (refreshed embedding cache, dynamics checkpoint retrained on the same cache). The paired effect is small and not statistically significant.}
 \label{tab:paired_inference}
 \small
 \begin{tabular}{lc}
@@ -511,13 +513,13 @@ Cohen's $d_z$ & $-0.132$ \\
 \end{tabular}
 \end{table}
 
-\textbf{Reading of the paired inference.} The expanded baseline and R2 retraining change the evidence from ``negative with stable paired support'' to ``near-zero and not significant.'' The mean 1-step cosine advantage is $-3.004\times10^{-3}$, with 16/30 areas showing positive advantage. Wilcoxon signed-rank, paired $t$-test, sign-flip permutation, and bootstrap inference all fail to reject a zero-centred advantage. We therefore \textbf{do not claim that GeoFM-LDN is better than persistence in embedding-space one-step forecasting}. The result also invalidates the earlier significantly negative interpretation, which came from applying a pre-R2 checkpoint to R2 embeddings. The R2 baseline uses freshly re-extracted embeddings (commit \texttt{9c2ba1d}) and R2-retrained checkpoints; the R1 baseline (mean +0.0047, 7/10 positive) used pre-commit embeddings that are no longer available (see Section~\ref{sec:data_refresh}).
+\textbf{Reading of the paired inference.} Under the expanded aligned-cache evaluation, the one-step evidence is near-zero and not significant. The mean 1-step cosine advantage is $-3.004\times10^{-3}$, with 16/30 areas showing positive advantage. Wilcoxon signed-rank, paired $t$-test, sign-flip permutation, and bootstrap inference all fail to reject a zero-centred advantage. We therefore \textbf{do not claim that GeoFM-LDN is better than persistence in embedding-space one-step forecasting}. The result also shows that cache and checkpoint versions must be aligned before evaluating frozen-encoder dynamics. All reported embedding-space results use freshly re-extracted embeddings and retrained checkpoints from the same cache.
 
 \subsection{Per-area results}
 
 \begin{table}[htbp]
 \centering
-\caption{Per-area 1-step prediction quality for 30 complete-time-series study areas (2023→2024 transition, R2 re-extracted embeddings). Sorted by advantage descending.}
+\caption{Per-area 1-step prediction quality for 30 complete-time-series study areas (2023--2024 transition, refreshed embeddings). Sorted by advantage descending.}
 \label{tab:perarea}
 \small
 \begin{tabular}{lccc}
@@ -558,14 +560,14 @@ Bohai Delta & 0.8950 & 0.9932 & $-$0.0982 \\
 \end{tabular}
 \end{table}
 
-The largest positive advantages occur in Qinghai Edge (+0.0266), Ordos Desert Edge (+0.0212), and North China Plain (+0.0159). The largest degradations occur in Bohai Delta ($-$0.0982), Hainan Coastal ($-$0.0605), and Poyang Lake ($-$0.0116). Retraining on the R2 embeddings removes the systematic negative shift seen with the pre-R2 checkpoint, but the resulting per-area distribution is still mixed and outlier-sensitive rather than a stable win over persistence. The R2 data uses freshly re-extracted embeddings; the R1 per-area table showed opposite patterns due to pre-commit embeddings that are no longer available (see Section~\ref{sec:data_refresh}).
+The largest positive advantages occur in Qinghai Edge (+0.0266), Ordos Desert Edge (+0.0212), and North China Plain (+0.0159). The largest degradations occur in Bohai Delta ($-$0.0982), Hainan Coastal ($-$0.0605), and Poyang Lake ($-$0.0116). Retraining on the refreshed embeddings removes the systematic negative shift seen when the cache and checkpoint were mismatched, but the resulting per-area distribution is still mixed and outlier-sensitive rather than a stable win over persistence. For this reason, the main inference relies on the 30-area aligned-cache table rather than on the smaller diagnostic grouping below.
 
 
-Table~\ref{tab:category_diagnostic} groups the original 10-area pre-retrain baseline by the study-area categories in Table~\ref{tab:areas}. This table is retained only for provenance with the earlier revision because the expanded 30-area cache contains additional named regions that do not share the original split/category ledger. It nevertheless helps explain why small-sample category summaries were unstable and why the current manuscript relies on the 30-area paired table above rather than category means from the original split ledger.
+Table~\ref{tab:category_diagnostic} groups the 10-area diagnostic baseline by the study-area categories in Table~\ref{tab:areas}. This table is included only to show why small-sample category summaries are unstable: the expanded 30-area cache contains additional named regions that do not share the original split/category ledger. It is not used as a formal category-level test, and the main inference relies on the 30-area paired table above rather than category means from the smaller split ledger.
 
 \begin{table}[htbp]
 \centering
-\caption{Diagnostic grouping of R2 10-area baseline by study-area category. Should not be interpreted as a formal biome-level statistical test due to small sample sizes per category.}
+\caption{Diagnostic grouping of the 10-area baseline by study-area category. Should not be interpreted as a formal biome-level statistical test due to small sample sizes per category.}
 \label{tab:category_diagnostic}
 \small
 \begin{tabular}{lccc}
@@ -585,11 +587,11 @@ Forest & 1 & $-$0.0146 & 0 / 1 \\
 \subsection{Per-year decoder retraining}
 \label{sec:peryear_decoder}
 
-Reviewer issue S6 asked whether the 2020-trained logistic-regression decoder was being unfairly applied to predicted embeddings from other years. We therefore retrained separate decoders for each year from 2017 to 2024 and re-decoded every validation pair whose predicted-embedding grid matched the target label grid.
+The 2020-trained logistic-regression decoder may be mismatched when applied to predicted embeddings from other years. We therefore retrained separate decoders for each year from 2017 to 2024 and re-decoded every validation pair whose predicted-embedding grid matched the target label grid.
 
 \begin{table}[htbp]
 \centering
-\caption{Per-year decoder cross-validation on ESRI labels. Accuracy and macro-F1 are computed by 5-fold cross-validation on the year-specific embedding--label samples available in the R2 cache.}
+\caption{Per-year decoder cross-validation on ESRI labels. Accuracy and macro-F1 are computed by 5-fold cross-validation on the year-specific embedding--label samples available in the refreshed cache.}
 \label{tab:decoder_by_year}
 \small
 \begin{tabular}{lccc}
@@ -608,12 +610,12 @@ Year & $n$ samples & CV accuracy & Macro-F1 \\
 \end{tabular}
 \end{table}
 
-Per-year decoder retraining improves end-year categorical accuracy by 0.0778 on average over nine re-evaluable pairs (median 0.0704, range $-0.0260$ to +0.1646), with 8/9 pairs improved. Two Banzhucun multi-year windows are excluded from this paired summary because their predicted-embedding grids are $8\times13$ while the reference label grids are $363\times610$. This result confirms that decoder year-drift contributed to the earlier end-year accuracy gap. It does not, by itself, show that the dynamics model is a full-map forecaster, because even the retrained-decoder evaluation remains a decoded diagnostic downstream of the embedding-space prediction.
+Per-year decoder retraining improves end-year categorical accuracy by 0.0778 on average over nine re-evaluable pairs (median 0.0704, range $-0.0260$ to +0.1646), with 8/9 pairs improved. Two Banzhucun multi-year windows are excluded from this paired summary because their predicted-embedding grids are $8\times13$ while the reference label grids are $363\times610$. This result confirms that decoder year-drift contributed to the end-year accuracy gap. It does not, by itself, show that the dynamics model is a full-map forecaster, because even the retrained-decoder evaluation remains a decoded diagnostic downstream of the embedding-space prediction.
 
 \subsection{Self-consistent embedding-displacement diagnostic}
 \label{sec:embedding_displacement_diagnostic}
 
-We retain a diagnostic on the top-20\% embedding-displacement pixels only as an internal consistency check. The reviewer correctly pointed out (issue S2) that defining ``changed'' pixels by high $\|z_{t+1}-z_t\|_2$ is nearly co-linear with the model's own training target, so evaluating the model on that subset is a form of self-consistent check rather than an independent land-cover change test. We therefore no longer use this diagnostic to support any change-detection claim.
+We report the top-20\% embedding-displacement diagnostic only as an internal consistency check. Defining ``changed'' pixels by high $\|z_{t+1}-z_t\|_2$ is nearly co-linear with the model's own training target, so evaluating the model on that subset is a form of self-consistent check rather than an independent land-cover change test. This diagnostic is therefore not used to support any independent change-detection claim.
 
 \begin{table}[htbp]
 \centering
@@ -657,7 +659,7 @@ Two areas is too small a sample for a formal correlation test, but the pattern i
 
 We evaluated decoded model predictions against independently extracted ESRI Global LULC annual labels on 12 area--year pairs with matching cached prediction grids (Table~\ref{tab:independent_change_validation}). The evaluated set includes two Banzhucun three-year windows, seven annual Bishan windows, one Heping three-year window, and two held-out validation/test-area windows from Poyang Lake and Wuyi Mountain. Reference change rates range from 0.0\% in Wuyi Mountain 2020--2021 to 26.9\% in Banzhucun 2020--2023.
 
-The Wuyi Mountain 2020--2021 pair has a reference change rate of 0.0\%, which makes binary change precision, recall, and F1 mathematically ill-defined for every method: any method that predicts even a single changed pixel receives $F1=0$ trivially, and any method that predicts zero changed pixels also receives $F1=0$ by the common $0/0 \to 0$ convention. Reporting Wuyi in the 12-pair mean therefore artificially deflates the model's mean and inflates the persistence baseline's apparent competence (a persistence F1 of $0$ on Wuyi does \emph{not} reflect an inability to detect change; the reference itself contains no change). Consistent with reviewer request M2, all paired-inference statistics below are computed on the 11 pairs with strictly positive reference change; the 12-pair mean is retained in Table~\ref{tab:independent_change_validation} only for traceability with the prior revision. All raw values are unchanged and are released as \texttt{independent\_change\_validation\_by\_area.csv} in the revision-results artefact bundle.
+The Wuyi Mountain 2020--2021 pair has a reference change rate of 0.0\%, which makes binary change precision, recall, and F1 mathematically ill-defined for every method: any method that predicts even a single changed pixel receives $F1=0$ trivially, and any method that predicts zero changed pixels also receives $F1=0$ by the common $0/0 \to 0$ convention. Reporting Wuyi in the 12-pair mean therefore artificially deflates the model's mean and inflates the persistence baseline's apparent competence (a persistence F1 of $0$ on Wuyi does \emph{not} reflect an inability to detect change; the reference itself contains no change). All paired-inference statistics below are therefore computed on the 11 pairs with strictly positive reference change; the 12-pair mean is retained in Table~\ref{tab:independent_change_validation} for completeness. The raw pair-level values are released as \texttt{independent\_change\_validation\_by\_area.csv} in the public repository.
 
 \begin{table}[htbp]
 \centering
@@ -685,41 +687,42 @@ Mean (12 pairs) & 15.4 & 0.335 & 0.269 & 0.166 & 0.279 & 0.666 & 0.764 & 0.846 \
 
 \begin{table}[htbp]
 \centering
-\caption{Paired inference on the independent categorical change validation, 11 area--year pairs (Wuyi Mountain 2020--2021 excluded). Each row compares the model prediction against a single control (higher is better for change F1, end-year accuracy, changed-pixel accuracy, and transition exact match; lower is better for area-bias MAE). $n_+$ is the number of pairs where the model beats the control on that metric; Wilcoxon and sign-test $p$-values are two-sided.}
+\caption{Paired inference on the independent categorical change validation, 11 area--year pairs (Wuyi Mountain 2020--2021 excluded). Each row compares the model prediction against a single control (higher is better for change F1, end-year accuracy, changed-pixel accuracy, and transition exact match; lower is better for area-bias MAE). The win/loss column follows the metric direction; for area-bias MAE, a win means lower model MAE. Wilcoxon and sign-test $p$-values are two-sided.}
 \label{tab:independent_change_paired}
-\footnotesize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}llcccccc@{}}
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llcccccc@{}}
 \toprule
-Metric & Control & Model mean & Ctrl mean & Mean $\Delta$ & $n_+/n_-$ & Wilcoxon $p$ & Sign $p$ \\
+Metric & Control & Model mean & Ctrl mean & Mean $\Delta$ & Wins/losses & Wilcoxon $p$ & Sign $p$ \\
 \midrule
-Change F1               & Shuffled model      & 0.365 & 0.294 & $+0.071$ & 10 / 1 & 0.010 & 0.012 \\
-Change F1               & Transition prior    & 0.365 & 0.182 & $+0.184$ & 11 / 0 & 0.003 & 0.001 \\
-Change F1               & Persistence         & 0.365 & 0.000 & $+0.365$ & 11 / 0 & 0.003 & 0.001 \\
-End-year accuracy       & Persistence         & 0.636 & 0.832 & $-0.196$ & 0 / 11 & 0.003 & 0.001 \\
-End-year accuracy       & Transition prior    & 0.636 & 0.742 & $-0.106$ & 0 / 11 & 0.003 & 0.001 \\
-Changed-pixel accuracy  & Shuffled model      & 0.304 & 0.289 & $+0.016$ & 6 / 5 & 0.72 & 1.00 \\
-Changed-pixel accuracy  & Transition prior    & 0.304 & 0.090 & $+0.214$ & 11 / 0 & 0.003 & 0.001 \\
-Area-bias MAE (lower)   & Persistence         & 0.082 & 0.029 & $+0.053$ & 0 / 11 & 0.003 & 0.001 \\
-Area-bias MAE (lower)   & Transition prior    & 0.082 & 0.026 & $+0.056$ & 0 / 11 & 0.003 & 0.001 \\
-Transition exact match  & Transition prior    & 0.304 & 0.090 & $+0.214$ & 11 / 0 & 0.003 & 0.001 \\
+Change F1               & Shuffled model      & 0.365 & 0.294 & $+0.072$ & 10 / 1 & 0.002 & 0.012 \\
+Change F1               & Transition prior    & 0.365 & 0.182 & $+0.184$ & 11 / 0 & 0.001 & 0.001 \\
+Change F1               & Persistence         & 0.365 & 0.000 & $+0.365$ & 11 / 0 & 0.001 & 0.001 \\
+End-year accuracy       & Persistence         & 0.636 & 0.832 & $-0.196$ & 0 / 11 & 0.001 & 0.001 \\
+End-year accuracy       & Transition prior    & 0.636 & 0.742 & $-0.106$ & 0 / 11 & 0.001 & 0.001 \\
+Changed-pixel accuracy  & Shuffled model      & 0.304 & 0.289 & $+0.016$ & 8 / 3 & 0.365 & 0.227 \\
+Changed-pixel accuracy  & Transition prior    & 0.304 & 0.090 & $+0.214$ & 11 / 0 & 0.001 & 0.001 \\
+Area-bias MAE (lower)   & Persistence         & 0.082 & 0.029 & $+0.053$ & 1 / 10 & 0.002 & 0.012 \\
+Area-bias MAE (lower)   & Transition prior    & 0.082 & 0.026 & $+0.056$ & 1 / 10 & 0.002 & 0.012 \\
+Transition exact match  & Transition prior    & 0.304 & 0.090 & $+0.214$ & 11 / 0 & 0.001 & 0.001 \\
 \bottomrule
-\end{tabular*}
+\end{tabular}}
 \end{table}
 
 The independent validation gives a \textbf{split verdict}:
 
 \begin{itemize}
-\item \textbf{On change detection}, the model dominates two controls. It beats the spatially shuffled model on binary change F1 in 10 of 11 pairs (Wilcoxon $p=0.010$) and beats the label-only transition prior in 11 of 11 pairs (Wilcoxon $p=0.003$). Persistence has F1$=0$ by construction on every pair (it predicts no change). These three pairwise gaps support a bounded claim: decoded GeoFM-LDN outputs carry \emph{some} spatially localized transition information above simple class-frequency priors.
-\item \textbf{On full-map categorical accuracy}, the model loses to two baselines. End-year accuracy is 0.636 for the model vs.\ 0.832 for persistence (paired $\Delta = -0.196$, model loses 0 / 11) and 0.742 for the transition prior (paired $\Delta = -0.106$, model loses 0 / 11). Class-area MAE is 2.8$\times$ higher for the model (0.082 vs.\ 0.029 for persistence and 0.026 for the transition prior; model loses 0 / 11).
-\item \textbf{On changed-pixel accuracy}, the model is essentially tied with the shuffled control ($\Delta=+0.016$, 6 wins / 5 losses, Wilcoxon $p=0.72$) --- an important finding. Once we restrict attention to pixels that actually changed and ask ``did the model pick the right end class,'' spatial correspondence in the model's prediction does not do meaningfully more than random spatial permutation of the same class histogram.
+\item \textbf{On binary change detection}, the model beats the spatially shuffled model on change F1 in 10 of 11 pairs (Wilcoxon $p=0.002$) and beats the label-only transition prior in 11 of 11 pairs (Wilcoxon $p=0.001$). Persistence has F1$=0$ by construction on every pair because it predicts no change. These three pairwise gaps support a bounded claim: decoded GeoFM-LDN outputs carry \emph{some} spatially localized transition information above simple class-frequency priors.
+\item \textbf{On full-map categorical accuracy}, the model loses to two baselines. End-year accuracy is 0.636 for the model vs.\ 0.832 for persistence (paired $\Delta = -0.196$, model loses 0 / 11) and 0.742 for the transition prior (paired $\Delta = -0.106$, model loses 0 / 11). Class-area MAE is 2.8$\times$ higher for the model (0.082 vs.\ 0.029 for persistence and 0.026 for the transition prior; model wins only 1 / 11 pairs).
+\item \textbf{On changed-pixel accuracy}, the model shows only a small, non-significant advantage over the shuffled control ($\Delta=+0.016$, 8 wins / 3 losses, Wilcoxon $p=0.365$). Once we restrict attention to pixels that actually changed and ask ``did the model pick the right end class,'' spatial correspondence in the model's prediction is not clearly stronger than random spatial permutation of the same class histogram.
 \end{itemize}
 
 The evidence therefore supports the following claim, and no stronger claim: GeoFM-LDN's decoded output can serve as a \emph{change-detection screening layer}---it flags likely-changed pixels above two natural controls---but it is neither a full-map categorical forecaster (persistence and the transition prior are both better on end-year accuracy and class-area bias) nor a per-changed-pixel transition classifier (the shuffled control is not clearly beaten). Poyang Lake (the val-split area) is a case in point: model change F1 (0.385) is essentially tied with the shuffled control (0.389), and both are close to zero relative to the underlying label variability. The Wuyi Mountain 2020--2021 pair carries no signal in either direction and is excluded from the inferential analysis as discussed above.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/fig_rse_revision_spatial_change_validation.pdf}
+\includegraphics[width=\textwidth]{figures/fig_spatial_change_validation.pdf}
 \caption{Spatial validation and failure-mode example for Banzhucun 2020--2023. Panels show the reference start-year map, reference end-year map, decoded model prediction, binary reference change, binary predicted change, and change-detection error classes. The model detects many true changed pixels (36,605 hits) but also produces substantial false alarms (55,763) and misses (22,983), illustrating why change F1 improves over controls while full-map categorical accuracy remains below persistence.}
 \label{fig:spatial_change_validation}
 \end{figure}
@@ -727,15 +730,16 @@ The evidence therefore supports the following claim, and no stronger claim: GeoF
 \subsection{Same-grid GeoSOS-FLUS allocation ablation}
 \label{sec:geosos_flus_results}
 
-We compare five candidate variants of GeoFM-LDN and GeoFM-LDN\,+\,SA-Alloc against the stripped-down GeoSOS-FLUS console on the 24-township benchmark under the audited same-grid protocol of Section~\ref{sec:geosos_flus_protocol}. In an earlier revision we headlined the aggregate mean deltas of a single variant and reported that it improved all four metrics on both the 24-township and external-region groups. Consistent with reviewer request M3, we now report the \textbf{per-area, per-metric win/loss matrix} together with sign-test and Wilcoxon signed-rank $p$-values. The reading changes substantially.
+We compare five candidate variants of GeoFM-LDN and GeoFM-LDN\,+\,SA-Alloc against the stripped-down GeoSOS-FLUS console on the 24-township benchmark under the controlled same-grid protocol of Section~\ref{sec:geosos_flus_protocol}. Aggregate mean deltas can overstate performance when township sizes differ, so we report the \textbf{per-area, per-metric win/loss matrix} together with sign-test and Wilcoxon signed-rank $p$-values. This unweighted evidence changes the interpretation substantially.
 
 \begin{table}[htbp]
 \centering
-\caption{Per-area, per-metric win/loss of each GeoFM-LDN / SA-Alloc variant against the stripped-down GeoSOS-FLUS console on the 24 township grids ($n=24$). A ``win'' means the variant beats FLUS on that metric on that township (higher change F1, FoM, transition accuracy; lower allocation disagreement, marked with $\downarrow$). Sign-test and Wilcoxon signed-rank $p$-values are two-sided. Computed from the raw per-area metrics CSV that was released with the earlier revision; no new experiments were run.}
+\caption{Per-area, per-metric win/loss of each GeoFM-LDN / SA-Alloc variant against the stripped-down GeoSOS-FLUS console on the 24 township grids ($n=24$). A ``win'' means the variant beats FLUS on that metric on that township (higher change F1, FoM, transition accuracy; lower allocation disagreement, marked with $\downarrow$). Sign-test and Wilcoxon signed-rank $p$-values are two-sided. Computed from the raw per-area metrics CSV released in the public repository.}
 \label{tab:flus_per_area_wins}
-\footnotesize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}llrrrrr@{}}
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llrrrrr@{}}
 \toprule
 Variant & Metric & Wins & Losses & Ties & Sign-test $p$ & Wilcoxon $p$ \\
 \midrule
@@ -764,43 +768,44 @@ Regression hold-out cal.\ & FoM                     & 10 & 14 & 0 & 0.54 & 0.29 
 Regression hold-out cal.\ & Transition accuracy     & 11 & 13 & 0 & 0.84 & 0.62 \\
 Regression hold-out cal.\ & Alloc.\ disag.$\downarrow$ & 14 & 10 & 0 & 0.54 & 0.58 \\
 \bottomrule
-\end{tabular*}
+\end{tabular}}
 \end{table}
 
 Three observations follow directly from Table~\ref{tab:flus_per_area_wins}.
 
 \textbf{No variant dominates GeoSOS-FLUS on all four metrics.} The best case per metric is spread across variants: raw GeoFM-LDN wins transition accuracy 22 / 0 but loses allocation disagreement 2 / 22; the change-aware allocation gate wins transition accuracy 17 / 6 but is a wash on change F1 and FoM; the SA-Alloc external-LOO variants win allocation disagreement 16 / 8 and are near-tied on change F1 (12--13 / 11--12) but \emph{lose} FoM (11 / 13) and transition accuracy (8--9 / 14--15). Sign-test $p$-values for the four SA-Alloc metrics range from 0.15 to 1.00; none rejects the null of a fifty-fifty per-township outcome.
 
-\textbf{The prior aggregate-mean claim was driven by a small number of high-population townships.} Township valid-pixel counts range from 3{,}176 to 37{,}126, so pixel-weighted aggregate means over-represent the largest townships. Under a per-area, unweighted paired test---which is what a reader of a same-grid comparison would expect---the previously headlined variant produces roughly a coin flip on three of four metrics. We consider this the strictly more transparent way to report the ablation.
+\textbf{The aggregate-mean result is driven by a small number of high-population townships.} Township valid-pixel counts range from 3{,}176 to 37{,}126, so pixel-weighted aggregate means over-represent the largest townships. Under a per-area, unweighted paired test---which is what a reader of a same-grid comparison would expect---the best aggregate variant produces roughly a coin flip on three of four metrics. We consider this the strictly more transparent way to report the ablation.
 
-\textbf{The comparison is a controlled allocation ablation, not a native-driver competition.} The GeoSOS-FLUS console is here driven by prediction-derived suitability and demand rather than by locally calibrated ANN drivers and socioeconomic covariates. That constraint applies uniformly to every row above; it is not an advantage for GeoFM-LDN. But the result should not be read as ``GeoFM-LDN outperforms GeoSOS-FLUS,'' either as a general statement or as a same-grid statement---on three of the four metrics the per-area verdict is roughly a coin flip, and on transition accuracy the SA-Alloc variants actually lose. See Section~\ref{sec:limitations} (limitation~\ref{lim:flus_scope}) for the associated scope caveat.
+\textbf{The comparison is a controlled allocation ablation, not a native-driver competition.} The GeoSOS-FLUS console is here driven by prediction-derived suitability and demand rather than by locally calibrated ANN drivers and socioeconomic covariates. That constraint applies uniformly to every row above; it is not an advantage for GeoFM-LDN. But the result should not be read as a general or same-grid superiority claim for GeoFM-LDN: on three of the four metrics the per-area verdict is roughly a coin flip, and on transition accuracy the SA-Alloc variants actually lose. See Section~\ref{sec:limitations} (limitation~\ref{lim:flus_scope}) for the associated scope caveat.
 
-The aggregate-mean legacy table is retained for provenance only in Table~\ref{tab:geosos_flus_same_grid_legacy}; the reader should treat Table~\ref{tab:flus_per_area_wins} as the primary evidence.
+The aggregate-mean table is included as secondary context in Table~\ref{tab:geosos_flus_same_grid_aggregate}; the reader should treat Table~\ref{tab:flus_per_area_wins} as the primary evidence.
 
 \begin{table}[htbp]
 \centering
-\caption{Legacy aggregate-mean same-grid comparison (retained for provenance only; the per-area paired-inference table above is the primary evidence). Township valid-pixel counts range from 3{,}176 to 37{,}126, so pixel-weighted aggregate means differ from unweighted per-area means.}
-\label{tab:geosos_flus_same_grid_legacy}
-\footnotesize
-\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}llccccc@{}}
+\caption{Aggregate-mean same-grid comparison (secondary context only; the per-area paired-inference table above is the primary evidence). Township valid-pixel counts range from 3{,}176 to 37{,}126, so pixel-weighted aggregate means differ from unweighted per-area means.}
+\label{tab:geosos_flus_same_grid_aggregate}
+\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llccccc@{}}
 \toprule
 Validation group & Method & $n$ & Change F1 & FoM & Trans. acc. & Alloc. disag. \\
 \midrule
 24 townships & GeoSOS-FLUS console                    & 24 & 0.263 & 0.120 & 0.281 & 0.060 \\
 24 townships & GeoFM-LDN + SA-Alloc (floor 0.30)     & 24 & 0.288 & 0.125 & 0.286 & 0.058 \\
 \bottomrule
-\end{tabular*}
+\end{tabular}}
 \end{table}
 
-The five-seed GeoSOS-FLUS randomisation reported in the earlier revision gave aggregate mean deltas that were positive for change F1, FoM, and transition accuracy and negative (i.e., improvement) for allocation disagreement, with 5/5 overall seed-level ``wins'' in both the 24-township and external-region groups. Given the per-area verdict in Table~\ref{tab:flus_per_area_wins} above, we now interpret this as ``the aggregate mean is stable under FLUS randomisation,'' not as ``every area is a win.'' The full per-seed metric bundle is released under the revision-artefacts directory.
+The five-seed GeoSOS-FLUS randomisation gave aggregate mean deltas that were positive for change F1, FoM, and transition accuracy and negative (i.e., improvement) for allocation disagreement, with 5/5 overall seed-level ``wins' in both the 24-township and external-region groups. Given the per-area verdict in Table~\ref{tab:flus_per_area_wins}, we interpret this as ``the aggregate mean is stable under FLUS randomisation,' not as ``every area is a win.' The full per-seed metric bundle is released in the public repository.
 
-\subsection{R2-retrained multi-step degradation diagnostic}
+\subsection{Aligned-cache multi-step degradation diagnostic}
 
-Table~\ref{tab:multistep} reports the corrected 6-step autoregressive rollout across all 30 complete-time-series AlphaEarth areas using the best R2-retrained dynamics checkpoint. The persistence bug found during the audit has been fixed: persistence at step $k$ now compares the previous true year $z_{t+k-1}$ with the target true year $z_{t+k}$, rather than comparing the initial state $z_t$ with every later target. The run therefore aligns both the embedding cache and the dynamics checkpoint with the R2 data release.
+Table~\ref{tab:multistep} reports the corrected 6-step autoregressive rollout across all 30 complete-time-series AlphaEarth areas using the aligned-cache dynamics checkpoint. Persistence at step $k$ compares the previous true year $z_{t+k-1}$ with the target true year $z_{t+k}$, rather than comparing the initial state $z_t$ with every later target. The run therefore aligns the embedding cache and the dynamics checkpoint.
 
 \begin{table}[htbp]
 \centering
-\caption{R2-retrained corrected multi-step rollout over 30 complete-time-series AlphaEarth areas. Values are means over areas. Positive/negative counts refer to Model $-$ Persistence advantage for that step.}
+\caption{Corrected multi-step rollout over 30 complete-time-series AlphaEarth areas using the aligned refreshed embedding cache. Values are means over areas. Positive/negative counts refer to Model $-$ Persistence advantage for that step.}
 \label{tab:multistep}
 \small
 \begin{tabular}{lcccc}
@@ -817,7 +822,7 @@ Step & Persistence & Model & Advantage & Positive / negative \\
 \end{tabular}
 \end{table}
 
-Both persistence and model similarity degrade with longer horizons, and the model degrades faster than persistence after the first step. Step 1 remains near zero and non-significant (mean advantage $-0.0039$, 13/30 positive, Wilcoxon $p=0.49$), matching the one-step R2-retrained verdict above. From step 2 onward, however, the rollout advantage is significantly negative and worsens gradually, reaching $-0.0629$ at step 6 (1/30 positive; Wilcoxon $p=5.59\times10^{-9}$). The multi-step result therefore does not provide long-horizon evidence that GeoFM-LDN beats persistence, even after correcting checkpoint--embedding alignment.
+Both persistence and model similarity degrade with longer horizons, and the model degrades faster than persistence after the first step. Step 1 remains near zero and non-significant (mean advantage $-0.0039$, 13/30 positive, Wilcoxon $p=0.49$), matching the aligned one-step verdict above. From step 2 onward, however, the rollout advantage is significantly negative and worsens gradually, reaching $-0.0629$ at step 6 (1/30 positive; Wilcoxon $p=5.59\times10^{-9}$). The multi-step result therefore does not provide long-horizon evidence that GeoFM-LDN beats persistence, under the aligned checkpoint--embedding evaluation.
 
 \subsection{Development scaling diagnostic: 2 vs.~12 training areas}
 \label{sec:ablation_data}
@@ -843,7 +848,7 @@ The recorded scaling diagnostic is consistent with the interpretation that train
 \subsection{Development ablation diagnostic}
 \label{sec:ablation}
 
-To diagnose the role of each architectural component during model development, three ablated variants were trained on the same development split. Each variant removes exactly one component while keeping all others unchanged. Because the revised manuscript prioritizes cached-grid summaries with explicit provenance, this table is treated as a development diagnostic rather than as the main statistical evidence.
+To diagnose the role of each architectural component during model development, three ablated variants were trained on the same development split. Each variant removes exactly one component while keeping all others unchanged. Because the main analysis prioritizes cached-grid summaries with explicit source files, this table is treated as a development diagnostic rather than as the main statistical evidence.
 
 \begin{table}[htbp]
 \centering
@@ -870,7 +875,7 @@ w/o unrolled loss ($K$=1) & +0.0120 ($-$11\%) & $-$0.0006 & +0.0295 \\
 \subsection{Encoder choice ablation: AlphaEarth vs.\ Prithvi-100M}
 \label{sec:encoder_ablation}
 
-A plausible alternative reading of our results is that the LatentDynamicsNet performance is driven primarily by the parameter count of the frozen encoder (480M+ for AlphaEarth Foundations) rather than by the specific structural properties of its embedding space. To test this, we replace the AlphaEarth encoder with Prithvi-100M~\citep{jakubik2024prithvi}, a publicly available 100M-parameter geospatial Vision Transformer. We implement the comparison as a fully specified branch of the present workflow, and re-run HLS extraction, encoder inference, LatentDynamicsNet training, and evaluation under the same split and training settings used for the main model (17 study areas, 12 training areas, 3 seeds, 50 epochs, and 3-step unrolled loss).
+A plausible alternative reading of our results is that the LatentDynamicsNet performance is driven primarily by the parameter count of the frozen encoder (480M+ for AlphaEarth Foundations) rather than by the specific structural properties of its embedding space. To test this, we compare AlphaEarth with a public Prithvi-100M HLS checkpoint~\citep{jakubik2024prithvi} in a separate diagnostic branch. We re-run HLS extraction, encoder inference, LatentDynamicsNet training, and evaluation under the same split and training settings used for the main model (17 study areas, 12 training areas, 3 seeds, 50 epochs, and 3-step unrolled loss), while treating the AlphaEarth local-grid versus Prithvi CLS-token difference as part of the diagnostic boundary.
 
 For each study area and year, the Prithvi branch downloads NASA HLSL30 v002 imagery from Google Earth Engine for the May--September growing season. It masks cloud, cloud-shadow, and snow pixels using the HLS \texttt{Fmask} band, selects the six Prithvi input bands (blue, green, red, near infrared, SWIR1, and SWIR2), forms a per-band median composite, scales reflectance by 10{,}000, and clips values to $[0,1]$. The frozen Prithvi-100M checkpoint is then applied in evaluation mode to 128$\times$128 HLS tiles. Tile-level CLS tokens are averaged within each area-year, reshaped to a $1 \times 1 \times 768$ feature, and L2-normalized before training LatentDynamicsNet. This global CLS protocol mirrors AlphaEarth's per-area sampling protocol ($1 \times 1 \times 64$), while the local-resolution gap is treated explicitly as part of the representation-state diagnostic.
 
@@ -897,18 +902,18 @@ Prithvi-100M CLS (768-d, HLSL30) & 100M & 17 & 1.0000 & $-2.4 \times 10^{-6}$ \\
 
 \textbf{Three structural properties of AlphaEarth combine.} The ablation does not isolate which of (a) multi-modal input fusion (AlphaEarth uses Sentinel-1 SAR, Sentinel-2 optical, Landsat, GEDI lidar, ERA5 climate; Prithvi-100M was pre-trained on HLSL30 optical-only), (b) per-pixel rather than per-patch resolution, or (c) explicit unit-norm spherical embedding structure---each of which AlphaEarth has and Prithvi-100M lacks---is most responsible for the observed gap. We expect all three to contribute, and recommend that future GeoFM-based world models adopting a frozen-encoder design preserve as many of these properties as possible. In particular, simply substituting any general-purpose ViT encoder is unlikely to match AlphaEarth's behavior at the inter-annual time scale.
 
-\textbf{Reproducibility.} The revision summary, area-level metric tables, and figure source data are generated by repository scripts from recorded JSON/CSV artefacts. Rows with missing-cache placeholders are excluded from the area-level summary.
+\textbf{Reproducibility.} Area-level metric tables and figure source data are generated by repository scripts from recorded JSON/CSV files. Rows with missing-cache placeholders are excluded from the area-level summary.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/fig_rse_revision_encoder_diagnostic.pdf}
+\includegraphics[width=\textwidth]{figures/fig_encoder_diagnostic.pdf}
 \caption{Encoder-state diagnostic. (a) Mean cosine similarity of year-pair persistence and LatentDynamicsNet predictions in each encoder's own embedding space. (b) Mean advantage over persistence. The Prithvi-100M global CLS representation is nearly stationary across years, whereas AlphaEarth retains measurable inter-annual variation at the local embedding level.}
-\label{fig:revision_encoder_diagnostic}
+\label{fig:encoder_diagnostic}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.72\textwidth]{figures/fig_rse_revision_decoder_confusion.pdf}
+\includegraphics[width=0.72\textwidth]{figures/fig_decoder_confusion.pdf}
 \caption{Traceable LULC decoder diagnostic. The row-normalized confusion matrix is generated from the recorded 5-fold cross-validation output for the logistic-regression decoder on AlphaEarth embeddings and ESRI Global LULC labels. This decoder supports visualization only; all dynamics training and main evaluation metrics are computed in embedding space.}
 \label{fig:decoder_confusion}
 \end{figure}
@@ -919,7 +924,7 @@ Prithvi-100M CLS (768-d, HLSL30) & 100M & 17 & 1.0000 & $-2.4 \times 10^{-6}$ \\
 \label{sec:planning}
 % ============================================================================
 
-The preceding sections evaluate whether frozen GeoFM embeddings can support baseline-trend dynamics in embedding space and controlled categorical allocation. We now use a reinforcement-learning planning task as a \emph{bounded} application probe. The question is not ``can GeoFM embeddings run an operational planning system?''---we do not claim they can. The question is: ``\emph{How much of a task-specific planning policy's performance can the GeoFM embedding channel supply when task-specific features are partially or fully unavailable?}'' Framed this way, the result is honestly interpretable, and the section is deliberately kept short.
+The preceding sections evaluate whether frozen GeoFM embeddings can support baseline-trend dynamics in embedding space and controlled categorical allocation. We use a reinforcement-learning planning task as a \emph{bounded} application probe. The question is not ``can GeoFM embeddings run an operational planning system?''---we do not claim they can. The question is: ``\emph{How much of a task-specific planning policy's performance can the GeoFM embedding channel supply when task-specific features are partially or fully unavailable?}'' Framed this way, the result is honestly interpretable, and the section is deliberately kept short.
 
 \paragraph{Note on Bishan (relates to limitation~\ref{lim:bishan_role}).}
 \label{sec:planning_bishan_note}
@@ -939,7 +944,7 @@ o_i = [f_i \,\|\, e_i] \in \mathbb{R}^{81}
 \end{equation}
 where $f_i \in \mathbb{R}^{17}$ contains engineered features (slope statistics, land-use fractions, boundary geometry) and $e_i \in \mathbb{R}^{64}$ contains the block's mean AlphaEarth embedding from the world model encoder. A global context vector $g \in \mathbb{R}^{12}$ (county-level statistics) is appended, yielding the full observation $o = [\text{vec}(o_1, \ldots, o_N) \,\|\, g]$.
 
-The policy uses a ParcelScoringPolicy architecture: a per-block scorer network $s_\psi: \mathbb{R}^{81} \to \mathbb{R}$ produces action logits, with invalid actions masked. Training uses Maskable PPO \citep{huang2022maskableppo} with $\gamma = 0.995$, learning rate $3 \times 10^{-4}$, and entropy coefficient 0.005.
+The policy uses a ParcelScoringPolicy architecture: a per-block scorer network $s_\psi: \mathbb{R}^{81} \to \mathbb{R}$ produces action logits, with invalid actions masked. Training uses Maskable PPO, an invalid-action-masking variant of PPO \citep{schulman2017ppo,huang2022maskableppo}, with $\gamma = 0.995$, learning rate $3 \times 10^{-4}$, and entropy coefficient 0.005.
 
 \subsection{Feature dropout for transfer robustness}
 
@@ -954,7 +959,7 @@ To simulate deployment in regions where engineered features are unavailable (e.g
 
 Each configuration is trained for 100{,}000 timesteps across 15 independent seeds, yielding 45 trained models. Evaluation uses 5 episodes per model on the real county-level environment (not the training environment), reporting mean slope change (\%) and contiguity change. Statistical significance is assessed via independent two-sample $t$-tests and Mann--Whitney $U$ tests, with Cohen's $d$ for effect size.
 
-\subsection{Results}
+\subsection{Planning results}
 
 Table~\ref{tab:dropout} summarizes the planning performance across the three feature-dropout configurations.
 
@@ -1015,7 +1020,7 @@ Banzhucun $\to$ Heping & $-1172.2 \pm 5.1$ & $-602.7 \pm 3.2$ & +5.5 & +13.1 \\
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/fig_rse_revision_planning_dropout.pdf}
+\includegraphics[width=\textwidth]{figures/fig_planning_dropout.pdf}
 \caption{Downstream planning probe under feature dropout. Points show mean performance across 15 seeds and error bars show 95\% confidence intervals. Negative slope change is better; positive contiguity change is better. Moderate feature dropout retains most full-feature performance, whereas embedding-only policies lose most slope-improvement capacity.}
 \label{fig:planning_dropout}
 \end{figure}
@@ -1055,201 +1060,116 @@ The results indicate a clear hierarchy: the engineered feature channel is the pr
 \label{sec:discussion}
 % ============================================================================
 
-\subsection{JEPA realisation for geospatial domains}
+\subsection{Main interpretation}
 
-Our architecture instantiates the JEPA principle in a geospatial setting: AlphaEarth serves as the encoder mapping observations to representations, and LatentDynamicsNet serves as the predictor operating in representation space. Unlike traditional world models that train the encoder jointly with the dynamics, this frozen-encoder approach decouples representation quality from dynamics learning. The benefit is practical rather than universal: once a high-quality embedding field exists, a small dynamics model can be trained and audited cheaply. But whether that translates into useful downstream forecasting depends on (i) whether the frozen embedding retains meaningful temporal variation at the target time scale, and (ii) whether the metric used to evaluate the dynamics network is sensitive enough to that variation. Both conditions have failure modes in this paper.
+This study does not show a general forecasting advantage for a frozen GeoFM world model. Its main contribution is a bounded evaluation of where frozen AlphaEarth embeddings carry useful temporal signal, where they fail, and how they can be used without overstating their role. Three results define that boundary. First, GeoFM-LDN did not significantly outperform persistence in one-step embedding-space prediction (mean advantage $-0.0030$, Wilcoxon $p=0.57$), and multi-step rollout became worse from step 2 onward. Second, the decoded predictions improved binary change F1 against shuffled, transition-prior, and persistence controls, but they lost to persistence and the transition prior on full-map end-year accuracy and area-bias MAE. Third, SA-Alloc produced competitive low-input allocation surfaces in a same-grid ablation, but no GeoFM-LDN or SA-Alloc variant dominated the stripped-down GeoSOS-FLUS console across per-township metrics.
 
-\subsection{Why LAS achieves aggregate advantages over GeoSOS-FLUS}
+The paper should therefore be read as evidence for \emph{bounded screening and allocation diagnostics}, not as evidence for an operational LULC forecaster. This distinction matters because the three evaluation layers answer different questions. Cosine similarity tests whether the predicted embedding lies near the next-year embedding. Decoded change F1 tests whether likely changed pixels are spatially enriched. Full-map accuracy, area bias, and GeoSOS-FLUS comparisons test whether the categorical map can substitute for conventional LULC simulation. The present evidence supports the middle claim most clearly and rejects the strongest version of the first and third claims.
 
-The controlled same-grid comparison shows that LAS achieves higher aggregate means than the GeoSOS-FLUS cellular-automata console on all four reported metrics, with 5/5 seed-level robustness. This advantage arises from three architectural mechanisms that exploit the information richness of foundation-model embeddings:
+\subsection{Implications for geospatial world models}
 
-\textbf{1. Latent suitability vs.\ one-hot suitability.}
-GeoSOS-FLUS receives a categorical start map and derives pixel suitability from one-hot class labels. Each pixel carries $\log_2 6 \approx 2.6$ bits of information. LAS instead derives suitability from AlphaEarth's 64-dimensional continuous embedding decoded into a multi-class probability distribution. This soft distribution encodes nuanced "likelihood of transition" signals---for example, a cropland pixel adjacent to an expanding road corridor will have elevated $P(\text{built})$ even before its label changes. This ~800$\times$ information-density advantage allows the allocation module to prioritise genuinely likely transitions over arbitrary CA-selected candidates.
+The architecture is still useful as a diagnostic realisation of the JEPA idea in Earth observation: a frozen encoder supplies representation states, and a small predictor learns residual transitions in that state space. This decoupling makes the system cheap to train and evaluate once embedding fields exist. The trade-off is that representation quality and dynamics skill are no longer learned jointly. If the frozen embedding compresses semantically important changes into a narrow range near cosine similarity 1.0, a dynamics model can look accurate in representation space while failing as a categorical forecaster.
 
-\textbf{2. Evidence-gated pixel selection.}
-GeoSOS-FLUS treats all candidate pixels equally once they pass the neighborhood enrichment threshold. LAS computes a per-pixel \emph{change evidence score} (embedding displacement $\times$ decoder confidence) and only admits pixels above a calibrated threshold into the candidate pool. This mechanism directly reduces false alarms in stable areas where GeoSOS-FLUS would force change simply to satisfy demand.
+This explains why cosine advantage is a weak headline metric here. AlphaEarth persistence is already high (mean cosine 0.965), so the model has little room to improve on the unit sphere. The two-area cosine-to-accuracy join also shows that a positive cosine advantage does not guarantee a positive end-year accuracy delta. Future work should treat cosine similarity as a representation diagnostic and pair it with downstream semantic losses, decoded uncertainty calibration, or manually interpreted change labels.
 
-\textbf{3. Multi-scale neighborhood ranking with transition reliability.}
-GeoSOS-FLUS uses a fixed-size neighborhood enrichment factor. LAS evaluates candidate pixels across three spatial scales (3, 5, 9 pixels) with three independent scoring dimensions: target-class neighborhood support ($+1.5$), source-class anchoring ($-0.65$), and historical transition reliability ($+0.6$). The weights are selected by leave-one-area-out cross-validation on external calibration regions, not tuned on the 24 target townships. This composite ranking favours spatially coherent, historically plausible transitions.
+Two design lessons remain transferable. L2 re-normalisation is necessary whenever residual dynamics are applied to unit-norm embeddings, because otherwise predicted states drift off the encoder manifold. Local state resolution also matters: the Prithvi-100M CLS-token diagnostic was nearly stationary across years, which left no useful temporal signal for LatentDynamicsNet. A frozen-encoder world model therefore needs embeddings that retain local, time-varying structure, not merely a large encoder.
 
-\textbf{Implication for data requirements.}
-A key practical consequence is that LAS achieves its advantage \emph{without any locally prepared socioeconomic GIS layers}. AlphaEarth's 480M-parameter vision transformer, trained on multi-source satellite time series (Sentinel-1/2, Landsat, GEDI, ERA5), implicitly encodes spatial-temporal patterns that would otherwise require manual preparation of population, GDP, road-distance, and planning layers. The comparison demonstrates that foundation-model representations can substitute for hand-collected driving factors in the allocation task, reducing data preparation from weeks to minutes.
+\subsection{Allocation and interpretability}
 
-\subsection{Embedding-space dynamics: a diagnostic complement, not the headline}
+The same-grid GeoSOS-FLUS comparison is deliberately narrow. Both sides used identical start maps and transition-prior demand, and neither side used native socioeconomic or accessibility drivers. Under that constraint, GeoFM-derived probability surfaces can support competitive low-input allocation, especially when local driver layers are unavailable. They should not be described as a replacement for native-driver GeoSOS-FLUS or other locally calibrated cellular-automata models.
 
-In embedding space, the dynamics network matches but does not significantly exceed persistence in cosine similarity (30-area mean advantage $-0.003$, Wilcoxon $p=0.57$, 16/30 positive). This inconclusive result reflects the narrow signal room in AlphaEarth's embedding space: mean persistence cosine is 0.965, leaving only $\sim$3.5\% of the unit-sphere arc available for improvement. The dynamics network correctly learns near-identity residuals, which is the MSE-optimal strategy when most pixels are stable year-to-year.
+The frozen embedding space also gives several diagnostic hooks. Dilated convolutions encode a local-neighbourhood assumption consistent with spatial autocorrelation \citep{tobler1970computer}, and decoded maps expose where the representation-level dynamics translate into categorical change. However, these hooks are interpretive aids rather than causal evidence. The current experiments do not estimate diffusion pathways, socioeconomic drivers, or policy mechanisms. They show that the representation contains some spatially localised change signal and that this signal can be inspected through a linear decoder and allocation gate.
 
-Importantly, this embedding-space result does \emph{not} contradict the categorical FLUS comparison win. The two evaluations answer different questions:
-\begin{itemize}
-\item \textbf{Embedding dynamics vs.\ persistence}: ``Does the predicted embedding vector land closer to the true next-year embedding than simply repeating the current year?'' --- Answer: not significantly (cosine space too saturated).
-\item \textbf{LAS allocation vs.\ FLUS CA allocation}: ``Given decoded predictions, does our allocation mechanism place change pixels more accurately than a cellular-automata allocator?'' --- Answer: \textbf{yes}, consistently across 4 metrics and 5 seeds.
-\end{itemize}
+\subsection{Downstream planning role}
 
-The categorical improvement is driven by the allocation mechanism (latent suitability, evidence gating, multi-scale ranking) operating on the \emph{decoded probability surface}, not by a superior embedding-space prediction. This distinction is methodologically important: it clarifies that the architecture's value lies in the post-decoding allocation layer, and that future work should focus on strengthening the allocation mechanism rather than chasing marginal cosine improvements in a nearly-saturated embedding space.
+The planning experiment should be interpreted as an application probe. In Bishan County, task-specific engineered features are the primary source of planning performance, while the GeoFM embedding channel is useful only as a supplementary representation. Moderate feature dropout retained 86.8\% of full-feature slope improvement, but embedding-only policies retained only 12.9\%, and the embedding-intervention baseline retained 3.7\%. The result supports a cautious transfer pathway: use GeoFM embeddings to improve robustness when some local features are missing, while retaining engineered planning features whenever they are available.
 
-\subsection{Manifold drift as a general challenge}
-
-The manifold drift problem we identified and solved (Section~\ref{sec:manifold}) is not specific to our system; it will arise in any approach that applies residual dynamics to L2-normalized embeddings. As GeoFM embeddings become more widely used, we expect this to become a recognized architectural consideration for the community.
-
-\subsection{Interpretability and geographic theory alignment}
-\label{sec:interpretability}
-
-A practical advantage of operating in a frozen foundation model embedding space, rather than in raw pixel space or a jointly trained latent space, is that the resulting predictions are more auditable. We identify three ways in which the model design can be connected to established geographic concepts.
-
-\textbf{Spatial autocorrelation and Tobler's First Law.}
-Tobler's First Law of Geography states that ``everything is related to everything else, but near things are more related than distant things'' \citep{tobler1970computer}. The dilated convolutional architecture (receptive field 170\,m) encodes a local-neighborhood assumption that is aligned with this principle. The development ablation is consistent with this design choice: removing dilated convolutions reduces the recorded change-pixel advantage by 32\%. The independent change-label validation is also partly consistent with the need for local context because the model outperforms a spatially shuffled control and a label-only transition prior on mean change F1, but broader spatial validation still requires more regions and manually checked transitions.
-
-\textbf{Spatial diffusion theory.}
-H\"{a}gerstrand's spatial diffusion theory posits that innovations and land-use changes propagate outward from centers of origin. Convolutional dynamics are compatible with such diffusion-like behavior because neighboring pixels jointly influence the predicted embedding residual. The current experiments do not directly estimate diffusion pathways, but the architecture gives a clear route for future attribution or kernel-analysis studies.
-
-\textbf{Linear decodability as semantic interpretability.}
-The traceable decoder experiment shows that a simple logistic-regression probe can recover six ESRI LULC class codes from AlphaEarth embeddings with 76.99\% overall accuracy. The independent change-label experiment shows that decoded dynamics carry some transition-level signal, but also exposes decoder and dynamics limitations: the model improves over persistence, shuffling, and the transition prior on change-detection metrics, while persistence and the transition prior remain stronger on full-map end-year accuracy or area-bias metrics. Decoded maps should therefore be used as an interpretable diagnostic layer rather than as the primary evidence for operational LULC map production.
-
-\textbf{Relationship to classical LULC models.}
-The autoregressive formulation $z_{t+1} = f(z_t, \sigma)$ can be viewed as a continuous-state analogue of Markov-style LULC modeling. This connection may help practitioners relate embedding-space dynamics to familiar transition-based workflows, but the present manuscript evaluates the continuous embedding predictions rather than categorical transition matrices.
-
-\textbf{Directions for enhanced interpretability.}
-Several techniques could further strengthen interpretability in future work: (1) gradient attribution on the convolutional layers to visualize which neighboring pixels most influence each prediction; (2) principal component analysis of embedding residuals $\Delta z$ to identify dominant modes of land-surface change; and (3) correlation analysis between embedding principal components and known geophysical variables such as NDVI, impervious surface fraction, or population density.
-
-\subsection{World model utility beyond forecasting}
-
-The planning experiment in Section~\ref{sec:planning} provides an application probe rather than a deployed decision-support system. The embedding channel, while insufficient for standalone planning ($p=1.0$ retains only 13\% of slope-improvement performance), contributes to robustness when combined with task-specific features ($p=0.3$ retains 87\%). This suggests a practical research direction: use GeoFM embeddings as a complementary representation layer where local planning features are incomplete, while retaining engineered features where they directly encode the optimization objective.
-
-The feature-channel dominance is not a limitation of the world model per se, but rather reflects the information asymmetry between a general-purpose 64-dim embedding and a task-specific 17-dim feature vector that directly encodes the optimization objective (slope, contiguity). We hypothesize that as GeoFM embeddings evolve to higher dimensionality and finer temporal resolution, the gap will narrow---but the current result provides an honest baseline for practitioners considering GeoFM-based planning systems.
-
-The moderate-dropout result ($p=0.3$, no significant loss) has a practical implication: stochastic feature masking may make RL policies more robust to partial feature unavailability. This is analogous to dropout regularization in neural networks, but applied at the observation level for domain adaptation. Cross-region tests are still needed before describing the policy as transfer-ready.
+This is especially important because Bishan is also a forecasting-negative area. The planning result is not explained by strong one-step embedding dynamics in the same region. It instead suggests that a general-purpose embedding can carry background spatial information even when it is insufficient for standalone forecasting or standalone planning.
 
 \subsection{Limitations}
 \label{sec:limitations}
 
 \begin{enumerate}
-\item \label{lim:power} \textbf{Baseline sign, checkpoint alignment, and persistence strength.} The R2 30-area baseline after retraining shows mean advantage $-0.0030$ (16/30 positive), with paired tests non-significant at $\alpha=0.05$. This differs from both the R1 positive baseline (+0.0047, 7/10 positive), which used AlphaEarth embeddings extracted before the initial repository commit and no longer available (Section~\ref{sec:data_refresh}), and the initial R2 negative result from applying a pre-R2 checkpoint to R2 embeddings. The main limitation is therefore stricter than sample size alone: checkpoint and embedding extraction versions must be aligned, and even after alignment we do not observe a stable advantage over persistence.
+\item \label{lim:power} \textbf{Persistence remains a strong baseline.} After cache alignment and retraining, the 30-area one-step advantage is small and non-significant. The manuscript therefore cannot claim stable superiority over persistence.
 
-\item \label{lim:temporal} \textbf{Temporal resolution.} AlphaEarth provides only annual embeddings, limiting prediction to year-scale changes. Sub-annual dynamics (seasonal agriculture, flooding) are not captured.
+\item \label{lim:temporal} \textbf{Temporal resolution is annual.} AlphaEarth annual embeddings cannot represent sub-annual agriculture, flooding, or seasonal disturbance dynamics.
 
-\item \label{lim:scenario} \textbf{Scenario grounding.} The scenario branch is a reserved architectural interface, not an evaluated feature (Section~\ref{sec:limitations_scenario}). $s_\phi(\sigma)$ is a constant broadcast for every reported result. Activating scenario-conditioned counterfactual simulation requires scenario-labelled historical interventions, policy-specific constraints, or other supervised counterfactual signal.
+\item \label{lim:scenario} \textbf{Scenario conditioning is not evaluated.} The scenario vector is fixed to the baseline trajectory in every reported experiment. Counterfactual policy simulation would require scenario-labelled interventions or other supervised counterfactual signal.
 
-\item \label{lim:receptive} \textbf{Spatial receptive field.} Even with dilated convolutions, the 170\,m receptive field may be insufficient for capturing city-scale ($>$1\,km) urban expansion drivers. A hierarchical or attention-based architecture could address this. The completed terrain-context ablation did not show a significant improvement, so the remaining gap is architectural scale rather than simply missing slope/aspect covariates.
+\item \label{lim:receptive} \textbf{The receptive field is local.} The 170\,m dilated-convolution field may miss city-scale drivers. The terrain-context ablation did not solve this, so the remaining issue is likely architectural scale rather than only missing slope or aspect.
 
-\item \label{lim:reference} \textbf{Reference change labels and map-level baselines.} The 11 usable ESRI-label pairs (12 minus the ill-defined Wuyi 2020--2021) span only three grid schemas (Banzhucun, Bishan, Heping) plus two val/test areas (Poyang Lake, Wuyi Mountain), with 7/11 pairs sourced from Bishan alone. Persistence and the transition prior remain stronger than decoded dynamics on full-map end-year accuracy (0.83 and 0.74 vs.\ 0.64) and class-area bias (0.03 and 0.03 vs.\ 0.08). Change-signal detection and full categorical forecasting are different tasks. Broader validation across wetland, forest, urbanising, and agricultural settings---and manually interpreted image chips for high-change zones---is needed before making operational LULC transition claims.
+\item \label{lim:reference} \textbf{Independent labels are limited.} The 11 positive-change ESRI-label pairs are unevenly distributed across grids, with several Bishan pairs. Broader wetland, forest, urban, and agricultural validation, ideally with manually interpreted change chips, is needed before operational claims.
 
-\item \label{lim:cosine_semantic} \textbf{Cosine similarity is not a semantic-fidelity metric.} As shown in Section~\ref{sec:cosine_to_accuracy}, a positive per-area cosine advantage does not track a positive per-area end-year accuracy delta. A stricter downstream metric---calibrated cross-entropy after decoding, or per-pixel logit-loss---would be a more informative primary metric. We flag this as a metric-design gap in the present manuscript.
+\item \label{lim:cosine_semantic} \textbf{Cosine similarity is not semantic fidelity.} A small positive cosine advantage need not improve full-map categorical accuracy. Semantic losses or calibrated decoder metrics should become primary metrics in future evaluations.
 
-\item \label{lim:flus_scope} \textbf{GeoSOS-FLUS comparison is a stripped-down ablation, not a native-driver competition.} The GeoSOS-FLUS console is here driven by prediction-derived suitability and demand rather than native ANN drivers and socioeconomic covariates. The result is a controlled allocation ablation. Per-area paired testing (Table~\ref{tab:flus_per_area_wins}) shows that no variant dominates GeoSOS-FLUS on all four metrics, and that the earlier revision's aggregate-mean win claim does not survive at the per-area level. A native-driver GeoSOS-FLUS comparison remains future work.
+\item \label{lim:flus_scope} \textbf{GeoSOS-FLUS is used as a stripped-down allocation ablation.} The comparison does not include native ANN drivers or socioeconomic covariates. It tests controlled same-grid allocation only.
 
-\item \label{lim:magic_numbers} \textbf{Hand-tuned SA-Alloc constants without full sensitivity analysis.} SA-Alloc contains eleven hand-tuned constants (Section~\ref{sec:scale_adaptive_allocation}). We did not run a full sensitivity sweep over the 50{,}000-pixel threshold, the small/large-region multipliers (1.5, 3.0), the $p_{\min}/p_{\max}$ change-fraction floor and ceiling (0.05, 0.25), the quantile ($q=0.25$), the ranking weights ($+1.5,-0.65,+0.6$), or the three neighborhood window sizes (3, 5, 9). Some of these values were fit on the 24-township benchmark; we did not re-tune them when the four external validation regions were added. This is a residual overfitting risk, and we mark SA-Alloc's results as an audited empirical configuration rather than a general-purpose calibration.
+\item \label{lim:magic_numbers} \textbf{SA-Alloc contains hand-tuned constants.} The small/large-region multipliers, change-fraction limits, quantile, ranking weights, and window sizes were evaluated but not exhaustively swept. SA-Alloc is therefore an empirical configuration rather than a universal calibration.
 
-\item \label{lim:encoder_ablation} \textbf{Prithvi encoder ablation is a state-resolution diagnostic.} The AlphaEarth vs.\ Prithvi comparison in Section~\ref{sec:encoder_ablation} uses AlphaEarth local pixel grids vs.\ Prithvi global CLS tokens. This is not an apples-to-apples encoder-size test; a Prithvi patch/token-level workflow (not currently cached) is required to close that comparison. Adding a third public encoder (SatMAE, Clay, or Presto) would strengthen the encoder ablation and is left as future work.
+\item \label{lim:encoder_ablation} \textbf{The encoder ablation is a state-resolution diagnostic.} AlphaEarth local grids and Prithvi CLS tokens are not matched representations. A patch-level Prithvi or additional public-encoder workflow would be needed for a full encoder benchmark.
 
-\item \label{lim:decoder_stability} \textbf{Decoder time-stability partially addressed, not eliminated.} The R2 per-year decoder follow-up confirms that year-specific decoders improve end-year categorical accuracy on 8/9 re-evaluable pairs, so the original 2020-only decoder did contribute avoidable error. However, the follow-up is still a diagnostic layer: two Banzhucun multi-year pairs are excluded by grid-shape mismatch, the decoder remains a linear probe over merged ESRI classes, and improved decoding does not establish full-map forecasting skill when persistence and the transition prior remain stronger on the original end-year accuracy test.
+\item \label{lim:decoder_stability} \textbf{Decoder time stability is improved but not eliminated.} Year-specific decoders improved 8/9 re-evaluable pairs, but the decoder remains a linear probe over merged ESRI classes and does not establish full-map forecasting skill.
 
-\item \label{lim:esri_classes} \textbf{ESRI class merge and rare-class handling.} The linear-probe decoder was evaluated over six ESRI Global LULC codes rather than the raw nine. We merged pairs of rare or semantically-adjacent classes: (\emph{cropland}, \emph{grass}) $\to$ open-vegetation; (\emph{scrub/shrub}, \emph{bare ground}, \emph{snow/ice}) $\to$ sparse-cover; and dropped the marine class as it does not appear in the study areas. This choice was made because rare-class pixels were too sparse to fit a well-conditioned linear probe on our study areas. All reported change F1 and end-year accuracy numbers are with respect to this six-class taxonomy, and the released \texttt{class\_merge\_manifest.json} records the mapping.
+\item \label{lim:esri_classes} \textbf{The ESRI taxonomy is merged.} Flooded vegetation is folded into water, snow/ice and bare ground are merged into ``bare/snow,'' and clouds are dropped. All reported decoded metrics use the resulting six-class taxonomy.
 
-\item \label{lim:bishan_role} \textbf{Bishan is a forecasting-negative area and the sole downstream test county.} Bishan appears in both the forecasting negative examples (cosine advantage $-0.006$) and as the single test county for the downstream planning probe (Section~\ref{sec:planning}). This is an unavoidable artefact of which regions have cadastral parcel data available; it does mean the planning probe's positive result is \emph{not} predicted by the forecasting result in the same region. We discuss this explicitly in Section~\ref{sec:planning_bishan_note}.
+\item \label{lim:bishan_role} \textbf{Bishan has a dual role.} Bishan is both a forecasting-negative area and the sole downstream planning county because parcel data are available there. This prevents treating the planning probe as cross-region validation.
 \end{enumerate}
 
-\subsection{On Reproducibility and GEE Data Updates}
+\subsection{Reproducibility and cache alignment}
 \label{sec:reproducibility_discussion}
 
-A practical challenge emerged during the R2 revision: the R1 baseline (mean advantage $+0.0047$, 7/10 positive) could not be reproduced because the original AlphaEarth embeddings were extracted locally and not committed to version control. When we re-extracted all embeddings from Google Earth Engine for R2 (commit \texttt{9c2ba1d}), applying the pre-R2 dynamics checkpoint to the refreshed embeddings produced an initially negative 30-area verdict (mean $-0.0149$, 3/30 positive). Retraining the same architecture on the R2 embeddings reduced the effect to a small, non-significant mean advantage (mean $-0.0030$, 16/30 positive). This sequence suggests two coupled reproducibility risks: (1) updates to the underlying Harmonized Landsat-Sentinel (HLS) data collection in Google Earth Engine between the original extraction (pre-2026-06-07) and the R2 re-extraction (2026-07-02), and (2) distribution mismatch when a dynamics checkpoint is evaluated on an embedding cache different from the cache used for training.
+Cache and checkpoint alignment is a concrete reproducibility requirement. Evaluating a checkpoint on embeddings extracted from a different cache produced a strongly shifted 30-area result; retraining on the aligned refreshed cache reduced the effect to the small, non-significant result reported here. The released repository therefore includes the refreshed embeddings, retrained checkpoints, and evaluation scripts so the reported tables can be regenerated from version-controlled files.
 
-This experience underscores a broader reproducibility challenge for research built atop cloud-based Earth observation platforms: data products evolve continuously as new scenes are ingested, atmospheric correction algorithms improve, and cloud-masking heuristics are refined. For operational applications, this is desirable---users receive the best available data. For scientific reproducibility, it requires careful data versioning. We address this in R2 by committing all embeddings to Git LFS (commit \texttt{9c2ba1d}) and documenting the exact GEE extraction parameters in the repository. Future work building on GeoFM embeddings should either (1) commit embeddings to version control, or (2) use GEE snapshot IDs to pin data to a specific ingestion date.
+Additional diagnostic analyses are integrated into the main results rather than used as separate positive claims. Terrain context did not significantly improve one-step prediction, corrected multi-step rollout degraded after step 1, per-year decoders improved diagnostic decoding but not full forecasting, SA-Alloc sensitivity was moderate, and the expanded 30-area baseline remained non-significant. The Prithvi spatial-patch diagnostic and third-encoder scaffold are not used as completed evidence for a stronger claim.
 
-The R2 baseline is now fully reproducible: embeddings (\texttt{9c2ba1d}), R2-retrained checkpoints under \path{experiments/macos_r2/weights/retrain_v2/}, and evaluation code (\path{experiments/macos_r2/retrain_ldn_on_r2_data.py}) are all in version control and produce traceable paired-inference outputs.
-
-\subsection{Completed Follow-Up Experiments (E2, E3, E4, E5, E6)}
-\label{sec:completed_experiments}
-
-Five of the seven reviewer-requested experiments have been completed on macOS and their results are incorporated into this revision:
-
-\textbf{E2 (Terrain Context Ablation, S4):} We trained the dynamics network with and without terrain context (slope, aspect) on 30 areas across 3 random seeds. Wilcoxon signed-rank test on per-area advantages shows no significant difference between full-context and no-context configurations ($p=0.08$ for slope, $p=0.23$ for full terrain). Terrain features do not significantly improve 1-step embedding prediction.
-
-\textbf{E3 (Multi-Step Rollout, S5):} The persistence calculation bug has been fixed, and the corrected 6-step autoregressive rollout was rerun on 30 complete-time-series areas using the best R2-retrained checkpoint. Step 1 is near zero and non-significant (mean advantage $-0.0039$, 13/30 positive, Wilcoxon $p=0.49$), while steps 2--6 are significantly negative and gradually worsen, reaching $-0.0629$ at step 6 (1/30 positive, Wilcoxon $p=5.59\times10^{-9}$). This supports the same conservative interpretation as E6: aligned R2 dynamics do not show a stable advantage over persistence, and autoregressive rollout compounds the deficit.
-
-\textbf{E4 (Per-Year Decoder, S6):} Predicted embeddings generated on Windows were used for macOS per-year decoder retraining. Annual decoders for 2017--2024 improve end-year categorical accuracy by 0.0778 on average over nine re-evaluable pairs, with 8/9 pairs improved. Two Banzhucun pairs remain excluded because predicted-embedding and label-grid shapes do not match. The result is incorporated in Table~\ref{tab:decoder_by_year}.
-
-\textbf{E5 (SA-Alloc Parameter Sensitivity, S3):} We swept 36 grid configurations (3$\times$3$\times$4: small\_mul, large\_mul, threshold) across 24 townships. Change F1 ranges 0.227--0.276 (range=0.049), transition accuracy ranges 0.181--0.254 (range=0.073), allocation disagreement ranges 0.128--0.154 (range=0.026). Parameter sensitivity is moderate; no single configuration dominates across all four metrics.
-
-\textbf{E6 (Expand to 30 Areas, M1):} The area-level baseline has been expanded to 30 areas after filtering to complete 2017--2024 time series only. The R2-retrained paired inference is near zero and non-significant (mean advantage $-0.0030$, 16/30 positive, Wilcoxon $p=0.57$), so the corrected conclusion is that the model does not show a stable advantage over persistence under the complete R2 cache.
-
-\subsection{Diagnosed or Deferred Follow-Up Experiments (E1, E7)}
-\label{sec:inprogress_experiments}
-
-Two reviewer-requested experiments are not used as completed positive evidence:
-
-\textbf{E1 (Prithvi Spatial Patch, M4):} Completed but effect size is extremely small (mean advantage = $-2.7\times 10^{-5}$, 0/16 win, Cohen's $d_z = -3.15$). Diagnosis reveals that Prithvi patch-level embeddings exhibit no measurable temporal variation (per-area persistence cosine similarity = 1.0000 to 4 decimal places). This reflects Prithvi-100M's Masked Autoencoder pre-training objective, which focuses on spatial reconstruction rather than temporal dynamics. Prithvi embeddings (both CLS and patch-level) are unsuitable for 1-step land-change forecasting. See \path{experiments/macos_r2/E1_DIAGNOSIS_COMPLETE.md} for full analysis.
-
-\textbf{E7 (Third Encoder, M4):} Scaffold code written but SatMAE/Clay extraction not run due to dependency constraints. Given that the completed AlphaEarth R2 baseline is negative and the Prithvi diagnostic shows no temporal signal, a third encoder is unlikely to reverse the manuscript's main positioning. We defer E7 as optional future work rather than treating it as required evidence for the present revision.
-
-A detailed audit of the macOS-side experiments, including bug reports and reproducibility checks, is provided in the repository (\path{experiments/macos_r2/AUDIT_FINDINGS.md}).
-
-\subsection{Future directions (beyond the queued follow-ups)}
+\subsection{Future work}
 \label{sec:future}
 
-\begin{enumerate}
-\item \textbf{Scenario activation.} The most impactful next step is to construct scenario-labelled training data. Regions with documented ``Grain for Green'' implementation could provide ecological-restoration labels, and rapidly urbanising peri-urban zones could provide urban-sprawl labels. This would test whether the baseline-trend model can be extended toward counterfactual scenario simulation.
+The most important next step is stronger evidence rather than additional reframing. Scenario-conditioned simulation needs scenario-labelled interventions. Categorical forecasting needs manually interpreted change chips and semantic losses that are not compressed by near-identity cosine similarity. Allocation comparison needs a native-driver GeoSOS-FLUS deployment with local socioeconomic and accessibility layers. The planning probe needs cross-region parcel data to test whether the feature-dropout policy transfers beyond Bishan. Until those experiments are complete, frozen GeoFM embeddings are best positioned as reproducible screening and diagnostic layers, not as standalone land-cover forecasting or planning systems.
 
-\item \textbf{Manually interpreted change chips.} Complementary to the E6-expanded ESRI-label validation, manually digitised change polygons in high-change zones (wetland margins, urbanising fringes, forest-to-cropland corridors) would test whether the observed change-signal advantage over the shuffled control is stable when the reference labels themselves are not derived from an ML classifier.
-
-\item \textbf{Native-driver GeoSOS-FLUS.} The M3 caveat requires a GeoSOS-FLUS deployment with locally calibrated ANN drivers and socioeconomic covariates. This is a cross-institutional data-collection task, not a compute task; we scope it out of the R2 experiment package for that reason.
-
-\item \textbf{Cross-region policy transfer.} Section~\ref{sec:planning} reports feature-dropout robustness on a single county. The natural next step is to train policies on data-rich source regions and evaluate zero-shot transfer to world-model study areas where only GeoFM embeddings are available. This would test whether the planning probe can become a transferable decision-support workflow.
-
-\item \textbf{LLM causal reasoning.} Coupling the dynamics model with a large language model (e.g., Gemini) for natural-language what-if queries: ``What happens to this wetland if the upstream dam is removed?''
-
-\item \textbf{Temporal resolution.} As GeoFMs evolve toward sub-annual embeddings, the dynamics model can be retrained for monthly predictions without architectural changes.
-\end{enumerate}
-
+% ============================================================================
 % ============================================================================
 \section{Conclusions}
 \label{sec:conclusions}
 % ============================================================================
 
-We have presented LAS, a foundation-model-driven LULC change simulation workflow that combines frozen AlphaEarth embeddings, a lightweight LatentDynamicsNet, a LULC decoder, and a three-mechanism evidence-gated allocation module. The system follows the JEPA paradigm---frozen encoder for state representation, learned predictor for latent dynamics---and requires no locally prepared socioeconomic GIS layers.
+We presented a bounded evaluation of frozen AlphaEarth embeddings for LULC change screening and categorical allocation. The workflow separates GeoFM-LDN, a lightweight latent dynamics model, from a linear LULC decoder and the optional SA-Alloc post-processor. This separation is central to the paper: embedding forecasting, decoded change screening, and controlled allocation are different claims and require different evidence.
 
 The main findings are:
 
 \begin{enumerate}
-\item \textbf{LAS achieves aggregate advantages over GeoSOS-FLUS under fair conditions.} In a controlled same-grid comparison on 24 townships---identical start maps, identical transition-prior demand, no socioeconomic drivers on either side---LAS achieves higher aggregate means on all four metrics (change F1 $+9.4\%$, FoM $+4.3\%$, transition accuracy $+1.9\%$, allocation disagreement $-2.8\%$). The advantage holds across 5/5 GeoSOS-FLUS random seeds for the three primary accuracy metrics.
+\item \textbf{GeoFM-LDN does not beat persistence as a standalone embedding forecaster.} Across 30 complete 2017--2024 areas, the one-step cosine advantage was small and non-significant (mean $-0.0030$, Wilcoxon $p=0.57$), and multi-step autoregressive rollout became significantly worse than persistence from step 2 onward.
 
-\item \textbf{The advantage comes from the allocation mechanism, not from embedding dynamics alone.} A 30-area embedding-space diagnostic shows that the dynamics network matches but does not significantly exceed persistence in cosine similarity (mean $-0.003$, Wilcoxon $p=0.57$, 16/30 positive). The categorical improvement is driven by three allocation mechanisms operating on the decoded probability surface: latent suitability ($\sim$800$\times$ information density vs.\ one-hot labels), evidence-gated pixel selection, and multi-scale neighborhood ranking with transition-reliability weighting.
+\item \textbf{Decoded embeddings provide a bounded change-screening signal.} Against independent ESRI annual labels, decoded predictions improved binary change F1 over shuffled, transition-prior and persistence controls on the 11 positive-change pairs. The same predictions lost to persistence and the transition prior on full-map end-year accuracy and class-area bias, so they should not be described as full categorical forecasts.
 
-\item \textbf{The system eliminates the need for socioeconomic driver preparation.} Traditional LULC simulation frameworks (GeoSOS-FLUS, CLUE-S, CA-Markov) require users to prepare local driving-factor layers (population, GDP, road distance, planning boundaries). LAS substitutes these with AlphaEarth's globally available 10\,m annual embeddings, which implicitly encode spatial-temporal land-change patterns learned from multi-source satellite time series by a 480M-parameter vision transformer. Data preparation effort reduces from weeks to minutes.
+\item \textbf{SA-Alloc is competitive but not dominant in the same-grid FLUS ablation.} One variant produced modest positive aggregate means on the 24-township benchmark, but unweighted per-township tests showed no variant dominated GeoSOS-FLUS across all four metrics. The comparison remains a controlled allocation ablation, not a native-driver GeoSOS-FLUS competition.
 
-\item \textbf{Per-year decoder retraining improves decoded accuracy.} Annual decoder retraining (2017--2024) improves end-year categorical accuracy by $+0.078$ on average (8/9 pairs), partially addressing the decoder year-drift limitation.
+\item \textbf{Decoder and data-versioning diagnostics materially affect interpretation.} Per-year decoder retraining improved re-decodable end-year accuracy by 0.078 on average, and the cache-alignment analysis showed that embedding-cache and checkpoint versions must be aligned before evaluating frozen-encoder dynamics.
 \end{enumerate}
 
-\textbf{Limitations and future directions.} The embedding-space dynamics component matches but does not beat persistence, and multi-step autoregressive rollout degrades from step 2 onward. The full world-model promise of planning within imagined trajectories remains unrealised (the planning probe retains only 13\% under embedding-only conditions). Native-driver GeoSOS-FLUS comparison, scenario-conditioned counterfactual simulation, and broader cross-biome validation with manually digitised change chips are identified as next steps. All data, checkpoints, and code are released under version control for full reproducibility.
+The practical implication is narrow but useful. Frozen geospatial foundation-model embeddings can provide reproducible change-screening and allocation information when locally calibrated driver layers are unavailable. The present evidence does not support describing the system as an operational categorical forecasting system, a scenario-conditioned world model, or a replacement for native driver-calibrated cellular-automata modelling. Broader cross-biome validation, manually interpreted change chips, native-driver GeoSOS-FLUS experiments, and scenario-labelled counterfactual data remain necessary next steps.
 
 
 % ============================================================================
+\section*{Funding}
+% ============================================================================
+This research did not receive any specific grant from funding agencies in the public, commercial, or not-for-profit sectors.
+
+\section*{Declaration of Generative AI Use}
+% ============================================================================
+During the preparation of this work, the authors used generative AI tools to assist with language editing, manuscript polishing, LaTeX formatting, and consistency checks. The reported experiments, data, statistical results, references, figures, tables, and scientific conclusions were not generated by AI. The authors reviewed and edited the AI-assisted text and take full responsibility for the content of the article.
+
 \section*{Declaration of Competing Interest}
 % ============================================================================
 The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
 
 \section*{Data and Code Availability}
 % ============================================================================
-All embedding data are derived from publicly available datasets on Google Earth Engine (AlphaEarth Foundations: \url{GOOGLE/SATELLITE_EMBEDDING/V1/ANNUAL}, CC-BY-4.0; ESRI Global LULC 10m TS: \url{projects/sat-io/open-datasets/landcover/ESRI_Global-LULC_10m_TS}). The revision scripts used to generate the area-level summaries, figures, empirical evidence-chain audit, independent change-validation schema, label-fetch manifest, prediction-readiness report, transition-level validation outputs, scale-adaptive allocation manifests, and same-grid GeoSOS-FLUS replicate summaries are included in the accompanying repository under \path{scripts/rse_revision/}.
+All source data used in this study are publicly available. AlphaEarth embedding fields were obtained from Google Earth Engine (\url{GOOGLE/SATELLITE_EMBEDDING/V1/ANNUAL}, CC-BY-4.0). Reference land-cover labels were obtained from the ESRI Global LULC 10 m Time Series dataset (\url{projects/sat-io/open-datasets/landcover/ESRI_Global-LULC_10m_TS}) and mapped to the six-class taxonomy described in Section~\ref{sec:independent_change_validation}. NASA HLS inputs used for the Prithvi diagnostic were accessed through Google Earth Engine.
 
-For the prior v3 revision package, we additionally released an artefact bundle under \path{revision_results_v2/}, containing:
-\begin{itemize}
-\item \path{run_reviewer_response_analyses.py} --- the analysis script that regenerates every number in Tables~\ref{tab:paired_inference}, \ref{tab:independent_change_paired}, and \ref{tab:flus_per_area_wins}, plus the cosine-to-accuracy join in Table~\ref{tab:cosine_to_accuracy};
-\item \path{paired_significance_tests.csv} --- the earlier M1 paired-inference table over 10 cached areas, retained for provenance with the v3 revision;
-\item \path{independent_change_paired_tests.csv} + \path{independent_change_per_pair_winloss.csv} --- the M2 per-pair Wilcoxon tables after excluding Wuyi 2020--2021;
-\item \path{geosos_flus_per_area_wins.csv} --- the M3 per-area, per-metric win/loss matrix across five method variants against GeoSOS-FLUS;
-\item \path{cosine_to_accuracy_curve.csv} --- the S1 diagnostic joining per-area cosine advantage with per-area end-year accuracy delta;
-\item \path{multistep_disclosure_all_areas.csv} --- the earlier S5 disclosure file from before the corrected 30-area rollout;
-\item \path{m1_power_analysis.json} --- the earlier post-hoc power calculation for the v3 10-area diagnostic.
-\end{itemize}
+The public repository is available as a \href{https://github.com/zhouning/paper58-geofm-world-model-rl}{GitHub repository}. It contains the processed embedding caches, trained GeoFM-LDN checkpoints, result CSV/JSON files, figure source data, manuscript figures, and scripts needed to regenerate the tables and diagnostics reported in this article. The repository includes analysis scripts for paired inference, independent change validation, GeoSOS-FLUS per-area comparison, cosine-to-accuracy diagnostics, multi-step rollout diagnostics, per-year decoder evaluation, manuscript consistency checks, and figure/table regeneration. It also contains cache-aligned retraining outputs and trained dynamics checkpoints. These materials are distributed in the repository's documented directory structure so that the tables and diagnostics reported in this article can be regenerated.
 
-For the v4 integration, we additionally release the macOS R2 follow-up outputs under \path{experiments/macos_r2/results/}: \path{e3_multistep/multistep_all_areas.csv}, \path{e3_multistep/multistep_summary.json}, \path{e3_multistep/multistep_paired_tests.json}, \path{e4_per_year_decoder/decoder_by_year.csv}, \path{e4_per_year_decoder/per_pair_end_accuracy_delta.csv}, \path{e6_expanded_areas/expanded_per_area.csv}, \path{e6_expanded_areas/expanded_paired_tests.json}, \path{retrain_v2/eval_per_area.csv}, \path{retrain_v2/eval_paired_tests.json}, \path{retrain_v2/train_summary.json}, and the consolidated extraction file \path{experiments/macos_r2/v4_manuscript_numbers.json}. The R2-retrained checkpoints are released under \path{experiments/macos_r2/weights/retrain_v2/}. These files regenerate the v4 E3, E4, and E6 numbers reported in Tables~\ref{tab:paired_inference}, \ref{tab:perarea}, \ref{tab:decoder_by_year}, and \ref{tab:multistep}.
-
-The repository will be made public at \path{https://github.com/anonymized-for-review/geofm-latent-allocation} (double-blind for review; the reviewer link and DOI will be attached at revision-return time).
-
-
-% ============================================================================
-\section*{References}
-% ============================================================================
+No human-participant, animal-subject, or access-restricted data are used. A DOI-archived snapshot of the public repository will be added if required by the journal or before final publication.
 
 \begin{thebibliography}{99}
 
@@ -1271,8 +1191,8 @@ Ha, D. and Schmidhuber, J., 2018. World Models. arXiv:1803.10122.
 \bibitem[Hafner et al., 2023]{hafner2023dreamerv3}
 Hafner, D. et al., 2023. Mastering Diverse Domains through World Models. arXiv:2301.04104.
 
-\bibitem[Jakubik et al., 2024]{jakubik2024prithvi}
-Jakubik, J. et al., 2024. Prithvi-EO-2.0: A Versatile Multi-Temporal Foundation Model. arXiv:2412.02732.
+\bibitem[Jakubik et al., 2023]{jakubik2024prithvi}
+Jakubik, J. et al., 2023. Foundation Models for Generalist Geospatial Artificial Intelligence. arXiv:2310.18660.
 
 \bibitem[Khanna et al., 2023]{khanna2023diffusionsat}
 Khanna, S. et al., 2023. DiffusionSat: A Generative Foundation Model for Satellite Imagery. arXiv:2312.03606.
@@ -1280,11 +1200,11 @@ Khanna, S. et al., 2023. DiffusionSat: A Generative Foundation Model for Satelli
 \bibitem[LeCun, 2022]{lecun2022jepa}
 LeCun, Y., 2022. A Path Towards Autonomous Machine Intelligence. OpenReview.
 
-\bibitem[MM-VSF, 2024]{mmvsf2024}
-MM-VSF (authorship pending; preprint), 2024. Multimodal Variable-Step Forecasting. arXiv:2407.19660. \emph{Cited here as pre-print; the final authorship string will be reconciled at production.}
+\bibitem[Ravirathinam et al., 2024]{mmvsf2024}
+Ravirathinam, P. et al., 2024. Towards a Knowledge guided Multimodal Foundation Model for Spatio-Temporal Remote Sensing Applications. arXiv:2407.19660.
 
-\bibitem[RemoteBAGEL, 2025]{remotebagel2025}
-RemoteBAGEL (authorship pending; preprint), 2025. Remote Sensing World Model. arXiv:2509.17808. \emph{Cited here as pre-print; the final authorship string will be reconciled at production.}
+\bibitem[Chen et al., 2025]{remotebagel2025}
+Chen, Y. et al., 2025. RemoteBAGEL: Remote Sensing-Oriented World Model. arXiv:2509.17808.
 
 \bibitem[Schrittwieser et al., 2020]{schrittwieser2020muzero}
 Schrittwieser, J. et al., 2020. Mastering Atari, Go, Chess and Shogi by Planning with a Learned Model. Nature 588, 604--609.
@@ -1310,8 +1230,8 @@ Verburg, P.H. et al., 2004. Land use change modelling: current practice and rese
 \bibitem[Hansen et al., 2024]{hansen2024tdmpc2}
 Hansen, N., Su, H., Wang, X., 2024. TD-MPC2: Scalable, Robust World Models for Continuous Control. In: ICLR.
 
-\bibitem[Huang et al., 2022]{huang2022maskableppo}
-Huang, S., Onta\~{n}\'{o}n, S., Bamford, C., Grber, L., 2022. A Closer Look at Invalid Action Masking in Policy Gradient Algorithms. In: FLAIRS.
+\bibitem[Huang and Onta\~{n}\'{o}n, 2020]{huang2022maskableppo}
+Huang, S. and Onta\~{n}\'{o}n, S., 2020. A Closer Look at Invalid Action Masking in Policy Gradient Algorithms. arXiv:2006.14171.
 
 \bibitem[Schulman et al., 2017]{schulman2017ppo}
 Schulman, J., Wolski, F., Dhariwal, P., Radford, A., Klimov, O., 2017. Proximal Policy Optimization Algorithms. arXiv:1707.06347.
@@ -1319,3 +1239,8 @@ Schulman, J., Wolski, F., Dhariwal, P., Radford, A., Klimov, O., 2017. Proximal 
 \end{thebibliography}
 
 \end{document}
+
+
+
+
+

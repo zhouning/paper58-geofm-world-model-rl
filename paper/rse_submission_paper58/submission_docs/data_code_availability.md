@@ -1,15 +1,11 @@
-# Data and Code Availability Draft
+﻿# Data and Code Availability
 
-All AlphaEarth embedding data used in this study are derived from the publicly available Google Earth Engine dataset `GOOGLE/SATELLITE_EMBEDDING/V1/ANNUAL`, distributed under CC-BY-4.0. Land-cover reference information is derived from publicly available global land-cover products described in the manuscript.
+All source data used in this study are publicly available. AlphaEarth embedding fields were obtained from Google Earth Engine (`GOOGLE/SATELLITE_EMBEDDING/V1/ANNUAL`, CC-BY-4.0). Reference land-cover labels were obtained from the ESRI Global LULC 10 m Time Series dataset (`projects/sat-io/open-datasets/landcover/ESRI_Global-LULC_10m_TS`) and mapped to the six-class taxonomy described in the manuscript. NASA HLS inputs used for the Prithvi diagnostic were accessed through Google Earth Engine.
 
-The manuscript uses cached embedding arrays and experiment outputs generated from the study areas listed in the paper. Source code, trained model weights, and scripts for data extraction, model training, evaluation, and figure generation should be deposited in a public repository or archival platform before final publication.
+The public repository is available at:
 
-Current manuscript placeholder:
+`https://github.com/zhouning/paper58-geofm-world-model-rl`
 
-`https://github.com/[anonymized]`
+The repository contains the processed embedding caches, trained GeoFM-LDN checkpoints, result CSV/JSON files, figure source data, manuscript figures, and scripts needed to regenerate the tables and diagnostics reported in the article. It includes analysis scripts for paired inference, independent change validation, GeoSOS-FLUS per-area comparison, cosine-to-accuracy diagnostics, multi-step rollout diagnostics, per-year decoder evaluation, manuscript consistency checks, and figure/table regeneration. It also contains cache-aligned retraining outputs and trained dynamics checkpoints. These materials are distributed in the repository's documented directory structure so that the tables and diagnostics reported in the article can be regenerated.
 
-Recommended final action:
-
-- Replace the anonymized repository URL with the final public or review-access repository URL before submission, if allowed.
-- If double-anonymous review is required, provide a blinded repository or private review link.
-- Archive the accepted code/data snapshot using Zenodo or an equivalent archival service after acceptance.
+No human-participant, animal-subject, or access-restricted data are used. A DOI-archived snapshot of the public repository will be added if required by the journal or before final publication.
