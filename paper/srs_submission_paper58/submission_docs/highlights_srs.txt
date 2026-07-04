@@ -1,0 +1,5 @@
+Frozen AlphaEarth embeddings are evaluated for LULC change screening.
+Decoded predictions improve change F1 but not full-map accuracy.
+Persistence and transition-prior baselines remain stronger map forecasters.
+Same-grid GeoSOS-FLUS tests show competitive but non-dominant allocation.
+Cache alignment and product-label validation bound the usable claims.

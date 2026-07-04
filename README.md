@@ -1,43 +1,55 @@
-# Frozen Geospatial Foundation-Model Embeddings for Bounded Land-Cover Change Screening and Allocation
+# Remote-Sensing Foundation-Model Embeddings for Land-Cover Change Screening and Allocation Diagnostics
 
-This repository contains the code, processed caches, trained checkpoints, result tables, figures, and manuscript materials for a Remote Sensing of Environment submission on frozen geospatial foundation-model embeddings for land-cover change screening, categorical allocation, and downstream planning probes.
+This repository contains the code, processed caches, trained checkpoints, result tables, figures, and manuscript materials for a Science of Remote Sensing submission on frozen AlphaEarth Foundations embeddings for bounded land-use and land-cover (LULC) change screening and categorical allocation diagnostics.
 
-The manuscript evaluates whether annual AlphaEarth Foundations embeddings can serve as a frozen representation state for lightweight latent dynamics. The central conclusion is deliberately bounded: the embedding channel carries useful change-screening and allocation signal, but the current dynamics model does not outperform persistence as a standalone land-cover forecaster and is not a replacement for native driver-calibrated cellular-automata modelling.
+The manuscript evaluates whether annual AlphaEarth embeddings can serve as a frozen remote-sensing representation state for lightweight latent dynamics. The central conclusion is deliberately bounded: frozen embeddings carry a useful product-label change-screening signal and can support controlled allocation diagnostics, but the current dynamics model does not outperform persistence as a standalone embedding forecaster and is not a replacement for native driver-calibrated cellular-automata modelling.
 
 ## Current Manuscript
 
+Target journal: Science of Remote Sensing (Elsevier)
+
+Article title:
+
+`Remote-Sensing Foundation-Model Embeddings for Land-Cover Change Screening and Allocation Diagnostics`
+
 Main LaTeX source:
 
-`paper/rse_submission_paper58/manuscript/rse_geofm_world_model_rl_v5.tex`
+`paper/srs_submission_paper58/manuscript/srs_geofm_embedding_change_screening.tex`
 
 Compiled PDF:
 
-`paper/rse_submission_paper58/manuscript/rse_geofm_world_model_rl_v5.pdf`
+`paper/srs_submission_paper58/manuscript/srs_geofm_embedding_change_screening.pdf`
 
 Submission support files:
 
-- `paper/rse_submission_paper58/submission_docs/highlights.md`
-- `paper/rse_submission_paper58/submission_docs/declarations.md`
-- `paper/rse_submission_paper58/submission_docs/data_code_availability.md`
-- `paper/rse_submission_paper58/submission_docs/author_checklist.md`
-- `paper/rse_submission_paper58/submission_docs/compile_verification.md`
+- `paper/srs_submission_paper58/submission_docs/highlights_srs.txt`
+- `paper/srs_submission_paper58/submission_docs/cover_letter_srs.md`
+- `paper/srs_submission_paper58/submission_docs/title_page_metadata_srs.md`
+- `paper/srs_submission_paper58/submission_docs/data_code_availability_srs.md`
+- `paper/srs_submission_paper58/submission_docs/journal_requirements_audit.md`
+- `paper/srs_submission_paper58/submission_docs/compile_verification_srs.md`
+- `paper/srs_submission_paper58/submission_docs/reframing_from_rse_to_srs.md`
+
+The SRS package uses single-anonymized review conventions, so the manuscript title page retains author, affiliation, postal address, and corresponding-author email.
 
 ## What Is Included
 
+- `paper/srs_submission_paper58/`
+  - Current SRS manuscript source, compiled PDF, figures, cover letter, highlights, declarations, availability text, and verification records.
 - `paper/rse_submission_paper58/`
-  - RSE submission package, manuscript source, compiled PDF, figures, declarations, highlights, and result tables used by the manuscript.
+  - Earlier RSE submission package retained for provenance and transfer context. The SRS manuscript should be used for any new submission.
 - `experiments/paper8/`
-  - Main experimental code for embedding-space dynamics, dual-representation planning, encoder comparison, cached outputs, and trained checkpoints.
+  - Main experimental code for embedding-space dynamics, dual-representation planning diagnostics, encoder comparison, cached outputs, and trained checkpoints.
 - `experiments/macos_r2/`
-  - Cache-aligned retraining, expanded-area evaluation, multi-step rollout diagnostics, and per-year decoder outputs.
+  - Cache-aligned retraining, expanded-area evaluation, multi-step rollout diagnostics, per-year decoder outputs, and SA-Alloc sensitivity outputs.
 - `data/independent_change_labels/`
-  - Independent ESRI-label validation inputs, predicted maps, embedding caches, manifests, and readiness reports.
+  - ESRI product-label validation inputs, predicted maps, embedding caches, manifests, and readiness reports. The directory name is legacy; the manuscript treats these labels as product-label comparison targets, not manually interpreted reference truth.
 - `scripts/rse_revision/`
   - Analysis and consistency scripts used to regenerate or verify manuscript tables and submission constraints.
 - `src/legacy_runtime/`
-  - Runtime files imported by the experiment scripts from the original workspace, including county environment and policy code.
+  - Runtime files imported by experiment scripts from the original workspace, including county environment and policy code.
 - `src/adk_world_model/`
-  - World-model source files and figure-generation scripts used for the geospatial world-model component.
+  - World-model source files and figure-generation scripts used by earlier experiment branches and diagnostic figures.
 - `external/alphaearth_system/`
   - Minimal AlphaEarth-System/GeoAdapter subset needed for the Prithvi encoder diagnostic.
 - `reproducibility/`
@@ -53,63 +65,56 @@ The experiments use public Earth-observation data products:
 
 No human-participant, animal-subject, or access-restricted data are used.
 
-## Reproducibility Checks
+## Main Evidence Boundary
 
-The manuscript consistency check verifies the abstract length, total word count, highlights, required source snippets, table consistency against CSV outputs, citation coverage, and submission-context guardrails:
+The SRS manuscript separates three evidence layers:
 
-```powershell
-python scripts\rse_revision\check_manuscript_v5_consistency.py
-```
+1. Embedding-space dynamics: GeoFM-LDN does not significantly outperform persistence over 30 complete 2017-2024 areas (mean cosine advantage `-0.0030`, Wilcoxon `p=0.57`).
+2. ESRI product-label change screening: decoded predictions improve binary change F1 over shuffled, transition-prior, and persistence controls on the 11 positive-change pairs, but lose to persistence and the transition prior on full-map end-year accuracy and class-area bias.
+3. Same-grid allocation diagnostics: SA-Alloc can produce competitive low-input allocation surfaces, but no GeoFM-LDN or SA-Alloc variant dominates the stripped-down GeoSOS-FLUS console across per-township metrics.
 
-The current submission package passes this check with:
+These results support frozen remote-sensing embeddings as reproducible change-screening and allocation diagnostic layers. They do not establish an operational categorical LULC forecaster, a scenario-conditioned world model, or a replacement for locally calibrated GeoSOS-FLUS or related cellular-automata workflows.
 
-- Abstract: 217 words
-- Manuscript total: 13,879 words
-- Highlights: 4 bullets, maximum 72 characters
-- Independent validation table rows checked: 10
-- Citation keys and bibliography items: 21 / 21
+## Verified SRS Package
 
-Related tests can be run with:
+The SRS manuscript was compiled from `paper/srs_submission_paper58/manuscript` with:
 
 ```powershell
-python -m pytest tests/test_manuscript_v5_consistency.py tests/test_rse_revision_results.py tests/test_rse_revision_enhancements.py tests/test_rse_revision_change_validation.py -q
+pdflatex -interaction=nonstopmode -halt-on-error srs_geofm_embedding_change_screening.tex
+pdflatex -interaction=nonstopmode -halt-on-error srs_geofm_embedding_change_screening.tex
 ```
 
-The latest verified run passed 30 tests. The only observed warning was a local pytest cache warning on Windows.
+Latest verified output:
 
-## Compiling the Manuscript
-
-From the repository root, run twice:
-
-```powershell
-pdflatex -interaction=nonstopmode -halt-on-error -output-directory=paper/rse_submission_paper58/manuscript paper/rse_submission_paper58/manuscript/rse_geofm_world_model_rl_v5.tex
-```
-
-The verified PDF has 42 pages. The final LaTeX log contains no undefined citations, no undefined references, no `Float too large` warning, and no cross-reference rerun warning.
+- PDF: 39 pages, 697,249 bytes
+- Abstract: 215 words
+- Keywords: 7
+- Highlights: 5 bullets, maximum 75 characters
+- Citation consistency: 20 cited keys, 20 bibliography items, no missing or uncited bibliography entries
+- Cross-references: no missing labels
+- LaTeX log: no fatal errors, no undefined citations or references, no overfull hbox warnings
 
 ## Key Reproduction Entry Points
 
+- SRS manuscript and submission package:
+  - `paper/srs_submission_paper58/`
 - Embedding-space paired inference and manuscript table checks:
   - `scripts/rse_revision/check_manuscript_v5_consistency.py`
-- Independent categorical change validation:
+- ESRI product-label categorical change validation:
   - `scripts/rse_revision/evaluate_independent_change_validation.py`
   - `data/independent_change_labels/`
-- Dual-representation planning experiment:
+- SA-Alloc sensitivity results:
+  - `experiments/macos_r2/results/e5_sa_alloc_sensitivity/metric_ranges.json`
+- Dual-representation planning diagnostic:
   - `experiments/paper8/train_dual_rep.py`
   - `experiments/paper8/results/dual_rep/dropout_statistical_tests.json`
 - Prithvi vs AlphaEarth encoder diagnostic:
   - `experiments/paper8/compare_encoders.py`
   - `experiments/paper8/train_prithvi_ldn.py`
   - `experiments/paper8/eval_prithvi_vs_alphaearth.py`
-- Geospatial world-model figures:
-  - `src/adk_world_model/experiments/fig_world_model.py`
-
-## Interpretation Boundary
-
-This repository supports a bounded scientific claim. The released experiments show that frozen GeoFM embeddings can provide useful change-screening and allocation information under controlled diagnostics. They do not establish a general forecasting advantage over persistence, an operational categorical land-cover forecaster, or a scenario-conditioned counterfactual simulator.
 
 ## Citation
 
-A DOI-archived snapshot will be added if required by the journal or before final publication. Until then, cite the public GitHub repository URL when referring to the code and reproducibility package:
+A DOI-archived snapshot should be added before final upload or publication when available. Until then, cite the public GitHub repository URL when referring to the code and reproducibility package:
 
 `https://github.com/zhouning/paper58-geofm-world-model-rl`
