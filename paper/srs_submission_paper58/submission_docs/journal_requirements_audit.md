@@ -14,8 +14,8 @@ The checklist below follows the SRS/Elsevier author-facing requirements visible 
 - Highlights: `submission_docs/highlights_srs.txt`, 5 bullets, each under 85 characters
 - Keywords: 7 keywords in the manuscript
 - Abstract: unstructured abstract, 216 words, under the 250-word SRS limit
-- Cover letter: `submission_docs/cover_letter_srs.md`
-- Competing interest declaration: included in manuscript
+- Cover letter: `submission_docs/cover_letter_srs.md` and plain-text upload copy `submission_docs/cover_letter_srs.txt`
+- Competing interest declaration: included in manuscript and separate upload file `submission_docs/declaration_of_competing_interests_srs.txt`
 - Funding statement: included in manuscript
 - Data and code availability: included in manuscript and separate text file; DOI repository snapshot is still an upload-time action
 - Generative AI declaration: included in manuscript following Elsevier-style disclosure
@@ -49,5 +49,5 @@ The checklist below follows the SRS/Elsevier author-facing requirements visible 
 - Add the repository DOI to the manuscript Data and Code Availability section and submission metadata if available before upload.
 - Add a phone number manually if Editorial Manager requires one; none was provided in the author details received for this package.
 - Check whether the live upload system asks for a graphical abstract. None is currently prepared.
-- Check whether SRS requires separate declaration-of-interest and CRediT entry forms in addition to manuscript text.
+- If Editorial Manager requires a form-field declaration of interest, paste the prepared no-competing-interests text from `submission_docs/declaration_of_competing_interests_srs.txt`; CRediT remains included in the manuscript for the single author.
 - Confirm whether the transfer workflow imports old RSE metadata; if so, overwrite the title, abstract, highlights, and cover letter with the SRS versions.
