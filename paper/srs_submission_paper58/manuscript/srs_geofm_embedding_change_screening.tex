@@ -196,73 +196,65 @@ The dynamics component (GeoFM-LDN) corresponds to the JEPA framework \citep{lecu
 \centering
 \resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
-    node distance=1.2cm and 1.8cm,
-    box/.style={draw, rounded corners, minimum height=1.0cm, minimum width=2.6cm, align=center, font=\small},
+    node distance=0.9cm and 1.05cm,
+    box/.style={draw, rounded corners, minimum height=0.78cm, minimum width=2.25cm, align=center, font=\scriptsize, inner sep=3pt},
     frozen/.style={box, fill=blue!12, draw=blue!50, thick},
     learned/.style={box, fill=orange!15, draw=orange!60, thick},
-    input/.style={box, fill=green!10, draw=green!50, dashed},
+    reserved/.style={box, fill=green!8, draw=green!50, dashed},
+    input/.style={box, fill=green!10, draw=green!50},
     output/.style={box, fill=gray!10, draw=gray!50},
-    arr/.style={-{Stealth[length=3mm]}, thick},
+    eval/.style={box, fill=gray!8, draw=gray!45},
+    arr/.style={-{Stealth[length=2.4mm]}, thick},
+    evalarr/.style={-{Stealth[length=2.4mm]}, thick, gray!70},
     label/.style={font=\scriptsize\itshape, text=gray!70},
 ]
 
-% Row 1: Inputs
-\node[input] (sat) {Satellite\\Observations};
-\node[input, right=2.5cm of sat] (scenario) {Scenario\\$\sigma \in \mathbb{R}^{16}$};
-\node[input, right=2.5cm of scenario] (terrain) {Terrain Context\\DEM + Slope};
+% Core embedding-dynamics path
+\node[input] (sat) {Satellite\\observations};
+\node[frozen, right=of sat] (encoder) {AlphaEarth\\encoder\\{\scriptsize frozen}};
+\node[output, right=of encoder] (zt) {$z_t$\\{\scriptsize 64 $\times$ $H$ $\times$ $W$}};
+\node[learned, right=1.15cm of zt, minimum width=3.35cm] (dynamics) {LatentDynamicsNet $f_\theta$\\{\scriptsize dilated conv + residual}\\{\scriptsize learned}};
+\node[learned, right=1.15cm of dynamics, minimum width=2.2cm] (norm) {L2\\normalize};
+\node[output, right=of norm] (ztp1) {$\hat{z}_{t+1}$\\{\scriptsize unit sphere}};
 
-% Row 2: Encoder + Scenario MLP
-\node[frozen, below=1.0cm of sat] (encoder) {AlphaEarth\\Encoder\\{\scriptsize(480M params, frozen)}};
-\node[learned, below=1.0cm of scenario] (smlp) {Scenario MLP\\$s_\phi: \mathbb{R}^{16} \to \mathbb{R}^{64}$};
+% Auxiliary inputs into the dynamics model
+\node[reserved, above=1.75cm of dynamics, xshift=-1.45cm] (scenario) {Scenario\\{\scriptsize baseline only}};
+\node[reserved, below=0.42cm of scenario] (smlp) {Scenario MLP\\{\scriptsize reserved}};
+\node[input, above=1.12cm of dynamics, xshift=1.55cm] (terrain) {Terrain context\\{\scriptsize DEM + slope}};
 
-% Row 3: Embedding
-\node[output, below=1.0cm of encoder] (zt) {$z_t \in \mathbb{R}^{64 \times H \times W}$};
+% Evaluation-only categorical path
+\node[eval, below=1.35cm of ztp1] (decoder) {Linear probe\\{\scriptsize evaluation only}};
+\node[output, right=of decoder] (lulc) {Decoded\\LULC map};
+\node[learned, right=of lulc, minimum width=2.35cm] (allocation) {SA-Alloc\\{\scriptsize optional}};
+\node[output, right=of allocation] (calibrated) {Calibrated\\LULC map};
 
-% Row 4: Dynamics
-\node[learned, below=1.5cm of smlp, minimum width=5cm] (dynamics) {LatentDynamicsNet $f_\theta$\\{\scriptsize Dilated Conv (d=1,2,4) + Residual}\\{\scriptsize (459K params, learned)}};
-
-% Row 5: Normalize
-\node[learned, below=1.0cm of dynamics, minimum width=3.5cm] (norm) {L2 Normalize\\$z / \|z\|_2$};
-
-% Row 6: Output + Decoder
-\node[output, below=1.0cm of norm] (ztp1) {$\hat{z}_{t+1} \in S^{63}$};
-\node[output, right=2.0cm of ztp1] (lulc) {LULC Map};
-\node[learned, right=2.0cm of lulc, minimum width=2.6cm] (allocation) {Scale-adaptive\\Allocation};
-\node[output, right=2.0cm of allocation] (calibrated) {Calibrated\\LULC Map};
-
-% Decoder
-\node[frozen, below right=0.3cm and 0.5cm of ztp1, minimum width=2.2cm] (decoder) {Linear Probe\\{\scriptsize(Logistic Reg.)}};
-
-% Arrows: inputs to processing
+% Main path arrows
 \draw[arr] (sat) -- (encoder);
 \draw[arr] (encoder) -- (zt);
-\draw[arr] (scenario) -- (smlp);
-
-% Concat arrows into dynamics
-\draw[arr] (zt.south) -- ++(0,-0.4) -| ([xshift=-1.5cm]dynamics.north);
-\draw[arr] (smlp.south) -- ([xshift=0cm]dynamics.north);
-\draw[arr] (terrain.south) -- ++(0,-2.15) -| ([xshift=1.5cm]dynamics.north);
-
-% Dynamics to normalize
+\draw[arr] (zt) -- (dynamics);
 \draw[arr] (dynamics) -- (norm);
-
-% Normalize to output
 \draw[arr] (norm) -- (ztp1);
 
-% Autoregressive loop
-\draw[arr, dashed, blue!60] (ztp1.west) -- ++(-2.8,0) |- ([xshift=-1.5cm]dynamics.north west) node[pos=0.25, above, label] {autoregressive};
+% Auxiliary arrows: kept separate from the main path
+\draw[arr, dashed, gray!70] (scenario) -- (smlp);
+\draw[arr, dashed, gray!70] (smlp.south) to[out=-90,in=110] ([xshift=-0.9cm]dynamics.north);
+\draw[arr] (terrain.south) to[out=-90,in=70] ([xshift=0.9cm]dynamics.north);
 
-% Decoder path
-\draw[arr, gray] (ztp1) -- (decoder);
-\draw[arr, gray] (decoder) -- (lulc);
-\draw[arr, gray] (lulc) -- (allocation);
-\draw[arr, gray] (allocation) -- (calibrated);
+% Autoregressive feedback during rollout
+\draw[arr, dashed, blue!65] (ztp1.south west) -- ++(0,-0.48) -| (dynamics.south);
+\node[label, blue!65] at ($(norm.south west)!0.5!(ztp1.south west)+(0,-0.68)$) {autoregressive feedback};
 
-% Labels
-\node[label, above=0.05cm of encoder] {Layer 1: Frozen};
-\node[label, above=0.05cm of dynamics] {Layer 2: Learned};
-\node[label, below=0.05cm of decoder, text=gray!60] {Visualization only};
-\node[label, below=0.05cm of allocation, text=gray!60] {Categorical evaluation only};
+% Evaluation path arrows
+\draw[evalarr] (ztp1.south east) -- (decoder.north west);
+\draw[evalarr] (decoder) -- (lulc);
+\draw[evalarr] (lulc) -- (allocation);
+\draw[evalarr] (allocation) -- (calibrated);
+
+% Scope labels
+\node[label, above=0.05cm of encoder] {frozen representation};
+\node[label, above=0.05cm of dynamics] {learned dynamics};
+\node[label, below=0.05cm of decoder] {not used for dynamics training};
+\node[label, below=0.05cm of allocation] {categorical evaluation only};
 
 \end{tikzpicture}
 }
