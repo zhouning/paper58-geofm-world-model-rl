@@ -6,6 +6,6 @@ The public repository is available at https://github.com/zhouning/paper58-geofm-
 
 No human-participant, animal-subject, or access-restricted data are used.
 
-## Recommended before final upload
+## High-priority before final upload
 
-Create a Zenodo or institutional repository DOI snapshot for the exact submitted GitHub state before final upload, then add the DOI to the submission metadata if available. The current manuscript uses the GitHub URL because the DOI does not exist at package-preparation time.
+Create a Zenodo or institutional repository DOI snapshot for the exact submitted GitHub state before final upload, then add the DOI to the manuscript and submission metadata if available. This is the safest way to satisfy SRS/Elsevier research-data deposit expectations; the current manuscript uses the GitHub URL because the DOI does not exist at package-preparation time.

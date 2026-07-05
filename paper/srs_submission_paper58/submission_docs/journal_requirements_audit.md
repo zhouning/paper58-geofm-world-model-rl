@@ -1,11 +1,11 @@
 # Science of Remote Sensing / Elsevier requirements audit
 
-Official pages checked on 2026-07-04:
+Official pages checked on 2026-07-05:
 
 - Journal page: https://www.sciencedirect.com/journal/science-of-remote-sensing
 - Guide for Authors: https://www.sciencedirect.com/journal/science-of-remote-sensing/publish/guide-for-authors
 
-The checklist below follows the SRS/Elsevier author-facing requirements visible on 2026-07-04. Recheck the live Editorial Manager upload flow because Elsevier pages and transfer forms are dynamic.
+The checklist below follows the SRS/Elsevier author-facing requirements visible on 2026-07-05. Recheck the live Editorial Manager upload flow because Elsevier pages and transfer forms are dynamic.
 
 ## Prepared items
 
@@ -13,31 +13,41 @@ The checklist below follows the SRS/Elsevier author-facing requirements visible 
 - Main manuscript PDF: compiled from the source after verification
 - Highlights: `submission_docs/highlights_srs.txt`, 5 bullets, each under 85 characters
 - Keywords: 7 keywords in the manuscript
-- Abstract: unstructured abstract, currently under 250 words
+- Abstract: unstructured abstract, 216 words, under the 250-word SRS limit
 - Cover letter: `submission_docs/cover_letter_srs.md`
 - Competing interest declaration: included in manuscript
 - Funding statement: included in manuscript
-- Data and code availability: included in manuscript and separate text file; persistent DOI snapshot remains an upload-time author action
+- Data and code availability: included in manuscript and separate text file; DOI repository snapshot is still an upload-time action
 - Generative AI declaration: included in manuscript following Elsevier-style disclosure
 - CRediT author statement: included in manuscript for the single author
-- Figures: copied into `figures/` for separate upload if requested
-- References: switched to numeric square-bracket natbib style for Elsevier compatibility
+- Figures: 2 referenced external figures copied into `figures/` and `manuscript/figures/`; PNG companions are available for upload if requested
+- Figure/table citation rule: 22 figure/table labels, all cited in text, no missing label refs
+- References: numeric square-bracket natbib style for Elsevier compatibility; cited keys and bibitems are consistent
 - Peer review model: SRS uses single anonymized review, so author-identifying title-page information is retained
 
 ## SRS-specific reframing checks
 
 - The title now leads with remote-sensing foundation-model embeddings and LULC screening, not a generic world-model claim.
-- The abstract reports the negative persistence result and the bounded change-screening result.
+- The abstract reports the negative/non-significant persistence result and the bounded change-screening result.
 - The Introduction starts from LULC change assessment and validation practice.
 - Related Work includes land-cover product validation and accuracy assessment.
 - The Discussion frames the contribution as foundation-model embedding validation for remote sensing.
-- The manuscript explicitly rejects operational forecasting and native-driver replacement claims.
+- The manuscript explicitly rejects operational forecasting, scenario-conditioned world-model, and native-driver replacement claims.
+
+## Evidence-chain checks
+
+- Current 30-area aligned-cache result: `experiments/macos_r2/results/retrain_v2/eval_paired_tests.json` and `experiments/macos_r2/v4_manuscript_numbers.json`.
+- Mismatch/old-cache result: retained only as a reproducibility warning, not as the current SRS evidence source.
+- ESRI product-label validation: `paper/rse_submission_paper58/revision_results/independent_change_validation_summary.json` and `independent_change_validation_by_area.csv`.
+- Decoder confusion figure: `src/adk_world_model/experiments/output/world_model_lulc_decode.json`.
+- Spatial validation figure: Banzhucun 2020-2023 labels/prediction arrays under `data/independent_change_labels/`.
+- Old SRS figure files not referenced by the current manuscript have been removed from the SRS package.
 
 ## Remaining upload-time checks
 
-- Corresponding-author email and postal address have been inserted from the author's provided information.
-- Create a DOI-archived repository snapshot before final upload, then add the DOI to the submission metadata if available.
+- Create a DOI-archived Zenodo or institutional repository snapshot for the exact submitted GitHub state before final upload if the SRS/Elsevier workflow enforces repository-deposited research data. Treat this as high priority because SRS follows a research-data deposit policy, not merely a mutable code-link preference.
+- Add the repository DOI to the manuscript Data and Code Availability section and submission metadata if available before upload.
+- Add a phone number manually if Editorial Manager requires one; none was provided in the author details received for this package.
 - Check whether the live upload system asks for a graphical abstract. None is currently prepared.
 - Check whether SRS requires separate declaration-of-interest and CRediT entry forms in addition to manuscript text.
-- Add a phone number manually if Editorial Manager requires one; none was provided in the author details received for this package.
 - Confirm whether the transfer workflow imports old RSE metadata; if so, overwrite the title, abstract, highlights, and cover letter with the SRS versions.
