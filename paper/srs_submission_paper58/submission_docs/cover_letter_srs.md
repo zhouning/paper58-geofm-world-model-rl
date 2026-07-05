@@ -1,20 +1,25 @@
-Dear Editors,
+5 July 2026
 
-We submit the manuscript entitled "Remote-Sensing Foundation-Model Embeddings for Land-Cover Change Screening and Allocation Diagnostics" for consideration as an Article in Science of Remote Sensing.
+Dear Editors of *Science of Remote Sensing*,
 
-The manuscript evaluates whether frozen AlphaEarth Foundations embeddings can support remote-sensing land-use and land-cover (LULC) change screening and low-input allocation diagnostics. The revised manuscript is framed as a validation study rather than as a general deep-learning or world-model paper. It separates three evidence layers: embedding-space dynamics, decoded categorical change screening, and controlled same-grid allocation. This separation is central to the paper because the results show a bounded but useful change-screening signal, while rejecting stronger claims of standalone categorical forecasting or replacement of locally calibrated cellular-automata models.
+Please consider our manuscript, "Remote-Sensing Foundation-Model Embeddings for Land-Cover Change Screening and Allocation Diagnostics", for publication as a Research Article in *Science of Remote Sensing*.
 
-The study should fit Science of Remote Sensing because it addresses remote-sensing foundation-model representations, LULC change assessment, data science and machine learning for Earth observation, and training/validation of remote-sensing products. The evidence includes 30 complete 2017-2024 AlphaEarth areas, separate ESRI product-label categorical validation, persistence and transition-prior baselines, a spatially shuffled negative control, paired inference, class-area bias diagnostics, and reproducible cache-alignment checks.
+The manuscript evaluates whether frozen AlphaEarth Foundations embeddings contain useful annual land-use and land-cover (LULC) change signal under remote-sensing validation criteria. Rather than presenting the system as a standalone forecasting model, we deliberately separate three evidence layers: embedding-space dynamics, decoded categorical change screening, and controlled same-grid allocation diagnostics. This separation is central to the manuscript because the results support a bounded change-screening use case while rejecting stronger claims of full-map categorical forecasting or replacement of locally calibrated cellular-automata modelling.
 
-This version was substantially revised after a scope-based desk decision at Remote Sensing of Environment. The previous framing foregrounded the deep-learning/world-model aspect. The present version has been rewritten for a remote-sensing audience: the title and abstract now lead with LULC change screening and validation; the Introduction and Related Work add land-cover product validation and accuracy-assessment practice; and the Discussion explicitly limits the claims to change-screening and allocation diagnostics.
+We believe the manuscript is well aligned with *Science of Remote Sensing* because it addresses remote-sensing foundation-model representations, LULC change assessment, product-label validation, machine learning for Earth observation, and reproducible evaluation practice. The study uses 30 complete 2017-2024 AlphaEarth areas; separately extracted ESRI annual LULC product labels; persistence, transition-prior, and spatially shuffled controls; paired inference; class-area bias diagnostics; and cache-alignment checks. The key result is intentionally cautious: decoded GeoFM-LDN predictions improve binary change F1 over controls on positive-change pairs, but they do not outperform persistence or transition priors on full-map end-year accuracy or area-bias metrics. This makes the work most useful as a validation study of where frozen remote-sensing embeddings can and cannot be used.
 
-All source data are public. The code, processed caches, model checkpoints, figure source data, and analysis scripts are available in the public GitHub repository: https://github.com/zhouning/paper58-geofm-world-model-rl. A DOI-archived snapshot can be linked in the submission metadata when available.
+If this submission is handled through an Elsevier transfer workflow, the current *Science of Remote Sensing* submission package should supersede any earlier Remote Sensing of Environment metadata. The title, abstract, highlights, cover letter, and manuscript framing have been rewritten for a remote-sensing validation audience, and the discussion explicitly limits the claims to change screening and allocation diagnostics.
 
-The author declares no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper. The manuscript is original, is not under consideration elsewhere, and all reported experiments and conclusions have been checked by the author.
+All source data used in the study are public. The public repository at https://github.com/zhouning/paper58-geofm-world-model-rl contains the processed embedding caches, trained GeoFM-LDN checkpoints, result tables, figure source data, manuscript figures, and scripts needed to regenerate the reported diagnostics. A DOI-archived repository snapshot can be supplied in the submission metadata if required by the upload workflow.
+
+The manuscript is original, is not under consideration elsewhere, and has been approved for submission by the author. The author declares no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper. No human-participant, animal-subject, or access-restricted data are used. Generative AI tools were used only for language editing, manuscript polishing, LaTeX formatting, and consistency checks; the reported experiments, data, statistical results, references, figures, tables, and scientific conclusions were checked by the author.
+
+Thank you for considering this manuscript.
 
 Sincerely,
 
 Ning Zhou
 SuperMap Software Co., Ltd.
-Building 107, No. A10, Jiuxianqiao North Road, Chaoyang District, Beijing 100015, China
+Building 107, No. A10, Jiuxianqiao North Road, Chaoyang District
+Beijing 100015, China
 Corresponding author email: zhouning1@supermap.com
